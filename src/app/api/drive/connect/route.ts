@@ -1,0 +1,85 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { connectToDatabase } from '@/lib/db';
+import { FacilityModel } from '@/models/Facility';
+import { getSessionFromRequest } from '@/lib/auth';
+
+export async function GET(request: NextRequest) {
+  try {
+    await connectToDatabase();
+    const { searchParams } = new URL(request.url);
+    const facilityId = (searchParams.get('facilityId') || 'TRIDENT_PAPER').toUpperCase().trim();
+
+    const facility = await FacilityModel.findOne({ facilityId }).lean();
+    if (!facility) {
+      return NextResponse.json({
+        success: true,
+        data: {
+          isConnected: false,
+          folderUrl: 'https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7',
+          folderName: 'Carbon Crunch · Compliance Documents & Evidence Vault',
+          spreadsheetUrl: '',
+          lastSyncedAt: null,
+          syncedMonthsCount: 0,
+        },
+      });
+    }
+
+    const driveConnection = facility.driveConnection || {
+      isConnected: false,
+      folderUrl: 'https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7',
+      folderName: `${facility.name} Compliance Vault`,
+      spreadsheetUrl: '',
+      lastSyncedAt: null,
+      syncedMonthsCount: 0,
+    };
+
+    return NextResponse.json({
+      success: true,
+      data: driveConnection,
+    });
+  } catch (error) {
+    console.error('Error fetching Drive connection:', error);
+    return NextResponse.json({ success: false, error: 'Failed to fetch Drive connection' }, { status: 500 });
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    await connectToDatabase();
+    const session = getSessionFromRequest(request);
+    const body = await request.json();
+
+    const facilityId = (body.facilityId || 'TRIDENT_PAPER').toUpperCase().trim();
+    const folderUrl = body.folderUrl?.trim();
+    const folderName = body.folderName?.trim() || 'Compliance Evidence Drive';
+    const spreadsheetUrl = body.spreadsheetUrl?.trim() || '';
+
+    if (!folderUrl) {
+      return NextResponse.json({ success: false, error: 'Google Drive folder URL is required' }, { status: 400 });
+    }
+
+    const facility = await FacilityModel.findOneAndUpdate(
+      { facilityId },
+      {
+        $set: {
+          'driveConnection.isConnected': true,
+          'driveConnection.folderUrl': folderUrl,
+          'driveConnection.folderName': folderName,
+          'driveConnection.spreadsheetUrl': spreadsheetUrl,
+          'driveConnection.lastSyncedAt': new Date(),
+        },
+      },
+      { upsert: true, new: true }
+    );
+
+    return NextResponse.json({
+      success: true,
+      message: 'Google Drive repository connected successfully!',
+      data: facility.driveConnection,
+    });
+  } catch (error) {
+    console.error('Error connecting Google Drive:', error);
+    return NextResponse.json({ success: false, error: 'Failed to connect Google Drive' }, { status: 500 });
+  }
+}
+

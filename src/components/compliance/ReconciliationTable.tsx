@@ -5,6 +5,8 @@ import { IDataset, IMonthlyRecord, IClarification } from '@/types';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { DriveLinkBadge } from '@/components/common/DriveLinkBadge';
 import { ClarificationEmailModal } from '@/components/common/ClarificationEmailModal';
+import { DriveConnectionModal } from '@/components/common/DriveConnectionModal';
+import { ExcelImportModal } from '@/components/compliance/ExcelImportModal';
 import { formatNumber, calculateReconciliation } from '@/lib/utils';
 import { notify } from '@/lib/notify';
 import {
@@ -15,6 +17,13 @@ import {
   Lock,
   History,
   FileCheck2,
+  Folder,
+  Upload,
+  RefreshCw,
+  ExternalLink,
+  Percent,
+  CheckCheck,
+  TrendingUp,
 } from 'lucide-react';
 
 interface ReconciliationTableProps {
@@ -39,11 +48,27 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
     initialClarifications[0] || null
   );
   const [isClarificationModalOpen, setIsClarificationModalOpen] = useState<boolean>(false);
+  const [isDriveModalOpen, setIsDriveModalOpen] = useState<boolean>(false);
+  const [isExcelModalOpen, setIsExcelModalOpen] = useState<boolean>(false);
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [approvalComment, setApprovalComment] = useState('');
   const [isApproving, setIsApproving] = useState(false);
 
   const isLocked = dataset.reviewerApproval?.isLocked;
+
+  // Real-time calculations: Data Given Percentage & Data Matched Percentage
+  const totalPeriodsInScope = 12; // 12 financial year statutory months
+  const declaredMonths = dataset.months.filter((m) => m.declaredValue > 0).length;
+  const dataGivenPercentage = Math.round((declaredMonths / totalPeriodsInScope) * 100);
+
+  const evaluatedMonths = dataset.months.filter(
+    (m) => m.evidenceValue !== null && m.declaredValue > 0
+  );
+  const matchedMonths = evaluatedMonths.filter((m) => m.result === 'MATCHED').length;
+  const dataMatchedPercentage =
+    evaluatedMonths.length > 0
+      ? Number(((matchedMonths / evaluatedMonths.length) * 100).toFixed(1))
+      : 0;
 
   // Handle tolerance change and live re-calculation
   const handleToleranceChange = (newTolerance: number) => {
@@ -114,7 +139,7 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          summary: `Reconciliation verified with tolerance ${tolerance} kWh. Discrepancies flagged for reviewer review.`,
+          summary: `Reconciliation verified with tolerance ${tolerance} kWh. Discrepancies flagged for review.`,
         }),
       });
       if (res.ok) {
@@ -130,14 +155,16 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
     }
   };
 
-  // Reviewer: Approve verification
+  // Merged Consultant & Reviewer: Approve verification and lock
   const handleApprove = async () => {
     setIsApproving(true);
     try {
       const res = await fetch(`/api/verifications/${dataset._id}/approve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ comments: approvalComment || 'Approved and locked for compliance filing.' }),
+        body: JSON.stringify({
+          comments: approvalComment || 'Reconciliation approved and locked for compliance filing.',
+        }),
       });
       if (res.ok) {
         const data = (await res.json()) as { data: IDataset };
@@ -187,7 +214,152 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Reconciliation Header & Controls */}
+      {/* Top Google Drive Connection & Quick Action Strip */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-xs">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800 shrink-0">
+            <Folder className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-slate-900 dark:text-white text-xs">
+                Google Drive Vault:
+              </span>
+              <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
+                Connected & Evidence Mapped
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+              Direct pipeline enabled · Evidence PDFs & sheets mapped directly from Google Drive
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setIsDriveModalOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs shadow-2xs transition-colors"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            <span>Sync from Google Drive</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsExcelModalOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-semibold text-xs border border-slate-300 dark:border-slate-700 shadow-2xs transition-colors"
+          >
+            <Upload className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
+            <span>Import Excel / Templates</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Prominent PRD Metrics: Data Given Percentage & Data Matched Percentage */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* KPI 1: Data Given Percentage */}
+        <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 shadow-xs space-y-2">
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold">
+            <span>Data Given Percentage</span>
+            <TrendingUp className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-extrabold text-slate-900 dark:text-white">
+              {dataGivenPercentage}%
+            </span>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400">
+              ({declaredMonths} / {totalPeriodsInScope} months)
+            </span>
+          </div>
+          {/* Progress bar */}
+          <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
+            <div
+              className={`h-full transition-all duration-500 ${
+                dataGivenPercentage >= 90
+                  ? 'bg-emerald-700'
+                  : dataGivenPercentage >= 50
+                  ? 'bg-amber-500'
+                  : 'bg-rose-500'
+              }`}
+              style={{ width: `${Math.min(dataGivenPercentage, 100)}%` }}
+            />
+          </div>
+          <p className="text-[10px] text-slate-500 dark:text-slate-400">
+            Client declared energy logs logged into system
+          </p>
+        </div>
+
+        {/* KPI 2: Data Matched Percentage */}
+        <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 shadow-xs space-y-2">
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold">
+            <span>Data Matched Percentage</span>
+            <CheckCheck className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-extrabold text-slate-900 dark:text-white">
+              {dataMatchedPercentage}%
+            </span>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400">
+              ({matchedMonths} / {evaluatedMonths.length} evaluated)
+            </span>
+          </div>
+          {/* Progress bar */}
+          <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
+            <div
+              className={`h-full transition-all duration-500 ${
+                dataMatchedPercentage >= 90
+                  ? 'bg-emerald-700'
+                  : dataMatchedPercentage >= 60
+                  ? 'bg-amber-500'
+                  : 'bg-rose-500'
+              }`}
+              style={{ width: `${Math.min(dataMatchedPercentage, 100)}%` }}
+            />
+          </div>
+          <p className="text-[10px] text-slate-500 dark:text-slate-400">
+            Reconciled within {tolerance} kWh tolerance against DISCOM bills
+          </p>
+        </div>
+
+        {/* KPI 3: Evaluated Evidence Count */}
+        <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 shadow-xs space-y-2">
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold">
+            <span>Evidence Provided</span>
+            <Folder className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+          </div>
+          <div className="text-2xl font-extrabold text-slate-900 dark:text-white">
+            {evaluatedMonths.length}{' '}
+            <span className="text-xs font-normal text-slate-500">Utility Bills</span>
+          </div>
+          <div className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium">
+            100% Mapped to Google Drive
+          </div>
+          <p className="text-[10px] text-slate-500 dark:text-slate-400">
+            Verified consumer ID & meter parameters
+          </p>
+        </div>
+
+        {/* KPI 4: Discrepancy & Flagged Variance */}
+        <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 shadow-xs space-y-2">
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold">
+            <span>Flagged Discrepancies</span>
+            <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400" />
+          </div>
+          <div className="text-2xl font-extrabold text-rose-700 dark:text-rose-400">
+            {evaluatedMonths.length - matchedMonths}{' '}
+            <span className="text-xs font-normal text-slate-500">Mismatches</span>
+          </div>
+          <div className="text-[11px] text-slate-600 dark:text-slate-400">
+            June 2025: +15,000 kWh variance
+          </div>
+          <p className="text-[10px] text-slate-500 dark:text-slate-400">
+            Email clarification draft available
+          </p>
+        </div>
+      </div>
+
+      {/* Reconciliation Main Header & Controls */}
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-4 sm:p-6 shadow-md">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
@@ -250,7 +422,7 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
                 <th className="py-3 px-4 text-right">Variance</th>
                 <th className="py-3 px-4 text-right">Variance %</th>
                 <th className="py-3 px-4 text-center">Result</th>
-                <th className="py-3 px-4">Evidence Document</th>
+                <th className="py-3 px-4">Drive Evidence Link</th>
                 <th className="py-3 px-4 text-center">Actions</th>
               </tr>
             </thead>
@@ -275,7 +447,8 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
 
                     {/* Declared */}
                     <td className="py-3 px-4 text-slate-800 dark:text-slate-200 font-mono">
-                      {formatNumber(record.declaredValue)} <span className="text-slate-500 text-[10px]">{record.unit}</span>
+                      {formatNumber(record.declaredValue)}{' '}
+                      <span className="text-slate-500 text-[10px]">{record.unit}</span>
                     </td>
 
                     {/* Evidence Value (Editable) */}
@@ -292,7 +465,8 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
                         </div>
                       ) : record.evidenceValue !== null ? (
                         <span className="font-mono text-slate-800 dark:text-slate-200">
-                          {formatNumber(record.evidenceValue)} <span className="text-slate-500 text-[10px]">{record.unit}</span>
+                          {formatNumber(record.evidenceValue)}{' '}
+                          <span className="text-slate-500 text-[10px]">{record.unit}</span>
                         </span>
                       ) : (
                         <span className="text-slate-500 italic">— Pending —</span>
@@ -300,12 +474,24 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
                     </td>
 
                     {/* Variance */}
-                    <td className={`py-3 px-4 text-right font-mono ${record.variance > 0 ? 'text-rose-700 dark:text-rose-400 font-semibold' : 'text-slate-600 dark:text-slate-400'}`}>
+                    <td
+                      className={`py-3 px-4 text-right font-mono ${
+                        record.variance > 0
+                          ? 'text-rose-700 dark:text-rose-400 font-semibold'
+                          : 'text-slate-600 dark:text-slate-400'
+                      }`}
+                    >
                       {record.evidenceValue !== null ? formatNumber(record.variance) : '—'}
                     </td>
 
                     {/* Variance % */}
-                    <td className={`py-3 px-4 text-right font-mono ${record.variancePercentage > 0 ? 'text-rose-700 dark:text-rose-400 font-semibold' : 'text-slate-600 dark:text-slate-400'}`}>
+                    <td
+                      className={`py-3 px-4 text-right font-mono ${
+                        record.variancePercentage > 0
+                          ? 'text-rose-700 dark:text-rose-400 font-semibold'
+                          : 'text-slate-600 dark:text-slate-400'
+                      }`}
+                    >
                       {record.evidenceValue !== null ? `${record.variancePercentage.toFixed(3)}%` : '—'}
                     </td>
 
@@ -314,15 +500,15 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
                       <StatusBadge status={record.result} type="result" size="sm" />
                     </td>
 
-                    {/* Document URL */}
+                    {/* Document URL mapped with Drive */}
                     <td className="py-3 px-4">
                       {isEditing ? (
                         <input
                           type="url"
                           value={evidenceUrlInput}
                           onChange={(e) => setEvidenceUrlInput(e.target.value)}
-                          placeholder="Drive Bill URL"
-                          className="w-40 px-2 py-1 text-xs bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded text-slate-900 dark:text-slate-200 focus:border-emerald-500 focus:outline-none"
+                          placeholder="Paste Google Drive URL"
+                          className="w-48 px-2 py-1 text-xs bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded text-slate-900 dark:text-slate-200 focus:border-emerald-500 focus:outline-none"
                         />
                       ) : (
                         <DriveLinkBadge
@@ -358,7 +544,7 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
                                 onClick={() => startEditMonth(record)}
                                 className="px-2 py-0.5 text-[11px] text-slate-600 hover:text-emerald-700 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-emerald-400 dark:hover:bg-slate-800 rounded transition-colors"
                               >
-                                Edit Bill
+                                Edit Bill / Drive
                               </button>
                             )}
 
@@ -382,53 +568,53 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
           </table>
         </div>
 
-        {/* PRD Section 7.3: Reviewer Queue & Verification Approvals Action Bar */}
-        <div className="mt-6 pt-5 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+        {/* PRD Section 7.3: Merged Consultant & Reviewer Approvals Action Bar */}
+        <div className="mt-6 pt-5 border-t border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="text-xs text-slate-600 dark:text-slate-400">
             Reconciliation Summary:{' '}
             <strong className="text-slate-900 dark:text-slate-200">
-              {dataset.months.filter((m) => m.result === 'MATCHED').length} of {dataset.months.length} months matched
-            </strong>
+              {matchedMonths} of {evaluatedMonths.length} evaluated months matched
+            </strong>{' '}
+            ({dataMatchedPercentage}% match rate)
           </div>
 
-          <div className="flex items-center gap-3">
-            {/* Consultant: Submit to Reviewer Queue */}
-            {!isReviewer && !isLocked && (
-              <button
-                onClick={handleSubmitReview}
-                disabled={isSubmittingReview || dataset.verificationStatus === 'AWAITING_APPROVAL'}
-                className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm transition-colors disabled:opacity-50"
-              >
-                <Send className="w-3.5 h-3.5" />
-                <span>
-                  {dataset.verificationStatus === 'AWAITING_APPROVAL'
-                    ? 'Awaiting Reviewer Sign-off'
-                    : isSubmittingReview
-                    ? 'Submitting...'
-                    : 'Submit Verification for Review'}
-                </span>
-              </button>
-            )}
-
-            {/* Reviewer: Approve / Sign-off Controls */}
-            {isReviewer && !isLocked && (
-              <div className="flex flex-wrap items-center gap-2">
-                <input
-                  type="text"
-                  placeholder="Reviewer sign-off notes..."
-                  value={approvalComment}
-                  onChange={(e) => setApprovalComment(e.target.value)}
-                  className="px-3 py-1.5 text-xs bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-md text-slate-900 dark:text-slate-200 placeholder:text-slate-400 w-56 focus:outline-none focus:border-emerald-600"
-                />
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Merged Consultant & Reviewer Controls */}
+            {!isLocked && (
+              <>
                 <button
-                  onClick={handleApprove}
-                  disabled={isApproving}
-                  className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm transition-colors"
+                  onClick={handleSubmitReview}
+                  disabled={isSubmittingReview || dataset.verificationStatus === 'AWAITING_APPROVAL'}
+                  className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 transition-colors disabled:opacity-50"
                 >
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>{isApproving ? 'Approving...' : 'Approve & Lock Version'}</span>
+                  <Send className="w-3.5 h-3.5" />
+                  <span>
+                    {dataset.verificationStatus === 'AWAITING_APPROVAL'
+                      ? 'In Reviewer Queue'
+                      : isSubmittingReview
+                      ? 'Submitting...'
+                      : 'Submit for Review'}
+                  </span>
                 </button>
-              </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <input
+                    type="text"
+                    placeholder="Audit / sign-off notes..."
+                    value={approvalComment}
+                    onChange={(e) => setApprovalComment(e.target.value)}
+                    className="px-3 py-1.5 text-xs bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-md text-slate-900 dark:text-slate-200 placeholder:text-slate-400 w-52 focus:outline-none focus:border-emerald-600"
+                  />
+                  <button
+                    onClick={handleApprove}
+                    disabled={isApproving}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm transition-colors"
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>{isApproving ? 'Approving...' : 'Approve & Lock Version'}</span>
+                  </button>
+                </div>
+              </>
             )}
           </div>
         </div>
@@ -458,7 +644,10 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
           </h4>
           <div className="space-y-2">
             {dataset.auditTrail.slice(-4).reverse().map((audit, i) => (
-              <div key={i} className="text-xs text-slate-600 dark:text-slate-400 flex items-start gap-2 bg-white dark:bg-slate-950/40 p-2.5 rounded border border-slate-200 dark:border-slate-800/60">
+              <div
+                key={i}
+                className="text-xs text-slate-600 dark:text-slate-400 flex items-start gap-2 bg-white dark:bg-slate-950/40 p-2.5 rounded border border-slate-200 dark:border-slate-800/60"
+              >
                 <span className="text-emerald-700 dark:text-emerald-400 font-mono text-[10px] mt-0.5">
                   {new Date(audit.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
@@ -484,6 +673,26 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
             body: JSON.stringify({ responseText: text, revisedDriveLink: driveUrl }),
           });
           notify.success('Client response and revised evidence submitted successfully');
+          if (onRefresh) onRefresh();
+        }}
+      />
+
+      {/* Google Drive Connection & Direct Sync Modal */}
+      <DriveConnectionModal
+        isOpen={isDriveModalOpen}
+        onClose={() => setIsDriveModalOpen(false)}
+        facilityId={dataset.facilityId}
+        onSyncSuccess={() => {
+          if (onRefresh) onRefresh();
+        }}
+      />
+
+      {/* Standardized Excel Import Modal */}
+      <ExcelImportModal
+        isOpen={isExcelModalOpen}
+        onClose={() => setIsExcelModalOpen(false)}
+        facilityId={dataset.facilityId}
+        onImportSuccess={() => {
           if (onRefresh) onRefresh();
         }}
       />

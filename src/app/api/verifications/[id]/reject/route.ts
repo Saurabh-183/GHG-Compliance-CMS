@@ -12,8 +12,8 @@ export async function POST(
     await connectToDatabase();
     const { id } = await params;
     const session = getSessionFromRequest(request);
-    if (!authorizeRole(session, ['ADMIN', 'REVIEWER'])) {
-      return NextResponse.json({ error: 'Forbidden: Only Reviewers or Admins can reject verifications' }, { status: 403 });
+    if (!authorizeRole(session, ['ADMIN', 'CONSULTANT'])) {
+      return NextResponse.json({ error: 'Forbidden: Only Consultants or Admins can reject verifications' }, { status: 403 });
     }
 
     const dataset = await DatasetModel.findById(id);
@@ -55,7 +55,7 @@ export async function POST(
       const { Notification } = await import('@/models/Notification');
       await Notification.create({
         recipientRole: 'CONSULTANT',
-        senderRole: 'REVIEWER',
+        senderRole: 'CONSULTANT',
         senderName: reviewerName,
         type: 'DATASET_REJECTED',
         title: 'Dataset Returned by Reviewer',

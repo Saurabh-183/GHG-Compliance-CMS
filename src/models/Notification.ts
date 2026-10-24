@@ -10,9 +10,9 @@ export type NotificationType =
   | 'DEADLINE_EXTENDED';
 
 export interface INotification extends Document {
-  recipientRole: 'CONSULTANT' | 'REVIEWER' | 'CLIENT' | 'ADMIN' | 'ALL';
+  recipientRole: 'CONSULTANT' | 'CLIENT' | 'ADMIN' | 'ALL';
   recipientUserId?: string;
-  senderRole: 'CONSULTANT' | 'REVIEWER' | 'CLIENT' | 'ADMIN' | 'SYSTEM';
+  senderRole: 'CONSULTANT' | 'CLIENT' | 'ADMIN' | 'SYSTEM';
   senderName: string;
   type: NotificationType;
   title: string;
@@ -28,13 +28,13 @@ const NotificationSchema: Schema = new Schema(
     recipientRole: {
       type: String,
       required: true,
-      enum: ['CONSULTANT', 'REVIEWER', 'CLIENT', 'ADMIN', 'ALL'],
+      enum: ['CONSULTANT', 'CLIENT', 'ADMIN', 'ALL'],
     },
     recipientUserId: { type: String },
     senderRole: {
       type: String,
       required: true,
-      enum: ['CONSULTANT', 'REVIEWER', 'CLIENT', 'ADMIN', 'SYSTEM'],
+      enum: ['CONSULTANT', 'CLIENT', 'ADMIN', 'SYSTEM'],
     },
     senderName: { type: String, required: true },
     type: {

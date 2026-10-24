@@ -47,18 +47,12 @@ export async function seedDatabase() {
     email: 'consultant@carboncrunch.com',
     passwordHash,
     role: 'CONSULTANT',
-    designation: 'Senior Energy & Carbon Consultant',
+    designation: 'Senior Energy & Carbon Compliance Lead',
     avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop&crop=faces',
   });
 
-  const reviewerUser = await UserModel.create({
-    name: 'Dr. Rajesh Nair',
-    email: 'reviewer@carboncrunch.com',
-    passwordHash,
-    role: 'REVIEWER',
-    designation: 'Chief Compliance Auditor & Reviewer',
-    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces',
-  });
+  // All audit and reviewer sign-off permissions are unified under Consultant
+  const reviewerUser = consultantUser;
 
   // 2. Create Trident Group
   const tridentGroup = await ClientGroupModel.create({
@@ -762,13 +756,13 @@ export async function seedDatabase() {
       createdAt: new Date(Date.now() - 3600 * 1000 * 5), // 5 hours ago
     },
     {
-      recipientRole: 'REVIEWER',
-      recipientUserId: reviewerUser._id.toString(),
+      recipientRole: 'CONSULTANT',
+      recipientUserId: consultantUser._id.toString(),
       senderRole: 'CONSULTANT',
       senderName: 'Priya Sharma (Consultant)',
       type: 'REVIEW_REQUESTED',
-      title: 'Verification Sign-Off Requested',
-      message: 'Trident Paper FY2025-26 Grid Electricity Reconciliation v1 submitted for independent Reviewer sign-off & lock.',
+      title: 'Verification Sign-Off Ready',
+      message: 'Trident Paper FY2025-26 Grid Electricity Reconciliation v1 audited and ready for sign-off & lock.',
       facilityId: 'TRIDENT_PAPER',
       linkUrl: '/approvals',
       isRead: false,
@@ -777,8 +771,8 @@ export async function seedDatabase() {
     {
       recipientRole: 'CONSULTANT',
       recipientUserId: consultantUser._id.toString(),
-      senderRole: 'REVIEWER',
-      senderName: 'Dr. Rajesh Nair (Reviewer)',
+      senderRole: 'CONSULTANT',
+      senderName: 'Priya Sharma (Compliance Lead)',
       type: 'DATASET_APPROVED',
       title: 'Audit Sign-off Approved & Locked',
       message: 'FY2024-25 RCO Compliance Assessment verified against PSERC regulations and approved.',

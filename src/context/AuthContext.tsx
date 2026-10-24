@@ -31,16 +31,8 @@ const defaultUserForRole: Record<UserRole, IUser> = {
     name: 'Priya Sharma',
     email: 'consultant@carboncrunch.com',
     role: 'CONSULTANT',
-    designation: 'Senior Energy & Carbon Consultant',
+    designation: 'Senior Energy & Carbon Compliance Lead',
     avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop&crop=faces',
-  },
-  REVIEWER: {
-    _id: 'USR_REV_01',
-    name: 'Dr. Rajesh Nair',
-    email: 'reviewer@carboncrunch.com',
-    role: 'REVIEWER',
-    designation: 'Chief Compliance Auditor & Reviewer',
-    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces',
   },
   CLIENT: {
     _id: 'USR_CLIENT_01',
@@ -61,13 +53,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [currentRole, setCurrentRole] = useState<UserRole>('CONSULTANT');
   const [currentUser, setCurrentUser] = useState<IUser | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [theme, setTheme] = useState<'dark' | 'light'>('light');
 
   // Initialize theme and role on mount
   useEffect(() => {
-    // 1. Theme initialization
+    // 1. Theme initialization (Default to professional government-style theme)
     const savedTheme = localStorage.getItem('cc_theme') as 'dark' | 'light' | null;
-    const initialTheme = savedTheme || 'dark';
+    const initialTheme = savedTheme || 'light';
     setTheme(initialTheme);
     if (initialTheme === 'dark') {
       document.documentElement.classList.add('dark');

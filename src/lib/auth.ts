@@ -35,16 +35,14 @@ export function getSessionFromRequest(request: NextRequest): IAuthUserSession | 
   // For seamless demo switching without breaking API calls, support custom demo header
   const demoRole = request.headers.get('X-Demo-Role') as UserRole | null;
   const demoUser = request.headers.get('X-Demo-User-Id');
-  if (demoRole && ['ADMIN', 'CONSULTANT', 'REVIEWER', 'CLIENT'].includes(demoRole)) {
+  if (demoRole && ['ADMIN', 'CONSULTANT', 'CLIENT'].includes(demoRole)) {
     return {
       userId: demoUser || 'USR_DEMO',
       name:
         demoRole === 'ADMIN'
           ? 'Saurabh (Admin)'
           : demoRole === 'CONSULTANT'
-          ? 'Priya Sharma (Consultant)'
-          : demoRole === 'REVIEWER'
-          ? 'Dr. Rajesh Nair (Reviewer)'
+          ? 'Priya Sharma (Consultant & Compliance Lead)'
           : 'Vikram Singh (Trident Client)',
       email: `${demoRole.toLowerCase()}@carboncrunch.com`,
       role: demoRole,
@@ -70,7 +68,7 @@ export function isAuthorizedForFacility(
 ): boolean {
   if (!session) return false;
   // Internal roles can view all facilities
-  if (['ADMIN', 'CONSULTANT', 'REVIEWER'].includes(session.role)) {
+  if (['ADMIN', 'CONSULTANT'].includes(session.role)) {
     return true;
   }
   // Client role must have explicit authorization

@@ -14,8 +14,8 @@ export async function POST(
     await connectToDatabase();
     const { id } = await params;
     const session = getSessionFromRequest(request);
-    if (!authorizeRole(session, ['ADMIN', 'REVIEWER'])) {
-      return NextResponse.json({ error: 'Forbidden: Only Reviewers or Admins can approve verifications' }, { status: 403 });
+    if (!authorizeRole(session, ['ADMIN', 'CONSULTANT'])) {
+      return NextResponse.json({ error: 'Forbidden: Only Consultants or Admins can approve verifications' }, { status: 403 });
     }
 
     const dataset = await DatasetModel.findById(id);
@@ -73,11 +73,11 @@ export async function POST(
       await Promise.all([
         Notification.create({
           recipientRole: 'CONSULTANT',
-          senderRole: 'REVIEWER',
+          senderRole: 'CONSULTANT',
           senderName: reviewerName,
           type: 'DATASET_APPROVED',
           title: 'Verification Dataset Approved & Locked',
-          message: `Reviewer ${reviewerName} signed off and locked dataset for ${dataset.facilityId} (${dataset.period}). Version ${currentVersion}.`,
+          message: `Consultant ${reviewerName} signed off and locked dataset for ${dataset.facilityId} (${dataset.period}). Version ${currentVersion}.`,
           facilityId: dataset.facilityId,
           linkUrl: `/facilities/${dataset.facilityId}`,
           isRead: false,
@@ -85,11 +85,11 @@ export async function POST(
         }),
         Notification.create({
           recipientRole: 'CLIENT',
-          senderRole: 'REVIEWER',
+          senderRole: 'CONSULTANT',
           senderName: reviewerName,
           type: 'DATASET_APPROVED',
           title: 'Compliance Data Audited & Approved',
-          message: `Your compliance filing dataset for ${dataset.facilityId} (${dataset.period}) has been verified and locked by Chief Auditor ${reviewerName}.`,
+          message: `Your compliance filing dataset for ${dataset.facilityId} (${dataset.period}) has been verified and locked by Compliance Lead ${reviewerName}.`,
           facilityId: dataset.facilityId,
           linkUrl: '/portal/history',
           isRead: false,

@@ -26,42 +26,64 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
 }) => {
   const sizeClasses = size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-1 text-xs font-medium';
 
+  // Government Status Style Tokens:
+  // Success: text #237347, bg #E7F3EB, border #237347/30
+  // Warning: text #986A16, bg #FFF4D6, border #986A16/30
+  // Error: text #B42318, bg #FDECEC, border #B42318/30
+  // Info: text #245A91, bg #EAF1F8, border #245A91/30
+  // Neutral: text #596579, bg #F1F4F7, border #D5DCE5
+
   // Workflow Status styling
   if (type === 'workflow' || ['NOT_STARTED', 'DATA_COLLECTION', 'UNDER_REVIEW', 'APPROVED', 'SUBMITTED'].includes(status)) {
     switch (status) {
       case 'APPROVED':
         return (
-          <span className={`inline-flex items-center rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/60 ${sizeClasses}`}>
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-500 mr-1.5"></span>
+          <span
+            style={{ backgroundColor: '#E7F3EB', color: '#237347', borderColor: '#23734740' }}
+            className={`inline-flex items-center rounded-full border ${sizeClasses}`}
+          >
+            <span style={{ backgroundColor: '#237347' }} className="w-1.5 h-1.5 rounded-full mr-1.5"></span>
             Approved
           </span>
         );
       case 'SUBMITTED':
         return (
-          <span className={`inline-flex items-center rounded-full bg-blue-50 text-blue-800 border border-blue-300 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800/60 ${sizeClasses}`}>
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400 mr-1.5"></span>
+          <span
+            style={{ backgroundColor: '#EAF1F8', color: '#245A91', borderColor: '#245A9140' }}
+            className={`inline-flex items-center rounded-full border ${sizeClasses}`}
+          >
+            <span style={{ backgroundColor: '#245A91' }} className="w-1.5 h-1.5 rounded-full mr-1.5"></span>
             Submitted
           </span>
         );
       case 'UNDER_REVIEW':
         return (
-          <span className={`inline-flex items-center rounded-full bg-amber-50 text-amber-800 border border-amber-300 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800/60 ${sizeClasses}`}>
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-600 dark:bg-amber-400 mr-1.5"></span>
+          <span
+            style={{ backgroundColor: '#FFF4D6', color: '#986A16', borderColor: '#986A1640' }}
+            className={`inline-flex items-center rounded-full border ${sizeClasses}`}
+          >
+            <span style={{ backgroundColor: '#986A16' }} className="w-1.5 h-1.5 rounded-full mr-1.5"></span>
             Under Review
           </span>
         );
       case 'DATA_COLLECTION':
         return (
-          <span className={`inline-flex items-center rounded-full bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 ${sizeClasses}`}>
-            <span className="w-1.5 h-1.5 rounded-full bg-slate-500 dark:bg-slate-400 mr-1.5"></span>
+          <span
+            style={{ backgroundColor: '#F1F4F7', color: '#596579', borderColor: '#D5DCE5' }}
+            className={`inline-flex items-center rounded-full border ${sizeClasses}`}
+          >
+            <span style={{ backgroundColor: '#596579' }} className="w-1.5 h-1.5 rounded-full mr-1.5"></span>
             Data Collection
           </span>
         );
       case 'NOT_STARTED':
       default:
         return (
-          <span className={`inline-flex items-center rounded-full bg-slate-100 text-slate-600 border border-slate-300 dark:bg-slate-800/80 dark:text-slate-400 dark:border-slate-700 ${sizeClasses}`}>
-            <span className="w-1.5 h-1.5 rounded-full bg-slate-400 dark:bg-slate-500 mr-1.5"></span>
+          <span
+            style={{ backgroundColor: '#F1F4F7', color: '#697586', borderColor: '#D5DCE5' }}
+            className={`inline-flex items-center rounded-full border ${sizeClasses}`}
+          >
+            <span style={{ backgroundColor: '#697586' }} className="w-1.5 h-1.5 rounded-full mr-1.5"></span>
             Not Started
           </span>
         );
@@ -73,32 +95,47 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
     switch (status) {
       case 'COMPLIANT':
         return (
-          <span className={`inline-flex items-center rounded-md bg-emerald-50 text-emerald-800 font-semibold border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/60 ${sizeClasses}`}>
+          <span
+            style={{ backgroundColor: '#E7F3EB', color: '#237347', borderColor: '#23734740' }}
+            className={`inline-flex items-center rounded-md font-semibold border ${sizeClasses}`}
+          >
             Compliant
           </span>
         );
       case 'SURPLUS':
         return (
-          <span className={`inline-flex items-center rounded-md bg-emerald-50 text-emerald-800 font-semibold border border-emerald-300 dark:bg-emerald-900/40 dark:text-emerald-200 dark:border-emerald-700/50 ${sizeClasses}`}>
+          <span
+            style={{ backgroundColor: '#E7F3EB', color: '#237347', borderColor: '#23734740' }}
+            className={`inline-flex items-center rounded-md font-semibold border ${sizeClasses}`}
+          >
             Surplus
           </span>
         );
       case 'SHORTFALL':
         return (
-          <span className={`inline-flex items-center rounded-md bg-rose-50 text-rose-800 font-semibold border border-rose-300 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800/60 ${sizeClasses}`}>
+          <span
+            style={{ backgroundColor: '#FDECEC', color: '#B42318', borderColor: '#B4231840' }}
+            className={`inline-flex items-center rounded-md font-semibold border ${sizeClasses}`}
+          >
             Shortfall Recorded
           </span>
         );
       case 'PENDING_DETERMINATION':
         return (
-          <span className={`inline-flex items-center rounded-md bg-amber-50 text-amber-800 font-medium border border-amber-300 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800/60 ${sizeClasses}`}>
+          <span
+            style={{ backgroundColor: '#FFF4D6', color: '#986A16', borderColor: '#986A1640' }}
+            className={`inline-flex items-center rounded-md font-medium border ${sizeClasses}`}
+          >
             Pending Determination
           </span>
         );
       case 'NOT_APPLICABLE':
       default:
         return (
-          <span className={`inline-flex items-center rounded-md bg-slate-100 text-slate-600 border border-slate-300 dark:bg-slate-800/80 dark:text-slate-400 dark:border-slate-700/60 ${sizeClasses}`}>
+          <span
+            style={{ backgroundColor: '#F1F4F7', color: '#697586', borderColor: '#D5DCE5' }}
+            className={`inline-flex items-center rounded-md border ${sizeClasses}`}
+          >
             Not Applicable
           </span>
         );
@@ -110,20 +147,29 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
     switch (status) {
       case 'MATCHED':
         return (
-          <span className={`inline-flex items-center rounded-md bg-emerald-50 text-emerald-800 font-semibold border border-emerald-300 dark:bg-emerald-950/70 dark:text-emerald-300 dark:border-emerald-800/70 ${sizeClasses}`}>
+          <span
+            style={{ backgroundColor: '#E7F3EB', color: '#237347', borderColor: '#23734740' }}
+            className={`inline-flex items-center rounded-md font-semibold border ${sizeClasses}`}
+          >
             MATCHED
           </span>
         );
       case 'MISMATCH':
         return (
-          <span className={`inline-flex items-center rounded-md bg-rose-50 text-rose-800 font-semibold border border-rose-300 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800/60 ${sizeClasses}`}>
+          <span
+            style={{ backgroundColor: '#FDECEC', color: '#B42318', borderColor: '#B4231840' }}
+            className={`inline-flex items-center rounded-md font-semibold border ${sizeClasses}`}
+          >
             MISMATCH
           </span>
         );
       case 'EVIDENCE_MISSING':
       default:
         return (
-          <span className={`inline-flex items-center rounded-md bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700 ${sizeClasses}`}>
+          <span
+            style={{ backgroundColor: '#F1F4F7', color: '#596579', borderColor: '#D5DCE5' }}
+            className={`inline-flex items-center rounded-md border ${sizeClasses}`}
+          >
             EVIDENCE MISSING
           </span>
         );
@@ -135,19 +181,28 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
     switch (status) {
       case 'CLARIFICATION_REQUIRED':
         return (
-          <span className={`inline-flex items-center rounded-full bg-rose-50 text-rose-800 border border-rose-300 dark:bg-rose-500/15 dark:text-rose-300 dark:border-rose-500/30 ${sizeClasses}`}>
+          <span
+            style={{ backgroundColor: '#FDECEC', color: '#B42318', borderColor: '#B4231840' }}
+            className={`inline-flex items-center rounded-full border ${sizeClasses}`}
+          >
             Clarification Required
           </span>
         );
       case 'AWAITING_APPROVAL':
         return (
-          <span className={`inline-flex items-center rounded-full bg-amber-50 text-amber-800 border border-amber-300 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/30 ${sizeClasses}`}>
+          <span
+            style={{ backgroundColor: '#FFF4D6', color: '#986A16', borderColor: '#986A1640' }}
+            className={`inline-flex items-center rounded-full border ${sizeClasses}`}
+          >
             Awaiting Approval
           </span>
         );
       case 'EVIDENCE_PENDING':
         return (
-          <span className={`inline-flex items-center rounded-full bg-orange-50 text-orange-800 border border-orange-300 dark:bg-orange-500/15 dark:text-orange-300 dark:border-orange-500/30 ${sizeClasses}`}>
+          <span
+            style={{ backgroundColor: '#FFF4D6', color: '#986A16', borderColor: '#986A1640' }}
+            className={`inline-flex items-center rounded-full border ${sizeClasses}`}
+          >
             Evidence Pending
           </span>
         );
@@ -155,7 +210,10 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
   }
 
   return (
-    <span className={`inline-flex items-center rounded-full bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 ${sizeClasses}`}>
+    <span
+      style={{ backgroundColor: '#F1F4F7', color: '#596579', borderColor: '#D5DCE5' }}
+      className={`inline-flex items-center rounded-full border ${sizeClasses}`}
+    >
       {status}
     </span>
   );

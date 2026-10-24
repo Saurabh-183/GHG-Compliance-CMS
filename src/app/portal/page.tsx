@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { DriveLinkBadge } from '@/components/common/DriveLinkBadge';
+import { ExcelImportModal } from '@/components/compliance/ExcelImportModal';
+import { DriveConnectionModal } from '@/components/common/DriveConnectionModal';
 import {
   ShieldCheck,
   Building2,
@@ -16,6 +18,10 @@ import {
   ExternalLink,
   Clock,
   CheckCircle2,
+  Download,
+  TrendingUp,
+  CheckCheck,
+  Upload,
 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { IFacility, IDataRequirement, IClarification } from '@/types';
@@ -37,6 +43,8 @@ export default function ClientPortalDashboard() {
     }>;
   } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isExcelModalOpen, setIsExcelModalOpen] = useState(false);
+  const [isDriveModalOpen, setIsDriveModalOpen] = useState(false);
 
   useEffect(() => {
     async function loadPortal() {
@@ -76,7 +84,7 @@ export default function ClientPortalDashboard() {
             href="/dashboard"
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-xs text-white font-semibold shadow-sm transition-colors"
           >
-            <span>Return to Internal Consultant Workspace</span>
+            <span>Return to Internal Workspace</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
@@ -107,16 +115,61 @@ export default function ClientPortalDashboard() {
             </p>
           </div>
 
-          <div className="flex items-center gap-4 bg-slate-950/80 p-4 rounded-xl border border-slate-800 shrink-0">
-            <div className="text-center">
-              <div className="text-xl font-bold text-white">{facilities.length}</div>
-              <div className="text-[10px] text-slate-400 uppercase tracking-wider">Authorized Units</div>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={() => setIsExcelModalOpen(true)}
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs shadow-sm transition-colors"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Compliance Excel Templates</span>
+            </button>
+
+            <button
+              onClick={() => setIsDriveModalOpen(true)}
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs shadow-sm transition-colors"
+            >
+              <Folder className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Drive Evidence Vault</span>
+            </button>
+          </div>
+        </div>
+
+        {/* PRD Highlights: Data Given % & Data Matched % */}
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-800 text-xs">
+          <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
+            <div className="flex items-center justify-between text-slate-400">
+              <span className="font-semibold uppercase tracking-wider text-[10px]">Data Given</span>
+              <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
             </div>
-            <div className="h-8 w-px bg-slate-800"></div>
-            <div className="text-center">
-              <div className="text-xl font-bold text-rose-400">{openClarifications.length}</div>
-              <div className="text-[10px] text-slate-400 uppercase tracking-wider">Action Needed</div>
+            <div className="text-xl font-extrabold text-white">100%</div>
+            <p className="text-[11px] text-slate-500">12/12 months submitted by your units</p>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
+            <div className="flex items-center justify-between text-slate-400">
+              <span className="font-semibold uppercase tracking-wider text-[10px]">Data Matched</span>
+              <CheckCheck className="w-3.5 h-3.5 text-emerald-400" />
             </div>
+            <div className="text-xl font-extrabold text-white">75.0%</div>
+            <p className="text-[11px] text-slate-500">3 of 4 audited months verified</p>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
+            <div className="flex items-center justify-between text-slate-400">
+              <span className="font-semibold uppercase tracking-wider text-[10px]">Operating Facilities</span>
+              <Building2 className="w-3.5 h-3.5 text-emerald-400" />
+            </div>
+            <div className="text-xl font-bold text-white">{facilities.length} Units</div>
+            <p className="text-[11px] text-slate-500">Paper, Yarn, Home Textiles</p>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
+            <div className="flex items-center justify-between text-slate-400">
+              <span className="font-semibold uppercase tracking-wider text-[10px]">Action Items</span>
+              <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
+            </div>
+            <div className="text-xl font-bold text-rose-400">{openClarifications.length} Query</div>
+            <p className="text-[11px] text-slate-500">June 2025 PSPCL Bill Clarification</p>
           </div>
         </div>
       </div>
@@ -168,27 +221,25 @@ export default function ClientPortalDashboard() {
             >
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-800 text-slate-300 border border-slate-700">
+                  <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-slate-800 text-emerald-400 border border-slate-700">
                     {facility.facilityId}
                   </span>
-                  <span className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                    Compliant Status
-                  </span>
+                  <span className="text-[10px] text-slate-500 uppercase">{facility.location}</span>
                 </div>
-
-                <h3 className="text-sm font-bold text-white">{facility.name}</h3>
+                <h3 className="text-base font-bold text-white">{facility.name}</h3>
                 <p className="text-xs text-slate-400">{facility.category}</p>
-                <p className="text-[11px] text-slate-500">{facility.location}</p>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between">
+              <div className="pt-4 mt-4 border-t border-slate-800/80 flex items-center justify-between">
+                <span className="text-[11px] text-slate-400">
+                  Obligations: <strong>RCO, PAT, CCTS, CEA</strong>
+                </span>
                 <Link
                   href={`/portal/facilities/${facility.facilityId}`}
-                  className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 group"
+                  className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1"
                 >
-                  <span>Facility Overview</span>
-                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                  <span>View Overview</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
             </div>
@@ -196,78 +247,144 @@ export default function ClientPortalDashboard() {
         </div>
       </div>
 
-      {/* Two Column Grid: Pending Data Requests & Approved History */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Outstanding Data Requests */}
-        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5 shadow-md space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-slate-100 flex items-center gap-2">
-              <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
-              Outstanding Data Requests
+      {/* Outstanding Data Requests Table */}
+      <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 shadow-md space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-base font-bold text-white flex items-center gap-2">
+              <FileSpreadsheet className="w-5 h-5 text-emerald-400" />
+              Outstanding Compliance Data Requests
             </h3>
-            <Link href="/portal/requests" className="text-xs text-emerald-400 hover:underline">
-              Submit links
-            </Link>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Submit monthly energy logs, utility bills, and fuel lab test reports by attaching Google Drive URLs.
+            </p>
           </div>
-
-          <div className="space-y-3">
-            {pendingRequests.slice(0, 3).map((req) => (
-              <div
-                key={req._id}
-                className="p-3.5 rounded-lg bg-slate-950/50 border border-slate-800 flex items-center justify-between text-xs"
-              >
-                <div>
-                  <div className="font-semibold text-slate-200">{req.title}</div>
-                  <div className="text-[11px] text-slate-400 mt-0.5">
-                    Due: {formatDate(req.dueDate)} · {req.linkedCompliances.join(', ')}
-                  </div>
-                </div>
-                <Link
-                  href="/portal/requests"
-                  className="px-2.5 py-1 text-xs rounded bg-slate-800 text-emerald-400 hover:bg-slate-700 border border-slate-700 font-medium"
-                >
-                  Paste Drive Link
-                </Link>
-              </div>
-            ))}
-          </div>
+          <Link
+            href="/portal/requests"
+            className="text-xs text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1"
+          >
+            <span>View All ({pendingRequests.length})</span>
+            <ArrowRight className="w-3 h-3" />
+          </Link>
         </div>
 
-        {/* Approved Historical Reports */}
-        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5 shadow-md space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-slate-100 flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              Approved Historical Compliance Records
-            </h3>
-            <Link href="/portal/history" className="text-xs text-emerald-400 hover:underline">
-              Browse archive
-            </Link>
-          </div>
-
-          <div className="space-y-3">
-            {history.slice(0, 3).map((item) => (
-              <div
-                key={item._id}
-                className="p-3.5 rounded-lg bg-slate-950/50 border border-slate-800 flex items-center justify-between text-xs"
-              >
-                <div>
-                  <div className="font-semibold text-slate-200 flex items-center gap-2">
-                    <span>{item.facilityId}</span>
-                    <span className="font-mono text-emerald-400">
-                      {item.complianceType} ({item.period})
-                    </span>
-                  </div>
-                  <div className="mt-1">
-                    <StatusBadge status={item.complianceOutcome} type="outcome" size="sm" />
-                  </div>
-                </div>
-                <DriveLinkBadge url={item.documentLinks?.finalReportUrl} label="Final Report" />
-              </div>
-            ))}
-          </div>
+        <div className="overflow-x-auto rounded-lg border border-slate-800">
+          <table className="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr className="bg-slate-950/80 text-slate-400 border-b border-slate-800 text-[11px] font-semibold uppercase tracking-wider">
+                <th className="py-3 px-4">Facility</th>
+                <th className="py-3 px-4">Requirement</th>
+                <th className="py-3 px-4">Compliances</th>
+                <th className="py-3 px-4">Due Date</th>
+                <th className="py-3 px-4 text-center">Submission Status</th>
+                <th className="py-3 px-4 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-800 text-slate-300">
+              {pendingRequests.map((req) => (
+                <tr key={req._id} className="hover:bg-slate-800/40 transition-colors">
+                  <td className="py-3 px-4 font-mono font-medium text-white">{req.facilityId}</td>
+                  <td className="py-3 px-4">
+                    <div className="font-semibold text-white">{req.title}</div>
+                    <div className="text-[11px] text-slate-400 mt-0.5">{req.description}</div>
+                  </td>
+                  <td className="py-3 px-4">
+                    <div className="flex items-center gap-1">
+                      {req.linkedCompliances.map((c) => (
+                        <span key={c} className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px]">
+                          {c}
+                        </span>
+                      ))}
+                    </div>
+                  </td>
+                  <td className="py-3 px-4 font-mono text-slate-400">{formatDate(req.dueDate)}</td>
+                  <td className="py-3 px-4 text-center">
+                    <StatusBadge status={req.submissionStatus} type="submission" size="sm" />
+                  </td>
+                  <td className="py-3 px-4 text-center">
+                    <Link
+                      href="/portal/requests"
+                      className="inline-flex items-center gap-1 px-3 py-1 rounded bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-[11px] transition-colors"
+                    >
+                      <Folder className="w-3 h-3" />
+                      <span>Attach Drive URL</span>
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
+
+      {/* Approved Historical Assessments & Reports */}
+      <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 shadow-md space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-base font-bold text-white flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-emerald-400" />
+              Released & Approved Compliance Filings
+            </h3>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Official filings and submission acknowledgements certified by Carbon Crunch auditor.
+            </p>
+          </div>
+          <Link
+            href="/portal/history"
+            className="text-xs text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1"
+          >
+            <span>View All History</span>
+            <ArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
+
+        <div className="overflow-x-auto rounded-lg border border-slate-800">
+          <table className="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr className="bg-slate-950/80 text-slate-400 border-b border-slate-800 text-[11px] font-semibold uppercase tracking-wider">
+                <th className="py-3 px-4">Facility</th>
+                <th className="py-3 px-4">Compliance Type</th>
+                <th className="py-3 px-4">Period</th>
+                <th className="py-3 px-4 text-center">Obligation Outcome</th>
+                <th className="py-3 px-4">Final Report</th>
+                <th className="py-3 px-4">Regulatory Acknowledgement</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-800 text-slate-300">
+              {history.map((h) => (
+                <tr key={h._id} className="hover:bg-slate-800/40 transition-colors">
+                  <td className="py-3 px-4 font-mono font-medium text-white">{h.facilityId}</td>
+                  <td className="py-3 px-4 font-semibold text-white">{h.complianceType}</td>
+                  <td className="py-3 px-4 font-mono text-slate-400">{h.period}</td>
+                  <td className="py-3 px-4 text-center">
+                    <StatusBadge status={h.complianceOutcome} type="outcome" size="sm" />
+                  </td>
+                  <td className="py-3 px-4">
+                    <DriveLinkBadge url={h.documentLinks?.finalReportUrl} label="Executive Report" />
+                  </td>
+                  <td className="py-3 px-4">
+                    <DriveLinkBadge url={h.documentLinks?.submissionAckUrl} label="Regulator Ack" />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Google Drive Connection & Direct Sync Modal */}
+      <DriveConnectionModal
+        isOpen={isDriveModalOpen}
+        onClose={() => setIsDriveModalOpen(false)}
+        facilityId="TRIDENT_PAPER"
+      />
+
+      {/* Standardized Excel Import & Templates Modal */}
+      <ExcelImportModal
+        isOpen={isExcelModalOpen}
+        onClose={() => setIsExcelModalOpen(false)}
+        facilityId="TRIDENT_PAPER"
+      />
     </div>
   );
 }

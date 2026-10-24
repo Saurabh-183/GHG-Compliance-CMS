@@ -207,9 +207,9 @@ export const EvidenceDocumentModal: React.FC<EvidenceDocumentModalProps> = ({
               Google Drive Evidence Reference
             </span>
             <div className="flex items-center justify-between gap-3 font-mono text-[11px] text-slate-300 bg-slate-900 p-2.5 rounded-lg border border-slate-800">
-              <span className="truncate">{url || 'https://drive.google.com/file/d/...' }</span>
+              <span className="truncate">{url || 'https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7' }</span>
               <a
-                href={url}
+                href={url || 'https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="shrink-0 px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white inline-flex items-center gap-1 font-sans text-xs transition-colors"

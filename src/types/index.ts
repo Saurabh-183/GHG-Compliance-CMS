@@ -1,4 +1,4 @@
-export type UserRole = 'ADMIN' | 'CONSULTANT' | 'REVIEWER' | 'CLIENT';
+export type UserRole = 'ADMIN' | 'CONSULTANT' | 'CLIENT';
 
 export interface IUser {
   _id: string;
@@ -61,6 +61,15 @@ export interface IClientGroup {
   updatedAt: string;
 }
 
+export interface IDriveConnection {
+  isConnected: boolean;
+  folderUrl: string;
+  folderName?: string;
+  spreadsheetUrl?: string;
+  lastSyncedAt?: string;
+  syncedMonthsCount?: number;
+}
+
 export interface IFacility {
   _id: string;
   facilityId: string; // e.g. TRIDENT_PAPER
@@ -74,6 +83,9 @@ export interface IFacility {
   assignedConsultantName?: string;
   assignedReviewerName?: string;
   status: 'ACTIVE' | 'INACTIVE';
+  driveConnection?: IDriveConnection;
+  dataGivenPercentage?: number;
+  dataMatchedPercentage?: number;
   createdAt: string;
   updatedAt: string;
 }

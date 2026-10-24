@@ -4,7 +4,7 @@ interface JWTPayload {
   userId: string;
   name: string;
   email: string;
-  role: 'ADMIN' | 'CONSULTANT' | 'REVIEWER' | 'CLIENT';
+  role: 'ADMIN' | 'CONSULTANT' | 'CLIENT';
   clientGroupId?: string;
   authorizedFacilityIds?: string[];
 }
@@ -77,11 +77,8 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
-  // 3. RBAC Restriction: Consultant cannot enter Reviewer Approvals Queue
-  if (user.role === 'CONSULTANT' && pathname.startsWith('/approvals')) {
-    // Consultant cannot approve their own submissions or audit verifications
-    return NextResponse.redirect(new URL('/dashboard?denied=reviewer_only', request.url));
-  }
+  // 3. Merged Consultant & Reviewer: Both have access to the Reviewer Approvals Queue (/approvals)
+  // (No restriction for consultants on /approvals)
 
   // 4. Role-based landing: Root path '/' routes based on verified role
   if (pathname === '/') {

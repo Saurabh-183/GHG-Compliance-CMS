@@ -101,25 +101,25 @@ export default function ApprovalsPage() {
     return <CarbonCrunchLoader message="Loading verification approval queue..." />;
   }
 
-  // Strict RBAC: Consultants and Clients cannot enter the Reviewer Queue
-  if (currentRole !== 'REVIEWER' && currentRole !== 'ADMIN') {
+  // Merged Consultant & Reviewer: Consultants and Reviewers can access the Reviewer Queue
+  // Only external CLIENT users are barred from internal audit queues
+  if (currentRole === 'CLIENT') {
     return (
       <div className="max-w-xl mx-auto px-4 py-24 text-center space-y-4">
         <div className="w-14 h-14 rounded-2xl bg-rose-950/60 border border-rose-500/30 flex items-center justify-center mx-auto text-rose-400 shadow-xl">
           <AlertTriangle className="w-7 h-7" />
         </div>
-        <h2 className="text-xl font-extrabold text-white">Access Denied: Reviewer Queue</h2>
+        <h2 className="text-xl font-extrabold text-white">Access Denied: Internal Auditor Queue</h2>
         <p className="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
-          Your active account role is <strong className="text-emerald-400">{currentRole}</strong>.
-          Under compliance integrity regulations, consultants cannot audit or sign off their own submissions.
-          Independent verification approvals require a verified <strong className="text-white">REVIEWER</strong> or <strong className="text-white">ADMIN</strong> role.
+          The Reviewer Queue is reserved exclusively for internal compliance consultants, reviewers, and platform administrators.
+          Client users should view and submit evidence via the <strong className="text-white">Client Portal</strong>.
         </p>
         <div className="pt-2">
           <Link
-            href={currentRole === 'CLIENT' ? '/portal' : '/dashboard'}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 font-semibold transition-colors"
+            href="/portal"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-xs text-white font-semibold transition-colors"
           >
-            <span>Return to {currentRole === 'CLIENT' ? 'Client Portal' : 'My Consultant Workspace'}</span>
+            <span>Return to Client Portal</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
@@ -168,6 +168,8 @@ export default function ApprovalsPage() {
                 <th className="py-3 px-4">Dataset Type</th>
                 <th className="py-3 px-4">Period</th>
                 <th className="py-3 px-4 text-center">Status</th>
+                <th className="py-3 px-4 text-center">Data Given</th>
+                <th className="py-3 px-4 text-center">Data Matched</th>
                 <th className="py-3 px-4">Consultant Submission</th>
                 <th className="py-3 px-4 text-center">Version</th>
                 <th className="py-3 px-4 text-center">Audit Actions</th>
@@ -176,6 +178,12 @@ export default function ApprovalsPage() {
             <tbody className="divide-y divide-slate-800/70 text-xs">
               {datasets.map((d) => {
                 const isLocked = d.reviewerApproval?.isLocked;
+                const declaredCount = d.months?.filter((m) => m.declaredValue > 0).length || 0;
+                const dataGivenPct = Math.round((declaredCount / 12) * 100);
+                const evalCount = d.months?.filter((m) => m.evidenceValue !== null && m.declaredValue > 0).length || 0;
+                const matchedCount = d.months?.filter((m) => m.result === 'MATCHED').length || 0;
+                const dataMatchedPct = evalCount > 0 ? Math.round((matchedCount / evalCount) * 100) : 0;
+
                 return (
                   <tr key={d._id} className="hover:bg-slate-800/30 transition-colors">
                     <td className="py-3.5 px-4 font-mono font-bold text-slate-200">
@@ -189,6 +197,16 @@ export default function ApprovalsPage() {
                     </td>
                     <td className="py-3.5 px-4 text-center">
                       <StatusBadge status={d.verificationStatus} size="sm" />
+                    </td>
+                    <td className="py-3.5 px-4 text-center font-mono">
+                      <span className="font-bold text-slate-200">{dataGivenPct}%</span>
+                      <span className="text-[10px] text-slate-500 block">({declaredCount}/12 mo)</span>
+                    </td>
+                    <td className="py-3.5 px-4 text-center font-mono">
+                      <span className={`font-bold ${dataMatchedPct >= 80 ? 'text-emerald-400' : 'text-amber-400'}`}>
+                        {dataMatchedPct}%
+                      </span>
+                      <span className="text-[10px] text-slate-500 block">({matchedCount}/{evalCount} match)</span>
                     </td>
                     <td className="py-3.5 px-4 text-slate-400">
                       {d.consultantSubmission ? (

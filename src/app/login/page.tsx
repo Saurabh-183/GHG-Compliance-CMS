@@ -150,7 +150,7 @@ export default function LoginPage() {
               Instant Demo Logins (No password needed)
             </span>
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
                 onClick={() => handleQuickLogin('CONSULTANT')}
@@ -158,15 +158,6 @@ export default function LoginPage() {
               >
                 <span className="font-semibold text-emerald-400">Consultant</span>
                 <span className="text-[10px] text-slate-400">Priya Sharma</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleQuickLogin('REVIEWER')}
-                className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 flex flex-col items-center justify-center text-center transition-colors"
-              >
-                <span className="font-semibold text-slate-200">Reviewer</span>
-                <span className="text-[10px] text-slate-400">Dr. Rajesh Nair</span>
               </button>
 
               <button

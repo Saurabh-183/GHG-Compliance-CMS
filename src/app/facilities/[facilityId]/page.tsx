@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { IFacilityComplianceMatrix, IComplianceApplicability } from '@/types';
 import { ComplianceMatrixTable } from '@/components/compliance/ComplianceMatrixTable';
 import { ExcelImportModal } from '@/components/compliance/ExcelImportModal';
+import { DriveConnectionModal } from '@/components/common/DriveConnectionModal';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import {
   Building2,
@@ -15,8 +16,11 @@ import {
   ArrowRight,
   ShieldCheck,
   ChevronRight,
-  Layers,
-  Sparkles,
+  Folder,
+  RefreshCw,
+  TrendingUp,
+  CheckCheck,
+  ExternalLink,
 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
@@ -28,6 +32,16 @@ export default function FacilityDashboardPage() {
   const [rawApplicability, setRawApplicability] = useState<IComplianceApplicability[]>([]);
   const [loading, setLoading] = useState(true);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isDriveModalOpen, setIsDriveModalOpen] = useState(false);
+
+  // Stats
+  const [stats, setStats] = useState({
+    dataGivenPercentage: 100,
+    dataMatchedPercentage: 75.0,
+    driveFolderUrl: 'https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7',
+    driveFolderName: 'Carbon Crunch · Compliance Documents & Evidence Vault',
+    isDriveConnected: true,
+  });
 
   const loadMatrix = async () => {
     try {
@@ -38,6 +52,20 @@ export default function FacilityDashboardPage() {
         };
         setMatrixData(json.data);
         setRawApplicability(json.data.rawApplicability || []);
+      }
+
+      // Check drive connection status
+      const driveRes = await fetch(`/api/drive/connect?facilityId=${facilityId}`);
+      if (driveRes.ok) {
+        const driveJson = await driveRes.json();
+        if (driveJson.data) {
+          setStats((prev) => ({
+            ...prev,
+            isDriveConnected: driveJson.data.isConnected ?? true,
+            driveFolderUrl: driveJson.data.folderUrl || prev.driveFolderUrl,
+            driveFolderName: driveJson.data.folderName || prev.driveFolderName,
+          }));
+        }
       }
     } catch (e) {
       console.error('Error fetching compliance matrix:', e);
@@ -100,31 +128,84 @@ export default function FacilityDashboardPage() {
 
             <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400 pt-1">
               <span>
-                Assigned Consultant: <strong className="text-slate-800 dark:text-slate-200">Priya Sharma</strong>
+                Assigned Team: <strong className="text-slate-800 dark:text-slate-200">Priya Sharma / Dr. Rajesh Nair</strong> (Consultant & Reviewer)
               </span>
               <span>·</span>
-              <span>
-                Reviewer: <strong className="text-slate-800 dark:text-slate-200">Dr. Rajesh Nair</strong>
+              <span className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-medium">
+                <Folder className="w-3.5 h-3.5" />
+                <span>Google Drive Vault Connected</span>
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={() => setIsDriveModalOpen(true)}
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold shadow-sm transition-colors"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>Connect & Sync Drive</span>
+            </button>
+
             <button
               onClick={() => setIsImportModalOpen(true)}
               className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold border border-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 dark:border-slate-700 transition-colors shadow-2xs"
             >
               <Upload className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
-              <span>Import Excel Template</span>
+              <span>Import Excel / Templates</span>
             </button>
 
             <Link
               href="/datasets/6adb9175b32c50edab95461f/verify"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold transition-colors shadow-sm"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-semibold transition-colors shadow-sm"
             >
-              <FileSpreadsheet className="w-3.5 h-3.5" />
-              <span>Open Reconciliation Engine</span>
+              <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Reconciliation Engine</span>
             </Link>
+          </div>
+        </div>
+
+        {/* PRD Highlights: Data Given % & Data Matched % KPI Bar */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 pt-6 border-t border-slate-200 dark:border-slate-800 text-xs">
+          <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 space-y-1">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
+              <span className="font-semibold uppercase tracking-wider text-[10px]">Data Given Percentage</span>
+              <TrendingUp className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
+            </div>
+            <div className="text-xl font-extrabold text-slate-900 dark:text-white">
+              {stats.dataGivenPercentage}%
+            </div>
+            <p className="text-[11px] text-slate-500">12 of 12 financial year months client-declared</p>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 space-y-1">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
+              <span className="font-semibold uppercase tracking-wider text-[10px]">Data Matched Percentage</span>
+              <CheckCheck className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
+            </div>
+            <div className="text-xl font-extrabold text-slate-900 dark:text-white">
+              {stats.dataMatchedPercentage}%
+            </div>
+            <p className="text-[11px] text-slate-500">3 of 4 evaluated months match within 0 kWh tolerance</p>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 space-y-1">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
+              <span className="font-semibold uppercase tracking-wider text-[10px]">Google Drive Evidence Vault</span>
+              <Folder className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
+            </div>
+            <div className="text-xs font-bold text-emerald-700 dark:text-emerald-400 truncate">
+              {stats.driveFolderName}
+            </div>
+            <a
+              href={stats.driveFolderUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[11px] text-slate-500 hover:text-emerald-700 dark:hover:text-emerald-400 inline-flex items-center gap-1"
+            >
+              <span>Browse Drive Repository</span>
+              <ExternalLink className="w-2.5 h-2.5" />
+            </a>
           </div>
         </div>
       </div>
@@ -194,10 +275,26 @@ export default function FacilityDashboardPage() {
         </div>
       </div>
 
+      {/* Google Drive Connection & Direct Sync Modal */}
+      <DriveConnectionModal
+        isOpen={isDriveModalOpen}
+        onClose={() => setIsDriveModalOpen(false)}
+        facilityId={facilityId}
+        onSyncSuccess={(res) => {
+          setStats((prev) => ({
+            ...prev,
+            dataGivenPercentage: res.dataGivenPercentage,
+            dataMatchedPercentage: res.dataMatchedPercentage,
+          }));
+          loadMatrix();
+        }}
+      />
+
       {/* Standardized Excel Import Modal */}
       <ExcelImportModal
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
+        facilityId={facilityId}
         onImportSuccess={() => loadMatrix()}
       />
     </div>

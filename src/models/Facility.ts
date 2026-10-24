@@ -9,6 +9,14 @@ export interface IFacilityDocument extends Document {
   assignedConsultantId?: mongoose.Types.ObjectId;
   assignedReviewerId?: mongoose.Types.ObjectId;
   status: 'ACTIVE' | 'INACTIVE';
+  driveConnection?: {
+    isConnected: boolean;
+    folderUrl: string;
+    folderName?: string;
+    spreadsheetUrl?: string;
+    lastSyncedAt?: Date;
+    syncedMonthsCount?: number;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -23,6 +31,14 @@ const FacilitySchema = new Schema<IFacilityDocument>(
     assignedConsultantId: { type: Schema.Types.ObjectId, ref: 'User' },
     assignedReviewerId: { type: Schema.Types.ObjectId, ref: 'User' },
     status: { type: String, enum: ['ACTIVE', 'INACTIVE'], default: 'ACTIVE' },
+    driveConnection: {
+      isConnected: { type: Boolean, default: false },
+      folderUrl: { type: String, default: '' },
+      folderName: { type: String, default: '' },
+      spreadsheetUrl: { type: String, default: '' },
+      lastSyncedAt: { type: Date },
+      syncedMonthsCount: { type: Number, default: 0 },
+    },
   },
   { timestamps: true }
 );

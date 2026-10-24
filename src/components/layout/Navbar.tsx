@@ -64,9 +64,9 @@ export const Navbar: React.FC = () => {
       { label: 'Trident Paper Matrix', href: '/facilities/TRIDENT_PAPER', icon: FileSpreadsheet },
     ];
 
-    // Only REVIEWER and ADMIN can access Reviewer Queue
-    if (currentRole === 'REVIEWER' || currentRole === 'ADMIN') {
-      items.push({ label: 'Reviewer Queue', href: '/approvals', icon: CheckCircle2 });
+    // Consultant and Admin have full access to Approvals Queue
+    if (currentRole === 'ADMIN' || currentRole === 'CONSULTANT') {
+      items.push({ label: 'Approvals Queue', href: '/approvals', icon: CheckCircle2 });
     }
 
     items.push({ label: 'Compliance Calendar', href: '/calendar', icon: Calendar });
