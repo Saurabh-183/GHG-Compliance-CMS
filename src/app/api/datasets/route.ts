@@ -1,0 +1,91 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { connectToDatabase } from '@/lib/db';
+import { DatasetModel, IDatasetDocument } from '@/models/Dataset';
+import { getSessionFromRequest, isAuthorizedForFacility, authorizeRole } from '@/lib/auth';
+
+export async function GET(request: NextRequest) {
+  try {
+    await connectToDatabase();
+    const session = getSessionFromRequest(request);
+    const searchParams = request.nextUrl.searchParams;
+    const facilityId = searchParams.get('facilityId');
+    const period = searchParams.get('period');
+    const datasetType = searchParams.get('datasetType');
+
+    const query: Record<string, unknown> = {};
+
+    if (facilityId) {
+      if (!isAuthorizedForFacility(session, facilityId)) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
+      query.facilityId = facilityId.toUpperCase();
+    } else if (session && session.role === 'CLIENT' && session.authorizedFacilityIds) {
+      query.facilityId = { $in: session.authorizedFacilityIds };
+    }
+
+    if (period) query.period = period;
+    if (datasetType) query.datasetType = datasetType;
+
+    const rawDatasets = await DatasetModel.find(query)
+      .populate('consultantSubmission.consultantId', 'name email')
+      .populate('reviewerApproval.reviewerId', 'name email')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const datasets = rawDatasets as unknown as (IDatasetDocument & { _id: { toString(): string } })[];
+
+    return NextResponse.json({
+      success: true,
+      data: datasets.map((d) => ({
+        ...d,
+        _id: d._id.toString(),
+      })),
+    });
+  } catch (error) {
+    console.error('Error fetching datasets:', error);
+    return NextResponse.json({ error: 'Failed to fetch datasets' }, { status: 500 });
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    await connectToDatabase();
+    const session = getSessionFromRequest(request);
+    if (!authorizeRole(session, ['ADMIN', 'CONSULTANT'])) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    const body = (await request.json()) as {
+      facilityId: string;
+      datasetType: 'GRID_ELECTRICITY' | 'RENEWABLE_PURCHASE' | 'FUEL_CONSUMPTION' | 'PRODUCTION';
+      period: string;
+      toleranceDefault?: number;
+    };
+
+    const newDataset = await DatasetModel.create({
+      ...body,
+      facilityId: body.facilityId.toUpperCase(),
+      months: [],
+      submissionStatus: 'REQUESTED',
+      verificationStatus: 'NOT_STARTED',
+      toleranceDefault: body.toleranceDefault || 0,
+      auditTrail: [
+        {
+          timestamp: new Date(),
+          userId: session?.userId || 'SYSTEM',
+          userName: session?.name || 'Consultant',
+          action: 'DATASET_INITIALIZED',
+          details: `Initialized ${body.datasetType} dataset for ${body.period}`,
+        },
+      ],
+    });
+
+    return NextResponse.json(
+      { success: true, message: 'Dataset created', data: newDataset },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error('Error creating dataset:', error);
+    return NextResponse.json({ error: 'Failed to create dataset' }, { status: 500 });
+  }
+}
