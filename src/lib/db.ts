@@ -2,6 +2,15 @@ import mongoose, { Connection } from 'mongoose';
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/carbon_crunch_compliance';
 
+function isPlaceholderUri(uri: string): boolean {
+  return (
+    uri.includes('<') ||
+    uri.includes('>') ||
+    uri.includes('@cluster0.mongodb.net') || // Generic placeholder without unique cluster hash
+    uri.includes('username:password')
+  );
+}
+
 interface MongooseCache {
   conn: Connection | null;
   promise: Promise<Connection> | null;
@@ -30,10 +39,16 @@ export async function connectToDatabase(): Promise<Connection> {
     );
   }
 
+  if (isPlaceholderUri(MONGODB_URI)) {
+    throw new Error(
+      'MONGODB_URI contains a placeholder (@cluster0.mongodb.net). Real MongoDB Atlas URIs require your cluster hash, e.g. cluster0.XXXXX.mongodb.net.'
+    );
+  }
+
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
-      serverSelectionTimeoutMS: 5000, // Fail fast after 5s instead of hanging for 30s
+      serverSelectionTimeoutMS: 4000, // Fail fast after 4s instead of hanging for 30s
     };
 
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((m) => {
