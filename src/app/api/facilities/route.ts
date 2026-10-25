@@ -17,11 +17,24 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const facilities = await FacilityModel.find(query)
+    let facilities = await FacilityModel.find(query)
       .populate('clientGroupId', 'name code industry')
       .populate('assignedConsultantId', 'name email designation')
       .populate('assignedReviewerId', 'name email designation')
       .lean();
+
+    if (facilities.length === 0 && (!session || session.role !== 'CLIENT')) {
+      const totalCount = await FacilityModel.countDocuments();
+      if (totalCount === 0) {
+        const { seedDatabase } = await import('@/lib/seedData');
+        await seedDatabase();
+        facilities = await FacilityModel.find(query)
+          .populate('clientGroupId', 'name code industry')
+          .populate('assignedConsultantId', 'name email designation')
+          .populate('assignedReviewerId', 'name email designation')
+          .lean();
+      }
+    }
 
     return NextResponse.json({
       success: true,

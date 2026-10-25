@@ -23,9 +23,17 @@ export async function connectToDatabase(): Promise<Connection> {
     return cached.conn;
   }
 
+  const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
+  if (isProduction && !process.env.MONGODB_URI) {
+    throw new Error(
+      'MONGODB_URI is not set in environment variables. Please add your MongoDB Atlas connection string in Vercel Project Settings > Environment Variables.'
+    );
+  }
+
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
+      serverSelectionTimeoutMS: 5000, // Fail fast after 5s instead of hanging for 30s
     };
 
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((m) => {

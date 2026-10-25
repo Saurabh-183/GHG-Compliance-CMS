@@ -12,10 +12,22 @@ export async function GET(
     const { id } = await params;
     const session = getSessionFromRequest(request);
 
-    const dataset = await DatasetModel.findById(id)
+    let dataset = await DatasetModel.findById(id)
       .populate('consultantSubmission.consultantId', 'name email designation avatarUrl')
       .populate('reviewerApproval.reviewerId', 'name email designation avatarUrl')
       .lean();
+
+    if (!dataset) {
+      const totalCount = await DatasetModel.countDocuments();
+      if (totalCount === 0) {
+        const { seedDatabase } = await import('@/lib/seedData');
+        await seedDatabase();
+        dataset = await DatasetModel.findById(id)
+          .populate('consultantSubmission.consultantId', 'name email designation avatarUrl')
+          .populate('reviewerApproval.reviewerId', 'name email designation avatarUrl')
+          .lean();
+      }
+    }
 
     if (!dataset) {
       return NextResponse.json({ error: 'Dataset not found' }, { status: 404 });

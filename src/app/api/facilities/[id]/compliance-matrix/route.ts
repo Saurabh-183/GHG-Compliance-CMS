@@ -25,6 +25,20 @@ export async function GET(
     }
 
     if (!facility) {
+      const facilityCount = await FacilityModel.countDocuments();
+      if (facilityCount === 0) {
+        const { seedDatabase } = await import('@/lib/seedData');
+        await seedDatabase();
+        if (mongoose.Types.ObjectId.isValid(id)) {
+          facility = await FacilityModel.findById(id).lean();
+        }
+        if (!facility) {
+          facility = await FacilityModel.findOne({ facilityId: id.toUpperCase() }).lean();
+        }
+      }
+    }
+
+    if (!facility) {
       return NextResponse.json({ error: 'Facility not found' }, { status: 404 });
     }
 

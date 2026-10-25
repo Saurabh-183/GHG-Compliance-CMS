@@ -26,10 +26,22 @@ export async function GET(request: NextRequest) {
 
     if (status) query.status = status;
 
-    const rawItems = await CalendarItemModel.find(query)
+    let rawItems = await CalendarItemModel.find(query)
       .populate('assignedConsultantId', 'name email')
       .sort({ regulatoryDueDate: 1 })
       .lean();
+
+    if (rawItems.length === 0 && !facilityId) {
+      const totalCount = await CalendarItemModel.countDocuments();
+      if (totalCount === 0) {
+        const { seedDatabase } = await import('@/lib/seedData');
+        await seedDatabase();
+        rawItems = await CalendarItemModel.find(query)
+          .populate('assignedConsultantId', 'name email')
+          .sort({ regulatoryDueDate: 1 })
+          .lean();
+      }
+    }
 
     const items = rawItems as unknown as (ICalendarItemDocument & { _id: { toString(): string } })[];
 

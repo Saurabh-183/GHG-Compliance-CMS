@@ -28,10 +28,22 @@ export async function GET(request: NextRequest) {
 
     if (status) query.status = status;
 
-    const rawClarifications = await ClarificationModel.find(query)
+    let rawClarifications = await ClarificationModel.find(query)
       .populate('raisedBy', 'name email designation')
       .sort({ createdAt: -1 })
       .lean();
+
+    if (rawClarifications.length === 0 && !facilityId) {
+      const totalCount = await ClarificationModel.countDocuments();
+      if (totalCount === 0) {
+        const { seedDatabase } = await import('@/lib/seedData');
+        await seedDatabase();
+        rawClarifications = await ClarificationModel.find(query)
+          .populate('raisedBy', 'name email designation')
+          .sort({ createdAt: -1 })
+          .lean();
+      }
+    }
 
     const clarifications = rawClarifications as unknown as (IClarificationDocument & { _id: { toString(): string } })[];
 

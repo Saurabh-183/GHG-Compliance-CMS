@@ -16,7 +16,16 @@ export async function GET(request: NextRequest) {
       query = { _id: session.clientGroupId };
     }
 
-    const groups = await ClientGroupModel.find(query).sort({ name: 1 }).lean();
+    let groups = await ClientGroupModel.find(query).sort({ name: 1 }).lean();
+
+    if (groups.length === 0 && (!session || session.role !== 'CLIENT')) {
+      const totalCount = await ClientGroupModel.countDocuments();
+      if (totalCount === 0) {
+        const { seedDatabase } = await import('@/lib/seedData');
+        await seedDatabase();
+        groups = await ClientGroupModel.find(query).sort({ name: 1 }).lean();
+      }
+    }
 
     // Enrich with facility counts and active compliances
     const enriched = await Promise.all(
