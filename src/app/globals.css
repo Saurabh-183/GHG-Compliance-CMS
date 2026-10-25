@@ -176,12 +176,16 @@ html:not(.dark) a.bg-emerald-700,
 html:not(.dark) a.bg-emerald-600,
 html:not(.dark) .bg-emerald-700,
 html:not(.dark) .bg-emerald-600,
+html:not(.dark) [class*="bg-[#17365D]"],
+html:not(.dark) [class*="bg-[#102947]"],
 html.light button.bg-emerald-700,
 html.light button.bg-emerald-600,
 html.light a.bg-emerald-700,
 html.light a.bg-emerald-600,
 html.light .bg-emerald-700,
-html.light .bg-emerald-600 {
+html.light .bg-emerald-600,
+html.light [class*="bg-[#17365D]"],
+html.light [class*="bg-[#102947]"] {
   background-color: #17365D !important;
   color: #FFFFFF !important;
   border-color: #17365D !important;
@@ -194,12 +198,14 @@ html:not(.dark) a.bg-emerald-600:hover,
 html:not(.dark) .hover\:bg-emerald-800:hover,
 html:not(.dark) .hover\:bg-emerald-700:hover,
 html:not(.dark) .hover\:bg-emerald-500:hover,
+html:not(.dark) [class*="hover:bg-[#102947]"]:hover,
 html.light button.bg-emerald-700:hover,
 html.light button.bg-emerald-600:hover,
 html.light a.bg-emerald-700:hover,
 html.light a.bg-emerald-600:hover,
 html.light .hover\:bg-emerald-800:hover,
-html.light .hover\:bg-emerald-700:hover {
+html.light .hover\:bg-emerald-700:hover,
+html.light [class*="hover:bg-[#102947]"]:hover {
   background-color: #102947 !important;
   color: #FFFFFF !important;
 }
@@ -208,10 +214,14 @@ html:not(.dark) button.bg-emerald-700 *,
 html:not(.dark) button.bg-emerald-600 *,
 html:not(.dark) a.bg-emerald-700 *,
 html:not(.dark) a.bg-emerald-600 *,
+html:not(.dark) [class*="bg-[#17365D]"] *,
+html:not(.dark) [class*="bg-[#102947]"] *,
 html.light button.bg-emerald-700 *,
 html.light button.bg-emerald-600 *,
 html.light a.bg-emerald-700 *,
-html.light a.bg-emerald-600 * {
+html.light a.bg-emerald-600 *,
+html.light [class*="bg-[#17365D]"] *,
+html.light [class*="bg-[#102947]"] * {
   color: #FFFFFF !important;
 }
 
@@ -274,7 +284,7 @@ html:not(.dark) h3,
 html:not(.dark) h4,
 html:not(.dark) h5,
 html:not(.dark) h6,
-html:not(.dark) .text-white:not(button *):not(a.bg-emerald-700 *):not(button.bg-emerald-700 *),
+html:not(.dark) .text-white:not(button *):not(a *):not([class*="bg-"] *):not([class*="bg-[#17365D]"] *):not([class*="bg-emerald-"] *),
 html:not(.dark) .text-slate-900,
 html:not(.dark) .text-slate-100,
 html:not(.dark) .text-slate-200,
@@ -284,7 +294,7 @@ html.light h3,
 html.light h4,
 html.light h5,
 html.light h6,
-html.light .text-white:not(button *):not(a.bg-emerald-700 *):not(button.bg-emerald-700 *),
+html.light .text-white:not(button *):not(a *):not([class*="bg-"] *):not([class*="bg-[#17365D]"] *):not([class*="bg-emerald-"] *),
 html.light .text-slate-900,
 html.light .text-slate-100,
 html.light .text-slate-200 {
@@ -306,14 +316,14 @@ html.light .text-slate-300 {
 }
 
 /* Navigation Links in Light Mode */
-html:not(.dark) a:not(button a):not(.bg-emerald-700):not([class*="bg-emerald-"]),
-html.light a:not(button a):not(.bg-emerald-700):not([class*="bg-emerald-"]) {
+html:not(.dark) a:not(button a):not(.bg-emerald-700):not([class*="bg-emerald-"]):not([class*="bg-[#17365D]"]):not([class*="bg-[#102947]"]):not([class*="text-white"]),
+html.light a:not(button a):not(.bg-emerald-700):not([class*="bg-emerald-"]):not([class*="bg-[#17365D]"]):not([class*="bg-[#102947]"]):not([class*="text-white"]) {
   color: #245A91;
   transition: color 0.15s ease;
 }
 
-html:not(.dark) a:not(button a):not(.bg-emerald-700):not([class*="bg-emerald-"]):hover,
-html.light a:not(button a):not(.bg-emerald-700):not([class*="bg-emerald-"]):hover {
+html:not(.dark) a:not(button a):not(.bg-emerald-700):not([class*="bg-emerald-"]):not([class*="bg-[#17365D]"]):not([class*="bg-[#102947]"]):not([class*="text-white"]):hover,
+html.light a:not(button a):not(.bg-emerald-700):not([class*="bg-emerald-"]):not([class*="bg-[#17365D]"]):not([class*="bg-[#102947]"]):not([class*="text-white"]):hover {
   color: #17365D;
 }
 

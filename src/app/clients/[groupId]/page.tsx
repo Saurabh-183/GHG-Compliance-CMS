@@ -182,13 +182,13 @@ export default function ClientGroupDetailPage() {
               <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
                 <Link
                   href={`/facilities/${facility.facilityId}`}
-                  className="w-full inline-flex items-center justify-between px-3 py-2 rounded-lg bg-[#17365D] hover:bg-[#102947] text-white text-xs font-semibold shadow-xs transition-colors group"
+                  className="w-full inline-flex items-center justify-between px-3 py-2 rounded-lg bg-[#17365D] hover:bg-[#102947] !text-white text-xs font-semibold shadow-xs transition-colors group"
                 >
-                  <span className="flex items-center gap-1.5">
-                    <FileSpreadsheet className="w-3.5 h-3.5" />
-                    <span>Open Compliance Matrix</span>
+                  <span className="flex items-center gap-1.5 !text-white font-medium">
+                    <FileSpreadsheet className="w-3.5 h-3.5 !text-white shrink-0" />
+                    <span className="!text-white font-semibold">Open Compliance Matrix</span>
                   </span>
-                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-3.5 h-3.5 !text-white group-hover:translate-x-1 transition-transform shrink-0" />
                 </Link>
               </div>
             </div>

@@ -133,13 +133,13 @@ export default function ClientsPage() {
               <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800">
                 <Link
                   href={`/clients/${group._id}`}
-                  className="w-full inline-flex items-center justify-between px-4 py-2 rounded-lg bg-[#17365D] hover:bg-[#102947] text-white text-xs font-semibold shadow-xs transition-colors group"
+                  className="w-full inline-flex items-center justify-between px-4 py-2 rounded-lg bg-[#17365D] hover:bg-[#102947] !text-white text-xs font-semibold shadow-xs transition-colors group"
                 >
-                  <span className="flex items-center gap-1.5">
-                    <Layers className="w-3.5 h-3.5" />
-                    <span>View Group Facilities ({count})</span>
+                  <span className="flex items-center gap-1.5 !text-white">
+                    <Layers className="w-3.5 h-3.5 !text-white" />
+                    <span className="!text-white font-semibold">View Group Facilities ({count})</span>
                   </span>
-                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-3.5 h-3.5 !text-white group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>
             </div>

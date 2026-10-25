@@ -551,6 +551,7 @@ export async function seedDatabase() {
 
   // 9. Reconciliation Dataset: Trident Paper Grid Electricity (Module 3 seeded case!)
   const dataset = await DatasetModel.create({
+    _id: new mongoose.Types.ObjectId('6adb9175b32c50edab95461f'),
     facilityId: 'TRIDENT_PAPER',
     datasetType: 'GRID_ELECTRICITY',
     period: 'FY2025-26',
