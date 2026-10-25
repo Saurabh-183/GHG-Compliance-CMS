@@ -16,7 +16,7 @@ export const Footer: React.FC = () => {
         <div className="flex items-center gap-2">
           <span className="font-semibold text-slate-400">Carbon Crunch</span>
           <span>·</span>
-          <span>Compliance Metadata & Verification Platform MVP v1.0</span>
+          <span>Compliance Metadata & Verification Platform v1.0</span>
         </div>
         <div>Source evidence documents stored securely on Google Drive</div>
       </div>
