@@ -22,114 +22,7 @@ import { formatDate } from '@/lib/utils';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import { MOCK_CLIENT_GROUPS } from '@/lib/mockFallback';
 import { CompanySelectMui } from '@/components/dashboard/CompanySelectMui';
-
-function generateDeadlinesForFacilities(facilities: IFacility[]): ICalendarItem[] {
-  if (!facilities || facilities.length === 0) return [];
-
-  const standardCycles = [
-    {
-      complianceType: 'CEA' as const,
-      reportingPeriod: 'June 2025 Electricity Returns',
-      regulatoryDueDate: '2025-07-15T00:00:00.000Z',
-      status: 'PENDING' as const,
-      isRecurringCEA: true,
-    },
-    {
-      complianceType: 'CEA' as const,
-      reportingPeriod: 'July 2025 Electricity Returns',
-      regulatoryDueDate: '2025-08-15T00:00:00.000Z',
-      status: 'UPCOMING' as const,
-      isRecurringCEA: true,
-    },
-    {
-      complianceType: 'RCO' as const,
-      reportingPeriod: 'FY2025-26 (Q1 Reconciliation)',
-      regulatoryDueDate: '2025-09-30T00:00:00.000Z',
-      status: 'PENDING' as const,
-      isRecurringCEA: false,
-    },
-    {
-      complianceType: 'PAT' as const,
-      reportingPeriod: 'PAT Monitoring Period Assessment',
-      regulatoryDueDate: '2025-10-31T00:00:00.000Z',
-      status: 'PENDING' as const,
-      isRecurringCEA: false,
-    },
-    {
-      complianceType: 'CCTS' as const,
-      reportingPeriod: 'CCTS Annual Compliance Filing',
-      regulatoryDueDate: '2025-11-30T00:00:00.000Z',
-      status: 'UPCOMING' as const,
-      isRecurringCEA: false,
-    },
-  ];
-
-  const items: ICalendarItem[] = [];
-
-  if (facilities.length === 1) {
-    const fac = facilities[0];
-    standardCycles.slice(0, 4).forEach((cycle, idx) => {
-      items.push({
-        _id: `cal_${fac.facilityId}_${cycle.complianceType}_${idx}`,
-        facilityId: fac.facilityId,
-        facilityName: fac.name,
-        complianceType: cycle.complianceType,
-        reportingPeriod: cycle.reportingPeriod,
-        regulatoryDueDate: cycle.regulatoryDueDate,
-        internalDeadline: cycle.regulatoryDueDate,
-        clientDataSubmissionDeadline: cycle.regulatoryDueDate,
-        assignedConsultantId: 'USR_CONS_01',
-        status: cycle.status,
-        actualSubmissionDate: null,
-        extensionHistory: [],
-        isRecurringCEA: cycle.isRecurringCEA,
-      });
-    });
-    return items;
-  }
-
-  facilities.forEach((fac, facIdx) => {
-    const cycle1 = standardCycles[facIdx % standardCycles.length];
-    items.push({
-      _id: `cal_${fac.facilityId}_${cycle1.complianceType}_${facIdx}`,
-      facilityId: fac.facilityId,
-      facilityName: fac.name,
-      complianceType: cycle1.complianceType,
-      reportingPeriod: cycle1.reportingPeriod,
-      regulatoryDueDate: cycle1.regulatoryDueDate,
-      internalDeadline: cycle1.regulatoryDueDate,
-      clientDataSubmissionDeadline: cycle1.regulatoryDueDate,
-      assignedConsultantId: 'USR_CONS_01',
-      status: cycle1.status,
-      actualSubmissionDate: null,
-      extensionHistory: [],
-      isRecurringCEA: cycle1.isRecurringCEA,
-    });
-
-    if (facilities.length <= 3) {
-      const cycle2 = standardCycles[(facIdx + 2) % standardCycles.length];
-      items.push({
-        _id: `cal_${fac.facilityId}_${cycle2.complianceType}_${facIdx}_b`,
-        facilityId: fac.facilityId,
-        facilityName: fac.name,
-        complianceType: cycle2.complianceType,
-        reportingPeriod: cycle2.reportingPeriod,
-        regulatoryDueDate: cycle2.regulatoryDueDate,
-        internalDeadline: cycle2.regulatoryDueDate,
-        clientDataSubmissionDeadline: cycle2.regulatoryDueDate,
-        assignedConsultantId: 'USR_CONS_01',
-        status: cycle2.status,
-        actualSubmissionDate: null,
-        extensionHistory: [],
-        isRecurringCEA: cycle2.isRecurringCEA,
-      });
-    }
-  });
-
-  return items.sort(
-    (a, b) => new Date(a.regulatoryDueDate).getTime() - new Date(b.regulatoryDueDate).getTime()
-  );
-}
+import { generateDeadlinesForFacilities } from '@/lib/statutoryCalendar';
 
 export default function DashboardPage() {
   const { currentRole, currentUser } = useAuth();
@@ -426,7 +319,7 @@ export default function DashboardPage() {
               </span>
             </h3>
             <Link
-              href={selectedGroup ? `/calendar?search=${encodeURIComponent(selectedGroup.name)}` : '/calendar'}
+              href={selectedGroup ? `/calendar?company=${encodeURIComponent(selectedGroup._id)}` : '/calendar'}
               className="text-xs text-emerald-700 dark:text-emerald-400 hover:underline"
             >
               View full calendar
