@@ -113,6 +113,44 @@ export async function seedDatabase() {
     status: 'ACTIVE',
   });
 
+  // Seed all other client industrial conglomerates and facilities from Sheet6 PDF
+  const { MOCK_CLIENT_GROUPS, MOCK_FACILITIES } = await import('@/lib/mockFallback');
+  for (const mg of MOCK_CLIENT_GROUPS) {
+    if (mg.code !== 'TRIDENT') {
+      try {
+        await ClientGroupModel.create({
+          _id: new mongoose.Types.ObjectId(mg._id),
+          name: mg.name,
+          code: mg.code,
+          industry: mg.industry,
+          headquarters: mg.headquarters,
+          contactPerson: mg.contactPerson,
+        });
+      } catch (err) {
+        console.warn('Group already seeded or skipped:', mg.code, err);
+      }
+    }
+  }
+
+  for (const mf of MOCK_FACILITIES) {
+    if (!['TRIDENT_PAPER', 'TRIDENT_YARN', 'TRIDENT_TEXTILES'].includes(mf.facilityId)) {
+      try {
+        await FacilityModel.create({
+          facilityId: mf.facilityId,
+          name: mf.name,
+          clientGroupId: new mongoose.Types.ObjectId(mf.clientGroupId),
+          location: mf.location,
+          category: mf.category,
+          assignedConsultantId: consultantUser._id,
+          assignedReviewerId: reviewerUser._id,
+          status: 'ACTIVE',
+        });
+      } catch (err) {
+        console.warn('Facility already seeded or skipped:', mf.facilityId, err);
+      }
+    }
+  }
+
   // 5. Compliance Applicability for Trident Paper
   await ComplianceApplicabilityModel.create([
     {

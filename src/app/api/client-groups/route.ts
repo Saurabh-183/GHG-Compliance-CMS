@@ -51,6 +51,13 @@ export async function GET(request: NextRequest) {
       })
     );
 
+    if (enriched.length < 15 && (!session || session.role !== 'CLIENT')) {
+      const { MOCK_CLIENT_GROUPS } = await import('@/lib/mockFallback');
+      const existingCodes = new Set(enriched.map((g) => g.code.toUpperCase()));
+      const missingGroups = MOCK_CLIENT_GROUPS.filter((g) => !existingCodes.has(g.code.toUpperCase()));
+      return NextResponse.json({ success: true, data: [...enriched, ...missingGroups] });
+    }
+
     return NextResponse.json({ success: true, data: enriched });
   } catch (error) {
     console.warn('Error fetching client groups from DB, returning fallback demo client groups:', error);

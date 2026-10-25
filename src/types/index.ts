@@ -57,6 +57,7 @@ export interface IClientGroup {
   };
   totalFacilitiesCount?: number;
   activeCompliancesCount?: number;
+  facilities?: IFacility[];
   createdAt: string;
   updatedAt: string;
 }

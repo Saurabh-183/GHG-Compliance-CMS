@@ -31,6 +31,13 @@ export async function GET(
     }
 
     if (!facility) {
+      const { MOCK_FACILITIES } = await import('@/lib/mockFallback');
+      const mockFacility = MOCK_FACILITIES.find(
+        (f) => f.facilityId === id.toUpperCase() || f._id === id
+      );
+      if (mockFacility) {
+        return NextResponse.json({ success: true, data: mockFacility });
+      }
       return NextResponse.json({ error: 'Facility not found' }, { status: 404 });
     }
 

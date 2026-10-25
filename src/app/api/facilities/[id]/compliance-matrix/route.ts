@@ -11,9 +11,9 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     await connectToDatabase();
-    const { id } = await params;
     const session = getSessionFromRequest(request);
 
     let facility;
@@ -35,6 +35,16 @@ export async function GET(
         if (!facility) {
           facility = await FacilityModel.findOne({ facilityId: id.toUpperCase() }).lean();
         }
+      }
+    }
+
+    if (!facility) {
+      const { MOCK_FACILITIES } = await import('@/lib/mockFallback');
+      const found = MOCK_FACILITIES.find(
+        (f) => f.facilityId === id.toUpperCase() || f._id === id
+      );
+      if (found) {
+        facility = found as any;
       }
     }
 
@@ -168,18 +178,23 @@ export async function GET(
       },
     };
 
+    const { MOCK_FACILITIES } = await import('@/lib/mockFallback');
+    const foundFacility = MOCK_FACILITIES.find(
+      (f) => f.facilityId === id.toUpperCase() || f._id === id
+    ) || {
+      _id: 'fac_' + id.toLowerCase(),
+      facilityId: id.toUpperCase(),
+      name: id.replace(/_/g, ' '),
+      clientGroupId: 'TRIDENT',
+      location: 'Industrial Complex Site',
+      category: 'Designated Consumer (DC)',
+      status: 'ACTIVE',
+    };
+
     return NextResponse.json({
       success: true,
       data: {
-        facility: {
-          _id: 'fac_trident_paper_demo',
-          facilityId: 'TRIDENT_PAPER',
-          name: 'Trident Paper Complex',
-          clientGroupId: 'TRIDENT',
-          location: 'Dhaula, Barnala, Punjab - 148107',
-          category: 'Designated Consumer (DC) - Pulp & Paper',
-          status: 'ACTIVE',
-        },
+        facility: foundFacility,
         periods,
         compliances,
         matrix,
