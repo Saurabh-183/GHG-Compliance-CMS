@@ -67,7 +67,7 @@ export default function ClientPortalDashboard() {
     return <CarbonCrunchLoader message="Loading Client Compliance Portal..." />;
   }
 
-  // Strict RBAC: Consultants and Reviewers cannot enter the external Client Portal
+  // Strict RBAC: Consultants cannot enter the external Client Portal
   if (currentRole !== 'CLIENT' && currentRole !== 'ADMIN') {
     return (
       <div className="max-w-xl mx-auto px-4 py-24 text-center space-y-4">

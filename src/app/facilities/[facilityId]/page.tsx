@@ -128,7 +128,7 @@ export default function FacilityDashboardPage() {
 
             <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400 pt-1">
               <span>
-                Assigned Team: <strong className="text-slate-800 dark:text-slate-200">Priya Sharma / Dr. Rajesh Nair</strong> (Consultant & Reviewer)
+                Assigned Lead: <strong className="text-slate-800 dark:text-slate-200">Priya Sharma</strong> (Senior Energy & Carbon Compliance Lead)
               </span>
               <span>·</span>
               <span className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-medium">

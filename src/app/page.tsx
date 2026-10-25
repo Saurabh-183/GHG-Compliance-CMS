@@ -58,8 +58,8 @@ export default function HomePage() {
       title: 'Clarification Response & Approval',
       desc: 'Client response with revised evidence, resubmission to Reviewer Queue, and reviewer audit sign-off.',
       link: '/approvals',
-      role: 'REVIEWER',
-      badge: 'Reviewer Queue',
+      role: 'CONSULTANT',
+      badge: 'Audit & Approval Queue',
     },
     {
       step: '12-13',
