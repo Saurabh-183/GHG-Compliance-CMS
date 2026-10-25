@@ -61,7 +61,7 @@ export const Navbar: React.FC = () => {
     const items = [
       { label: 'Workspace', href: '/dashboard', icon: Layers },
       { label: 'Clients & Units', href: '/clients', icon: Building2 },
-      { label: 'Trident Paper Matrix', href: '/facilities/TRIDENT_PAPER', icon: FileSpreadsheet },
+      // { label: 'Trident Paper Matrix', href: '/facilities/TRIDENT_PAPER', icon: FileSpreadsheet },
     ];
 
     // Consultant and Admin have full access to Approvals Queue

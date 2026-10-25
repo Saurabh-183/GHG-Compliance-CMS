@@ -109,10 +109,10 @@ export default function DashboardPage() {
     : calendarItems;
 
   // Generate dynamic statutory calendar items for the selected company's operating units if not already in DB
-  const fallbackCompanyCalendarItems: ICalendarItem[] = React.useMemo(() => {
-    if (!selectedGroup || currentFacilities.length === 0) return [];
-    return generateDeadlinesForFacilities(currentFacilities);
-  }, [selectedGroup, currentFacilities]);
+  const fallbackCompanyCalendarItems: ICalendarItem[] =
+    selectedGroup && currentFacilities.length > 0
+      ? generateDeadlinesForFacilities(currentFacilities)
+      : [];
 
   const displayCalendarItems = selectedGroup
     ? filteredCalendarItems.length > 0
@@ -150,28 +150,7 @@ export default function DashboardPage() {
             onCompanyChange={(id) => setSelectedCompanyId(id)}
           />
 
-          {/* Dynamic Compliance Matrix Button */}
-          <Link
-            href={`/facilities/${primaryFacilityId}`}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#17365D] hover:bg-[#102947] dark:bg-[#A56F63] dark:hover:bg-[#8C594E] !text-white text-xs font-semibold shadow-sm transition-all"
-            style={{ color: '#FFFFFF' }}
-          >
-            <Building2 className="w-3.5 h-3.5 !text-white" style={{ stroke: '#FFFFFF' }} />
-            <span className="!text-white font-semibold" style={{ color: '#FFFFFF' }}>
-              {selectedGroup
-                ? `${selectedGroup.name.split(' ')[0]} Matrix`
-                : 'Trident Paper Matrix'}
-            </span>
-          </Link>
-
-          {/* Compliance Calendar Link */}
-          <Link
-            href="/calendar"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold border border-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 dark:border-slate-700 transition-colors shadow-2xs"
-          >
-            <Calendar className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Compliance Calendar</span>
-          </Link>
+      
         </div>
       </div>
 
