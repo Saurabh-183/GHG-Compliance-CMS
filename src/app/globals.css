@@ -12,7 +12,7 @@
      #A56F63 (Muted Terracotta / Primary Action Buttons & Accents)
      #D99B7F (Warm Peach / Links, Highlights & Badges)
    - Typography: Strict Sans-Serif font-family application-wide
-   - High Contrast: Pure White (#FFFFFF) text across all dark surfaces, dark mode cards, and buttons
+   - High Contrast: Pure White (#FFFFFF) text across all dark surfaces, dark mode cards, and solid dark buttons
    ========================================================================== */
 
 :root,
@@ -82,37 +82,91 @@ html.dark {
 }
 
 /* ==========================================================================
-   BUTTONS & DARK BACKGROUND SURFACES: PURE WHITE TEXT IN ALL THEMES
+   PRIMARY SOLID ACTION BUTTONS: PURE WHITE TEXT & ICONS
    ========================================================================== */
-button,
-button *,
+button.bg-emerald-700,
+button.bg-emerald-700 *,
+button.bg-emerald-600,
+button.bg-emerald-600 *,
+button.bg-emerald-800,
+button.bg-emerald-800 *,
+a.bg-emerald-700,
+a.bg-emerald-700 *,
+a.bg-emerald-600,
+a.bg-emerald-600 *,
+button.bg-rose-600,
+button.bg-rose-600 *,
+a.bg-rose-600,
+a.bg-rose-600 *,
 [class*="bg-[#17365D]"],
 [class*="bg-[#17365D]"] *,
 [class*="bg-[#102947]"],
 [class*="bg-[#102947]"] *,
 [class*="bg-[#A56F63]"],
 [class*="bg-[#A56F63]"] *,
-a.bg-emerald-700,
-a.bg-emerald-700 *,
-a.bg-emerald-600,
-a.bg-emerald-600 *,
-.text-white,
-.text-white *,
+[class*="bg-[#8C594E]"],
+[class*="bg-[#8C594E]"] *,
+.btn-primary,
+.btn-primary *,
 .\!text-white,
 .\!text-white * {
   color: #FFFFFF !important;
+  fill: currentColor;
 }
 
-button svg,
+button.bg-emerald-700 svg,
+button.bg-emerald-600 svg,
+button.bg-emerald-800 svg,
+a.bg-emerald-700 svg,
+a.bg-emerald-600 svg,
 [class*="bg-[#17365D]"] svg,
 [class*="bg-[#102947]"] svg,
 [class*="bg-[#A56F63]"] svg,
-a.bg-emerald-700 svg,
-a.bg-emerald-600 svg,
-.text-white svg,
+[class*="bg-[#8C594E]"] svg,
 .\!text-white svg {
   color: #FFFFFF !important;
-  stroke: currentColor !important;
+  stroke: #FFFFFF !important;
+}
+
+/* ==========================================================================
+   SECONDARY & OUTLINE BUTTONS IN LIGHT MODE: CRISP DARK TEXT (#343A40)
+   ========================================================================== */
+html:not(.dark) button.bg-white,
+html:not(.dark) button.bg-white *,
+html:not(.dark) button[class*="bg-white"],
+html:not(.dark) button[class*="bg-white"] *,
+html:not(.dark) a.bg-white,
+html:not(.dark) a.bg-white *,
+html:not(.dark) a[class*="bg-white"],
+html:not(.dark) a[class*="bg-white"] *,
+html:not(.dark) button[class*="text-slate-"],
+html:not(.dark) button[class*="text-slate-"] *,
+html:not(.dark) a[class*="text-slate-"],
+html:not(.dark) a[class*="text-slate-"] *,
+html.light button.bg-white,
+html.light button.bg-white *,
+html.light button[class*="bg-white"],
+html.light button[class*="bg-white"] *,
+html.light a.bg-white,
+html.light a.bg-white *,
+html.light a[class*="bg-white"],
+html.light a[class*="bg-white"] *,
+html.light button[class*="text-slate-"],
+html.light button[class*="text-slate-"] *,
+html.light a[class*="text-slate-"],
+html.light a[class*="text-slate-"] * {
+  color: #343A40 !important;
+}
+
+html:not(.dark) button.bg-white svg:not(.text-emerald-700):not(.text-emerald-600):not(.text-rose-600):not(.text-amber-500),
+html:not(.dark) button[class*="bg-white"] svg:not(.text-emerald-700):not(.text-emerald-600):not(.text-rose-600):not(.text-amber-500),
+html:not(.dark) a.bg-white svg:not(.text-emerald-700):not(.text-emerald-600):not(.text-rose-600):not(.text-amber-500),
+html:not(.dark) a[class*="bg-white"] svg:not(.text-emerald-700):not(.text-emerald-600):not(.text-rose-600):not(.text-amber-500),
+html.light button.bg-white svg:not(.text-emerald-700):not(.text-emerald-600):not(.text-rose-600):not(.text-amber-500),
+html.light button[class*="bg-white"] svg:not(.text-emerald-700):not(.text-emerald-600):not(.text-rose-600):not(.text-amber-500),
+html.light a.bg-white svg:not(.text-emerald-700):not(.text-emerald-600):not(.text-rose-600):not(.text-amber-500),
+html.light a[class*="bg-white"] svg:not(.text-emerald-700):not(.text-emerald-600):not(.text-rose-600):not(.text-amber-500) {
+  stroke: #343A40 !important;
 }
 
 /* ==========================================================================
@@ -302,24 +356,24 @@ html.light .border-emerald-800\/60 {
 }
 
 /* Text Hierarchy in Light Mode */
-html:not(.dark) h1:not(button *):not([class*="bg-"] *),
-html:not(.dark) h2:not(button *):not([class*="bg-"] *),
-html:not(.dark) h3:not(button *):not([class*="bg-"] *),
-html:not(.dark) h4:not(button *):not([class*="bg-"] *),
-html:not(.dark) h5:not(button *):not([class*="bg-"] *),
-html:not(.dark) h6:not(button *):not([class*="bg-"] *),
+html:not(.dark) h1:not(button *):not([class*="bg-[#17365D]"] *):not([class*="bg-emerald"] *),
+html:not(.dark) h2:not(button *):not([class*="bg-[#17365D]"] *):not([class*="bg-emerald"] *),
+html:not(.dark) h3:not(button *):not([class*="bg-[#17365D]"] *):not([class*="bg-emerald"] *),
+html:not(.dark) h4:not(button *):not([class*="bg-[#17365D]"] *):not([class*="bg-emerald"] *),
+html:not(.dark) h5:not(button *):not([class*="bg-[#17365D]"] *):not([class*="bg-emerald"] *),
+html:not(.dark) h6:not(button *):not([class*="bg-[#17365D]"] *):not([class*="bg-emerald"] *),
 html:not(.dark) .text-slate-900,
-html:not(.dark) .text-slate-100:not(button *):not([class*="bg-"] *),
-html:not(.dark) .text-slate-200:not(button *):not([class*="bg-"] *),
-html.light h1:not(button *):not([class*="bg-"] *),
-html.light h2:not(button *):not([class*="bg-"] *),
-html.light h3:not(button *):not([class*="bg-"] *),
-html.light h4:not(button *):not([class*="bg-"] *),
-html.light h5:not(button *):not([class*="bg-"] *),
-html.light h6:not(button *):not([class*="bg-"] *),
+html:not(.dark) .text-slate-100:not(button *):not([class*="bg-[#17365D]"] *):not([class*="bg-emerald"] *),
+html:not(.dark) .text-slate-200:not(button *):not([class*="bg-[#17365D]"] *):not([class*="bg-emerald"] *),
+html.light h1:not(button *):not([class*="bg-[#17365D]"] *):not([class*="bg-emerald"] *),
+html.light h2:not(button *):not([class*="bg-[#17365D]"] *):not([class*="bg-emerald"] *),
+html.light h3:not(button *):not([class*="bg-[#17365D]"] *):not([class*="bg-emerald"] *),
+html.light h4:not(button *):not([class*="bg-[#17365D]"] *):not([class*="bg-emerald"] *),
+html.light h5:not(button *):not([class*="bg-[#17365D]"] *):not([class*="bg-emerald"] *),
+html.light h6:not(button *):not([class*="bg-[#17365D]"] *):not([class*="bg-emerald"] *),
 html.light .text-slate-900,
-html.light .text-slate-100:not(button *):not([class*="bg-"] *),
-html.light .text-slate-200:not(button *):not([class*="bg-"] *) {
+html.light .text-slate-100:not(button *):not([class*="bg-[#17365D]"] *):not([class*="bg-emerald"] *),
+html.light .text-slate-200:not(button *):not([class*="bg-[#17365D]"] *):not([class*="bg-emerald"] *) {
   color: #343A40 !important;
 }
 
@@ -338,14 +392,14 @@ html.light .text-slate-300 {
 }
 
 /* Regular Inline Navigation Links in Light Mode */
-html:not(.dark) a:not(button a):not([class*="bg-"]):not([class*="text-white"]):not([class*="btn"]):not([style*="color"]),
-html.light a:not(button a):not([class*="bg-"]):not([class*="text-white"]):not([class*="btn"]):not([style*="color"]) {
+html:not(.dark) a:not(button a):not([class*="bg-[#17365D]"]):not([class*="bg-emerald"]):not([class*="bg-[#102947]"]):not([class*="btn"]):not([style*="color"]):not(.\!text-white),
+html.light a:not(button a):not([class*="bg-[#17365D]"]):not([class*="bg-emerald"]):not([class*="bg-[#102947]"]):not([class*="btn"]):not([style*="color"]):not(.\!text-white) {
   color: #245A91;
   transition: color 0.15s ease;
 }
 
-html:not(.dark) a:not(button a):not([class*="bg-"]):not([class*="text-white"]):not([class*="btn"]):not([style*="color"]):hover,
-html.light a:not(button a):not([class*="bg-"]):not([class*="text-white"]):not([class*="btn"]):not([style*="color"]):hover {
+html:not(.dark) a:not(button a):not([class*="bg-[#17365D]"]):not([class*="bg-emerald"]):not([class*="bg-[#102947]"]):not([class*="btn"]):not([style*="color"]):not(.\!text-white):hover,
+html.light a:not(button a):not([class*="bg-[#17365D]"]):not([class*="bg-emerald"]):not([class*="bg-[#102947]"]):not([class*="btn"]):not([style*="color"]):not(.\!text-white):hover {
   color: #17365D;
 }
 
@@ -706,8 +760,9 @@ html.dark [class*="hover:bg-[#8C594E]"]:hover {
   border-color: #8C594E !important;
 }
 
-html.dark button.bg-emerald-700 *,
-html.dark button.bg-emerald-600 *,
+/* In Dark Mode, all buttons and badges have white text */
+html.dark button,
+html.dark button *,
 html.dark a.bg-emerald-700 *,
 html.dark a.bg-emerald-600 *,
 html.dark [class*="bg-[#A56F63]"] *,
