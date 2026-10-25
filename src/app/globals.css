@@ -3,11 +3,16 @@
 @import "react-toastify/dist/ReactToastify.css";
 
 /* ==========================================================================
-   Professional Government-Style Color Specification
-   - Light Theme: Refined White, Light Blue-Grey (#F1F4F7), Navy Blue (#17365D), Forest Green (#356859)
-   - Dark Theme: Institutional Obsidian Navy (#0B1320), Card (#131E30), Navy Blue (#1D4A7A), Emerald (#3EB585)
-   - Pure sans-serif typography application-wide
-   - Strict Scope: Colors only, zero layout or structural changes
+   Design Specification & Theme Palettes
+   - Light Theme: Government Institutional Palette
+     #17365D (Deep Navy Blue), #356859 (Muted Forest Green), #F1F4F7 (Canvas Background), #FFFFFF (Cards), #343A40 (Charcoal Text)
+   - Dark Theme: Custom User Palette
+     #0F3040 (Primary Dark Teal Background / Header)
+     #464858 (Slate Grey Cards, Panels & Surfaces)
+     #A56F63 (Muted Terracotta / Primary Action Buttons & Accents)
+     #D99B7F (Warm Peach / Links, Highlights & Badges)
+   - Typography: Strict Sans-Serif font-family application-wide
+   - High Contrast: Pure White (#FFFFFF) text across all dark surfaces, dark mode cards, and buttons
    ========================================================================== */
 
 :root,
@@ -42,38 +47,72 @@ html.light {
 }
 
 html.dark {
-  --primary-navy: #1D4A7A;
-  --navy-hover: #17365D;
-  --secondary-forest: #3EB585;
-  --link-blue: #60A5FA;
+  --primary-navy: #0F3040;
+  --navy-hover: #173d52;
+  --secondary-forest: #A56F63;
+  --link-blue: #D99B7F;
 
-  --bg-primary: #0B1320;
-  --bg-secondary: #152236;
-  --bg-card: #131E30;
-  --bg-subtle: #0E1726;
+  --bg-primary: #0F3040;
+  --bg-secondary: #464858;
+  --bg-card: #464858;
+  --bg-subtle: #0A222E;
 
-  --text-primary: #F8FAFC;
-  --text-secondary: #94A3B8;
-  --text-muted: #64748B;
+  --text-primary: #FFFFFF;
+  --text-secondary: #FFFFFF;
+  --text-muted: #E2E8F0;
   --text-on-dark: #FFFFFF;
 
-  --border-default: #22334D;
-  --border-divider: #1B2A40;
-  --border-input: #2D3E56;
+  --border-default: rgba(255, 255, 255, 0.15);
+  --border-divider: rgba(255, 255, 255, 0.10);
+  --border-input: rgba(217, 155, 127, 0.35);
 
-  --status-success: #34D399;
-  --status-success-bg: rgba(35, 115, 71, 0.25);
-  --status-warning: #FBBF24;
-  --status-warning-bg: rgba(152, 106, 22, 0.25);
+  --status-success: #D99B7F;
+  --status-success-bg: rgba(165, 111, 99, 0.25);
+  --status-warning: #D99B7F;
+  --status-warning-bg: rgba(217, 155, 127, 0.22);
   --status-error: #F87171;
   --status-error-bg: rgba(180, 35, 24, 0.25);
-  --status-info: #60A5FA;
-  --status-info-bg: rgba(36, 90, 145, 0.25);
+  --status-info: #D99B7F;
+  --status-info-bg: rgba(217, 155, 127, 0.20);
 }
 
-/* Application-wide Sans-Serif Typography */
-*, html, body, input, button, select, textarea {
+/* Application-wide Strict Sans-Serif Typography */
+*, *::before, *::after, html, body, input, button, select, textarea, optgroup, p, span, h1, h2, h3, h4, h5, h6, table, td, th, a, div, label, li {
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+}
+
+/* ==========================================================================
+   BUTTONS & DARK BACKGROUND SURFACES: PURE WHITE TEXT IN ALL THEMES
+   ========================================================================== */
+button,
+button *,
+[class*="bg-[#17365D]"],
+[class*="bg-[#17365D]"] *,
+[class*="bg-[#102947]"],
+[class*="bg-[#102947]"] *,
+[class*="bg-[#A56F63]"],
+[class*="bg-[#A56F63]"] *,
+a.bg-emerald-700,
+a.bg-emerald-700 *,
+a.bg-emerald-600,
+a.bg-emerald-600 *,
+.text-white,
+.text-white *,
+.\!text-white,
+.\!text-white * {
+  color: #FFFFFF !important;
+}
+
+button svg,
+[class*="bg-[#17365D]"] svg,
+[class*="bg-[#102947]"] svg,
+[class*="bg-[#A56F63]"] svg,
+a.bg-emerald-700 svg,
+a.bg-emerald-600 svg,
+.text-white svg,
+.\!text-white svg {
+  color: #FFFFFF !important;
+  stroke: currentColor !important;
 }
 
 /* ==========================================================================
@@ -169,7 +208,7 @@ html.light header {
   border-bottom-color: #D5DCE5 !important;
 }
 
-/* Primary Action Buttons: Navy Blue (#17365D), Hover (#102947) */
+/* Action Buttons in Light Mode: Navy Blue (#17365D), Hover (#102947) */
 html:not(.dark) button.bg-emerald-700,
 html:not(.dark) button.bg-emerald-600,
 html:not(.dark) a.bg-emerald-700,
@@ -207,21 +246,6 @@ html.light .hover\:bg-emerald-800:hover,
 html.light .hover\:bg-emerald-700:hover,
 html.light [class*="hover:bg-[#102947]"]:hover {
   background-color: #102947 !important;
-  color: #FFFFFF !important;
-}
-
-html:not(.dark) button.bg-emerald-700 *,
-html:not(.dark) button.bg-emerald-600 *,
-html:not(.dark) a.bg-emerald-700 *,
-html:not(.dark) a.bg-emerald-600 *,
-html:not(.dark) [class*="bg-[#17365D]"] *,
-html:not(.dark) [class*="bg-[#102947]"] *,
-html.light button.bg-emerald-700 *,
-html.light button.bg-emerald-600 *,
-html.light a.bg-emerald-700 *,
-html.light a.bg-emerald-600 *,
-html.light [class*="bg-[#17365D]"] *,
-html.light [class*="bg-[#102947]"] * {
   color: #FFFFFF !important;
 }
 
@@ -278,26 +302,24 @@ html.light .border-emerald-800\/60 {
 }
 
 /* Text Hierarchy in Light Mode */
-html:not(.dark) h1,
-html:not(.dark) h2,
-html:not(.dark) h3,
-html:not(.dark) h4,
-html:not(.dark) h5,
-html:not(.dark) h6,
-html:not(.dark) .text-white:not(button *):not(a *):not([class*="bg-"] *):not([class*="bg-[#17365D]"] *):not([class*="bg-emerald-"] *),
+html:not(.dark) h1:not(button *):not([class*="bg-"] *),
+html:not(.dark) h2:not(button *):not([class*="bg-"] *),
+html:not(.dark) h3:not(button *):not([class*="bg-"] *),
+html:not(.dark) h4:not(button *):not([class*="bg-"] *),
+html:not(.dark) h5:not(button *):not([class*="bg-"] *),
+html:not(.dark) h6:not(button *):not([class*="bg-"] *),
 html:not(.dark) .text-slate-900,
-html:not(.dark) .text-slate-100,
-html:not(.dark) .text-slate-200,
-html.light h1,
-html.light h2,
-html.light h3,
-html.light h4,
-html.light h5,
-html.light h6,
-html.light .text-white:not(button *):not(a *):not([class*="bg-"] *):not([class*="bg-[#17365D]"] *):not([class*="bg-emerald-"] *),
+html:not(.dark) .text-slate-100:not(button *):not([class*="bg-"] *),
+html:not(.dark) .text-slate-200:not(button *):not([class*="bg-"] *),
+html.light h1:not(button *):not([class*="bg-"] *),
+html.light h2:not(button *):not([class*="bg-"] *),
+html.light h3:not(button *):not([class*="bg-"] *),
+html.light h4:not(button *):not([class*="bg-"] *),
+html.light h5:not(button *):not([class*="bg-"] *),
+html.light h6:not(button *):not([class*="bg-"] *),
 html.light .text-slate-900,
-html.light .text-slate-100,
-html.light .text-slate-200 {
+html.light .text-slate-100:not(button *):not([class*="bg-"] *),
+html.light .text-slate-200:not(button *):not([class*="bg-"] *) {
   color: #343A40 !important;
 }
 
@@ -315,15 +337,15 @@ html.light .text-slate-300 {
   color: #697586 !important;
 }
 
-/* Navigation Links in Light Mode */
-html:not(.dark) a:not(button a):not(.bg-emerald-700):not([class*="bg-emerald-"]):not([class*="bg-[#17365D]"]):not([class*="bg-[#102947]"]):not([class*="text-white"]),
-html.light a:not(button a):not(.bg-emerald-700):not([class*="bg-emerald-"]):not([class*="bg-[#17365D]"]):not([class*="bg-[#102947]"]):not([class*="text-white"]) {
+/* Regular Inline Navigation Links in Light Mode */
+html:not(.dark) a:not(button a):not([class*="bg-"]):not([class*="text-white"]):not([class*="btn"]):not([style*="color"]),
+html.light a:not(button a):not([class*="bg-"]):not([class*="text-white"]):not([class*="btn"]):not([style*="color"]) {
   color: #245A91;
   transition: color 0.15s ease;
 }
 
-html:not(.dark) a:not(button a):not(.bg-emerald-700):not([class*="bg-emerald-"]):not([class*="bg-[#17365D]"]):not([class*="bg-[#102947]"]):not([class*="text-white"]):hover,
-html.light a:not(button a):not(.bg-emerald-700):not([class*="bg-emerald-"]):not([class*="bg-[#17365D]"]):not([class*="bg-[#102947]"]):not([class*="text-white"]):hover {
+html:not(.dark) a:not(button a):not([class*="bg-"]):not([class*="text-white"]):not([class*="btn"]):not([style*="color"]):hover,
+html.light a:not(button a):not([class*="bg-"]):not([class*="text-white"]):not([class*="btn"]):not([style*="color"]):hover {
   color: #17365D;
 }
 
@@ -366,7 +388,7 @@ html.light hr {
   border-color: #E5E7EB !important;
 }
 
-/* Form Inputs, Dropdowns, Textareas in Light Mode */
+/* Form Inputs in Light Mode */
 html:not(.dark) input,
 html:not(.dark) textarea,
 html:not(.dark) select,
@@ -395,7 +417,7 @@ html.light textarea::placeholder {
   color: #697586 !important;
 }
 
-/* Status Badges & Alerts in Light Mode */
+/* Badges in Light Mode */
 html:not(.dark) .cc-badge-success,
 html.light .cc-badge-success {
   background-color: #E7F3EB !important;
@@ -593,16 +615,16 @@ html.light ::-webkit-scrollbar-thumb:hover {
 }
 
 /* ==========================================================================
-   DARK THEME: Professional Government Institutional Dark Palette
+   DARK THEME: Custom Palette (#0F3040, #464858, #A56F63, #D99B7F)
    ========================================================================== */
 html.dark body {
-  background-color: #0B1320 !important;
-  color: #F8FAFC !important;
+  background-color: #0F3040 !important;
+  color: #FFFFFF !important;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
 }
 
-/* Card, Modal, and Content Surfaces in Dark Mode */
+/* Card, Modal, and Content Surfaces in Dark Mode: #464858 (Slate Grey) */
 html.dark .bg-slate-900,
 html.dark .bg-slate-900\/95,
 html.dark .bg-slate-900\/90,
@@ -612,11 +634,21 @@ html.dark .bg-slate-900\/60,
 html.dark .bg-slate-900\/40,
 html.dark div[class*="bg-slate-900"],
 html.dark div[class*="dark:bg-slate-900"],
-html.dark .glass-panel {
-  background-color: #131E30 !important;
+html.dark .glass-panel,
+html.dark .bg-slate-800,
+html.dark .bg-slate-800\/90,
+html.dark .bg-slate-800\/80,
+html.dark .bg-slate-800\/70,
+html.dark .bg-slate-800\/60,
+html.dark .bg-slate-800\/50,
+html.dark .bg-slate-800\/40,
+html.dark .bg-slate-800\/30,
+html.dark div[class*="bg-slate-800"],
+html.dark div[class*="dark:bg-slate-800"] {
+  background-color: #464858 !important;
 }
 
-/* Subtle Section & Sub-panel Backgrounds in Dark Mode */
+/* Base Canvas & Sub-panels in Dark Mode: #0F3040 & #0A222E */
 html.dark .bg-slate-950,
 html.dark .bg-slate-950\/90,
 html.dark .bg-slate-950\/80,
@@ -629,39 +661,35 @@ html.dark div[class*="bg-slate-950"],
 html.dark div[class*="dark:bg-slate-950"],
 html.dark thead tr,
 html.dark tr.bg-slate-950 {
-  background-color: #0E1726 !important;
+  background-color: #0A222E !important;
 }
 
-/* Sidebar & Header Sub-bar in Dark Mode */
-html.dark .bg-slate-800,
-html.dark .bg-slate-800\/90,
-html.dark .bg-slate-800\/80,
-html.dark .bg-slate-800\/70,
-html.dark .bg-slate-800\/60,
-html.dark .bg-slate-800\/50,
-html.dark .bg-slate-800\/40,
-html.dark .bg-slate-800\/30,
-html.dark div[class*="bg-slate-800"],
-html.dark div[class*="dark:bg-slate-800"],
-html.dark header div[class*="py-1.5"] {
-  background-color: #152236 !important;
-}
-
+/* Header & Top Bar in Dark Mode */
 html.dark header {
-  background-color: #111C2D !important;
-  border-bottom-color: #22334D !important;
+  background-color: #0F3040 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
 }
 
-/* Primary Action Buttons in Dark Mode: Navy Blue (#1D4A7A), Hover (#245A91) */
+html.dark header div[class*="py-1.5"] {
+  background-color: #0A222E !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Primary Action Buttons in Dark Mode: #A56F63 (Terracotta / Muted Rose), Hover: #8C594E */
 html.dark button.bg-emerald-700,
 html.dark button.bg-emerald-600,
 html.dark a.bg-emerald-700,
 html.dark a.bg-emerald-600,
 html.dark .bg-emerald-700,
-html.dark .bg-emerald-600 {
-  background-color: #1D4A7A !important;
+html.dark .bg-emerald-600,
+html.dark button[class*="bg-emerald"],
+html.dark a[class*="bg-emerald"],
+html.dark [class*="bg-[#17365D]"],
+html.dark [class*="bg-[#102947]"],
+html.dark [class*="bg-[#A56F63]"] {
+  background-color: #A56F63 !important;
   color: #FFFFFF !important;
-  border-color: #1D4A7A !important;
+  border-color: #A56F63 !important;
 }
 
 html.dark button.bg-emerald-700:hover,
@@ -670,19 +698,24 @@ html.dark a.bg-emerald-700:hover,
 html.dark a.bg-emerald-600:hover,
 html.dark .hover\:bg-emerald-800:hover,
 html.dark .hover\:bg-emerald-700:hover,
-html.dark .hover\:bg-emerald-500:hover {
-  background-color: #245A91 !important;
+html.dark .hover\:bg-emerald-500:hover,
+html.dark [class*="hover:bg-[#102947]"]:hover,
+html.dark [class*="hover:bg-[#8C594E]"]:hover {
+  background-color: #8C594E !important;
   color: #FFFFFF !important;
+  border-color: #8C594E !important;
 }
 
 html.dark button.bg-emerald-700 *,
 html.dark button.bg-emerald-600 *,
 html.dark a.bg-emerald-700 *,
-html.dark a.bg-emerald-600 * {
+html.dark a.bg-emerald-600 *,
+html.dark [class*="bg-[#A56F63]"] *,
+html.dark [class*="bg-[#17365D]"] * {
   color: #FFFFFF !important;
 }
 
-/* Secondary Environmental Accents in Dark Mode: Crisp Forest/Emerald (#3EB585) */
+/* Secondary Environmental Accents in Dark Mode: #D99B7F (Warm Peach / Sand) */
 html.dark .text-emerald-700,
 html.dark .text-emerald-600,
 html.dark .text-emerald-500,
@@ -690,7 +723,7 @@ html.dark .text-emerald-400,
 html.dark .text-emerald-300,
 html.dark span.text-emerald-500,
 html.dark span.text-emerald-400 {
-  color: #3EB585 !important;
+  color: #D99B7F !important;
 }
 
 html.dark .bg-emerald-50,
@@ -705,7 +738,7 @@ html.dark .bg-emerald-900\/60,
 html.dark .bg-emerald-900\/40,
 html.dark div[class*="bg-emerald-950"],
 html.dark div[class*="dark:bg-emerald-950"] {
-  background-color: rgba(35, 115, 71, 0.22) !important;
+  background-color: rgba(217, 155, 127, 0.16) !important;
 }
 
 html.dark .border-emerald-300,
@@ -716,41 +749,47 @@ html.dark .border-emerald-800,
 html.dark .border-emerald-800\/60,
 html.dark div[class*="border-emerald-800"],
 html.dark div[class*="dark:border-emerald-800"] {
-  border-color: rgba(62, 181, 133, 0.35) !important;
+  border-color: rgba(217, 155, 127, 0.35) !important;
 }
 
-/* Text Hierarchy in Dark Mode */
+/* Strict Pure White (#FFFFFF) Typography Hierarchy in Dark Mode */
 html.dark h1,
 html.dark h2,
 html.dark h3,
 html.dark h4,
 html.dark h5,
 html.dark h6,
+html.dark p,
+html.dark span:not(.cc-dot),
+html.dark label,
+html.dark td,
+html.dark th,
+html.dark strong,
+html.dark b,
+html.dark li,
+html.dark div:not([class*="bg-"]):not([class*="border-"]),
 html.dark .text-white,
+html.dark .\!text-white,
 html.dark .text-slate-100,
 html.dark .text-slate-200,
-html.dark .text-slate-900 {
-  color: #F8FAFC !important;
-}
-
+html.dark .text-slate-300,
 html.dark .text-slate-400,
-html.dark .text-slate-500 {
-  color: #94A3B8 !important;
-}
-
+html.dark .text-slate-500,
 html.dark .text-slate-600,
-html.dark .text-slate-300 {
-  color: #64748B !important;
+html.dark .text-slate-700,
+html.dark .text-slate-800,
+html.dark .text-slate-900 {
+  color: #FFFFFF !important;
 }
 
-/* Navigation Links in Dark Mode */
-html.dark a:not(button a):not(.bg-emerald-700):not([class*="bg-emerald-"]) {
-  color: #60A5FA;
+/* Navigation Links in Dark Mode: Warm Peach (#D99B7F), Hover (#FFFFFF) */
+html.dark a:not(button a):not([class*="bg-"]):not([class*="btn"]):not([style*="color"]) {
+  color: #D99B7F !important;
   transition: color 0.15s ease;
 }
 
-html.dark a:not(button a):not(.bg-emerald-700):not([class*="bg-emerald-"]):hover {
-  color: #93C5FD;
+html.dark a:not(button a):not([class*="bg-"]):not([class*="btn"]):not([style*="color"]):hover {
+  color: #FFFFFF !important;
 }
 
 /* Border Hierarchy in Dark Mode */
@@ -767,7 +806,7 @@ html.dark div[class*="border-slate-800"],
 html.dark div[class*="border-slate-700"],
 html.dark div[class*="dark:border-slate-800"],
 html.dark div[class*="dark:border-slate-700"] {
-  border-color: #22334D !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
 }
 
 html.dark .divide-slate-800,
@@ -777,74 +816,74 @@ html.dark .divide-slate-200,
 html.dark div[class*="divide-slate-800"],
 html.dark div[class*="dark:divide-slate-800"],
 html.dark hr {
-  border-color: #1B2A40 !important;
+  border-color: rgba(255, 255, 255, 0.10) !important;
 }
 
 /* Form Inputs, Dropdowns, Textareas in Dark Mode */
 html.dark input,
 html.dark textarea,
 html.dark select {
-  background-color: #0B1320 !important;
-  color: #F8FAFC !important;
-  border-color: #2D3E56 !important;
+  background-color: #0F3040 !important;
+  color: #FFFFFF !important;
+  border-color: rgba(217, 155, 127, 0.35) !important;
 }
 
 html.dark input:focus,
 html.dark textarea:focus,
 html.dark select:focus {
-  border-color: #60A5FA !important;
-  outline-color: #60A5FA !important;
+  border-color: #D99B7F !important;
+  outline-color: #D99B7F !important;
 }
 
 html.dark input::placeholder,
 html.dark textarea::placeholder {
-  color: #64748B !important;
+  color: rgba(255, 255, 255, 0.6) !important;
 }
 
 /* Status Badges & Alerts in Dark Mode */
 html.dark .cc-badge-success {
-  background-color: rgba(35, 115, 71, 0.25) !important;
-  color: #34D399 !important;
-  border-color: rgba(52, 211, 153, 0.35) !important;
+  background-color: rgba(165, 111, 99, 0.25) !important;
+  color: #FFFFFF !important;
+  border-color: #A56F63 !important;
 }
 html.dark .cc-badge-success .cc-dot {
-  background-color: #34D399 !important;
+  background-color: #D99B7F !important;
 }
 
 html.dark .cc-badge-warning {
-  background-color: rgba(152, 106, 22, 0.25) !important;
-  color: #FBBF24 !important;
-  border-color: rgba(245, 158, 11, 0.35) !important;
+  background-color: rgba(217, 155, 127, 0.22) !important;
+  color: #FFFFFF !important;
+  border-color: #D99B7F !important;
 }
 html.dark .cc-badge-warning .cc-dot {
-  background-color: #FBBF24 !important;
+  background-color: #D99B7F !important;
 }
 
 html.dark .cc-badge-error {
   background-color: rgba(180, 35, 24, 0.25) !important;
-  color: #F87171 !important;
-  border-color: rgba(239, 68, 68, 0.35) !important;
+  color: #FFFFFF !important;
+  border-color: rgba(239, 68, 68, 0.45) !important;
 }
 html.dark .cc-badge-error .cc-dot {
   background-color: #F87171 !important;
 }
 
 html.dark .cc-badge-info {
-  background-color: rgba(36, 90, 145, 0.25) !important;
-  color: #60A5FA !important;
-  border-color: rgba(96, 165, 250, 0.35) !important;
+  background-color: rgba(217, 155, 127, 0.20) !important;
+  color: #FFFFFF !important;
+  border-color: rgba(217, 155, 127, 0.35) !important;
 }
 html.dark .cc-badge-info .cc-dot {
-  background-color: #60A5FA !important;
+  background-color: #D99B7F !important;
 }
 
 html.dark .cc-badge-neutral {
-  background-color: rgba(100, 116, 139, 0.20) !important;
-  color: #94A3B8 !important;
-  border-color: rgba(148, 163, 184, 0.25) !important;
+  background-color: rgba(70, 72, 88, 0.60) !important;
+  color: #FFFFFF !important;
+  border-color: rgba(255, 255, 255, 0.20) !important;
 }
 html.dark .cc-badge-neutral .cc-dot {
-  background-color: #94A3B8 !important;
+  background-color: #FFFFFF !important;
 }
 
 /* Warnings and Errors in Dark Mode */
@@ -861,7 +900,7 @@ html.dark .bg-rose-50\/70,
 html.dark div[class*="bg-rose-950"],
 html.dark div[class*="dark:bg-rose-950"] {
   background-color: rgba(180, 35, 24, 0.20) !important;
-  color: #F87171 !important;
+  color: #FFFFFF !important;
 }
 
 html.dark .text-rose-700,
@@ -887,8 +926,8 @@ html.dark .bg-amber-500\/15,
 html.dark .bg-amber-500\/20,
 html.dark div[class*="bg-amber-950"],
 html.dark div[class*="dark:bg-amber-950"] {
-  background-color: rgba(152, 106, 22, 0.20) !important;
-  color: #FBBF24 !important;
+  background-color: rgba(217, 155, 127, 0.20) !important;
+  color: #FFFFFF !important;
 }
 
 html.dark .text-amber-700,
@@ -896,7 +935,7 @@ html.dark .text-amber-800,
 html.dark .text-amber-400,
 html.dark .text-amber-500,
 html.dark .text-amber-300 {
-  color: #FBBF24 !important;
+  color: #D99B7F !important;
 }
 
 html.dark .bg-blue-50,
@@ -904,53 +943,50 @@ html.dark .bg-blue-100,
 html.dark .bg-blue-950\/60,
 html.dark div[class*="bg-blue-950"],
 html.dark div[class*="dark:bg-blue-950"] {
-  background-color: rgba(36, 90, 145, 0.25) !important;
-  color: #60A5FA !important;
+  background-color: rgba(217, 155, 127, 0.18) !important;
+  color: #FFFFFF !important;
 }
 
 html.dark .text-blue-700,
 html.dark .text-blue-800,
 html.dark .text-blue-400,
 html.dark .text-blue-300 {
-  color: #60A5FA !important;
+  color: #D99B7F !important;
 }
 
 /* React-Toastify in Dark Mode */
 html.dark .cc-toast {
-  background: #131E30 !important;
-  color: #F8FAFC !important;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
+  background: #464858 !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45) !important;
 }
 
 html.dark .cc-toast-success {
-  border: 1px solid #22334D !important;
-  border-left: 4px solid #34D399 !important;
+  border-left: 4px solid #A56F63 !important;
 }
 
 html.dark .cc-toast-error {
-  border: 1px solid #22334D !important;
   border-left: 4px solid #F87171 !important;
 }
 
 html.dark .cc-toast-info {
-  border: 1px solid #22334D !important;
-  border-left: 4px solid #60A5FA !important;
+  border-left: 4px solid #D99B7F !important;
 }
 
 html.dark .cc-toast-warning {
-  border: 1px solid #22334D !important;
-  border-left: 4px solid #FBBF24 !important;
+  border-left: 4px solid #D99B7F !important;
 }
 
 /* Scrollbars in Dark Mode */
 html.dark ::-webkit-scrollbar-track {
-  background: #0B1320;
+  background: #0F3040;
 }
 html.dark ::-webkit-scrollbar-thumb {
-  background: #22334D;
+  background: #464858;
 }
 html.dark ::-webkit-scrollbar-thumb:hover {
-  background: #354D71;
+  background: #A56F63;
 }
 
 /* ==========================================================================
@@ -974,10 +1010,10 @@ html.dark ::-webkit-scrollbar-thumb:hover {
 .Toastify__progress-bar--info { background: #245A91 !important; }
 .Toastify__progress-bar--warning { background: #986A16 !important; }
 
-html.dark .Toastify__progress-bar--success { background: #34D399 !important; }
+html.dark .Toastify__progress-bar--success { background: #A56F63 !important; }
 html.dark .Toastify__progress-bar--error { background: #F87171 !important; }
-html.dark .Toastify__progress-bar--info { background: #60A5FA !important; }
-html.dark .Toastify__progress-bar--warning { background: #FBBF24 !important; }
+html.dark .Toastify__progress-bar--info { background: #D99B7F !important; }
+html.dark .Toastify__progress-bar--warning { background: #D99B7F !important; }
 
 /* Clean Scrollbar Dimensions */
 ::-webkit-scrollbar {
