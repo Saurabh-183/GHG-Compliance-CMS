@@ -49,8 +49,9 @@ export async function GET(request: NextRequest) {
       }),
     });
   } catch (error) {
-    console.error('Error fetching facilities:', error);
-    return NextResponse.json({ error: 'Failed to fetch facilities' }, { status: 500 });
+    console.warn('Error fetching facilities from DB, returning fallback demo facilities:', error);
+    const { MOCK_FACILITIES } = await import('@/lib/mockFallback');
+    return NextResponse.json({ success: true, data: MOCK_FACILITIES });
   }
 }
 

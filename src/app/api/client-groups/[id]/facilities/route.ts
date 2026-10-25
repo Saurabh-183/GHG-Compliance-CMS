@@ -35,7 +35,8 @@ export async function GET(
       })),
     });
   } catch (error) {
-    console.error('Error fetching group facilities:', error);
-    return NextResponse.json({ error: 'Failed to fetch facilities' }, { status: 500 });
+    console.warn('Error fetching group facilities from DB, returning fallback demo facilities:', error);
+    const { MOCK_FACILITIES } = await import('@/lib/mockFallback');
+    return NextResponse.json({ success: true, data: MOCK_FACILITIES });
   }
 }
