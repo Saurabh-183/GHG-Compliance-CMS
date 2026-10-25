@@ -82,13 +82,16 @@ export default function ClientGroupDetailPage() {
       <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 sm:p-8 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-start gap-4">
-            <div className="w-16 h-16 rounded-xl bg-[#EAF1F8] dark:bg-emerald-900/60 border border-[#D5DCE5] dark:border-emerald-700/60 flex items-center justify-center font-bold text-[#17365D] dark:text-emerald-300 text-xl shadow-2xs shrink-0">
-              {group.code}
+            <div className="w-16 h-16 rounded-xl bg-[#EAF1F8] dark:bg-[#464858] border border-[#D5DCE5] dark:border-slate-700 flex items-center justify-center text-[#17365D] dark:text-[#D99B7F] shadow-2xs shrink-0">
+              <Building2 className="w-8 h-8 text-[#17365D] dark:text-[#D99B7F]" />
             </div>
             <div>
-              <div className="flex flex-wrap items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{group.name}</h1>
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#EAF1F8] dark:bg-emerald-500/10 text-[#17365D] dark:text-emerald-400 border border-[#D5DCE5] dark:border-emerald-500/20">
+                <span className="px-2 py-0.5 rounded text-xs font-mono font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                  {group.code}
+                </span>
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#EAF1F8] dark:bg-[#A56F63]/25 text-[#17365D] dark:text-[#D99B7F] border border-[#D5DCE5] dark:border-[#A56F63]/40">
                   Client Conglomerate
                 </span>
               </div>
@@ -153,11 +156,14 @@ export default function ClientGroupDetailPage() {
               className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-5 shadow-sm hover:shadow-md hover:border-[#17365D]/40 dark:hover:border-emerald-500/40 transition-all flex flex-col justify-between"
             >
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#EAF1F8] dark:bg-slate-800 text-[#17365D] dark:text-slate-300 border border-[#D5DCE5] dark:border-slate-700">
+                <div className="flex items-center justify-between gap-2">
+                  <span
+                    className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#EAF1F8] dark:bg-slate-800 text-[#17365D] dark:text-slate-300 border border-[#D5DCE5] dark:border-slate-700 truncate max-w-[200px]"
+                    title={facility.facilityId}
+                  >
                     {facility.facilityId}
                   </span>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#E7F3EB] dark:bg-emerald-500/10 text-[#237347] dark:text-emerald-400 border border-[#237347]/20">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#E7F3EB] dark:bg-emerald-500/10 text-[#237347] dark:text-emerald-400 border border-[#237347]/20 shrink-0">
                     Active Facility
                   </span>
                 </div>

@@ -356,6 +356,11 @@ html.light .border-emerald-800\/60 {
 }
 
 /* Text Hierarchy in Light Mode */
+html:not(.dark) .text-black,
+html.light .text-black {
+  color: #000000 !important;
+}
+
 html:not(.dark) h1:not(button *):not([class*="bg-[#17365D]"] *):not([class*="bg-emerald"] *),
 html:not(.dark) h2:not(button *):not([class*="bg-[#17365D]"] *):not([class*="bg-emerald"] *),
 html:not(.dark) h3:not(button *):not([class*="bg-[#17365D]"] *):not([class*="bg-emerald"] *),
@@ -808,6 +813,7 @@ html.dark div[class*="dark:border-emerald-800"] {
 }
 
 /* Strict Pure White (#FFFFFF) Typography Hierarchy in Dark Mode */
+html.dark .text-black,
 html.dark h1,
 html.dark h2,
 html.dark h3,
