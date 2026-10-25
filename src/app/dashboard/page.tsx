@@ -21,6 +21,115 @@ import { ICalendarItem, IClarification, IClientGroup, IFacility } from '@/types'
 import { formatDate } from '@/lib/utils';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import { MOCK_CLIENT_GROUPS } from '@/lib/mockFallback';
+import { CompanySelectMui } from '@/components/dashboard/CompanySelectMui';
+
+function generateDeadlinesForFacilities(facilities: IFacility[]): ICalendarItem[] {
+  if (!facilities || facilities.length === 0) return [];
+
+  const standardCycles = [
+    {
+      complianceType: 'CEA' as const,
+      reportingPeriod: 'June 2025 Electricity Returns',
+      regulatoryDueDate: '2025-07-15T00:00:00.000Z',
+      status: 'PENDING' as const,
+      isRecurringCEA: true,
+    },
+    {
+      complianceType: 'CEA' as const,
+      reportingPeriod: 'July 2025 Electricity Returns',
+      regulatoryDueDate: '2025-08-15T00:00:00.000Z',
+      status: 'UPCOMING' as const,
+      isRecurringCEA: true,
+    },
+    {
+      complianceType: 'RCO' as const,
+      reportingPeriod: 'FY2025-26 (Q1 Reconciliation)',
+      regulatoryDueDate: '2025-09-30T00:00:00.000Z',
+      status: 'PENDING' as const,
+      isRecurringCEA: false,
+    },
+    {
+      complianceType: 'PAT' as const,
+      reportingPeriod: 'PAT Monitoring Period Assessment',
+      regulatoryDueDate: '2025-10-31T00:00:00.000Z',
+      status: 'PENDING' as const,
+      isRecurringCEA: false,
+    },
+    {
+      complianceType: 'CCTS' as const,
+      reportingPeriod: 'CCTS Annual Compliance Filing',
+      regulatoryDueDate: '2025-11-30T00:00:00.000Z',
+      status: 'UPCOMING' as const,
+      isRecurringCEA: false,
+    },
+  ];
+
+  const items: ICalendarItem[] = [];
+
+  if (facilities.length === 1) {
+    const fac = facilities[0];
+    standardCycles.slice(0, 4).forEach((cycle, idx) => {
+      items.push({
+        _id: `cal_${fac.facilityId}_${cycle.complianceType}_${idx}`,
+        facilityId: fac.facilityId,
+        facilityName: fac.name,
+        complianceType: cycle.complianceType,
+        reportingPeriod: cycle.reportingPeriod,
+        regulatoryDueDate: cycle.regulatoryDueDate,
+        internalDeadline: cycle.regulatoryDueDate,
+        clientDataSubmissionDeadline: cycle.regulatoryDueDate,
+        assignedConsultantId: 'USR_CONS_01',
+        status: cycle.status,
+        actualSubmissionDate: null,
+        extensionHistory: [],
+        isRecurringCEA: cycle.isRecurringCEA,
+      });
+    });
+    return items;
+  }
+
+  facilities.forEach((fac, facIdx) => {
+    const cycle1 = standardCycles[facIdx % standardCycles.length];
+    items.push({
+      _id: `cal_${fac.facilityId}_${cycle1.complianceType}_${facIdx}`,
+      facilityId: fac.facilityId,
+      facilityName: fac.name,
+      complianceType: cycle1.complianceType,
+      reportingPeriod: cycle1.reportingPeriod,
+      regulatoryDueDate: cycle1.regulatoryDueDate,
+      internalDeadline: cycle1.regulatoryDueDate,
+      clientDataSubmissionDeadline: cycle1.regulatoryDueDate,
+      assignedConsultantId: 'USR_CONS_01',
+      status: cycle1.status,
+      actualSubmissionDate: null,
+      extensionHistory: [],
+      isRecurringCEA: cycle1.isRecurringCEA,
+    });
+
+    if (facilities.length <= 3) {
+      const cycle2 = standardCycles[(facIdx + 2) % standardCycles.length];
+      items.push({
+        _id: `cal_${fac.facilityId}_${cycle2.complianceType}_${facIdx}_b`,
+        facilityId: fac.facilityId,
+        facilityName: fac.name,
+        complianceType: cycle2.complianceType,
+        reportingPeriod: cycle2.reportingPeriod,
+        regulatoryDueDate: cycle2.regulatoryDueDate,
+        internalDeadline: cycle2.regulatoryDueDate,
+        clientDataSubmissionDeadline: cycle2.regulatoryDueDate,
+        assignedConsultantId: 'USR_CONS_01',
+        status: cycle2.status,
+        actualSubmissionDate: null,
+        extensionHistory: [],
+        isRecurringCEA: cycle2.isRecurringCEA,
+      });
+    }
+  });
+
+  return items.sort(
+    (a, b) => new Date(a.regulatoryDueDate).getTime() - new Date(b.regulatoryDueDate).getTime()
+  );
+}
 
 export default function DashboardPage() {
   const { currentRole, currentUser } = useAuth();
@@ -98,14 +207,25 @@ export default function DashboardPage() {
     ? calendarItems.filter((item) =>
         currentFacilities.some(
           (f) =>
-            f.facilityId === item.facilityId ||
-            (item.facilityName && f.name.toLowerCase().includes(item.facilityName.toLowerCase()))
+            f.facilityId.toUpperCase() === item.facilityId.toUpperCase() ||
+            (item.facilityName &&
+              (f.name.toLowerCase().includes(item.facilityName.toLowerCase()) ||
+                item.facilityName.toLowerCase().includes(f.name.toLowerCase())))
         )
       )
     : calendarItems;
 
-  const displayCalendarItems =
-    filteredCalendarItems.length > 0 ? filteredCalendarItems : calendarItems;
+  // Generate dynamic statutory calendar items for the selected company's operating units if not already in DB
+  const fallbackCompanyCalendarItems: ICalendarItem[] = React.useMemo(() => {
+    if (!selectedGroup || currentFacilities.length === 0) return [];
+    return generateDeadlinesForFacilities(currentFacilities);
+  }, [selectedGroup, currentFacilities]);
+
+  const displayCalendarItems = selectedGroup
+    ? filteredCalendarItems.length > 0
+      ? filteredCalendarItems
+      : fallbackCompanyCalendarItems
+    : calendarItems;
 
   const totalUnitsCount = allFacilities.length || 109;
   const isTridentSelected =
@@ -129,50 +249,24 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5">
-          {/* Company Selector Dropdown */}
-          <div className="relative inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white dark:bg-[#464858] border border-slate-300 dark:border-slate-700 shadow-2xs">
-            <Building2 className="w-4 h-4 text-[#17365D] dark:text-[#D99B7F] shrink-0" />
-            <div className="flex flex-col">
-              <span className="text-[9px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-bold leading-none">
-                Select Company
-              </span>
-              <select
-                value={selectedCompanyId}
-                onChange={(e) => setSelectedCompanyId(e.target.value)}
-                className="text-xs font-bold bg-transparent text-slate-800 dark:text-white focus:outline-none cursor-pointer pr-4 appearance-none"
-                style={{ colorScheme: 'auto' }}
-              >
-                <option value="ALL" className="text-slate-900 bg-white dark:bg-[#464858] dark:text-white font-semibold">
-                  All Client Companies ({groups.length || 15} Groups)
-                </option>
-                {groups.map((g) => {
-                  const unitCount = g.totalFacilitiesCount || g.facilities?.length || 0;
-                  return (
-                    <option
-                      key={g._id}
-                      value={g._id}
-                      className="text-slate-900 bg-white dark:bg-[#464858] dark:text-white font-semibold"
-                    >
-                      {g.name} ({unitCount} {unitCount === 1 ? 'Unit' : 'Units'})
-                    </option>
-                  );
-                })}
-              </select>
-            </div>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 dark:text-slate-300 pointer-events-none shrink-0" />
-          </div>
+        <div className="flex flex-wrap items-center gap-3">
+          {/* MUI Company Selector Dropdown */}
+          <CompanySelectMui
+            groups={groups}
+            selectedCompanyId={selectedCompanyId}
+            onCompanyChange={(id) => setSelectedCompanyId(id)}
+          />
 
           {/* Dynamic Compliance Matrix Button */}
           <Link
             href={`/facilities/${primaryFacilityId}`}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#17365D] hover:bg-[#102947] dark:bg-[#A56F63] dark:hover:bg-[#8C594E] !text-white text-xs font-semibold shadow-sm transition-all"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#17365D] hover:bg-[#102947] dark:bg-[#A56F63] dark:hover:bg-[#8C594E] !text-white text-xs font-semibold shadow-sm transition-all"
             style={{ color: '#FFFFFF' }}
           >
             <Building2 className="w-3.5 h-3.5 !text-white" style={{ stroke: '#FFFFFF' }} />
             <span className="!text-white font-semibold" style={{ color: '#FFFFFF' }}>
               {selectedGroup
-                ? `${selectedGroup.name.split(' ')[0]} Compliance Matrix`
+                ? `${selectedGroup.name.split(' ')[0]} Matrix`
                 : 'Trident Paper Matrix'}
             </span>
           </Link>
@@ -180,7 +274,7 @@ export default function DashboardPage() {
           {/* Compliance Calendar Link */}
           <Link
             href="/calendar"
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white hover:bg-slate-100 text-slate-700 text-xs font-medium border border-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 dark:border-slate-700 transition-colors shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold border border-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 dark:border-slate-700 transition-colors shadow-2xs"
           >
             <Calendar className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Compliance Calendar</span>
@@ -245,7 +339,9 @@ export default function DashboardPage() {
             <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
           </div>
           <div className="text-2xl font-bold text-slate-900 dark:text-white mt-2">
-            {selectedGroup ? Math.max(1, Math.min(12, Math.round(currentFacilities.length * 0.4))) : (calendarItems.filter((c) => c.status === 'PENDING').length || 4)}
+            {selectedGroup
+              ? displayCalendarItems.length
+              : (calendarItems.filter((c) => c.status === 'PENDING').length || 4)}
           </div>
           <div className="text-[11px] text-amber-700 dark:text-amber-400 mt-1">
             {selectedGroup ? `Statutory Cycles for ${selectedGroup.name.split(' ')[0]}` : 'Next due: July CEA Filing'}
@@ -323,9 +419,16 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
               <Calendar className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
-              Statutory Deadlines & Compliance Calendar
+              <span>
+                {selectedGroup
+                  ? `${selectedGroup.name} Statutory Deadlines`
+                  : 'Statutory Deadlines & Compliance Calendar'}
+              </span>
             </h3>
-            <Link href="/calendar" className="text-xs text-emerald-700 dark:text-emerald-400 hover:underline">
+            <Link
+              href={selectedGroup ? `/calendar?search=${encodeURIComponent(selectedGroup.name)}` : '/calendar'}
+              className="text-xs text-emerald-700 dark:text-emerald-400 hover:underline"
+            >
               View full calendar
             </Link>
           </div>

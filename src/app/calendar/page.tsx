@@ -12,6 +12,7 @@ import {
   Plus,
   RefreshCw,
   History,
+  Search,
 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
@@ -20,6 +21,7 @@ import { notify } from '@/lib/notify';
 export default function ComplianceCalendarPage() {
   const [items, setItems] = useState<ICalendarItem[]>([]);
   const [filter, setFilter] = useState<string>('ALL');
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [extendingItem, setExtendingItem] = useState<ICalendarItem | null>(null);
   const [newDueDate, setNewDueDate] = useState('');
@@ -44,6 +46,11 @@ export default function ComplianceCalendarPage() {
 
   useEffect(() => {
     loadCalendar();
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const search = params.get('search') || params.get('company');
+      if (search) setSearchQuery(search);
+    }
   }, []);
 
   const handleExtendDeadline = async (e: React.FormEvent) => {
@@ -86,14 +93,19 @@ export default function ComplianceCalendarPage() {
   }
 
   const filteredItems = items.filter((item) => {
-    if (filter === 'ALL') return true;
-    return item.complianceType === filter;
+    const matchesFilter = filter === 'ALL' || item.complianceType === filter;
+    const matchesSearch =
+      !searchQuery ||
+      (item.facilityName && item.facilityName.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (item.facilityId && item.facilityId.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (item.reportingPeriod && item.reportingPeriod.toLowerCase().includes(searchQuery.toLowerCase()));
+    return matchesFilter && matchesSearch;
   });
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2.5">
             <CalendarIcon className="w-6 h-6 text-emerald-700 dark:text-emerald-400" />
@@ -104,21 +116,35 @@ export default function ComplianceCalendarPage() {
           </p>
         </div>
 
-        {/* Filter Pills */}
-        <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-900 p-1 rounded-lg border border-slate-200 dark:border-slate-800">
-          {['ALL', 'RCO', 'PAT', 'CCTS', 'CEA'].map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setFilter(cat)}
-              className={`px-3 py-1 rounded text-xs font-semibold transition-colors ${
-                filter === cat
-                  ? 'bg-emerald-700 text-white font-bold shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Company / Facility Search Input */}
+          <div className="relative">
+            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search company or facility..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-8 pr-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-500 w-56 sm:w-64"
+            />
+          </div>
+
+          {/* Filter Pills */}
+          <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-900 p-1 rounded-lg border border-slate-200 dark:border-slate-800">
+            {['ALL', 'RCO', 'PAT', 'CCTS', 'CEA'].map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setFilter(cat)}
+                className={`px-3 py-1 rounded text-xs font-semibold transition-colors ${
+                  filter === cat
+                    ? 'bg-emerald-700 text-white font-bold shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -189,6 +215,21 @@ export default function ComplianceCalendarPage() {
                   </td>
                 </tr>
               ))}
+              {filteredItems.length === 0 && (
+                <tr>
+                  <td colSpan={8} className="py-8 text-center text-xs text-slate-500 dark:text-slate-400">
+                    No compliance deadlines found{searchQuery ? ` matching "${searchQuery}"` : ''}.
+                    {searchQuery && (
+                      <button
+                        onClick={() => setSearchQuery('')}
+                        className="ml-2 text-emerald-600 dark:text-emerald-400 font-semibold hover:underline"
+                      >
+                        Clear search
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

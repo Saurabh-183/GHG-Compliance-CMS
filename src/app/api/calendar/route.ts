@@ -73,6 +73,131 @@ export async function GET(request: NextRequest) {
       isRecurringCEA: i.isRecurringCEA,
     }));
 
+    // If specific facility requested but not found in DB CalendarItemModel, provide standard compliance deadlines
+    if (facilityId && responseData.length === 0) {
+      const fac =
+        (await FacilityModel.findOne({ facilityId: facilityId.toUpperCase() }).lean()) ||
+        (await import('@/lib/mockFallback')).MOCK_FACILITIES.find(
+          (f) => f.facilityId.toUpperCase() === facilityId.toUpperCase()
+        );
+
+      if (fac) {
+        responseData.push(
+          {
+            _id: `cal_gen_${fac.facilityId}_CEA`,
+            facilityId: fac.facilityId,
+            facilityName: fac.name,
+            complianceType: 'CEA',
+            reportingPeriod: 'June 2025 Electricity Returns',
+            regulatoryDueDate: '2025-07-15T00:00:00.000Z',
+            internalDeadline: '2025-07-10T00:00:00.000Z',
+            clientDataSubmissionDeadline: '2025-07-05T00:00:00.000Z',
+            assignedConsultantId: 'USR_CONS_01',
+            status: 'PENDING',
+            actualSubmissionDate: null,
+            extensionHistory: [],
+            isRecurringCEA: true,
+          },
+          {
+            _id: `cal_gen_${fac.facilityId}_PAT`,
+            facilityId: fac.facilityId,
+            facilityName: fac.name,
+            complianceType: 'PAT',
+            reportingPeriod: 'Cycle VII Monitoring Period Assessment',
+            regulatoryDueDate: '2025-10-31T00:00:00.000Z',
+            internalDeadline: '2025-09-30T00:00:00.000Z',
+            clientDataSubmissionDeadline: '2025-09-15T00:00:00.000Z',
+            assignedConsultantId: 'USR_CONS_01',
+            status: 'PENDING',
+            actualSubmissionDate: null,
+            extensionHistory: [],
+            isRecurringCEA: false,
+          },
+          {
+            _id: `cal_gen_${fac.facilityId}_RCO`,
+            facilityId: fac.facilityId,
+            facilityName: fac.name,
+            complianceType: 'RCO',
+            reportingPeriod: 'FY2025-26 (Q1 Reconciliation)',
+            regulatoryDueDate: '2025-09-30T00:00:00.000Z',
+            internalDeadline: '2025-08-31T00:00:00.000Z',
+            clientDataSubmissionDeadline: '2025-08-15T00:00:00.000Z',
+            assignedConsultantId: 'USR_CONS_01',
+            status: 'PENDING',
+            actualSubmissionDate: null,
+            extensionHistory: [],
+            isRecurringCEA: false,
+          }
+        );
+      }
+    }
+
+    // If database only has items for Trident, enrich with statutory deadlines for other client facilities
+    if (responseData.length <= 5 && !facilityId) {
+      const allDbFacilities = await FacilityModel.find({}).lean();
+      const facilityPool =
+        allDbFacilities.length > 0
+          ? allDbFacilities
+          : (await import('@/lib/mockFallback')).MOCK_FACILITIES;
+
+      const existingFacilityIds = new Set(responseData.map((i) => i.facilityId.toUpperCase()));
+      const additionalItems: ICalendarItem[] = [];
+
+      for (const fac of facilityPool) {
+        if (!existingFacilityIds.has(fac.facilityId.toUpperCase())) {
+          existingFacilityIds.add(fac.facilityId.toUpperCase());
+          additionalItems.push(
+            {
+              _id: `cal_gen_${fac.facilityId}_CEA_01`,
+              facilityId: fac.facilityId,
+              facilityName: fac.name,
+              complianceType: 'CEA',
+              reportingPeriod: 'June 2025 Electricity Returns',
+              regulatoryDueDate: '2025-07-15T00:00:00.000Z',
+              internalDeadline: '2025-07-10T00:00:00.000Z',
+              clientDataSubmissionDeadline: '2025-07-05T00:00:00.000Z',
+              assignedConsultantId: 'USR_CONS_01',
+              status: 'PENDING',
+              actualSubmissionDate: null,
+              extensionHistory: [],
+              isRecurringCEA: true,
+            },
+            {
+              _id: `cal_gen_${fac.facilityId}_PAT_02`,
+              facilityId: fac.facilityId,
+              facilityName: fac.name,
+              complianceType: 'PAT',
+              reportingPeriod: 'Cycle VII Monitoring Period Assessment',
+              regulatoryDueDate: '2025-10-31T00:00:00.000Z',
+              internalDeadline: '2025-09-30T00:00:00.000Z',
+              clientDataSubmissionDeadline: '2025-09-15T00:00:00.000Z',
+              assignedConsultantId: 'USR_CONS_01',
+              status: 'PENDING',
+              actualSubmissionDate: null,
+              extensionHistory: [],
+              isRecurringCEA: false,
+            },
+            {
+              _id: `cal_gen_${fac.facilityId}_RCO_03`,
+              facilityId: fac.facilityId,
+              facilityName: fac.name,
+              complianceType: 'RCO',
+              reportingPeriod: 'FY2025-26 (Q1 Reconciliation)',
+              regulatoryDueDate: '2025-09-30T00:00:00.000Z',
+              internalDeadline: '2025-08-31T00:00:00.000Z',
+              clientDataSubmissionDeadline: '2025-08-15T00:00:00.000Z',
+              assignedConsultantId: 'USR_CONS_01',
+              status: 'PENDING',
+              actualSubmissionDate: null,
+              extensionHistory: [],
+              isRecurringCEA: false,
+            }
+          );
+        }
+      }
+      responseData.push(...additionalItems);
+    }
+
     return NextResponse.json({
       success: true,
       data: responseData,
@@ -147,6 +272,96 @@ export async function GET(request: NextRequest) {
         actualSubmissionDate: null,
         extensionHistory: [],
         isRecurringCEA: false,
+      },
+      {
+        _id: 'cal_demo_kajaria_01',
+        facilityId: 'KAJARIA_GAILPUR',
+        facilityName: 'Kajaria Ceramics - Gailpur',
+        complianceType: 'CEA',
+        reportingPeriod: 'June 2025 Electricity Returns',
+        regulatoryDueDate: '2025-07-15T00:00:00.000Z',
+        internalDeadline: '2025-07-10T00:00:00.000Z',
+        clientDataSubmissionDeadline: '2025-07-05T00:00:00.000Z',
+        assignedConsultantId: 'USR_CONS_01',
+        status: 'PENDING',
+        actualSubmissionDate: null,
+        extensionHistory: [],
+        isRecurringCEA: true,
+      },
+      {
+        _id: 'cal_demo_kajaria_02',
+        facilityId: 'KAJARIA_MALUTANA',
+        facilityName: 'Kajaria Ceramics - Malutana',
+        complianceType: 'CEA',
+        reportingPeriod: 'July 2025 Electricity Returns',
+        regulatoryDueDate: '2025-08-15T00:00:00.000Z',
+        internalDeadline: '2025-08-10T00:00:00.000Z',
+        clientDataSubmissionDeadline: '2025-08-05T00:00:00.000Z',
+        assignedConsultantId: 'USR_CONS_01',
+        status: 'UPCOMING',
+        actualSubmissionDate: null,
+        extensionHistory: [],
+        isRecurringCEA: true,
+      },
+      {
+        _id: 'cal_demo_kajaria_03',
+        facilityId: 'KAJARIA_SIKANDERABAD',
+        facilityName: 'Kajaria Ceramics - Sikanderabad',
+        complianceType: 'RCO',
+        reportingPeriod: 'FY2025-26 (Q1 Reconciliation)',
+        regulatoryDueDate: '2025-09-30T00:00:00.000Z',
+        internalDeadline: '2025-08-31T00:00:00.000Z',
+        clientDataSubmissionDeadline: '2025-08-15T00:00:00.000Z',
+        assignedConsultantId: 'USR_CONS_01',
+        status: 'PENDING',
+        actualSubmissionDate: null,
+        extensionHistory: [],
+        isRecurringCEA: false,
+      },
+      {
+        _id: 'cal_demo_kajaria_04',
+        facilityId: 'KAJARIA_SRIKALAHASTI',
+        facilityName: 'Kajaria Ceramics - Srikalahasti',
+        complianceType: 'PAT',
+        reportingPeriod: 'PAT Monitoring Period Assessment',
+        regulatoryDueDate: '2025-10-31T00:00:00.000Z',
+        internalDeadline: '2025-09-30T00:00:00.000Z',
+        clientDataSubmissionDeadline: '2025-09-15T00:00:00.000Z',
+        assignedConsultantId: 'USR_CONS_01',
+        status: 'PENDING',
+        actualSubmissionDate: null,
+        extensionHistory: [],
+        isRecurringCEA: false,
+      },
+      {
+        _id: 'cal_demo_utc_01',
+        facilityId: 'UTC_KOTPUTLI',
+        facilityName: 'Kotputli Cement Works (Ultratech Cement)',
+        complianceType: 'CEA',
+        reportingPeriod: 'June 2025 Electricity Returns',
+        regulatoryDueDate: '2025-07-15T00:00:00.000Z',
+        internalDeadline: '2025-07-10T00:00:00.000Z',
+        clientDataSubmissionDeadline: '2025-07-05T00:00:00.000Z',
+        assignedConsultantId: 'USR_CONS_01',
+        status: 'PENDING',
+        actualSubmissionDate: null,
+        extensionHistory: [],
+        isRecurringCEA: true,
+      },
+      {
+        _id: 'cal_demo_hero_01',
+        facilityId: 'HERO_DHARUHERA',
+        facilityName: 'Hero MotoCorp - Dharuhera',
+        complianceType: 'CEA',
+        reportingPeriod: 'June 2025 Electricity Returns',
+        regulatoryDueDate: '2025-07-15T00:00:00.000Z',
+        internalDeadline: '2025-07-10T00:00:00.000Z',
+        clientDataSubmissionDeadline: '2025-07-05T00:00:00.000Z',
+        assignedConsultantId: 'USR_CONS_01',
+        status: 'PENDING',
+        actualSubmissionDate: null,
+        extensionHistory: [],
+        isRecurringCEA: true,
       },
     ];
 
