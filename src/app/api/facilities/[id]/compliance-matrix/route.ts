@@ -56,6 +56,32 @@ export async function GET(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    // Resolve client group details (name and code) for accurate breadcrumbs and routing
+    let clientGroupName = (facility as any).clientGroupName;
+    let clientGroupCode = (facility as any).clientGroupCode || (facility as any).code;
+    const rawGroupId = (facility as any).clientGroupId?.toString() || '';
+
+    if (!clientGroupName && rawGroupId) {
+      if (mongoose.Types.ObjectId.isValid(rawGroupId)) {
+        const { ClientGroupModel } = await import('@/models/ClientGroup');
+        const cg = await ClientGroupModel.findById(rawGroupId).lean();
+        if (cg) {
+          clientGroupName = cg.name;
+          clientGroupCode = cg.code;
+        }
+      }
+      if (!clientGroupName) {
+        const { MOCK_CLIENT_GROUPS } = await import('@/lib/mockFallback');
+        const cg = MOCK_CLIENT_GROUPS.find(
+          (g) => g._id === rawGroupId || g.code.toUpperCase() === rawGroupId.toUpperCase()
+        );
+        if (cg) {
+          clientGroupName = cg.name;
+          clientGroupCode = cg.code;
+        }
+      }
+    }
+
     const facilityCode = facility.facilityId;
 
     // Fetch applicability records for this facility
@@ -134,7 +160,9 @@ export async function GET(
         facility: {
           ...facility,
           _id: facility._id.toString(),
-          clientGroupId: facility.clientGroupId.toString(),
+          clientGroupId: rawGroupId,
+          clientGroupName: clientGroupName || (facility as any).clientGroupName || 'Client Group',
+          clientGroupCode: clientGroupCode || rawGroupId,
         },
         periods,
         compliances,
@@ -178,23 +206,41 @@ export async function GET(
       },
     };
 
-    const { MOCK_FACILITIES } = await import('@/lib/mockFallback');
+    const { MOCK_FACILITIES, MOCK_CLIENT_GROUPS } = await import('@/lib/mockFallback');
     const foundFacility = MOCK_FACILITIES.find(
       (f) => f.facilityId === id.toUpperCase() || f._id === id
-    ) || {
-      _id: 'fac_' + id.toLowerCase(),
-      facilityId: id.toUpperCase(),
-      name: id.replace(/_/g, ' '),
-      clientGroupId: 'TRIDENT',
-      location: 'Industrial Complex Site',
-      category: 'Designated Consumer (DC)',
-      status: 'ACTIVE',
-    };
+    );
+
+    let resolvedFacility = foundFacility;
+    if (!resolvedFacility) {
+      resolvedFacility = {
+        _id: 'fac_' + id.toLowerCase(),
+        facilityId: id.toUpperCase(),
+        name: id.replace(/_/g, ' '),
+        clientGroupId: 'TRIDENT',
+        clientGroupName: 'Trident Group',
+        clientGroupCode: 'TRIDENT',
+        location: 'Industrial Complex Site',
+        category: 'Designated Consumer (DC)',
+        status: 'ACTIVE',
+      };
+    } else {
+      const matchedGroup = MOCK_CLIENT_GROUPS.find(
+        (g) => g._id === resolvedFacility.clientGroupId || g.code === resolvedFacility.clientGroupId
+      );
+      if (matchedGroup) {
+        resolvedFacility = {
+          ...resolvedFacility,
+          clientGroupName: matchedGroup.name,
+          clientGroupCode: matchedGroup.code,
+        };
+      }
+    }
 
     return NextResponse.json({
       success: true,
       data: {
-        facility: foundFacility,
+        facility: resolvedFacility,
         periods,
         compliances,
         matrix,

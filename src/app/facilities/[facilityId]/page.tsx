@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
+import { MOCK_CLIENT_GROUPS, MOCK_FACILITIES } from '@/lib/mockFallback';
 
 export default function FacilityDashboardPage() {
   const params = useParams();
@@ -95,15 +96,73 @@ export default function FacilityDashboardPage() {
 
   const { facility } = matrixData;
 
+  // Dynamically resolve client group info for breadcrumbs
+  const resolvedGroup = React.useMemo(() => {
+    // 1. Direct facility.clientGroupName if valid
+    if (facility.clientGroupName && facility.clientGroupName !== 'Client Group') {
+      return {
+        name: facility.clientGroupName,
+        id: facility.clientGroupId || facility.clientGroupCode || '',
+      };
+    }
+
+    // 2. Lookup in MOCK_FACILITIES & MOCK_CLIENT_GROUPS
+    const mockFac = MOCK_FACILITIES.find(
+      (f) =>
+        f.facilityId.toUpperCase() === facility.facilityId.toUpperCase() ||
+        f._id === facility._id
+    );
+    if (mockFac) {
+      const g = MOCK_CLIENT_GROUPS.find(
+        (cg) => cg._id === mockFac.clientGroupId || cg.code === mockFac.clientGroupId
+      );
+      if (g) {
+        return { name: g.name, id: g._id || g.code };
+      }
+      if (mockFac.clientGroupName) {
+        return { name: mockFac.clientGroupName, id: mockFac.clientGroupId };
+      }
+    }
+
+    // 3. Match from facility.clientGroupId in MOCK_CLIENT_GROUPS
+    if (facility.clientGroupId) {
+      const g = MOCK_CLIENT_GROUPS.find(
+        (cg) => cg._id === facility.clientGroupId || cg.code === facility.clientGroupId
+      );
+      if (g) {
+        return { name: g.name, id: g._id || g.code };
+      }
+    }
+
+    // 4. Match company prefix from facility name (e.g. "N R Agarwal Unit 1" -> "N R Agarwal")
+    for (const g of MOCK_CLIENT_GROUPS) {
+      if (facility.name.toLowerCase().includes(g.name.toLowerCase())) {
+        return { name: g.name, id: g._id || g.code };
+      }
+    }
+
+    return {
+      name: facility.clientGroupName || 'Client Group',
+      id: facility.clientGroupId || '',
+    };
+  }, [facility]);
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Breadcrumbs */}
-      <div className="flex items-center gap-2 text-xs text-slate-400">
-        <Link href="/clients" className="hover:text-emerald-400">Clients</Link>
-        <ChevronRight className="w-3 h-3 text-slate-600" />
-        <Link href="/clients/TRIDENT" className="hover:text-emerald-400">Trident Group</Link>
-        <ChevronRight className="w-3 h-3 text-slate-600" />
-        <span className="text-slate-200 font-semibold">{facility.name}</span>
+      <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+        <Link href="/clients" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
+          Clients
+        </Link>
+        <ChevronRight className="w-3 h-3 text-slate-400 dark:text-slate-600" />
+        <Link
+          href={resolvedGroup.id ? `/clients/${resolvedGroup.id}` : '/clients'}
+          className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors font-medium"
+        >
+          {resolvedGroup.name}
+        </Link>
+        <ChevronRight className="w-3 h-3 text-slate-400 dark:text-slate-600" />
+        <span className="text-slate-900 dark:text-slate-200 font-semibold">{facility.name}</span>
       </div>
 
       {/* Facility Header Card */}

@@ -63,7 +63,12 @@ export default function AssessmentDataPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-xs text-slate-400">
-        <Link href="/facilities/TRIDENT_PAPER" className="hover:text-emerald-400">Trident Paper</Link>
+        <Link
+          href={`/facilities/${assessment?.facilityId || 'TRIDENT_PAPER'}`}
+          className="hover:text-emerald-400"
+        >
+          {assessment?.facilityName || assessment?.facilityId || 'Facility'}
+        </Link>
         <ChevronRight className="w-3 h-3 text-slate-600" />
         <Link href={`/assessments/${assessmentId}`} className="hover:text-emerald-400">Assessment</Link>
         <ChevronRight className="w-3 h-3 text-slate-600" />

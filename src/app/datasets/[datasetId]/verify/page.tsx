@@ -72,9 +72,19 @@ export default function DatasetVerifyPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       {/* Breadcrumbs */}
       <div className="flex items-center gap-2 text-xs text-slate-400">
-        <Link href="/facilities/TRIDENT_PAPER" className="hover:text-emerald-400">Trident Paper</Link>
+        <Link
+          href={`/facilities/${dataset?.facilityId || 'TRIDENT_PAPER'}`}
+          className="hover:text-emerald-400"
+        >
+          {dataset?.facilityName || dataset?.facilityId || 'Trident Paper'}
+        </Link>
         <ChevronRight className="w-3 h-3 text-slate-600" />
-        <Link href="/facilities/TRIDENT_PAPER" className="hover:text-emerald-400">Compliance Matrix</Link>
+        <Link
+          href={`/facilities/${dataset?.facilityId || 'TRIDENT_PAPER'}`}
+          className="hover:text-emerald-400"
+        >
+          Compliance Matrix
+        </Link>
         <ChevronRight className="w-3 h-3 text-slate-600" />
         <span className="text-slate-200 font-semibold">Grid Electricity Reconciliation</span>
       </div>
