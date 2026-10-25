@@ -39,7 +39,7 @@ export const ComplianceMatrixTable: React.FC<ComplianceMatrixTableProps> = ({ da
           <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
             Facility Compliance Matrix — Multi-Year Status
           </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          <p className="text-xs text-slate-600 dark:text-slate-200 mt-0.5">
             Click any matrix cell to open the detailed compliance assessment, evidence records, and calculation workbooks.
           </p>
         </div>

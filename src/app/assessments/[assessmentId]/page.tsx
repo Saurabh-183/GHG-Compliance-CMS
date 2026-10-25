@@ -134,7 +134,7 @@ export default function AssessmentDetailPage() {
               <ShieldCheck className="w-5 h-5 text-emerald-400" />
               Structured Regulatory Compliance Metrics
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-600 dark:text-white mt-0.5">
               Approved and verified parameters, accounting basis, and calculation outcomes.
             </p>
           </div>
@@ -154,7 +154,7 @@ export default function AssessmentDetailPage() {
             <tbody className="divide-y divide-slate-800/70 text-xs">
               {assessment.metrics.map((metric, idx) => (
                 <tr key={idx} className="hover:bg-slate-800/30 transition-colors">
-                  <td className="py-3.5 px-4 font-semibold text-slate-200">
+                  <td className="py-3.5 px-4 font-semibold text-slate-600 dark:text-white">
                     {metric.name}
                   </td>
                   <td className="py-3.5 px-4 font-mono font-bold text-emerald-400 text-sm">
