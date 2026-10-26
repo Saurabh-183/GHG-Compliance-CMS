@@ -27,7 +27,7 @@ function decodeJwtPayload(token: string): JWTPayload | null {
   }
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Public paths that do not require authentication
@@ -37,7 +37,8 @@ export function middleware(request: NextRequest) {
     pathname.startsWith('/api/auth/logout') ||
     pathname.startsWith('/api/seed') ||
     pathname === '/login' ||
-    pathname === '/favicon.ico'
+    pathname === '/favicon.ico' ||
+    /\.(png|jpg|jpeg|gif|svg|webp|ico)$/i.test(pathname)
   ) {
     return NextResponse.next();
   }
@@ -99,7 +100,8 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
+     * - image files (png, jpg, jpeg, gif, svg, webp, ico) so the logo loads on the login page
      */
-    '/((?!_next/static|_next/image|favicon.ico).*)',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|svg|webp|ico)$).*)',
   ],
 };

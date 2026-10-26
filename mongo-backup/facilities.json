@@ -1,0 +1,4476 @@
+[
+  {
+    "_id": {
+      "$oid": "6ade76a9667ed7c3e0b3128d"
+    },
+    "facilityId": "TRIDENT_PAPER",
+    "name": "Trident Paper Complex",
+    "clientGroupId": {
+      "$oid": "6ade76a9667ed7c3e0b3128b"
+    },
+    "location": "Dhaula, Barnala, Punjab - 148107",
+    "category": "Designated Consumer (DC) - Pulp & Paper",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964265557"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964265557"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76a9667ed7c3e0b3128e"
+    },
+    "facilityId": "TRIDENT_YARN",
+    "name": "Trident Yarn Spinning Division",
+    "clientGroupId": {
+      "$oid": "6ade76a9667ed7c3e0b3128b"
+    },
+    "location": "Budhni, Sehore, Madhya Pradesh - 466445",
+    "category": "Designated Consumer (DC) - Textile Spinning",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964265641"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964265641"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76a9667ed7c3e0b3128f"
+    },
+    "facilityId": "TRIDENT_TEXTILES",
+    "name": "Trident Home Textiles Division",
+    "clientGroupId": {
+      "$oid": "6ade76a9667ed7c3e0b3128b"
+    },
+    "location": "Barnala, Punjab - 148101",
+    "category": "Commercial Industrial Unit - Home Textiles",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964265710"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964265710"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76aa667ed7c3e0b3129e"
+    },
+    "facilityId": "UTC_KOTPUTLI",
+    "name": "Kotputli Cement Works (Ultratech Cement)",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000010"
+    },
+    "location": "Kotputli, Rajasthan",
+    "category": "Designated Consumer (DC) - Cement",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964266646"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964266646"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76aa667ed7c3e0b3129f"
+    },
+    "facilityId": "UTC_ADITYA",
+    "name": "Aditya Cement Works (Ultratech Cement)",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000010"
+    },
+    "location": "Shambhupura, Chittorgarh, Rajasthan",
+    "category": "Designated Consumer (DC) - Cement",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964266707"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964266707"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76aa667ed7c3e0b312a0"
+    },
+    "facilityId": "UTC_JHARSUGDA",
+    "name": "Jharsugda Cement Works (Ultratech Cement)",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000010"
+    },
+    "location": "Jharsuguda, Odisha",
+    "category": "Designated Consumer (DC) - Cement",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964266768"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964266768"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76aa667ed7c3e0b312a1"
+    },
+    "facilityId": "UTC_PALI",
+    "name": "Pali Cement Works (Ultratech Cement)",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000010"
+    },
+    "location": "Pali, Rajasthan",
+    "category": "Designated Consumer (DC) - Cement",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964266834"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964266834"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76aa667ed7c3e0b312a2"
+    },
+    "facilityId": "UTC_ROORKEE",
+    "name": "Roorkee Cement Works (Ultratech Cement)",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000010"
+    },
+    "location": "Roorkee, Haridwar, Uttarakhand",
+    "category": "Designated Consumer (DC) - Cement",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964266890"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964266890"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76aa667ed7c3e0b312a3"
+    },
+    "facilityId": "UTC_VIKRAM",
+    "name": "Vikram Cement Works (Ultratech Cement)",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000010"
+    },
+    "location": "Khor, Neemuch, Madhya Pradesh",
+    "category": "Designated Consumer (DC) - Cement",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964266948"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964266948"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ab667ed7c3e0b312a4"
+    },
+    "facilityId": "UTC_BELA",
+    "name": "Bela Cement Works (Ultratech Cement)",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000010"
+    },
+    "location": "Bela, Rewa, Madhya Pradesh",
+    "category": "Designated Consumer (DC) - Cement",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964267004"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964267004"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ab667ed7c3e0b312a5"
+    },
+    "facilityId": "UTC_SIDHI",
+    "name": "Sidhi Cement Works (Ultratech Cement)",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000010"
+    },
+    "location": "Sidhi, Madhya Pradesh",
+    "category": "Designated Consumer (DC) - Cement",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964267068"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964267068"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ab667ed7c3e0b312a6"
+    },
+    "facilityId": "UTC_MAHIHAR",
+    "name": "Mahihar Cement Works (Ultratech Cement)",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000010"
+    },
+    "location": "Maihar, Satna, Madhya Pradesh",
+    "category": "Designated Consumer (DC) - Cement",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964267134"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964267134"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ab667ed7c3e0b312a7"
+    },
+    "facilityId": "UTC_NATHDWARA",
+    "name": "Nathdwara Cement Works (Ultratech Cement)",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000010"
+    },
+    "location": "Sirohi, Rajasthan",
+    "category": "Designated Consumer (DC) - Cement",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964267191"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964267191"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ab667ed7c3e0b312a8"
+    },
+    "facilityId": "UTC_CUTTACK",
+    "name": "Cuttack Cement Works (Ultratech Cement)",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000010"
+    },
+    "location": "Cuttack, Odisha",
+    "category": "Designated Consumer (DC) - Cement",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964267261"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964267261"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ab667ed7c3e0b312a9"
+    },
+    "facilityId": "UTC_INDIA_CEMENTS",
+    "name": "India Cements Limited",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000010"
+    },
+    "location": "Sankarnagar, Tirunelveli, Tamil Nadu",
+    "category": "Designated Consumer (DC) - Cement",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964267314"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964267314"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ab667ed7c3e0b312aa"
+    },
+    "facilityId": "UTC_DADRI",
+    "name": "Dadri Cements Limited",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000010"
+    },
+    "location": "Dadri, Gautam Buddha Nagar, Uttar Pradesh",
+    "category": "Designated Consumer (DC) - Cement",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964267379"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964267379"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ab667ed7c3e0b312ab"
+    },
+    "facilityId": "UTC_SIKANDERABAD",
+    "name": "Sikanderabad Cement Limited",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000010"
+    },
+    "location": "Sikandrabad, Bulandshahr, Uttar Pradesh",
+    "category": "Designated Consumer (DC) - Cement",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964267434"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964267434"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ab667ed7c3e0b312ac"
+    },
+    "facilityId": "UTC_NARMADA",
+    "name": "Narmada Cement Works",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000010"
+    },
+    "location": "Jafrabad, Amreli, Gujarat",
+    "category": "Designated Consumer (DC) - Cement",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964267492"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964267492"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ab667ed7c3e0b312ad"
+    },
+    "facilityId": "UTC_ALIGARH",
+    "name": "Aligarh Cement Works",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000010"
+    },
+    "location": "Aligarh, Uttar Pradesh",
+    "category": "Designated Consumer (DC) - Cement",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964267552"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964267552"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ab667ed7c3e0b312ae"
+    },
+    "facilityId": "UTC_TANDA",
+    "name": "Tanda Cement Works",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000010"
+    },
+    "location": "Ambedkar Nagar, Uttar Pradesh",
+    "category": "Designated Consumer (DC) - Cement",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964267615"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964267615"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ab667ed7c3e0b312af"
+    },
+    "facilityId": "UTC_PANIPAT",
+    "name": "Panipat Cement Works",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000010"
+    },
+    "location": "Panipat, Haryana",
+    "category": "Designated Consumer (DC) - Cement",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964267672"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964267672"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ab667ed7c3e0b312b0"
+    },
+    "facilityId": "UTC_PARLI",
+    "name": "Parli Cement Works",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000010"
+    },
+    "location": "Parli Vaijnath, Beed, Maharashtra",
+    "category": "Designated Consumer (DC) - Cement",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964267737"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964267737"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ab667ed7c3e0b312b1"
+    },
+    "facilityId": "UTC_MADDALA",
+    "name": "Maddala Cement Works",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000010"
+    },
+    "location": "Maddala, Guntur, Andhra Pradesh",
+    "category": "Designated Consumer (DC) - Cement",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964267800"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964267800"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ab667ed7c3e0b312b2"
+    },
+    "facilityId": "UTC_ARAKKONAM",
+    "name": "Arakkonam Cement Works",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000010"
+    },
+    "location": "Arakkonam, Ranipet, Tamil Nadu",
+    "category": "Designated Consumer (DC) - Cement",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964267855"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964267855"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ab667ed7c3e0b312b3"
+    },
+    "facilityId": "CHIRIPAL_NANDAN_VRAJ",
+    "name": "Nandan Denim Limited - Vraj",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000020"
+    },
+    "location": "Vraj Integrated Textile Park, Bidaj, Gujarat",
+    "category": "Designated Consumer (DC) - Textiles",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964267910"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964267910"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ab667ed7c3e0b312b4"
+    },
+    "facilityId": "CHIRIPAL_NANDAN_PIPLAJ",
+    "name": "Nandan Denim Limited - Piplaj",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000020"
+    },
+    "location": "Piplaj, Ahmedabad, Gujarat",
+    "category": "Designated Consumer (DC) - Textiles",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964267964"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964267964"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ac667ed7c3e0b312b5"
+    },
+    "facilityId": "CHIRIPAL_NANDAN_TERRY",
+    "name": "Nandan Terry Towel",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000020"
+    },
+    "location": "Dholka, Ahmedabad, Gujarat",
+    "category": "Commercial Industrial Unit - Terry Towels",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964268021"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964268021"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ac667ed7c3e0b312b6"
+    },
+    "facilityId": "CHIRIPAL_FABRIC_DIV",
+    "name": "Chirpal Industries - Fabric Divison",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000020"
+    },
+    "location": "Ranipur, Ahmedabad, Gujarat",
+    "category": "Commercial Industrial Unit - Fabrics",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964268081"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964268081"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ac667ed7c3e0b312b7"
+    },
+    "facilityId": "CHIRIPAL_QUALITY_EXIM",
+    "name": "Quality Exim",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000020"
+    },
+    "location": "Surat, Gujarat",
+    "category": "Commercial Industrial Unit - Synthetic Textiles",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964268141"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964268141"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ac667ed7c3e0b312b8"
+    },
+    "facilityId": "CHIRIPAL_VISHAL_FAB",
+    "name": "Vishal Fabrics",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000020"
+    },
+    "location": "Dholka, Gujarat",
+    "category": "Designated Consumer (DC) - Textiles",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964268200"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964268200"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ac667ed7c3e0b312b9"
+    },
+    "facilityId": "CHIRIPAL_COTTON_MILL",
+    "name": "Chiripal Textile Cotton Mill",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000020"
+    },
+    "location": "Bareja, Ahmedabad, Gujarat",
+    "category": "Commercial Industrial Unit - Cotton Spinning",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964268255"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964268255"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ac667ed7c3e0b312ba"
+    },
+    "facilityId": "CHIRIPAL_POLYFILMS",
+    "name": "Chirpal Polyfilms Limited",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000020"
+    },
+    "location": "Vapi, Valsad, Gujarat",
+    "category": "Designated Consumer (DC) - Petrochemical Films",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964268311"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964268311"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ac667ed7c3e0b312bb"
+    },
+    "facilityId": "HERO_DHARUHERA",
+    "name": "Hero MotoCorp - Dharuhera",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000030"
+    },
+    "location": "Dharuhera Industrial Estate, Rewari, Haryana",
+    "category": "Designated Consumer (DC) - Automobile",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964268364"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964268364"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ac667ed7c3e0b312bc"
+    },
+    "facilityId": "HERO_GURGAON",
+    "name": "Hero MotoCorp - Gurgaoon",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000030"
+    },
+    "location": "Sector 33, Gurugram, Haryana",
+    "category": "Designated Consumer (DC) - Automobile",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964268421"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964268421"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ac667ed7c3e0b312bd"
+    },
+    "facilityId": "HERO_HARIDWAR",
+    "name": "Hero MotoCorp - Haridwar",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000030"
+    },
+    "location": "IIE SIDCUL, Haridwar, Uttarakhand",
+    "category": "Designated Consumer (DC) - Automobile",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964268495"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964268495"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ac667ed7c3e0b312be"
+    },
+    "facilityId": "HERO_RAJASTHAN",
+    "name": "Hero MotoCorp - Rajasthan",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000030"
+    },
+    "location": "RIICO Industrial Area, Neemrana, Rajasthan",
+    "category": "Designated Consumer (DC) - Automobile",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964268558"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964268558"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ac667ed7c3e0b312bf"
+    },
+    "facilityId": "HERO_GUJARAT",
+    "name": "Hero MotoCorp - Gujarat",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000030"
+    },
+    "location": "Halol Industrial Area, Panchmahal, Gujarat",
+    "category": "Designated Consumer (DC) - Automobile",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964268624"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964268624"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ac667ed7c3e0b312c0"
+    },
+    "facilityId": "JINDAL_CREATIONS",
+    "name": "Jindal Creations",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000040"
+    },
+    "location": "Narol Industrial Area, Ahmedabad, Gujarat",
+    "category": "Designated Consumer (DC) - Textiles",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964268690"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964268690"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ac667ed7c3e0b312c1"
+    },
+    "facilityId": "JINDAL_WORLDWIDE",
+    "name": "Jindal Worldwide",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000040"
+    },
+    "location": "Vatva GIDC, Ahmedabad, Gujarat",
+    "category": "Designated Consumer (DC) - Textiles",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964268746"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964268746"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ac667ed7c3e0b312c2"
+    },
+    "facilityId": "JINDAL_YASH_EXPORTS",
+    "name": "Yash Exports",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000040"
+    },
+    "location": "Surat Textile Zone, Surat, Gujarat",
+    "category": "Commercial Industrial Unit - Textiles",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964268813"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964268813"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ac667ed7c3e0b312c3"
+    },
+    "facilityId": "JINDAL_YASH_WEAVERS",
+    "name": "Yash Weavers",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000040"
+    },
+    "location": "Bapunagar Industrial Area, Ahmedabad, Gujarat",
+    "category": "Commercial Industrial Unit - Weaving",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964268879"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964268879"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ac667ed7c3e0b312c4"
+    },
+    "facilityId": "JINDAL_GAYATRI_WEAV",
+    "name": "Gayatri Weavers",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000040"
+    },
+    "location": "Sachin GIDC, Surat, Gujarat",
+    "category": "Commercial Industrial Unit - Weaving",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964268958"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964268958"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ad667ed7c3e0b312c5"
+    },
+    "facilityId": "JINDAL_AMITARA_WEAV",
+    "name": "Amitara Weavers",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000040"
+    },
+    "location": "Odhav Industrial Estate, Ahmedabad, Gujarat",
+    "category": "Commercial Industrial Unit - Weaving",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964269115"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964269115"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ad667ed7c3e0b312c6"
+    },
+    "facilityId": "JINDAL_BHAGYLAXMI",
+    "name": "Bhagylaxmi Weavers",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000040"
+    },
+    "location": "Kadi Industrial Zone, Mehsana, Gujarat",
+    "category": "Commercial Industrial Unit - Weaving",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964269171"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964269171"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ad667ed7c3e0b312c7"
+    },
+    "facilityId": "JINDAL_PLANET_SPIN",
+    "name": "Planet Spintex",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000040"
+    },
+    "location": "Sanand GIDC, Ahmedabad, Gujarat",
+    "category": "Designated Consumer (DC) - Spinning",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964269230"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964269230"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ad667ed7c3e0b312c8"
+    },
+    "facilityId": "JINDAL_BELAJ",
+    "name": "Belaj",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000040"
+    },
+    "location": "Kadi, Mehsana, Gujarat",
+    "category": "Commercial Industrial Unit - Textiles",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964269284"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964269284"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ad667ed7c3e0b312c9"
+    },
+    "facilityId": "JINDAL_NIHARIKA",
+    "name": "Niharika Deepshika",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000040"
+    },
+    "location": "Pandesara GIDC, Surat, Gujarat",
+    "category": "Commercial Industrial Unit - Textiles",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964269342"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964269342"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ad667ed7c3e0b312ca"
+    },
+    "facilityId": "KAJARIA_GAILPUR",
+    "name": "Kajaria Ceramics - Gailpur",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000050"
+    },
+    "location": "Gailpur Industrial Area, Tijara, Alwar, Rajasthan",
+    "category": "Designated Consumer (DC) - Ceramics",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964269400"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964269400"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ad667ed7c3e0b312cb"
+    },
+    "facilityId": "KAJARIA_MALUTANA",
+    "name": "Kajaria Ceramics - Malutana",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000050"
+    },
+    "location": "Malutana Industrial Estate, Alwar, Rajasthan",
+    "category": "Designated Consumer (DC) - Ceramics",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964269464"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964269464"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ad667ed7c3e0b312cc"
+    },
+    "facilityId": "KAJARIA_SIKANDERABAD",
+    "name": "Kajaria Ceramics - Sikanderabad",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000050"
+    },
+    "location": "Sikandrabad Industrial Area, Bulandshahr, UP",
+    "category": "Designated Consumer (DC) - Ceramics",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964269526"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964269526"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ad667ed7c3e0b312cd"
+    },
+    "facilityId": "KAJARIA_SRIKALAHASTI",
+    "name": "Kajaria Ceramics - Srikalahasti",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000050"
+    },
+    "location": "Srikalahasti, Tirupati District, Andhra Pradesh",
+    "category": "Designated Consumer (DC) - Ceramics",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964269585"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964269585"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ad667ed7c3e0b312ce"
+    },
+    "facilityId": "WAVE_DHANAURA",
+    "name": "Wave Industries (Sugar Mill - Dhanaura)",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000060"
+    },
+    "location": "Dhanaura, Amroha, Uttar Pradesh",
+    "category": "Designated Consumer (DC) - Sugar",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964269648"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964269648"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ad667ed7c3e0b312cf"
+    },
+    "facilityId": "WAVE_BIJNOR",
+    "name": "Wave Industries (Sugar Mill - Bijnor)",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000060"
+    },
+    "location": "Bijnor, Uttar Pradesh",
+    "category": "Designated Consumer (DC) - Sugar",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964269704"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964269704"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ad667ed7c3e0b312d0"
+    },
+    "facilityId": "WAVE_BULANDSHAHR",
+    "name": "Wave Industries (Sugar Mill - Bulandshahr)",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000060"
+    },
+    "location": "Bulandshahr, Uttar Pradesh",
+    "category": "Designated Consumer (DC) - Sugar",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964269761"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964269761"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ad667ed7c3e0b312d1"
+    },
+    "facilityId": "WAVE_AMROHA",
+    "name": "Wave Industries (Sugar Mill - Amroha)",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000060"
+    },
+    "location": "Amroha, Uttar Pradesh",
+    "category": "Designated Consumer (DC) - Sugar",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964269826"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964269826"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ad667ed7c3e0b312d2"
+    },
+    "facilityId": "WAVE_SAHARANPUR",
+    "name": "Wave Industries (Sugar Mill - Saharanpur)",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000060"
+    },
+    "location": "Saharanpur, Uttar Pradesh",
+    "category": "Designated Consumer (DC) - Sugar",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964269884"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964269884"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ad667ed7c3e0b312d3"
+    },
+    "facilityId": "GAYATRI_KHERANI",
+    "name": "Kherani Paper Limited",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000070"
+    },
+    "location": "Kherani, Vapi, Gujarat",
+    "category": "Designated Consumer (DC) - Pulp & Paper",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964269939"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964269939"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ad667ed7c3e0b312d4"
+    },
+    "facilityId": "GAYATRI_UNIT1",
+    "name": "Gayatrishakti Paper & Board Unit 1",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000070"
+    },
+    "location": "Phase II GIDC, Vapi, Gujarat",
+    "category": "Designated Consumer (DC) - Pulp & Paper",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964269996"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964269996"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ae667ed7c3e0b312d5"
+    },
+    "facilityId": "GAYATRI_UNIT2",
+    "name": "Gayatrishakti Paper & Board Unit 2",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000070"
+    },
+    "location": "Phase IV GIDC, Vapi, Gujarat",
+    "category": "Designated Consumer (DC) - Pulp & Paper",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964270063"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964270063"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ae667ed7c3e0b312d6"
+    },
+    "facilityId": "GAYATRI_JAINCORD",
+    "name": "Jaincord Industries Pvt Ltd",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000070"
+    },
+    "location": "Sachin GIDC, Surat, Gujarat",
+    "category": "Commercial Industrial Unit - Packaging",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964270127"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964270127"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ae667ed7c3e0b312d7"
+    },
+    "facilityId": "GAYATRI_MEHALI",
+    "name": "Mehali Paper Pvt Ltd",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000070"
+    },
+    "location": "Dahej Industrial Estate, Bharuch, Gujarat",
+    "category": "Designated Consumer (DC) - Pulp & Paper",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964270192"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964270192"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ae667ed7c3e0b312d8"
+    },
+    "facilityId": "GAYATRI_SAINSON",
+    "name": "Sainson Paper Industries",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000070"
+    },
+    "location": "Bapoli, Kurukshetra, Haryana",
+    "category": "Designated Consumer (DC) - Pulp & Paper",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964270276"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964270276"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ae667ed7c3e0b312d9"
+    },
+    "facilityId": "GAYATRI_NIKITA",
+    "name": "Nikita Paper Limited",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000070"
+    },
+    "location": "Shamli, Uttar Pradesh",
+    "category": "Commercial Industrial Unit - Paper",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964270335"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964270335"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ae667ed7c3e0b312da"
+    },
+    "facilityId": "GAYATRI_JANKI",
+    "name": "Janki Newsprint Limited",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000070"
+    },
+    "location": "Bhopa Road, Muzaffarnagar, Uttar Pradesh",
+    "category": "Commercial Industrial Unit - Newsprint",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964270392"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964270392"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ae667ed7c3e0b312db"
+    },
+    "facilityId": "GENUS_MUZ",
+    "name": "Genus Paper & Board - MUZ",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000080"
+    },
+    "location": "Muzaffarnagar, Uttar Pradesh",
+    "category": "Designated Consumer (DC) - Pulp & Paper",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964270449"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964270449"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ae667ed7c3e0b312dc"
+    },
+    "facilityId": "GENUS_MBD",
+    "name": "Genus Paper & Board - MBD",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000080"
+    },
+    "location": "Moradabad, Uttar Pradesh",
+    "category": "Designated Consumer (DC) - Pulp & Paper",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964270521"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964270521"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ae667ed7c3e0b312dd"
+    },
+    "facilityId": "GENUS_BINDLAS",
+    "name": "Bindlas Duplux Limited",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000080"
+    },
+    "location": "Bhopa Road, Muzaffarnagar, Uttar Pradesh",
+    "category": "Commercial Industrial Unit - Duplex Board",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964270578"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964270578"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ae667ed7c3e0b312de"
+    },
+    "facilityId": "GENUS_TEHRI",
+    "name": "Tehri Paper Pvt Ltd",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000080"
+    },
+    "location": "Roorkee, Haridwar, Uttarakhand",
+    "category": "Commercial Industrial Unit - Kraft Paper",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964270638"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964270638"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ae667ed7c3e0b312df"
+    },
+    "facilityId": "GENUS_AGARWAL",
+    "name": "Agarwal Duplex Pvt Ltd",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000080"
+    },
+    "location": "Bhopa Road, Muzaffarnagar, Uttar Pradesh",
+    "category": "Commercial Industrial Unit - Duplex Board",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964270700"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964270700"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ae667ed7c3e0b312e0"
+    },
+    "facilityId": "DEVPRIYA_PAPERS",
+    "name": "Dev Priya Papers",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000090"
+    },
+    "location": "Mohkampur, Meerut, Uttar Pradesh",
+    "category": "Designated Consumer (DC) - Pulp & Paper",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964270760"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964270760"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ae667ed7c3e0b312e1"
+    },
+    "facilityId": "DEVPRIYA_INDUSTRIES",
+    "name": "Dev Priya Industries",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000090"
+    },
+    "location": "Rithani, Meerut, Uttar Pradesh",
+    "category": "Commercial Industrial Unit - Kraft Paper",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964270817"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964270817"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ae667ed7c3e0b312e2"
+    },
+    "facilityId": "DEVPRIYA_PRODUCTS",
+    "name": "Dev Priya Products",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000090"
+    },
+    "location": "Partapur Industrial Estate, Meerut, Uttar Pradesh",
+    "category": "Commercial Industrial Unit - Paper Products",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964270878"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964270878"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76ae667ed7c3e0b312e3"
+    },
+    "facilityId": "RUNGTA_JHARKHAND_ISPAT",
+    "name": "Jharkhand Ispat Limited",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000100"
+    },
+    "location": "Hesla, Ramgarh, Jharkhand",
+    "category": "Designated Consumer (DC) - Sponge Iron & Steel",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964270935"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964270935"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76af667ed7c3e0b312e4"
+    },
+    "facilityId": "RUNGTA_MAA_CHINAMASTIKA",
+    "name": "Maa Chinamastika Limited",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000100"
+    },
+    "location": "Kuju, Ramgarh, Jharkhand",
+    "category": "Designated Consumer (DC) - Sponge Iron",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964271000"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964271000"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76af667ed7c3e0b312e5"
+    },
+    "facilityId": "RUNGTA_BHRAMPUTRA",
+    "name": "Bhramputra Metalics",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000100"
+    },
+    "location": "Kamrup Industrial Area, Guwahati, Assam",
+    "category": "Commercial Industrial Unit - Steel Rolling",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964271076"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964271076"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76af667ed7c3e0b312e6"
+    },
+    "facilityId": "RUNGTA_CRACKERS",
+    "name": "Crackers Alloy India Limited",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000100"
+    },
+    "location": "Bokaro Steel City, Jharkhand",
+    "category": "Commercial Industrial Unit - Alloys & Castings",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964271151"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964271151"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76af667ed7c3e0b312e7"
+    },
+    "facilityId": "NRAGARWAL_UNIT1",
+    "name": "N R Agarwal Unit 1",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000110"
+    },
+    "location": "GIDC Phase I, Vapi, Gujarat",
+    "category": "Designated Consumer (DC) - Pulp & Paper",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": true,
+      "folderUrl": "https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7",
+      "folderName": "Carbon Crunch · Compliance Documents & Evidence Vault",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "12"
+      },
+      "lastSyncedAt": {
+        "$date": {
+          "$numberLong": "1792964375846"
+        }
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964271211"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964375847"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76af667ed7c3e0b312e8"
+    },
+    "facilityId": "NRAGARWAL_UNIT5",
+    "name": "N R Agarwal Unit 5",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000110"
+    },
+    "location": "Sarigam GIDC, Valsad, Gujarat",
+    "category": "Designated Consumer (DC) - Pulp & Paper",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964271271"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964271271"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76af667ed7c3e0b312e9"
+    },
+    "facilityId": "SUGAR_MORNA",
+    "name": "The Ganga Kisan Sahkari Chini Mills Limited, Morna",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000120"
+    },
+    "location": "Morna, Muzaffarnagar, UP",
+    "category": "Designated Consumer (DC) - Sugar",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964271323"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964271323"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76af667ed7c3e0b312ea"
+    },
+    "facilityId": "SUGAR_BELRAYAN",
+    "name": "Sarjoo Sahkari Chini Mills Ltd., Belrayan Kheri",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000120"
+    },
+    "location": "Belrayan, Lakhimpur Kheri, UP",
+    "category": "Designated Consumer (DC) - Sugar",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964271380"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964271380"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76af667ed7c3e0b312eb"
+    },
+    "facilityId": "SUGAR_BAGPAT",
+    "name": "The Bagpath Co-op Sugar Mill Ltd., Bagpath",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000120"
+    },
+    "location": "Baghpat, Uttar Pradesh",
+    "category": "Designated Consumer (DC) - Sugar",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964271447"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964271447"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76af667ed7c3e0b312ec"
+    },
+    "facilityId": "SUGAR_RAMALA",
+    "name": "Ramala Sahkari Chini Mills Ltd., Ramala",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000120"
+    },
+    "location": "Ramala, Baghpat, UP",
+    "category": "Designated Consumer (DC) - Sugar",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964271512"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964271512"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76af667ed7c3e0b312ed"
+    },
+    "facilityId": "SUGAR_TILHAR",
+    "name": "The Kisan Sahakari Chinni Mill Ltd., Tilhar",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000120"
+    },
+    "location": "Tilhar, Shahjahanpur, UP",
+    "category": "Designated Consumer (DC) - Sugar",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964271572"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964271572"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76af667ed7c3e0b312ee"
+    },
+    "facilityId": "SUGAR_SAMPURNANAGAR",
+    "name": "The Kisan Sahakri Chinni Mill Ltd., Sampurnanagar",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000120"
+    },
+    "location": "Sampurnanagar, Lakhimpur, UP",
+    "category": "Designated Consumer (DC) - Sugar",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964271649"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964271649"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76af667ed7c3e0b312ef"
+    },
+    "facilityId": "SUGAR_SNEHROAD",
+    "name": "The Kisan Sahakari Chinni Mill Ltd., Snehroad",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000120"
+    },
+    "location": "Kotdwar / Bijnor Road, UP",
+    "category": "Designated Consumer (DC) - Sugar",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964271712"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964271712"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76af667ed7c3e0b312f0"
+    },
+    "facilityId": "SUGAR_RENUKA",
+    "name": "Shree Renuka Sugar Mills Limited",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000120"
+    },
+    "location": "Munoli, Belgaum, Karnataka",
+    "category": "Designated Consumer (DC) - Sugar",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964271776"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964271776"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76af667ed7c3e0b312f1"
+    },
+    "facilityId": "SUGAR_NANPARA",
+    "name": "Shravasti Kisan Sahkari Chini Mills Limited, Nanpara",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000120"
+    },
+    "location": "Nanpara, Bahraich, UP",
+    "category": "Designated Consumer (DC) - Sugar",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964271847"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964271847"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76af667ed7c3e0b312f2"
+    },
+    "facilityId": "SUGAR_THORAT_SAKHAR",
+    "name": "Sahakarmaharshi Bhausaheb Thorat Sahakari Sakhar Karkhana Ltd.",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000120"
+    },
+    "location": "Sangamner, Ahmednagar, Maharashtra",
+    "category": "Designated Consumer (DC) - Sugar",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964271912"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964271912"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76af667ed7c3e0b312f3"
+    },
+    "facilityId": "SUGAR_SEMIKHERA",
+    "name": "Kisan Sahkari Chinni Mill Ltd, Semikhera",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000120"
+    },
+    "location": "Semikhera, Bareilly, UP",
+    "category": "Designated Consumer (DC) - Sugar",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964271970"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964271970"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b0667ed7c3e0b312f4"
+    },
+    "facilityId": "SUGAR_DY_PATIL",
+    "name": "DY Patil Sugar Mill",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000120"
+    },
+    "location": "Gaganbawda, Kolhapur, Maharashtra",
+    "category": "Commercial Industrial Unit - Sugar",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964272032"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964272032"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b0667ed7c3e0b312f5"
+    },
+    "facilityId": "SUGAR_THORAT_MILL",
+    "name": "Thorat Sugar Mill",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000120"
+    },
+    "location": "Amrutnagar, Sangamner, Maharashtra",
+    "category": "Commercial Industrial Unit - Sugar",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964272092"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964272092"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b0667ed7c3e0b312f6"
+    },
+    "facilityId": "PAPER_ABC_IMPEX",
+    "name": "ABC Impex",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000130"
+    },
+    "location": "Industrial Area, Kashipur, Udham Singh Nagar, Uttarakhand",
+    "category": "Commercial Industrial Unit - Paper",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964272167"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964272167"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b0667ed7c3e0b312f7"
+    },
+    "facilityId": "PAPER_ANAND_TRIPLEX",
+    "name": "Anand Triplex",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000130"
+    },
+    "location": "Partapur Industrial Area, Meerut, UP",
+    "category": "Commercial Industrial Unit - Triplex Board",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964272239"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964272239"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b0667ed7c3e0b312f8"
+    },
+    "facilityId": "PAPER_SILLVERTON_IND",
+    "name": "Sillverton Industries",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000130"
+    },
+    "location": "Bhopa Road, Muzaffarnagar, UP",
+    "category": "Commercial Industrial Unit - Paper & Board",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964272313"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964272313"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b0667ed7c3e0b312f9"
+    },
+    "facilityId": "PAPER_SILLVERTOAN_PAP",
+    "name": "Sillvertoan Papers",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000130"
+    },
+    "location": "Jansath Road, Muzaffarnagar, UP",
+    "category": "Designated Consumer (DC) - Pulp & Paper",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964272373"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964272373"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b0667ed7c3e0b312fa"
+    },
+    "facilityId": "PAPER_BAHL_MILLS",
+    "name": "Bahl Paper Mills",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000130"
+    },
+    "location": "Kashipur, Udham Singh Nagar, Uttarakhand",
+    "category": "Designated Consumer (DC) - Pulp & Paper",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964272440"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964272440"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b0667ed7c3e0b312fb"
+    },
+    "facilityId": "PAPER_SANGAL",
+    "name": "Sangal Papers Limited",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000130"
+    },
+    "location": "Mawana, Meerut, Uttar Pradesh",
+    "category": "Designated Consumer (DC) - Pulp & Paper",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964272512"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964272512"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b0667ed7c3e0b312fc"
+    },
+    "facilityId": "PAPER_JODHANI",
+    "name": "Jodhani Paper",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000130"
+    },
+    "location": "Bommasandra Industrial Area, Bengaluru, Karnataka",
+    "category": "Commercial Industrial Unit - Paper",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964272571"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964272571"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b0667ed7c3e0b312fd"
+    },
+    "facilityId": "PAPER_MENU",
+    "name": "Menu Paper",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000130"
+    },
+    "location": "Surat Industrial Zone, Gujarat",
+    "category": "Commercial Industrial Unit - Speciality Paper",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964272641"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964272641"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b0667ed7c3e0b312fe"
+    },
+    "facilityId": "PAPER_MAHESHWARI",
+    "name": "Maheshwari Logistics - Paper Division",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000130"
+    },
+    "location": "GIDC Vapi, Gujarat",
+    "category": "Commercial Industrial Unit - Paper Logistics",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964272698"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964272698"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b0667ed7c3e0b312ff"
+    },
+    "facilityId": "PAPER_JANI_SALES",
+    "name": "Jani Sales Pvt Ltd",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000130"
+    },
+    "location": "MIDC Boisar, Tarapur, Palghar, Maharashtra",
+    "category": "Commercial Industrial Unit - Paper",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964272761"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964272761"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b0667ed7c3e0b31300"
+    },
+    "facilityId": "ENG_SPNG",
+    "name": "SPNG Group - Textile",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000140"
+    },
+    "location": "Rajasthan Textile Cluster, Rajasthan",
+    "category": "Designated Consumer (DC) - Textiles",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964272837"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964272837"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b0667ed7c3e0b31301"
+    },
+    "facilityId": "ENG_GALVALIA",
+    "name": "Galvalia Ispat",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000140"
+    },
+    "location": "Urla Industrial Area, Raipur, Chhattisgarh",
+    "category": "Designated Consumer (DC) - Sponge Iron & Steel",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964272891"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964272891"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b0667ed7c3e0b31302"
+    },
+    "facilityId": "ENG_KIC_METALIKS",
+    "name": "KIC Metaliks",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000140"
+    },
+    "location": "Durgapur Steel Complex, Paschim Bardhaman, West Bengal",
+    "category": "Designated Consumer (DC) - Iron & Steel",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964272947"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964272947"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b1667ed7c3e0b31303"
+    },
+    "facilityId": "ENG_GM_FABRICS",
+    "name": "GM Fabrics",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000140"
+    },
+    "location": "MIDC Tarapur, Maharashtra",
+    "category": "Commercial Industrial Unit - Fabrics",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964273015"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964273015"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b1667ed7c3e0b31304"
+    },
+    "facilityId": "ENG_ANJANI_SYNTHETICS",
+    "name": "Anjani Synthetics",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000140"
+    },
+    "location": "Narol GIDC, Ahmedabad, Gujarat",
+    "category": "Commercial Industrial Unit - Synthetic Textiles",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964273073"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964273073"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b1667ed7c3e0b31305"
+    },
+    "facilityId": "ENG_NOBLE_TECH",
+    "name": "Noble Tech",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000140"
+    },
+    "location": "Coimbatore Industrial Complex, Tamil Nadu",
+    "category": "Commercial Industrial Unit - Technical Engineering",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964273144"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964273144"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b1667ed7c3e0b31306"
+    },
+    "facilityId": "ENG_HIMMATSINGKA",
+    "name": "Himmatsingka Linnens",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000140"
+    },
+    "location": "KIADB Industrial Area, Hassan, Karnataka",
+    "category": "Designated Consumer (DC) - Textiles",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964273202"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964273202"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b1667ed7c3e0b31307"
+    },
+    "facilityId": "ENG_GRIS_CERAMICS",
+    "name": "Gris Ceramics Pvt Ltd.",
+    "clientGroupId": {
+      "$oid": "66f000000000000000000140"
+    },
+    "location": "Morbi Ceramic Industrial Zone, Gujarat",
+    "category": "Commercial Industrial Unit - Ceramics",
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "ACTIVE",
+    "driveConnection": {
+      "isConnected": false,
+      "folderUrl": "",
+      "folderName": "",
+      "spreadsheetUrl": "",
+      "syncedMonthsCount": {
+        "$numberInt": "0"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964273258"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964273258"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  }
+]

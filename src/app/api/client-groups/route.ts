@@ -8,64 +8,62 @@ import { getSessionFromRequest, authorizeRole } from '@/lib/auth';
 export async function GET(request: NextRequest) {
   try {
     await connectToDatabase();
+
     const session = getSessionFromRequest(request);
 
-    let query = {};
-    // If client user, can only view their own client group
-    if (session && session.role === 'CLIENT' && session.clientGroupId) {
-      query = { _id: session.clientGroupId };
-    }
+    const query =
+      session?.role === 'CLIENT' && session.clientGroupId
+        ? { _id: session.clientGroupId }
+        : {};
 
-    let groups = await ClientGroupModel.find(query).sort({ name: 1 }).lean();
+    const groups = await ClientGroupModel.find(query)
+      .sort({ name: 1 })
+      .lean();
 
-    if (groups.length === 0 && (!session || session.role !== 'CLIENT')) {
-      const totalCount = await ClientGroupModel.countDocuments();
-      if (totalCount === 0) {
-        const { seedDatabase } = await import('@/lib/seedData');
-        await seedDatabase();
-        groups = await ClientGroupModel.find(query).sort({ name: 1 }).lean();
-      }
-    }
-
-    // Enrich with facility counts and active compliances
-    const enriched = await Promise.all(
+    const data = await Promise.all(
       groups.map(async (group) => {
-        const facilities = await FacilityModel.find({ clientGroupId: group._id }).lean();
-        const facilityIds = facilities.map((f) => f.facilityId);
-        const compliancesCount = await ComplianceApplicabilityModel.countDocuments({
-          facilityId: { $in: facilityIds },
-          isApplicable: true,
-        });
+        const facilities = await FacilityModel.find({
+          clientGroupId: group._id,
+        })
+          .sort({ name: 1 })
+          .lean();
+
+        const facilityIds = facilities.map((facility) => facility.facilityId);
+
+        const activeCompliancesCount = facilityIds.length
+          ? await ComplianceApplicabilityModel.countDocuments({
+              facilityId: { $in: facilityIds },
+              isApplicable: true,
+            })
+          : 0;
 
         return {
           ...group,
           _id: group._id.toString(),
           totalFacilitiesCount: facilities.length,
-          activeCompliancesCount: compliancesCount,
-          facilities: facilities.map((f) => ({
-            ...f,
-            _id: f._id.toString(),
-            clientGroupId: f.clientGroupId.toString(),
+          activeCompliancesCount,
+          facilities: facilities.map((facility) => ({
+            ...facility,
+            _id: facility._id.toString(),
+            clientGroupId: facility.clientGroupId.toString(),
           })),
         };
       })
     );
 
-    if (enriched.length < 15 && (!session || session.role !== 'CLIENT')) {
-      const { MOCK_CLIENT_GROUPS } = await import('@/lib/mockFallback');
-      const existingCodes = new Set(enriched.map((g) => g.code.toUpperCase()));
-      const missingGroups = MOCK_CLIENT_GROUPS.filter((g) => !existingCodes.has(g.code.toUpperCase()));
-      return NextResponse.json({ success: true, data: [...enriched, ...missingGroups] });
-    }
-
-    return NextResponse.json({ success: true, data: enriched });
+    return NextResponse.json({ success: true, data });
   } catch (error) {
-    console.warn('Error fetching client groups from DB, returning fallback demo client groups:', error);
-    const { MOCK_CLIENT_GROUPS } = await import('@/lib/mockFallback');
-    return NextResponse.json({ success: true, data: MOCK_CLIENT_GROUPS });
+    console.error('Failed to fetch client groups:', error);
+
+    return NextResponse.json(
+      {
+        success: false,
+        message: 'Failed to load companies and facilities.',
+      },
+      { status: 500 }
+    );
   }
 }
-
 export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
@@ -76,7 +74,10 @@ export async function POST(request: NextRequest) {
         { status: 403 }
       );
     }
-
+console.log({
+  companyCount: await ClientGroupModel.countDocuments(),
+  facilityCount: await FacilityModel.countDocuments(),
+});
     const body = (await request.json()) as {
       name: string;
       code: string;

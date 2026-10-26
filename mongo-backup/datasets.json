@@ -1,0 +1,563 @@
+[
+  {
+    "_id": {
+      "$oid": "6adb9175b32c50edab95461f"
+    },
+    "facilityId": "TRIDENT_PAPER",
+    "datasetType": "GRID_ELECTRICITY",
+    "period": "FY2025-26",
+    "dataRequirementId": {
+      "$oid": "6ade76b2667ed7c3e0b31310"
+    },
+    "months": [
+      {
+        "month": "2025-04",
+        "declaredValue": {
+          "$numberInt": "1240000"
+        },
+        "evidenceValue": {
+          "$numberInt": "1240000"
+        },
+        "unit": "kWh",
+        "tolerance": {
+          "$numberInt": "0"
+        },
+        "variance": {
+          "$numberInt": "0"
+        },
+        "variancePercentage": {
+          "$numberInt": "0"
+        },
+        "result": "MATCHED",
+        "consumerNumber": "PSPCL-BARNALA-66KV-0042",
+        "meterNumber": "L&T-EM-99214",
+        "billingPeriod": "01-Apr-2025 to 30-Apr-2025",
+        "sourceDocumentUrl": "https://drive.google.com/file/d/7G8H9I0J1K2L_Trident_Paper_Grid_Consumption_FY25-26_Q1.xlsx/view",
+        "evidenceDocumentUrl": "https://drive.google.com/file/d/PSPCL_Apr2025_Bill.pdf/view",
+        "consultantNotes": "Exact match with DISCOM energy bill. Verified power factor 0.99."
+      },
+      {
+        "month": "2025-05",
+        "declaredValue": {
+          "$numberInt": "1310000"
+        },
+        "evidenceValue": {
+          "$numberInt": "1310000"
+        },
+        "unit": "kWh",
+        "tolerance": {
+          "$numberInt": "0"
+        },
+        "variance": {
+          "$numberInt": "0"
+        },
+        "variancePercentage": {
+          "$numberInt": "0"
+        },
+        "result": "MATCHED",
+        "consumerNumber": "PSPCL-BARNALA-66KV-0042",
+        "meterNumber": "L&T-EM-99214",
+        "billingPeriod": "01-May-2025 to 31-May-2025",
+        "sourceDocumentUrl": "https://drive.google.com/file/d/7G8H9I0J1K2L_Trident_Paper_Grid_Consumption_FY25-26_Q1.xlsx/view",
+        "evidenceDocumentUrl": "https://drive.google.com/file/d/PSPCL_May2025_Bill.pdf/view",
+        "consultantNotes": "Exact match verified. No TOD surcharge discrepancy."
+      },
+      {
+        "month": "2025-06",
+        "declaredValue": {
+          "$numberInt": "1280000"
+        },
+        "evidenceValue": {
+          "$numberInt": "1265000"
+        },
+        "unit": "kWh",
+        "tolerance": {
+          "$numberInt": "0"
+        },
+        "variance": {
+          "$numberInt": "15000"
+        },
+        "variancePercentage": {
+          "$numberDouble": "1.186"
+        },
+        "result": "MISMATCH",
+        "consumerNumber": "PSPCL-BARNALA-66KV-0042",
+        "meterNumber": "L&T-EM-99214",
+        "billingPeriod": "01-Jun-2025 to 30-Jun-2025",
+        "sourceDocumentUrl": "https://drive.google.com/file/d/7G8H9I0J1K2L_Trident_Paper_Grid_Consumption_FY25-26_Q1.xlsx/view",
+        "evidenceDocumentUrl": "https://drive.google.com/file/d/PSPCL_Jun2025_Bill.pdf/view",
+        "consultantNotes": "Mismatch identified: Declared Excel states 1,280,000 kWh while PSPCL bill specifies 1,265,000 kWh net energy recorded. Discrepancy of 15,000 kWh (1.186%). Clarification raised with client.",
+        "clarificationId": {
+          "$oid": "6ade76b2667ed7c3e0b3131c"
+        }
+      },
+      {
+        "month": "2025-07",
+        "declaredValue": {
+          "$numberInt": "1350000"
+        },
+        "evidenceValue": null,
+        "unit": "kWh",
+        "tolerance": {
+          "$numberInt": "0"
+        },
+        "variance": {
+          "$numberInt": "1350000"
+        },
+        "variancePercentage": {
+          "$numberInt": "100"
+        },
+        "result": "EVIDENCE_MISSING",
+        "consumerNumber": "PSPCL-BARNALA-66KV-0042",
+        "meterNumber": "L&T-EM-99214",
+        "billingPeriod": "01-Jul-2025 to 31-Jul-2025",
+        "sourceDocumentUrl": "https://drive.google.com/file/d/7G8H9I0J1K2L_Trident_Paper_Grid_Consumption_FY25-26_Q1.xlsx/view",
+        "consultantNotes": "Client logged estimated consumption in Excel; official DISCOM bill has not been uploaded yet."
+      }
+    ],
+    "submissionStatus": "RECEIVED",
+    "verificationStatus": "CLARIFICATION_REQUIRED",
+    "toleranceDefault": {
+      "$numberInt": "0"
+    },
+    "consultantSubmission": {
+      "consultantId": {
+        "$oid": "6ade76a9667ed7c3e0b3128a"
+      },
+      "consultantName": "Priya Sharma",
+      "submittedAt": {
+        "$date": {
+          "$numberLong": "1752833700000"
+        }
+      },
+      "summary": "Q1 Grid electricity consumption reconciliation completed. June 2025 flagged for 15,000 kWh variance."
+    },
+    "reviewerApproval": {
+      "status": "PENDING",
+      "isLocked": false,
+      "version": {
+        "$numberInt": "1"
+      }
+    },
+    "auditTrail": [
+      {
+        "timestamp": {
+          "$date": {
+            "$numberLong": "1752157200000"
+          }
+        },
+        "userId": "6ade76a9667ed7c3e0b3128c",
+        "userName": "Vikram Singh",
+        "action": "SUBMITTED_EXCEL",
+        "details": "Client Vikram Singh submitted Q1 consumption Excel via Client Portal.",
+        "_id": {
+          "$oid": "6ade76b2667ed7c3e0b31319"
+        }
+      },
+      {
+        "timestamp": {
+          "$date": {
+            "$numberLong": "1752831900000"
+          }
+        },
+        "userId": "6ade76a9667ed7c3e0b3128a",
+        "userName": "Priya Sharma",
+        "action": "RECONCILIATION_PERFORMED",
+        "details": "Consultant Priya Sharma reconciled April-July declared data against official DISCOM bills.",
+        "_id": {
+          "$oid": "6ade76b2667ed7c3e0b3131a"
+        }
+      },
+      {
+        "timestamp": {
+          "$date": {
+            "$numberLong": "1752832800000"
+          }
+        },
+        "userId": "6ade76a9667ed7c3e0b3128a",
+        "userName": "Priya Sharma",
+        "action": "MISMATCH_FLAGGED",
+        "details": "Variance of 15,000 kWh detected for June 2025. Verification status transitioned to CLARIFICATION_REQUIRED.",
+        "_id": {
+          "$oid": "6ade76b2667ed7c3e0b3131b"
+        }
+      }
+    ],
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964274411"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964275185"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade7717667ed7c3e0b31327"
+    },
+    "facilityId": "NRAGARWAL_UNIT1",
+    "datasetType": "GRID_ELECTRICITY",
+    "period": "FY2025-26",
+    "months": [
+      {
+        "month": "2025-04",
+        "declaredValue": {
+          "$numberInt": "1240000"
+        },
+        "evidenceValue": {
+          "$numberInt": "1240000"
+        },
+        "unit": "kWh",
+        "tolerance": {
+          "$numberInt": "0"
+        },
+        "variance": {
+          "$numberInt": "0"
+        },
+        "variancePercentage": {
+          "$numberInt": "0"
+        },
+        "result": "MATCHED",
+        "consumerNumber": "PSPCL-BARNALA-0042",
+        "meterNumber": "L&T-EM-99214",
+        "billingPeriod": "01-04 to end-of-month",
+        "sourceDocumentUrl": "https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7/Client_Consumption_Sheets/Monthly_Log_2025-04.xlsx",
+        "evidenceDocumentUrl": "https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7/DISCOM_Utility_Bills/PSPCL_Bill_Apr2025.pdf",
+        "consultantNotes": "Reconciled from Drive bill"
+      },
+      {
+        "month": "2025-05",
+        "declaredValue": {
+          "$numberInt": "1310000"
+        },
+        "evidenceValue": {
+          "$numberInt": "1310000"
+        },
+        "unit": "kWh",
+        "tolerance": {
+          "$numberInt": "0"
+        },
+        "variance": {
+          "$numberInt": "0"
+        },
+        "variancePercentage": {
+          "$numberInt": "0"
+        },
+        "result": "MATCHED",
+        "consumerNumber": "PSPCL-BARNALA-0042",
+        "meterNumber": "L&T-EM-99214",
+        "billingPeriod": "01-05 to end-of-month",
+        "sourceDocumentUrl": "https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7/Client_Consumption_Sheets/Monthly_Log_2025-05.xlsx",
+        "evidenceDocumentUrl": "https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7/DISCOM_Utility_Bills/PSPCL_Bill_May2025.pdf",
+        "consultantNotes": "Reconciled from Drive bill"
+      },
+      {
+        "month": "2025-06",
+        "declaredValue": {
+          "$numberInt": "1280000"
+        },
+        "evidenceValue": {
+          "$numberInt": "1265000"
+        },
+        "unit": "kWh",
+        "tolerance": {
+          "$numberInt": "0"
+        },
+        "variance": {
+          "$numberInt": "15000"
+        },
+        "variancePercentage": {
+          "$numberDouble": "1.171875"
+        },
+        "result": "MISMATCH",
+        "consumerNumber": "PSPCL-BARNALA-0042",
+        "meterNumber": "L&T-EM-99214",
+        "billingPeriod": "01-06 to end-of-month",
+        "sourceDocumentUrl": "https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7/Client_Consumption_Sheets/Monthly_Log_2025-06.xlsx",
+        "evidenceDocumentUrl": "https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7/DISCOM_Utility_Bills/PSPCL_Bill_Jun2025.pdf",
+        "consultantNotes": "Variance flagged for clarification review"
+      },
+      {
+        "month": "2025-07",
+        "declaredValue": {
+          "$numberInt": "1350000"
+        },
+        "evidenceValue": {
+          "$numberInt": "1350000"
+        },
+        "unit": "kWh",
+        "tolerance": {
+          "$numberInt": "0"
+        },
+        "variance": {
+          "$numberInt": "0"
+        },
+        "variancePercentage": {
+          "$numberInt": "0"
+        },
+        "result": "MATCHED",
+        "consumerNumber": "PSPCL-BARNALA-0042",
+        "meterNumber": "L&T-EM-99214",
+        "billingPeriod": "01-07 to end-of-month",
+        "sourceDocumentUrl": "https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7/Client_Consumption_Sheets/Monthly_Log_2025-07.xlsx",
+        "evidenceDocumentUrl": "https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7/DISCOM_Utility_Bills/PSPCL_Bill_Jul2025.pdf",
+        "consultantNotes": "Reconciled from Drive bill"
+      },
+      {
+        "month": "2025-08",
+        "declaredValue": {
+          "$numberInt": "1290000"
+        },
+        "evidenceValue": {
+          "$numberInt": "1290000"
+        },
+        "unit": "kWh",
+        "tolerance": {
+          "$numberInt": "0"
+        },
+        "variance": {
+          "$numberInt": "0"
+        },
+        "variancePercentage": {
+          "$numberInt": "0"
+        },
+        "result": "MATCHED",
+        "consumerNumber": "PSPCL-BARNALA-0042",
+        "meterNumber": "L&T-EM-99214",
+        "billingPeriod": "01-08 to end-of-month",
+        "sourceDocumentUrl": "https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7/Client_Consumption_Sheets/Monthly_Log_2025-08.xlsx",
+        "evidenceDocumentUrl": "https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7/DISCOM_Utility_Bills/PSPCL_Bill_Aug2025.pdf",
+        "consultantNotes": "Reconciled from Drive bill"
+      },
+      {
+        "month": "2025-09",
+        "declaredValue": {
+          "$numberInt": "1320000"
+        },
+        "evidenceValue": {
+          "$numberInt": "1320000"
+        },
+        "unit": "kWh",
+        "tolerance": {
+          "$numberInt": "0"
+        },
+        "variance": {
+          "$numberInt": "0"
+        },
+        "variancePercentage": {
+          "$numberInt": "0"
+        },
+        "result": "MATCHED",
+        "consumerNumber": "PSPCL-BARNALA-0042",
+        "meterNumber": "L&T-EM-99214",
+        "billingPeriod": "01-09 to end-of-month",
+        "sourceDocumentUrl": "https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7/Client_Consumption_Sheets/Monthly_Log_2025-09.xlsx",
+        "evidenceDocumentUrl": "https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7/DISCOM_Utility_Bills/PSPCL_Bill_Sep2025.pdf",
+        "consultantNotes": "Reconciled from Drive bill"
+      },
+      {
+        "month": "2025-10",
+        "declaredValue": {
+          "$numberInt": "1275000"
+        },
+        "evidenceValue": {
+          "$numberInt": "1275000"
+        },
+        "unit": "kWh",
+        "tolerance": {
+          "$numberInt": "0"
+        },
+        "variance": {
+          "$numberInt": "0"
+        },
+        "variancePercentage": {
+          "$numberInt": "0"
+        },
+        "result": "MATCHED",
+        "consumerNumber": "PSPCL-BARNALA-0042",
+        "meterNumber": "L&T-EM-99214",
+        "billingPeriod": "01-10 to end-of-month",
+        "sourceDocumentUrl": "https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7/Client_Consumption_Sheets/Monthly_Log_2025-10.xlsx",
+        "evidenceDocumentUrl": "https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7/DISCOM_Utility_Bills/PSPCL_Bill_Oct2025.pdf",
+        "consultantNotes": "Reconciled from Drive bill"
+      },
+      {
+        "month": "2025-11",
+        "declaredValue": {
+          "$numberInt": "1300000"
+        },
+        "evidenceValue": {
+          "$numberInt": "1300000"
+        },
+        "unit": "kWh",
+        "tolerance": {
+          "$numberInt": "0"
+        },
+        "variance": {
+          "$numberInt": "0"
+        },
+        "variancePercentage": {
+          "$numberInt": "0"
+        },
+        "result": "MATCHED",
+        "consumerNumber": "PSPCL-BARNALA-0042",
+        "meterNumber": "L&T-EM-99214",
+        "billingPeriod": "01-11 to end-of-month",
+        "sourceDocumentUrl": "https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7/Client_Consumption_Sheets/Monthly_Log_2025-11.xlsx",
+        "evidenceDocumentUrl": "https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7/DISCOM_Utility_Bills/PSPCL_Bill_Nov2025.pdf",
+        "consultantNotes": "Reconciled from Drive bill"
+      },
+      {
+        "month": "2025-12",
+        "declaredValue": {
+          "$numberInt": "1340000"
+        },
+        "evidenceValue": {
+          "$numberInt": "1340000"
+        },
+        "unit": "kWh",
+        "tolerance": {
+          "$numberInt": "0"
+        },
+        "variance": {
+          "$numberInt": "0"
+        },
+        "variancePercentage": {
+          "$numberInt": "0"
+        },
+        "result": "MATCHED",
+        "consumerNumber": "PSPCL-BARNALA-0042",
+        "meterNumber": "L&T-EM-99214",
+        "billingPeriod": "01-12 to end-of-month",
+        "sourceDocumentUrl": "https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7/Client_Consumption_Sheets/Monthly_Log_2025-12.xlsx",
+        "evidenceDocumentUrl": "https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7/DISCOM_Utility_Bills/PSPCL_Bill_Dec2025.pdf",
+        "consultantNotes": "Reconciled from Drive bill"
+      },
+      {
+        "month": "2026-01",
+        "declaredValue": {
+          "$numberInt": "1315000"
+        },
+        "evidenceValue": {
+          "$numberInt": "1315000"
+        },
+        "unit": "kWh",
+        "tolerance": {
+          "$numberInt": "0"
+        },
+        "variance": {
+          "$numberInt": "0"
+        },
+        "variancePercentage": {
+          "$numberInt": "0"
+        },
+        "result": "MATCHED",
+        "consumerNumber": "PSPCL-BARNALA-0042",
+        "meterNumber": "L&T-EM-99214",
+        "billingPeriod": "01-01 to end-of-month",
+        "sourceDocumentUrl": "https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7/Client_Consumption_Sheets/Monthly_Log_2026-01.xlsx",
+        "evidenceDocumentUrl": "https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7/DISCOM_Utility_Bills/PSPCL_Bill_Jan2026.pdf",
+        "consultantNotes": "Reconciled from Drive bill"
+      },
+      {
+        "month": "2026-02",
+        "declaredValue": {
+          "$numberInt": "1285000"
+        },
+        "evidenceValue": {
+          "$numberInt": "1285000"
+        },
+        "unit": "kWh",
+        "tolerance": {
+          "$numberInt": "0"
+        },
+        "variance": {
+          "$numberInt": "0"
+        },
+        "variancePercentage": {
+          "$numberInt": "0"
+        },
+        "result": "MATCHED",
+        "consumerNumber": "PSPCL-BARNALA-0042",
+        "meterNumber": "L&T-EM-99214",
+        "billingPeriod": "01-02 to end-of-month",
+        "sourceDocumentUrl": "https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7/Client_Consumption_Sheets/Monthly_Log_2026-02.xlsx",
+        "evidenceDocumentUrl": "https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7/DISCOM_Utility_Bills/PSPCL_Bill_Feb2026.pdf",
+        "consultantNotes": "Reconciled from Drive bill"
+      },
+      {
+        "month": "2026-03",
+        "declaredValue": {
+          "$numberInt": "1360000"
+        },
+        "evidenceValue": {
+          "$numberInt": "1360000"
+        },
+        "unit": "kWh",
+        "tolerance": {
+          "$numberInt": "0"
+        },
+        "variance": {
+          "$numberInt": "0"
+        },
+        "variancePercentage": {
+          "$numberInt": "0"
+        },
+        "result": "MATCHED",
+        "consumerNumber": "PSPCL-BARNALA-0042",
+        "meterNumber": "L&T-EM-99214",
+        "billingPeriod": "01-03 to end-of-month",
+        "sourceDocumentUrl": "https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7/Client_Consumption_Sheets/Monthly_Log_2026-03.xlsx",
+        "evidenceDocumentUrl": "https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7/DISCOM_Utility_Bills/PSPCL_Bill_Mar2026.pdf",
+        "consultantNotes": "Reconciled from Drive bill"
+      }
+    ],
+    "submissionStatus": "RECEIVED",
+    "verificationStatus": "UNDER_REVIEW",
+    "toleranceDefault": {
+      "$numberInt": "0"
+    },
+    "reviewerApproval": {
+      "status": "PENDING",
+      "isLocked": false,
+      "version": {
+        "$numberInt": "1"
+      }
+    },
+    "auditTrail": [
+      {
+        "timestamp": {
+          "$date": {
+            "$numberLong": "1792964375676"
+          }
+        },
+        "userId": "6adc8bd9936849b857686906",
+        "userName": "Saurabh Agnihotri",
+        "action": "GOOGLE_DRIVE_SYNC",
+        "details": "Live synchronization with Google Drive folder \"Carbon Crunch · Compliance Documents & Evidence Vault\". 12 months imported. Evidence documents mapped to Drive. Data Given: 100%, Data Matched: 91.7%.",
+        "_id": {
+          "$oid": "6ade7717667ed7c3e0b31328"
+        }
+      }
+    ],
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964375694"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964375694"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  }
+]

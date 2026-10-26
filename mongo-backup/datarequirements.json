@@ -1,0 +1,274 @@
+[
+  {
+    "_id": {
+      "$oid": "6ade76b2667ed7c3e0b31310"
+    },
+    "facilityId": "TRIDENT_PAPER",
+    "period": "FY2025-26",
+    "title": "Monthly Grid Electricity Invoices & Consumption Log",
+    "category": "COMMON_ENERGY",
+    "linkedCompliances": [
+      "RCO",
+      "CCTS",
+      "PAT"
+    ],
+    "description": "DISCOM monthly electricity bills (PSPCL 66kV feeder) and plant internal Excel log for April 2025 to March 2026.",
+    "isApplicable": true,
+    "submissionStatus": "RECEIVED",
+    "verificationStatus": "UNDER_REVIEW",
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1746057600000"
+      }
+    },
+    "dueDate": {
+      "$date": {
+        "$numberLong": "1752969600000"
+      }
+    },
+    "submittedDriveLinks": [
+      {
+        "url": "https://drive.google.com/file/d/7G8H9I0J1K2L_Trident_Paper_Grid_Consumption_FY25-26_Q1.xlsx/view",
+        "submittedAt": {
+          "$date": {
+            "$numberLong": "1752157200000"
+          }
+        },
+        "submittedBy": "Vikram Singh (Client)",
+        "description": "Client month-wise grid consumption Excel (Apr-Jun 2025)",
+        "_id": {
+          "$oid": "6ade76b2667ed7c3e0b31311"
+        }
+      },
+      {
+        "url": "https://drive.google.com/drive/folders/8H9I0J1K2L3M_PSPCL_DISCOM_Bills_Q1_2025",
+        "submittedAt": {
+          "$date": {
+            "$numberLong": "1752314700000"
+          }
+        },
+        "submittedBy": "Vikram Singh (Client)",
+        "description": "Scanned official PSPCL electricity bills for Apr, May, Jun 2025",
+        "_id": {
+          "$oid": "6ade76b2667ed7c3e0b31312"
+        }
+      }
+    ],
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964274276"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964274685"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "datasetId": {
+      "$oid": "6adb9175b32c50edab95461f"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b2667ed7c3e0b31315"
+    },
+    "facilityId": "TRIDENT_PAPER",
+    "period": "FY2025-26",
+    "title": "Fuel Consumption & GCV Test Certificates",
+    "category": "COMMON_ENERGY",
+    "linkedCompliances": [
+      "PAT",
+      "CCTS"
+    ],
+    "description": "Monthly boiler biomass rice-husk and imported coal consumption along with NABL accredited lab GCV test certificates.",
+    "isApplicable": true,
+    "submissionStatus": "REQUESTED",
+    "verificationStatus": "NOT_STARTED",
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1748736000000"
+      }
+    },
+    "dueDate": {
+      "$date": {
+        "$numberLong": "1756512000000"
+      }
+    },
+    "submittedDriveLinks": [],
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964274332"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964274332"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b2667ed7c3e0b31313"
+    },
+    "facilityId": "TRIDENT_PAPER",
+    "period": "FY2025-26",
+    "title": "Renewable Energy Purchase & Open Access Invoices",
+    "category": "COMMON_ENERGY",
+    "linkedCompliances": [
+      "RCO"
+    ],
+    "description": "Monthly open access wheeling invoices, RE certificates, and captive solar generation meter readings.",
+    "isApplicable": true,
+    "submissionStatus": "PARTIALLY_RECEIVED",
+    "verificationStatus": "EVIDENCE_PENDING",
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1746057600000"
+      }
+    },
+    "dueDate": {
+      "$date": {
+        "$numberLong": "1755216000000"
+      }
+    },
+    "submittedDriveLinks": [
+      {
+        "url": "https://drive.google.com/file/d/9I0J1K2L3M4N_Solar_Gen_Log_Q1.xlsx/view",
+        "submittedAt": {
+          "$date": {
+            "$numberLong": "1752485400000"
+          }
+        },
+        "submittedBy": "Vikram Singh (Client)",
+        "description": "On-site 5MW solar roof generation log for Q1",
+        "_id": {
+          "$oid": "6ade76b2667ed7c3e0b31314"
+        }
+      }
+    ],
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964274334"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964274334"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b2667ed7c3e0b31316"
+    },
+    "facilityId": "TRIDENT_PAPER",
+    "period": "FY2025-26",
+    "title": "Finished Paper Production & Machine Operating Hours",
+    "category": "COMPLIANCE_SPECIFIC",
+    "linkedCompliances": [
+      "PAT",
+      "CCTS"
+    ],
+    "description": "Daily/monthly net saleable paper production records, product grade mix, and machine running hours for normalization.",
+    "isApplicable": true,
+    "submissionStatus": "RECEIVED",
+    "verificationStatus": "UNDER_REVIEW",
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1747267200000"
+      }
+    },
+    "dueDate": {
+      "$date": {
+        "$numberLong": "1753920000000"
+      }
+    },
+    "submittedDriveLinks": [
+      {
+        "url": "https://drive.google.com/file/d/0J1K2L3M4N5O_Production_Records_FY25-26_Q1.xlsx/view",
+        "submittedAt": {
+          "$date": {
+            "$numberLong": "1752684300000"
+          }
+        },
+        "submittedBy": "Vikram Singh (Client)",
+        "description": "Certified production ledger by Plant Head",
+        "_id": {
+          "$oid": "6ade76b2667ed7c3e0b31317"
+        }
+      }
+    ],
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964274334"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964274334"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade771809ca67dcd526101a"
+    },
+    "facilityId": "NRAGARWAL_UNIT1",
+    "period": "FY2025-26",
+    "category": "COMMON_ENERGY",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964375774"
+      }
+    },
+    "datasetId": {
+      "$oid": "6ade7717667ed7c3e0b31327"
+    },
+    "description": "Monthly HT electricity bills and internal sub-metering logs synced directly from Google Drive repository.",
+    "isApplicable": true,
+    "linkedCompliances": [
+      "RCO",
+      "PAT",
+      "CCTS",
+      "CEA"
+    ],
+    "submissionStatus": "RECEIVED",
+    "submittedDriveLinks": [
+      {
+        "url": "https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7",
+        "submittedAt": {
+          "$date": {
+            "$numberLong": "1792964375774"
+          }
+        },
+        "submittedBy": "Saurabh Agnihotri",
+        "description": "Google Drive Master Repository (Carbon Crunch · Compliance Documents & Evidence Vault)",
+        "_id": {
+          "$oid": "6ade7717667ed7c3e0b31329"
+        }
+      }
+    ],
+    "title": "Monthly Grid Electricity Invoices & Consumption Logs",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964375774"
+      }
+    },
+    "verificationStatus": "UNDER_REVIEW"
+  }
+]

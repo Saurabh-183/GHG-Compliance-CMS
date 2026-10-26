@@ -1,0 +1,241 @@
+[
+  {
+    "_id": {
+      "$oid": "6ade76b3667ed7c3e0b3131f"
+    },
+    "facilityId": "TRIDENT_PAPER",
+    "complianceType": "CEA",
+    "reportingPeriod": "July 2025 Electricity Returns",
+    "regulatoryDueDate": {
+      "$date": {
+        "$numberLong": "1755216000000"
+      }
+    },
+    "internalDeadline": {
+      "$date": {
+        "$numberLong": "1754784000000"
+      }
+    },
+    "clientDataSubmissionDeadline": {
+      "$date": {
+        "$numberLong": "1754352000000"
+      }
+    },
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "UPCOMING",
+    "actualSubmissionDate": null,
+    "extensionHistory": [],
+    "isRecurringCEA": true,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964275247"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964275247"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b3667ed7c3e0b3131e"
+    },
+    "facilityId": "TRIDENT_PAPER",
+    "complianceType": "CEA",
+    "reportingPeriod": "June 2025 Electricity Returns",
+    "regulatoryDueDate": {
+      "$date": {
+        "$numberLong": "1752537600000"
+      }
+    },
+    "internalDeadline": {
+      "$date": {
+        "$numberLong": "1752105600000"
+      }
+    },
+    "clientDataSubmissionDeadline": {
+      "$date": {
+        "$numberLong": "1751673600000"
+      }
+    },
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "COMPLETED",
+    "actualSubmissionDate": {
+      "$date": {
+        "$numberLong": "1752451200000"
+      }
+    },
+    "extensionHistory": [],
+    "isRecurringCEA": true,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964275247"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964275247"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b3667ed7c3e0b31321"
+    },
+    "facilityId": "TRIDENT_PAPER",
+    "complianceType": "CCTS",
+    "reportingPeriod": "Baseline Boundary Finalization",
+    "regulatoryDueDate": {
+      "$date": {
+        "$numberLong": "1764460800000"
+      }
+    },
+    "internalDeadline": {
+      "$date": {
+        "$numberLong": "1760486400000"
+      }
+    },
+    "clientDataSubmissionDeadline": {
+      "$date": {
+        "$numberLong": "1759276800000"
+      }
+    },
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "UPCOMING",
+    "actualSubmissionDate": null,
+    "extensionHistory": [],
+    "isRecurringCEA": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964275247"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964275247"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b3667ed7c3e0b3131d"
+    },
+    "facilityId": "TRIDENT_PAPER",
+    "complianceType": "RCO",
+    "reportingPeriod": "FY2025-26 (Q1 Reconciliation)",
+    "regulatoryDueDate": {
+      "$date": {
+        "$numberLong": "1759190400000"
+      }
+    },
+    "internalDeadline": {
+      "$date": {
+        "$numberLong": "1755216000000"
+      }
+    },
+    "clientDataSubmissionDeadline": {
+      "$date": {
+        "$numberLong": "1752969600000"
+      }
+    },
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "PENDING",
+    "actualSubmissionDate": null,
+    "extensionHistory": [],
+    "isRecurringCEA": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964275247"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964275247"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b3667ed7c3e0b31320"
+    },
+    "facilityId": "TRIDENT_PAPER",
+    "complianceType": "PAT",
+    "reportingPeriod": "PAT Monitoring Period Assessment",
+    "regulatoryDueDate": {
+      "$date": {
+        "$numberLong": "1761868800000"
+      }
+    },
+    "internalDeadline": {
+      "$date": {
+        "$numberLong": "1759190400000"
+      }
+    },
+    "clientDataSubmissionDeadline": {
+      "$date": {
+        "$numberLong": "1757894400000"
+      }
+    },
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "status": "PENDING",
+    "actualSubmissionDate": null,
+    "extensionHistory": [
+      {
+        "oldDate": {
+          "$date": {
+            "$numberLong": "1756598400000"
+          }
+        },
+        "newDate": {
+          "$date": {
+            "$numberLong": "1761868800000"
+          }
+        },
+        "reason": "BEE Extension notification for DC pulp & paper sector data submission.",
+        "notificationRef": "BEE/PAT-Ext/2025/19",
+        "revisedAt": {
+          "$date": {
+            "$numberLong": "1749945600000"
+          }
+        }
+      }
+    ],
+    "isRecurringCEA": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964275250"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964275250"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  }
+]
