@@ -91,6 +91,7 @@ export default function FacilityDashboardPage() {
   const facilityId = (params.facilityId as string) || 'TRIDENT_PAPER';
   const [matrixData, setMatrixData] = useState<IFacilityComplianceMatrix | null>(null);
   const [rawApplicability, setRawApplicability] = useState<IComplianceApplicability[]>([]);
+  const [driveFiles, setDriveFiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isDriveModalOpen, setIsDriveModalOpen] = useState(false);
@@ -98,7 +99,7 @@ export default function FacilityDashboardPage() {
   // Stats
   const [stats, setStats] = useState({
     dataGivenPercentage: 100,
-    dataMatchedPercentage: 75.0,
+    dataMatchedPercentage: 91.7,
     driveFolderUrl: 'https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7',
     driveFolderName: 'Carbon Crunch · Compliance Documents & Evidence Vault',
     isDriveConnected: true,
@@ -106,8 +107,14 @@ export default function FacilityDashboardPage() {
 
   const loadMatrix = async () => {
     try {
-      const res = await fetch(`/api/facilities/${facilityId}/compliance-matrix`);
-      if (res.ok) {
+      const [res, driveRes, datasetRes, filesRes] = await Promise.all([
+        fetch(`/api/facilities/${facilityId}/compliance-matrix`).catch(() => null),
+        fetch(`/api/drive/connect?facilityId=${facilityId}`).catch(() => null),
+        fetch(`/api/datasets?facilityId=${facilityId}`).catch(() => null),
+        fetch(`/api/drive/files?facilityId=${facilityId}`).catch(() => null),
+      ]);
+
+      if (res && res.ok) {
         const json = (await res.json()) as {
           data: IFacilityComplianceMatrix & { rawApplicability: IComplianceApplicability[] };
         };
@@ -116,8 +123,7 @@ export default function FacilityDashboardPage() {
       }
 
       // Check drive connection status
-      const driveRes = await fetch(`/api/drive/connect?facilityId=${facilityId}`);
-      if (driveRes.ok) {
+      if (driveRes && driveRes.ok) {
         const driveJson = await driveRes.json();
         if (driveJson.data) {
           setStats((prev) => ({
@@ -128,8 +134,34 @@ export default function FacilityDashboardPage() {
           }));
         }
       }
+
+      // Dynamic calculation from synced Drive dataset
+      if (datasetRes && datasetRes.ok) {
+        const dJson = await datasetRes.json();
+        const ds = dJson.data?.[0];
+        if (ds && ds.months && ds.months.length > 0) {
+          const declared = ds.months.filter((m: any) => m.declaredValue > 0).length;
+          const givenPct = Math.round((declared / 12) * 100);
+          const evaluated = ds.months.filter((m: any) => m.evidenceValue !== null && m.declaredValue > 0);
+          const matched = evaluated.filter((m: any) => m.result === 'MATCHED').length;
+          const matchedPct = evaluated.length > 0 ? Number(((matched / evaluated.length) * 100).toFixed(1)) : 100;
+          setStats((prev) => ({
+            ...prev,
+            dataGivenPercentage: givenPct,
+            dataMatchedPercentage: matchedPct,
+          }));
+        }
+      }
+
+      // Load Drive evidence files
+      if (filesRes && filesRes.ok) {
+        const fJson = await filesRes.json();
+        if (fJson.data?.files) {
+          setDriveFiles(fJson.data.files);
+        }
+      }
     } catch (e) {
-      console.error('Error fetching compliance matrix:', e);
+      console.error('Error fetching compliance matrix and Drive files:', e);
     } finally {
       setLoading(false);
     }
@@ -226,7 +258,7 @@ export default function FacilityDashboardPage() {
             </button>
 
             <Link
-              href="/datasets/6adb9175b32c50edab95461f/verify"
+              href={`/datasets/${facilityId}/verify`}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#17365D] hover:bg-[#102947] dark:bg-[#A56F63] dark:hover:bg-[#8C594E] !text-white text-xs font-semibold transition-colors shadow-sm"
               style={{ color: '#FFFFFF' }}
             >
@@ -343,6 +375,73 @@ export default function FacilityDashboardPage() {
               ))}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      {/* Google Drive Evidence Vault & Synced Repository Files */}
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-6 shadow-md space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <Folder className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
+              Google Drive Evidence Vault & Document Repository
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Live mapped files, audited DISCOM invoices, consumption spreadsheets, and statutory certificates from the corporate Drive.
+            </p>
+          </div>
+          <a
+            href={stats.driveFolderUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900 transition-colors shadow-2xs self-start sm:self-center"
+          >
+            <span>Open Google Drive Folder</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">
+          {driveFiles.map((f: any) => (
+            <div
+              key={f.id}
+              className="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 hover:border-emerald-500/50 transition-all flex flex-col justify-between gap-3"
+            >
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded font-semibold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                    {f.category.replace(/_/g, ' ')}
+                  </span>
+                  {f.month && (
+                    <span className="text-[10px] font-mono text-emerald-700 dark:text-emerald-400 font-bold">
+                      {f.month}
+                    </span>
+                  )}
+                </div>
+                <div className="text-xs font-bold text-slate-900 dark:text-white truncate" title={f.name}>
+                  {f.name}
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  {f.mimeType.includes('pdf') ? 'PDF Utility Bill / Certificate' : 'Excel Energy Model / Log'}
+                </p>
+              </div>
+
+              <div className="pt-2 border-t border-slate-200/80 dark:border-slate-800 flex items-center justify-between text-xs">
+                <span className="text-[10px] text-slate-400">
+                  {f.sizeBytes ? `${Math.round(f.sizeBytes / 1024)} KB` : 'Cloud Doc'}
+                </span>
+                <a
+                  href={f.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-emerald-700 dark:text-emerald-400 hover:underline font-semibold inline-flex items-center gap-1 text-[11px]"
+                >
+                  <span>View in Drive</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 

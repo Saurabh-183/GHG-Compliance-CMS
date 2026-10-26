@@ -23,7 +23,7 @@ export async function GET(
 
     if (!dataset) {
       dataset = await DatasetModel.findOne({
-        $or: [{ _id: id }, { facilityId: 'TRIDENT_PAPER' }],
+        $or: [{ _id: id }, { facilityId: id.toUpperCase() }],
       })
         .populate('consultantSubmission.consultantId', 'name email designation avatarUrl')
         .populate('reviewerApproval.reviewerId', 'name email designation avatarUrl')
@@ -31,8 +31,23 @@ export async function GET(
     }
 
     if (!dataset) {
-      const { MOCK_DATASET } = await import('@/lib/mockFallback');
-      dataset = MOCK_DATASET;
+      const { generateDriveDatasetForFacility } = await import('@/lib/gdrive');
+      dataset = generateDriveDatasetForFacility(id);
+      try {
+        await DatasetModel.create({
+          facilityId: dataset.facilityId,
+          datasetType: dataset.datasetType,
+          period: dataset.period,
+          months: dataset.months,
+          submissionStatus: dataset.submissionStatus,
+          verificationStatus: dataset.verificationStatus,
+          toleranceDefault: dataset.toleranceDefault,
+          consultantSubmission: dataset.consultantSubmission,
+          auditTrail: dataset.auditTrail,
+        });
+      } catch (dbErr) {
+        console.warn('Could not persist auto-synced dataset in [id] route:', dbErr);
+      }
     }
 
     if (session && session.role === 'CLIENT' && !isAuthorizedForFacility(session, dataset.facilityId)) {
@@ -68,10 +83,11 @@ export async function GET(
     });
   } catch (error) {
     console.warn('Error fetching dataset from DB, returning fallback demo dataset:', error);
-    const { MOCK_DATASET } = await import('@/lib/mockFallback');
+    const { generateDriveDatasetForFacility } = await import('@/lib/gdrive');
+    const fallback = generateDriveDatasetForFacility(id || 'TRIDENT_PAPER');
     return NextResponse.json({
       success: true,
-      data: MOCK_DATASET,
+      data: fallback,
     });
   }
 }

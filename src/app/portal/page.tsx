@@ -42,6 +42,7 @@ export default function ClientPortalDashboard() {
       documentLinks: { finalReportUrl?: string; submissionAckUrl?: string };
     }>;
   } | null>(null);
+  const [driveFiles, setDriveFiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isExcelModalOpen, setIsExcelModalOpen] = useState(false);
   const [isDriveModalOpen, setIsDriveModalOpen] = useState(false);
@@ -49,10 +50,20 @@ export default function ClientPortalDashboard() {
   useEffect(() => {
     async function loadPortal() {
       try {
-        const res = await fetch('/api/portal/dashboard');
-        if (res.ok) {
+        const [res, filesRes] = await Promise.all([
+          fetch('/api/portal/dashboard').catch(() => null),
+          fetch('/api/drive/files').catch(() => null),
+        ]);
+
+        if (res && res.ok) {
           const json = (await res.json()) as { data: typeof data };
           setData(json.data);
+        }
+        if (filesRes && filesRes.ok) {
+          const fJson = await filesRes.json();
+          if (fJson.data?.files) {
+            setDriveFiles(fJson.data.files);
+          }
         }
       } catch (e) {
         console.error('Error fetching portal dashboard:', e);
@@ -96,6 +107,11 @@ export default function ClientPortalDashboard() {
   const pendingRequests = data?.pendingRequests || [];
   const openClarifications = data?.openClarifications || [];
   const history = data?.approvedHistory || [];
+  const primaryFacilityId = facilities[0]?.facilityId || 'TRIDENT_PAPER';
+  const clientOrgName =
+    currentUser?.clientGroupId ||
+    facilities[0]?.clientGroupName ||
+    'Client Organization';
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -107,11 +123,11 @@ export default function ClientPortalDashboard() {
               Authorized Client Organization
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
-              Trident Group — Compliance Portal
+              {clientOrgName === 'TRIDENT' ? 'Trident Group' : clientOrgName} — Compliance Portal
             </h1>
             <p className="text-xs text-slate-300 mt-1">
-              Welcome, <strong className="text-emerald-400">{currentUser?.name || 'Vikram Singh'}</strong> (Head of Regulatory Affairs).
-              Direct visibility into authorized facilities, outstanding data submissions, and verified historical reports.
+              Welcome, <strong className="text-emerald-400">{currentUser?.name || 'Vikram Singh'}</strong> ({currentUser?.designation || 'Head of Regulatory Affairs'}).
+              Direct visibility into authorized facilities, outstanding data submissions, Google Drive repository evidence, and verified historical reports.
             </p>
           </div>
 
@@ -372,18 +388,87 @@ export default function ClientPortalDashboard() {
         </div>
       </div>
 
+      {/* Google Drive Evidence Vault Repository Files */}
+      {driveFiles.length > 0 && (
+        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 shadow-xl space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h3 className="text-base font-bold text-white flex items-center gap-2">
+                <Folder className="w-5 h-5 text-emerald-400" />
+                Google Drive Corporate Compliance Vault ({driveFiles.length} Documents)
+              </h3>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Official invoices, energy sheets, and certificates residing directly in the Google Drive compliance repository.
+              </p>
+            </div>
+            <a
+              href="https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60 hover:bg-emerald-900 transition-colors self-start sm:self-center"
+            >
+              <span>Browse Google Drive Folder</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">
+            {driveFiles.slice(0, 9).map((f: any) => (
+              <div
+                key={f.id}
+                className="p-3.5 rounded-lg border border-slate-800 bg-slate-950/70 hover:border-emerald-500/50 transition-all flex flex-col justify-between gap-3 text-xs"
+              >
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+                      {f.category.replace(/_/g, ' ')}
+                    </span>
+                    {f.month && (
+                      <span className="text-[10px] font-mono text-emerald-400 font-bold">
+                        {f.month}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-xs font-bold text-white truncate" title={f.name}>
+                    {f.name}
+                  </div>
+                  <p className="text-[11px] text-slate-400">
+                    {f.mimeType.includes('pdf') ? 'Audited PDF Bill / Certificate' : 'Client Consumption Excel Sheet'}
+                  </p>
+                </div>
+
+                <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
+                  <span className="text-[10px] text-slate-400">
+                    {f.sizeBytes ? `${Math.round(f.sizeBytes / 1024)} KB` : 'Drive Asset'}
+                  </span>
+                  <a
+                    href={f.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-emerald-400 hover:underline font-semibold inline-flex items-center gap-1 text-[11px]"
+                  >
+                    <span>Open in Drive</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Google Drive Connection & Direct Sync Modal */}
       <DriveConnectionModal
         isOpen={isDriveModalOpen}
         onClose={() => setIsDriveModalOpen(false)}
-        facilityId="TRIDENT_PAPER"
+        facilityId={primaryFacilityId}
       />
 
       {/* Standardized Excel Import & Templates Modal */}
       <ExcelImportModal
         isOpen={isExcelModalOpen}
         onClose={() => setIsExcelModalOpen(false)}
-        facilityId="TRIDENT_PAPER"
+        facilityId={primaryFacilityId}
       />
     </div>
   );

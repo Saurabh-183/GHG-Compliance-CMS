@@ -19,23 +19,27 @@ export default function DatasetVerifyPage() {
 
   const loadData = async () => {
     try {
-      // First try to fetch by id; if not found, fetch the primary dataset for TRIDENT_PAPER
+      // First try to fetch by id; if not found, fetch by facilityId
       let res = await fetch(`/api/datasets/${datasetId}`);
+      let loadedDataset: IDataset | null = null;
       if (!res.ok) {
-        res = await fetch(`/api/datasets?facilityId=TRIDENT_PAPER`);
+        res = await fetch(`/api/datasets?facilityId=${datasetId}`);
         if (res.ok) {
           const listJson = (await res.json()) as { data: IDataset[] };
           if (listJson.data && listJson.data.length > 0) {
-            setDataset(listJson.data[0]);
+            loadedDataset = listJson.data[0];
+            setDataset(loadedDataset);
           }
         }
       } else {
         const json = (await res.json()) as { data: IDataset };
-        setDataset(json.data);
+        loadedDataset = json.data;
+        setDataset(loadedDataset);
       }
 
       // Fetch clarifications for this facility
-      const clarRes = await fetch(`/api/clarifications?facilityId=TRIDENT_PAPER`);
+      const targetFacility = loadedDataset?.facilityId || datasetId || 'TRIDENT_PAPER';
+      const clarRes = await fetch(`/api/clarifications?facilityId=${targetFacility}`);
       if (clarRes.ok) {
         const clarJson = (await clarRes.json()) as { data: IClarification[] };
         setClarifications(clarJson.data);
