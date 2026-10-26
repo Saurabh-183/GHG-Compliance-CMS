@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import mongoose from 'mongoose';
 import { connectToDatabase } from '@/lib/db';
 import { AssessmentModel } from '@/models/Assessment';
 import { getSessionFromRequest, isAuthorizedForFacility, authorizeRole } from '@/lib/auth';
@@ -12,11 +13,29 @@ export async function GET(
     const { id } = await params;
     const session = getSessionFromRequest(request);
 
-    const assessment = await AssessmentModel.findById(id)
-      .populate('approvedBy', 'name email designation')
-      .populate('assignedConsultantId', 'name email designation')
-      .populate('assignedReviewerId', 'name email designation')
-      .lean();
+    let assessment: any = null;
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      assessment = await AssessmentModel.findById(id)
+        .populate('approvedBy', 'name email designation')
+        .populate('assignedConsultantId', 'name email designation')
+        .populate('assignedReviewerId', 'name email designation')
+        .lean();
+    }
+
+    if (!assessment) {
+      assessment = await AssessmentModel.findOne({ _id: id }).lean();
+    }
+
+    if (!assessment) {
+      const { generateFacilityAssessments } = await import('@/lib/complianceMatrixData');
+      const parts = id.replace(/^asm_/, '').split('_');
+      let facilityId = 'TRIDENT_PAPER';
+      if (parts.length >= 3) {
+        facilityId = parts.slice(0, parts.length - 2).join('_').toUpperCase();
+      }
+      const generated = generateFacilityAssessments(facilityId);
+      assessment = generated.find((a) => a._id.toLowerCase() === id.toLowerCase()) || generated[0];
+    }
 
     if (!assessment) {
       return NextResponse.json({ error: 'Assessment not found' }, { status: 404 });
@@ -33,7 +52,7 @@ export async function GET(
         data: {
           ...assessment,
           _id: assessment._id.toString(),
-          metrics: assessment.metrics.filter((m) => m.approvalStatus === 'APPROVED'),
+          metrics: (assessment.metrics || []).filter((m: any) => m.approvalStatus === 'APPROVED'),
           notes: undefined,
         },
       });
@@ -47,10 +66,16 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.warn('Error fetching assessment from DB, returning fallback demo assessment:', error);
-    const { MOCK_ASSESSMENTS } = await import('@/lib/mockFallback');
+    console.warn('Error fetching assessment from DB, returning fallback assessment:', error);
     const { id } = await params;
-    const fallback = MOCK_ASSESSMENTS.find((a) => a._id === id) || MOCK_ASSESSMENTS[0];
+    const { generateFacilityAssessments } = await import('@/lib/complianceMatrixData');
+    const parts = id.replace(/^asm_/, '').split('_');
+    let facilityId = 'TRIDENT_PAPER';
+    if (parts.length >= 3) {
+      facilityId = parts.slice(0, parts.length - 2).join('_').toUpperCase();
+    }
+    const generated = generateFacilityAssessments(facilityId);
+    const fallback = generated.find((a) => a._id.toLowerCase() === id.toLowerCase()) || generated[0];
     return NextResponse.json({ success: true, data: fallback });
   }
 }

@@ -85,74 +85,82 @@ export async function GET(
     const facilityCode = facility.facilityId;
 
     // Fetch applicability records for this facility
-    const applicabilityRecords = await ComplianceApplicabilityModel.find({
+    let applicabilityRecords = await ComplianceApplicabilityModel.find({
       facilityId: facilityCode,
     }).lean();
 
     // Fetch assessments to get assessmentId for direct navigation
-    const assessments = await AssessmentModel.find({
+    let assessments = await AssessmentModel.find({
       facilityId: facilityCode,
     }).lean();
 
-    const assessmentMap = new Map<string, string>();
-    assessments.forEach((a) => {
-      assessmentMap.set(`${a.complianceType}_${a.period}`, a._id.toString());
-    });
+    const { buildMultiYearComplianceMatrix, COMPLIANCE_FRAMEWORKS, COMPLIANCE_PERIODS } = await import('@/lib/complianceMatrixData');
 
-    const compliances: ComplianceType[] = ['RCO', 'PAT', 'CCTS', 'CEA'];
-    const periods = ['FY2024-25', 'FY2025-26', 'FY2026-27'];
+    const formattedExistingApps = applicabilityRecords.map((r) => ({
+      ...r,
+      _id: r._id.toString(),
+      deadline: r.deadline ? r.deadline.toISOString() : null,
+    }));
 
-    const matrix: Record<ComplianceType, Record<string, IComplianceMatrixCell>> = {
-      RCO: {},
-      PAT: {},
-      CCTS: {},
-      CEA: {},
-    };
+    const formattedExistingAsms = assessments.map((a) => ({
+      ...a,
+      _id: a._id.toString(),
+    }));
 
-    // Initialize default cells
-    compliances.forEach((comp) => {
-      periods.forEach((period) => {
-        matrix[comp][period] = {
-          period,
-          complianceType: comp,
-          isApplicable: false,
-          workflowStatus: 'NOT_STARTED',
-          complianceOutcome: 'NOT_APPLICABLE',
-        };
-      });
-    });
+    const { matrix, applicabilities, assessments: generatedAssessments } = buildMultiYearComplianceMatrix(
+      facilityCode,
+      facility.name,
+      formattedExistingApps as any,
+      formattedExistingAsms as any
+    );
 
-    // Populate from actual database records
-    applicabilityRecords.forEach((app) => {
-      const comp = app.complianceType as ComplianceType;
-      // Normalize period to match table columns or display period
-      let matchedPeriod = periods.find((p) => p.toLowerCase() === app.period.toLowerCase());
-      if (!matchedPeriod) {
-        if (app.period.includes('2024-25') || app.period.includes('Cycle-II')) {
-          matchedPeriod = 'FY2024-25';
-        } else if (app.period.includes('2025-26') || app.period.includes('Monthly')) {
-          matchedPeriod = 'FY2025-26';
-        } else if (app.period.includes('2026-27')) {
-          matchedPeriod = 'FY2026-27';
-        }
+    // Persist to MongoDB if it was newly generated
+    if (applicabilityRecords.length === 0 && applicabilities.length > 0) {
+      try {
+        await ComplianceApplicabilityModel.insertMany(
+          applicabilities.map((app) => ({
+            facilityId: app.facilityId,
+            complianceType: app.complianceType,
+            period: app.period,
+            isApplicable: app.isApplicable,
+            authority: app.authority,
+            ministry: app.ministry,
+            notificationReference: app.notificationReference,
+            targetValue: app.targetValue,
+            targetUnit: app.targetUnit,
+            targetMethodology: app.targetMethodology,
+            deadline: app.deadline ? new Date(app.deadline) : null,
+            workflowStatus: app.workflowStatus,
+            complianceOutcome: app.complianceOutcome,
+            notes: app.notes,
+          })),
+          { ordered: false }
+        );
+      } catch (insertErr) {
+        // Ignore duplicate key or connection warnings
       }
+    }
 
-      if (matchedPeriod && matrix[comp]) {
-        const assessmentId =
-          assessmentMap.get(`${comp}_${app.period}`) ||
-          assessmentMap.get(`${comp}_${matchedPeriod}`);
-
-        matrix[comp][matchedPeriod] = {
-          period: matchedPeriod,
-          complianceType: comp,
-          isApplicable: app.isApplicable,
-          workflowStatus: app.workflowStatus,
-          complianceOutcome: app.complianceOutcome,
-          assessmentId,
-          deadline: app.deadline ? app.deadline.toISOString() : undefined,
-        };
+    if (assessments.length === 0 && generatedAssessments.length > 0) {
+      try {
+        await AssessmentModel.insertMany(
+          generatedAssessments.map((asm) => ({
+            facilityId: asm.facilityId,
+            complianceType: asm.complianceType,
+            period: asm.period,
+            workflowStatus: asm.workflowStatus,
+            complianceOutcome: asm.complianceOutcome,
+            isHistorical: asm.isHistorical || false,
+            version: asm.version || 1,
+            documentLinks: asm.documentLinks,
+            metrics: asm.metrics,
+          })),
+          { ordered: false }
+        );
+      } catch (insertErr) {
+        // Ignore duplicate key or connection warnings
       }
-    });
+    }
 
     return NextResponse.json({
       success: true,
@@ -164,49 +172,17 @@ export async function GET(
           clientGroupName: clientGroupName || (facility as any).clientGroupName || 'Client Group',
           clientGroupCode: clientGroupCode || rawGroupId,
         },
-        periods,
-        compliances,
+        periods: COMPLIANCE_PERIODS,
+        compliances: COMPLIANCE_FRAMEWORKS,
         matrix,
-        rawApplicability: applicabilityRecords.map((r) => ({
-          ...r,
-          _id: r._id.toString(),
-          deadline: r.deadline ? r.deadline.toISOString() : null,
-        })),
+        rawApplicability: applicabilities,
       },
     });
   } catch (error) {
-    console.warn('Error fetching compliance matrix from DB, returning fallback demo matrix:', error);
-    const periods = ['FY2022-23', 'FY2023-24', 'FY2024-25', 'FY2025-26'];
-    const compliances: ComplianceType[] = ['RCO', 'PAT', 'CCTS', 'CEA'];
-
-    const matrix: Record<string, Record<string, IComplianceMatrixCell>> = {
-      RCO: {
-        'FY2022-23': { period: 'FY2022-23', complianceType: 'RCO', isApplicable: true, workflowStatus: 'APPROVED', complianceOutcome: 'COMPLIANT' },
-        'FY2023-24': { period: 'FY2023-24', complianceType: 'RCO', isApplicable: true, workflowStatus: 'APPROVED', complianceOutcome: 'SURPLUS' },
-        'FY2024-25': { period: 'FY2024-25', complianceType: 'RCO', isApplicable: true, workflowStatus: 'APPROVED', complianceOutcome: 'SHORTFALL', assessmentId: '66f000000000000000000010' },
-        'FY2025-26': { period: 'FY2025-26', complianceType: 'RCO', isApplicable: true, workflowStatus: 'DATA_COLLECTION', complianceOutcome: 'PENDING_DETERMINATION', assessmentId: '66f000000000000000000011' },
-      },
-      PAT: {
-        'FY2022-23': { period: 'FY2022-23', complianceType: 'PAT', isApplicable: true, workflowStatus: 'APPROVED', complianceOutcome: 'COMPLIANT' },
-        'FY2023-24': { period: 'FY2023-24', complianceType: 'PAT', isApplicable: true, workflowStatus: 'APPROVED', complianceOutcome: 'COMPLIANT' },
-        'FY2024-25': { period: 'FY2024-25', complianceType: 'PAT', isApplicable: true, workflowStatus: 'APPROVED', complianceOutcome: 'COMPLIANT', assessmentId: '66f000000000000000000012' },
-        'FY2025-26': { period: 'FY2025-26', complianceType: 'PAT', isApplicable: true, workflowStatus: 'DATA_COLLECTION', complianceOutcome: 'PENDING_DETERMINATION', assessmentId: '66f000000000000000000013' },
-      },
-      CCTS: {
-        'FY2022-23': { period: 'FY2022-23', complianceType: 'CCTS', isApplicable: false, workflowStatus: 'NOT_STARTED', complianceOutcome: 'NOT_APPLICABLE' },
-        'FY2023-24': { period: 'FY2023-24', complianceType: 'CCTS', isApplicable: false, workflowStatus: 'NOT_STARTED', complianceOutcome: 'NOT_APPLICABLE' },
-        'FY2024-25': { period: 'FY2024-25', complianceType: 'CCTS', isApplicable: true, workflowStatus: 'UNDER_REVIEW', complianceOutcome: 'PENDING_DETERMINATION', assessmentId: '66f000000000000000000014' },
-        'FY2025-26': { period: 'FY2025-26', complianceType: 'CCTS', isApplicable: true, workflowStatus: 'DATA_COLLECTION', complianceOutcome: 'PENDING_DETERMINATION', assessmentId: '66f000000000000000000015' },
-      },
-      CEA: {
-        'FY2022-23': { period: 'FY2022-23', complianceType: 'CEA', isApplicable: true, workflowStatus: 'APPROVED', complianceOutcome: 'COMPLIANT' },
-        'FY2023-24': { period: 'FY2023-24', complianceType: 'CEA', isApplicable: true, workflowStatus: 'APPROVED', complianceOutcome: 'COMPLIANT' },
-        'FY2024-25': { period: 'FY2024-25', complianceType: 'CEA', isApplicable: true, workflowStatus: 'APPROVED', complianceOutcome: 'COMPLIANT', assessmentId: '66f000000000000000000016' },
-        'FY2025-26': { period: 'FY2025-26', complianceType: 'CEA', isApplicable: true, workflowStatus: 'DATA_COLLECTION', complianceOutcome: 'COMPLIANT', assessmentId: '66f000000000000000000017' },
-      },
-    };
-
+    console.warn('Error fetching compliance matrix from DB, returning fallback multi-year matrix:', error);
+    const { buildMultiYearComplianceMatrix, COMPLIANCE_FRAMEWORKS, COMPLIANCE_PERIODS } = await import('@/lib/complianceMatrixData');
     const { MOCK_FACILITIES, MOCK_CLIENT_GROUPS } = await import('@/lib/mockFallback');
+
     const foundFacility = MOCK_FACILITIES.find(
       (f) => f.facilityId === id.toUpperCase() || f._id === id
     );
@@ -237,14 +213,19 @@ export async function GET(
       }
     }
 
+    const { matrix, applicabilities } = buildMultiYearComplianceMatrix(
+      resolvedFacility.facilityId,
+      resolvedFacility.name
+    );
+
     return NextResponse.json({
       success: true,
       data: {
         facility: resolvedFacility,
-        periods,
-        compliances,
+        periods: COMPLIANCE_PERIODS,
+        compliances: COMPLIANCE_FRAMEWORKS,
         matrix,
-        rawApplicability: [],
+        rawApplicability: applicabilities,
       },
     });
   }
