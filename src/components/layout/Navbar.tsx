@@ -125,7 +125,7 @@ export const Navbar: React.FC = () => {
     }
 
     return isLight
-      ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+      ? '   hover:text-slate-900 hover:bg-slate-100'
       : 'text-slate-300 hover:text-white hover:bg-slate-800/60';
   };
 
@@ -153,7 +153,7 @@ export const Navbar: React.FC = () => {
 
             <span
               className={`text-[11px] font-medium ${
-                isLight ? 'text-slate-600' : 'text-slate-300'
+                isLight ? '  ' : 'text-slate-300'
               }`}
             >
               Active User:{' '}
@@ -181,7 +181,7 @@ export const Navbar: React.FC = () => {
             {currentRole === 'CLIENT' && (
               <span
                 className={`hidden text-[10px] font-medium sm:inline ${
-                  isLight ? 'text-slate-500' : 'text-slate-400'
+                  isLight ? 'text-slate-500' : ' '
                 }`}
               >
                 (Client Portal Protected Workspace)
@@ -288,7 +288,7 @@ export const Navbar: React.FC = () => {
 
               <p
                 className={`hidden text-[10px] font-normal tracking-wide sm:block ${
-                  isLight ? 'text-slate-500' : 'text-slate-400'
+                  isLight ? 'text-slate-500' : ' '
                 }`}
               >
                 Compliance Management Platform
@@ -323,7 +323,7 @@ export const Navbar: React.FC = () => {
                           : 'text-emerald-400'
                         : isLight
                           ? 'text-slate-500'
-                          : 'text-slate-400'
+                          : ' '
                     }`}
                   />
                   <span>{item.label}</span>
@@ -338,7 +338,7 @@ export const Navbar: React.FC = () => {
           <div className="hidden text-right sm:block">
             <div
               className={`text-xs font-semibold ${
-                isLight ? 'text-slate-900' : 'text-slate-200'
+                isLight ? 'text-slate-900' : '   dark:text-white'
               }`}
             >
               {currentUser?.name || 'User'}
@@ -346,7 +346,7 @@ export const Navbar: React.FC = () => {
 
             <div
               className={`text-[10px] ${
-                isLight ? 'text-slate-500' : 'text-slate-400'
+                isLight ? 'text-slate-500' : ' '
               }`}
             >
               {currentUser?.designation || currentRole}
@@ -389,7 +389,7 @@ export const Navbar: React.FC = () => {
             className={`rounded-lg border p-1.5 transition-colors ${
               isLight
                 ? 'border-slate-300 bg-white text-slate-500 shadow-2xs hover:bg-rose-50 hover:text-rose-700'
-                : 'border-slate-700 bg-slate-800/80 text-slate-400 hover:bg-rose-950/60 hover:text-rose-300'
+                : 'border-slate-700 bg-slate-800/80   hover:bg-rose-950/60 hover:text-rose-300'
             }`}
             title="Log Out (Clear Session Cookie)"
             aria-label="Log out"
@@ -430,7 +430,7 @@ export const Navbar: React.FC = () => {
         >
           <div
             className={`px-2 pb-1 text-xs font-semibold uppercase tracking-wider ${
-              isLight ? 'text-slate-500' : 'text-slate-400'
+              isLight ? 'text-slate-500' : ' '
             }`}
           >
             Navigation Menu

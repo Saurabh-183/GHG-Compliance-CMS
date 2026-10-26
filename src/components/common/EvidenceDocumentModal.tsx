@@ -65,7 +65,7 @@ export const EvidenceDocumentModal: React.FC<EvidenceDocumentModalProps> = ({
                   Google Drive Evidence
                 </span>
               </h3>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px]  ">
                 Official Supporting Audit Record · Facility: TRIDENT_PAPER
               </p>
             </div>
@@ -73,7 +73,7 @@ export const EvidenceDocumentModal: React.FC<EvidenceDocumentModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-lg   hover:text-white hover:bg-slate-800 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -92,15 +92,15 @@ export const EvidenceDocumentModal: React.FC<EvidenceDocumentModalProps> = ({
                 <h4 className="text-base font-extrabold text-white mt-0.5">
                   High Tension (HT) Industrial Electricity Bill
                 </h4>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-[11px]  ">
                   Sub-Division: Barnala Industrial Area · Circle: Sangrur
                 </p>
               </div>
 
               <div className="text-right">
                 <div className="text-[10px] text-slate-500">Bill Invoice Number</div>
-                <div className="font-mono font-bold text-slate-200">{billNo}</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">Billing Cycle: {billingPeriod}</div>
+                <div className="font-mono font-bold    dark:text-white">{billNo}</div>
+                <div className="text-[10px]   mt-0.5">Billing Cycle: {billingPeriod}</div>
               </div>
             </div>
 
@@ -108,15 +108,15 @@ export const EvidenceDocumentModal: React.FC<EvidenceDocumentModalProps> = ({
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3.5 rounded-lg bg-slate-900/80 border border-slate-800 text-[11px]">
               <div>
                 <span className="text-slate-500 block">Consumer Account:</span>
-                <span className="font-mono font-bold text-slate-200">PSPCL-BARNALA-66KV-0042</span>
+                <span className="font-mono font-bold    dark:text-white">PSPCL-BARNALA-66KV-0042</span>
               </div>
               <div>
                 <span className="text-slate-500 block">Consumer Name:</span>
-                <span className="font-semibold text-slate-200">Trident Paper Limited</span>
+                <span className="font-semibold    dark:text-white">Trident Paper Limited</span>
               </div>
               <div>
                 <span className="text-slate-500 block">Meter Number:</span>
-                <span className="font-mono font-bold text-slate-200">L&T-EM-99214</span>
+                <span className="font-mono font-bold    dark:text-white">L&T-EM-99214</span>
               </div>
               <div>
                 <span className="text-slate-500 block">Contract Demand:</span>
@@ -128,7 +128,7 @@ export const EvidenceDocumentModal: React.FC<EvidenceDocumentModalProps> = ({
             <div className="rounded-lg border border-slate-800 overflow-hidden">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-slate-900 border-b border-slate-800 text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
+                  <tr className="bg-slate-900 border-b border-slate-800 text-[10px] uppercase tracking-wider   font-semibold">
                     <th className="py-2 px-3">Parameter Description</th>
                     <th className="py-2 px-3 text-right">Units</th>
                     <th className="py-2 px-3 text-right">Recorded Value</th>
@@ -140,7 +140,7 @@ export const EvidenceDocumentModal: React.FC<EvidenceDocumentModalProps> = ({
                     <td className="py-2.5 px-3 font-sans text-slate-300">
                       Total Active Energy Consumption (Net Import)
                     </td>
-                    <td className="py-2.5 px-3 text-right text-slate-400">kWh</td>
+                    <td className="py-2.5 px-3 text-right  ">kWh</td>
                     <td className="py-2.5 px-3 text-right font-bold text-emerald-400">
                       {formatNumber(billedUnits)}
                     </td>
@@ -154,8 +154,8 @@ export const EvidenceDocumentModal: React.FC<EvidenceDocumentModalProps> = ({
                     <td className="py-2.5 px-3 font-sans text-slate-300">
                       Maximum Demand Recorded (MDI)
                     </td>
-                    <td className="py-2.5 px-3 text-right text-slate-400">kVA</td>
-                    <td className="py-2.5 px-3 text-right font-bold text-slate-200">9,840</td>
+                    <td className="py-2.5 px-3 text-right  ">kVA</td>
+                    <td className="py-2.5 px-3 text-right font-bold    dark:text-white">9,840</td>
                     <td className="py-2.5 px-3 text-center font-sans">
                       <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300">
                         Within Limit
@@ -164,8 +164,8 @@ export const EvidenceDocumentModal: React.FC<EvidenceDocumentModalProps> = ({
                   </tr>
                   <tr>
                     <td className="py-2.5 px-3 font-sans text-slate-300">Average Monthly Power Factor</td>
-                    <td className="py-2.5 px-3 text-right text-slate-400">PF</td>
-                    <td className="py-2.5 px-3 text-right font-bold text-slate-200">0.995 Lag</td>
+                    <td className="py-2.5 px-3 text-right  ">PF</td>
+                    <td className="py-2.5 px-3 text-right font-bold    dark:text-white">0.995 Lag</td>
                     <td className="py-2.5 px-3 text-center font-sans">
                       <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-300">
                         Incentive Eligible
@@ -203,7 +203,7 @@ export const EvidenceDocumentModal: React.FC<EvidenceDocumentModalProps> = ({
 
           {/* Google Drive Link Metadata & Info */}
           <div className="space-y-2 p-3.5 rounded-xl bg-slate-950/60 border border-slate-800">
-            <span className="text-slate-400 font-semibold block text-[11px] uppercase tracking-wider">
+            <span className="  font-semibold block text-[11px] uppercase tracking-wider">
               Google Drive Evidence Reference
             </span>
             <div className="flex items-center justify-between gap-3 font-mono text-[11px] text-slate-300 bg-slate-900 p-2.5 rounded-lg border border-slate-800">
@@ -212,7 +212,7 @@ export const EvidenceDocumentModal: React.FC<EvidenceDocumentModalProps> = ({
                 href={url || 'https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7'}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="shrink-0 px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white inline-flex items-center gap-1 font-sans text-xs transition-colors"
+                className="shrink-0 px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700    dark:text-white hover:text-white inline-flex items-center gap-1 font-sans text-xs transition-colors"
               >
                 <span>Open in Drive</span>
                 <ExternalLink className="w-3 h-3" />
@@ -226,14 +226,14 @@ export const EvidenceDocumentModal: React.FC<EvidenceDocumentModalProps> = ({
 
         {/* Modal Footer */}
         <div className="flex items-center justify-between px-6 py-3 border-t border-slate-800 bg-slate-950/80">
-          <div className="flex items-center gap-2 text-[11px] text-slate-400">
+          <div className="flex items-center gap-2 text-[11px]  ">
             <ShieldCheck className="w-4 h-4 text-emerald-400" />
             <span>Audited & verified by Carbon Crunch Consultant</span>
           </div>
 
           <button
             onClick={onClose}
-            className="px-4 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors"
+            className="px-4 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700    dark:text-white transition-colors"
           >
             Close Preview
           </button>

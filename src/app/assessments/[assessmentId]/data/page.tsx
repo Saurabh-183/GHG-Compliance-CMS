@@ -53,7 +53,7 @@ export default function AssessmentDataPage() {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-16 text-center text-slate-400 text-xs">
+      <div className="max-w-7xl mx-auto px-4 py-16 text-center   text-xs">
         Loading Data Collection Checklist...
       </div>
     );
@@ -62,17 +62,17 @@ export default function AssessmentDataPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-xs text-slate-400">
+      <div className="flex items-center gap-2 text-xs  ">
         <Link
           href={`/facilities/${assessment?.facilityId || 'TRIDENT_PAPER'}`}
           className="hover:text-emerald-400"
         >
           {assessment?.facilityName || assessment?.facilityId || 'Facility'}
         </Link>
-        <ChevronRight className="w-3 h-3 text-slate-600" />
+        <ChevronRight className="w-3 h-3   " />
         <Link href={`/assessments/${assessmentId}`} className="hover:text-emerald-400">Assessment</Link>
-        <ChevronRight className="w-3 h-3 text-slate-600" />
-        <span className="text-slate-200 font-semibold">Data Collection Checklist</span>
+        <ChevronRight className="w-3 h-3   " />
+        <span className="   dark:text-white font-semibold">Data Collection Checklist</span>
       </div>
 
       {/* Header */}
@@ -86,7 +86,7 @@ export default function AssessmentDataPage() {
               <h1 className="text-xl font-bold text-white">
                 Current-Year Data Collection Checklist (FY 2025-26)
               </h1>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs   mt-0.5">
                 Replaces Excel tracker: Common energy data & compliance-specific requirements linked to Trident Paper.
               </p>
             </div>
@@ -105,10 +105,10 @@ export default function AssessmentDataPage() {
       {/* Checklist Table */}
       <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 shadow-xl space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-slate-200">
+          <h3 className="text-sm font-semibold    dark:text-white">
             Active Data Requirements & Verification States
           </h3>
-          <span className="text-xs text-slate-400">
+          <span className="text-xs  ">
             Separate state machines: Submission Status vs Verification Status
           </span>
         </div>
@@ -116,7 +116,7 @@ export default function AssessmentDataPage() {
         <div className="overflow-x-auto rounded-lg border border-slate-800">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-slate-800 bg-slate-950/80 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+              <tr className="border-b border-slate-800 bg-slate-950/80 text-[11px] font-semibold   uppercase tracking-wider">
                 <th className="py-3 px-4">Requirement</th>
                 <th className="py-3 px-4">Category</th>
                 <th className="py-3 px-4">Linked Compliances</th>
@@ -130,8 +130,8 @@ export default function AssessmentDataPage() {
               {requirements.map((req) => (
                 <tr key={req._id} className="hover:bg-slate-800/30 transition-colors">
                   <td className="py-3.5 px-4">
-                    <div className="font-semibold text-slate-200">{req.title}</div>
-                    <div className="text-[11px] text-slate-400 mt-0.5 line-clamp-1">{req.description}</div>
+                    <div className="font-semibold    dark:text-white">{req.title}</div>
+                    <div className="text-[11px]   mt-0.5 line-clamp-1">{req.description}</div>
                   </td>
                   <td className="py-3.5 px-4">
                     <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-800 text-slate-300">

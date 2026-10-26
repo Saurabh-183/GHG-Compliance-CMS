@@ -39,15 +39,15 @@ export const ComplianceMatrixTable: React.FC<ComplianceMatrixTableProps> = ({ da
           <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
             Facility Compliance Matrix — Multi-Year Status
           </h3>
-          <p className="text-xs text-slate-600 dark:text-slate-200 mt-0.5">
+          <p className="text-xs    dark:   dark:text-white mt-0.5">
             Click any matrix cell to open the detailed compliance assessment, evidence records, and calculation workbooks.
           </p>
         </div>
-        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+        <div className="flex items-center gap-2 text-xs text-slate-500 dark: ">
           <span className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-400"></span> Workflow Status
           </span>
-          <span className="mx-1 text-slate-300 dark:text-slate-600">|</span>
+          <span className="mx-1 text-slate-300 dark:  ">|</span>
           <span className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded bg-rose-600 dark:bg-rose-400"></span> Regulatory Outcome
           </span>
@@ -57,7 +57,7 @@ export const ComplianceMatrixTable: React.FC<ComplianceMatrixTableProps> = ({ da
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950/70 text-slate-700 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">
+            <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950/70 text-slate-700 dark:  text-xs font-semibold uppercase tracking-wider">
               <th className="py-3 px-4 w-72">Compliance Framework</th>
               {periods.map((period) => (
                 <th key={period} className="py-3 px-4 text-center">
@@ -73,8 +73,8 @@ export const ComplianceMatrixTable: React.FC<ComplianceMatrixTableProps> = ({ da
                 <tr key={comp} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                   {/* Framework Info */}
                   <td className="py-4 px-4 align-top">
-                    <div className="font-semibold text-slate-900 dark:text-slate-200 text-sm">{info.title}</div>
-                    <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{info.subtitle}</div>
+                    <div className="font-semibold text-slate-900 dark:   dark:text-white text-sm">{info.title}</div>
+                    <div className="text-[11px] text-slate-500 dark:  mt-0.5">{info.subtitle}</div>
                   </td>
 
                   {/* Matrix Cells */}
@@ -94,10 +94,10 @@ export const ComplianceMatrixTable: React.FC<ComplianceMatrixTableProps> = ({ da
                     const cellContent = (
                       <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 hover:border-emerald-500/50 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all cursor-pointer group flex flex-col items-center justify-center gap-2">
                         <div className="flex items-center justify-between w-full">
-                          <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
+                          <span className="text-[10px] text-slate-500 dark:  font-mono">
                             {period}
                           </span>
-                          <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors" />
+                          <ArrowUpRight className="w-3.5 h-3.5   group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors" />
                         </div>
 
                         {/* Dual Status: Workflow + Compliance Outcome */}

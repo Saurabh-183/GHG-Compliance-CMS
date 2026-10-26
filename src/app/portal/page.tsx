@@ -86,7 +86,7 @@ export default function ClientPortalDashboard() {
           <Building2 className="w-7 h-7" />
         </div>
         <h2 className="text-xl font-extrabold text-white">Client Portal Area</h2>
-        <p className="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
+        <p className="text-xs   max-w-md mx-auto leading-relaxed">
           Your active account role is <strong className="text-emerald-400">{currentRole}</strong>.
           The Client Portal is reserved exclusively for external industrial client representatives (e.g., Trident Group) to upload Google Drive evidence and answer clarification queries.
         </p>
@@ -142,7 +142,7 @@ export default function ClientPortalDashboard() {
 
             <button
               onClick={() => setIsDriveModalOpen(true)}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs shadow-sm transition-colors"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700    dark:text-white border border-slate-700 font-semibold text-xs shadow-sm transition-colors"
             >
               <Folder className="w-3.5 h-3.5 text-emerald-400" />
               <span>Drive Evidence Vault</span>
@@ -153,7 +153,7 @@ export default function ClientPortalDashboard() {
         {/* PRD Highlights: Data Given % & Data Matched % */}
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-800 text-xs">
           <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
-            <div className="flex items-center justify-between text-slate-400">
+            <div className="flex items-center justify-between  ">
               <span className="font-semibold uppercase tracking-wider text-[10px]">Data Given</span>
               <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
             </div>
@@ -162,7 +162,7 @@ export default function ClientPortalDashboard() {
           </div>
 
           <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
-            <div className="flex items-center justify-between text-slate-400">
+            <div className="flex items-center justify-between  ">
               <span className="font-semibold uppercase tracking-wider text-[10px]">Data Matched</span>
               <CheckCheck className="w-3.5 h-3.5 text-emerald-400" />
             </div>
@@ -171,7 +171,7 @@ export default function ClientPortalDashboard() {
           </div>
 
           <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
-            <div className="flex items-center justify-between text-slate-400">
+            <div className="flex items-center justify-between  ">
               <span className="font-semibold uppercase tracking-wider text-[10px]">Operating Facilities</span>
               <Building2 className="w-3.5 h-3.5 text-emerald-400" />
             </div>
@@ -180,7 +180,7 @@ export default function ClientPortalDashboard() {
           </div>
 
           <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
-            <div className="flex items-center justify-between text-slate-400">
+            <div className="flex items-center justify-between  ">
               <span className="font-semibold uppercase tracking-wider text-[10px]">Action Items</span>
               <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
             </div>
@@ -243,11 +243,11 @@ export default function ClientPortalDashboard() {
                   <span className="text-[10px] text-slate-500 uppercase">{facility.location}</span>
                 </div>
                 <h3 className="text-base font-bold text-white">{facility.name}</h3>
-                <p className="text-xs text-slate-400">{facility.category}</p>
+                <p className="text-xs  ">{facility.category}</p>
               </div>
 
               <div className="pt-4 mt-4 border-t border-slate-800/80 flex items-center justify-between">
-                <span className="text-[11px] text-slate-400">
+                <span className="text-[11px]  ">
                   Obligations: <strong>RCO, PAT, CCTS, CEA</strong>
                 </span>
                 <Link
@@ -271,7 +271,7 @@ export default function ClientPortalDashboard() {
               <FileSpreadsheet className="w-5 h-5 text-emerald-400" />
               Outstanding Compliance Data Requests
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs   mt-0.5">
               Submit monthly energy logs, utility bills, and fuel lab test reports by attaching Google Drive URLs.
             </p>
           </div>
@@ -287,7 +287,7 @@ export default function ClientPortalDashboard() {
         <div className="overflow-x-auto rounded-lg border border-slate-800">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="bg-slate-950/80 text-slate-400 border-b border-slate-800 text-[11px] font-semibold uppercase tracking-wider">
+              <tr className="bg-slate-950/80   border-b border-slate-800 text-[11px] font-semibold uppercase tracking-wider">
                 <th className="py-3 px-4">Facility</th>
                 <th className="py-3 px-4">Requirement</th>
                 <th className="py-3 px-4">Compliances</th>
@@ -302,7 +302,7 @@ export default function ClientPortalDashboard() {
                   <td className="py-3 px-4 font-mono font-medium text-white">{req.facilityId}</td>
                   <td className="py-3 px-4">
                     <div className="font-semibold text-white">{req.title}</div>
-                    <div className="text-[11px] text-slate-400 mt-0.5">{req.description}</div>
+                    <div className="text-[11px]   mt-0.5">{req.description}</div>
                   </td>
                   <td className="py-3 px-4">
                     <div className="flex items-center gap-1">
@@ -313,7 +313,7 @@ export default function ClientPortalDashboard() {
                       ))}
                     </div>
                   </td>
-                  <td className="py-3 px-4 font-mono text-slate-400">{formatDate(req.dueDate)}</td>
+                  <td className="py-3 px-4 font-mono  ">{formatDate(req.dueDate)}</td>
                   <td className="py-3 px-4 text-center">
                     <StatusBadge status={req.submissionStatus} type="submission" size="sm" />
                   </td>
@@ -341,7 +341,7 @@ export default function ClientPortalDashboard() {
               <ShieldCheck className="w-5 h-5 text-emerald-400" />
               Released & Approved Compliance Filings
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs   mt-0.5">
               Official filings and submission acknowledgements certified by Carbon Crunch auditor.
             </p>
           </div>
@@ -357,7 +357,7 @@ export default function ClientPortalDashboard() {
         <div className="overflow-x-auto rounded-lg border border-slate-800">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="bg-slate-950/80 text-slate-400 border-b border-slate-800 text-[11px] font-semibold uppercase tracking-wider">
+              <tr className="bg-slate-950/80   border-b border-slate-800 text-[11px] font-semibold uppercase tracking-wider">
                 <th className="py-3 px-4">Facility</th>
                 <th className="py-3 px-4">Compliance Type</th>
                 <th className="py-3 px-4">Period</th>
@@ -371,7 +371,7 @@ export default function ClientPortalDashboard() {
                 <tr key={h._id} className="hover:bg-slate-800/40 transition-colors">
                   <td className="py-3 px-4 font-mono font-medium text-white">{h.facilityId}</td>
                   <td className="py-3 px-4 font-semibold text-white">{h.complianceType}</td>
-                  <td className="py-3 px-4 font-mono text-slate-400">{h.period}</td>
+                  <td className="py-3 px-4 font-mono  ">{h.period}</td>
                   <td className="py-3 px-4 text-center">
                     <StatusBadge status={h.complianceOutcome} type="outcome" size="sm" />
                   </td>
@@ -397,7 +397,7 @@ export default function ClientPortalDashboard() {
                 <Folder className="w-5 h-5 text-emerald-400" />
                 Google Drive Corporate Compliance Vault ({driveFiles.length} Documents)
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs   mt-0.5">
                 Official invoices, energy sheets, and certificates residing directly in the Google Drive compliance repository.
               </p>
             </div>
@@ -432,13 +432,13 @@ export default function ClientPortalDashboard() {
                   <div className="text-xs font-bold text-white truncate" title={f.name}>
                     {f.name}
                   </div>
-                  <p className="text-[11px] text-slate-400">
+                  <p className="text-[11px]  ">
                     {f.mimeType.includes('pdf') ? 'Audited PDF Bill / Certificate' : 'Client Consumption Excel Sheet'}
                   </p>
                 </div>
 
                 <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
-                  <span className="text-[10px] text-slate-400">
+                  <span className="text-[10px]  ">
                     {f.sizeBytes ? `${Math.round(f.sizeBytes / 1024)} KB` : 'Drive Asset'}
                   </span>
                   <a

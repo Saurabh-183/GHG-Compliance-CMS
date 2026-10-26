@@ -60,7 +60,7 @@ export default function AssessmentComparisonPage() {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-16 text-center text-slate-400 text-xs">
+      <div className="max-w-7xl mx-auto px-4 py-16 text-center   text-xs">
         Generating Historical & Current Year Comparison...
       </div>
     );
@@ -68,7 +68,7 @@ export default function AssessmentComparisonPage() {
 
   if (!assessment1) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-16 text-center text-slate-400">
+      <div className="max-w-7xl mx-auto px-4 py-16 text-center  ">
         <h2 className="text-lg font-bold text-white">Comparison Data Unavailable</h2>
         <Link href="/facilities/TRIDENT_PAPER" className="mt-4 inline-block text-emerald-400 text-xs">
           Return to Matrix
@@ -83,17 +83,17 @@ export default function AssessmentComparisonPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-xs text-slate-400">
+      <div className="flex items-center gap-2 text-xs  ">
         <Link
           href={`/facilities/${assessment1.facilityId || 'TRIDENT_PAPER'}`}
           className="hover:text-emerald-400"
         >
           {assessment1.facilityName || assessment1.facilityId || 'Facility'}
         </Link>
-        <ChevronRight className="w-3 h-3 text-slate-600" />
+        <ChevronRight className="w-3 h-3   " />
         <Link href={`/assessments/${assessmentId}`} className="hover:text-emerald-400">Assessment</Link>
-        <ChevronRight className="w-3 h-3 text-slate-600" />
-        <span className="text-slate-200 font-semibold">YoY Trajectory Comparison</span>
+        <ChevronRight className="w-3 h-3   " />
+        <span className="   dark:text-white font-semibold">YoY Trajectory Comparison</span>
       </div>
 
       {/* Header Card */}
@@ -107,8 +107,8 @@ export default function AssessmentComparisonPage() {
               <h1 className="text-2xl font-bold text-white">
                 Year-on-Year Compliance Trajectory Comparison
               </h1>
-              <p className="text-xs text-slate-400 mt-1">
-                Facility: <strong className="text-slate-200">{assessment1.facilityId}</strong> · Compliance: <strong className="text-slate-200">{assessment1.complianceType}</strong>
+              <p className="text-xs   mt-1">
+                Facility: <strong className="   dark:text-white">{assessment1.facilityId}</strong> · Compliance: <strong className="   dark:text-white">{assessment1.complianceType}</strong>
               </p>
             </div>
           </div>
@@ -116,11 +116,11 @@ export default function AssessmentComparisonPage() {
 
         {/* Period Selector Controls */}
         <div className="flex items-center gap-3 bg-slate-950/60 p-3 rounded-lg border border-slate-800">
-          <label className="text-xs text-slate-400 font-medium">Compare With Period:</label>
+          <label className="text-xs   font-medium">Compare With Period:</label>
           <select
             value={selectedPeriod}
             onChange={(e) => setSelectedPeriod(e.target.value)}
-            className="px-3 py-1 text-xs bg-slate-900 border border-slate-700 rounded text-slate-200 font-medium focus:outline-none focus:border-emerald-500"
+            className="px-3 py-1 text-xs bg-slate-900 border border-slate-700 rounded    dark:text-white font-medium focus:outline-none focus:border-emerald-500"
           >
             {availablePeriods
               .filter((p) => p !== period1Name)
@@ -141,7 +141,7 @@ export default function AssessmentComparisonPage() {
               <ShieldCheck className="w-5 h-5 text-emerald-400" />
               Side-by-Side Regulatory Metrics Comparison Table
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs   mt-0.5">
               Approved historical performance vs current active assessment with provisional labels.
             </p>
           </div>
@@ -150,7 +150,7 @@ export default function AssessmentComparisonPage() {
         <div className="overflow-x-auto rounded-lg border border-slate-800">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-slate-800 bg-slate-950/80 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+              <tr className="border-b border-slate-800 bg-slate-950/80 text-[11px] font-semibold   uppercase tracking-wider">
                 <th className="py-3 px-4">Compliance Parameter</th>
                 <th className="py-3 px-4 text-center">Unit</th>
                 <th className="py-3 px-4 text-right">
@@ -161,7 +161,7 @@ export default function AssessmentComparisonPage() {
                 </th>
                 <th className="py-3 px-4 text-right">
                   {period2Name} <br />
-                  <span className="text-[10px] text-slate-400 font-normal">
+                  <span className="text-[10px]    dark:text-white font-normal">
                     ({assessment2?.isHistorical ? 'Approved Baseline' : 'Provisional'})
                   </span>
                 </th>
@@ -172,10 +172,10 @@ export default function AssessmentComparisonPage() {
             <tbody className="divide-y divide-slate-800/70 text-xs">
               {rows.map((row, index) => (
                 <tr key={index} className="hover:bg-slate-800/30 transition-colors">
-                  <td className="py-3.5 px-4 font-semibold text-slate-200">
+                  <td className="py-3.5 px-4 font-semibold    dark:text-white">
                     {row.parameter}
                   </td>
-                  <td className="py-3.5 px-4 text-center font-mono text-slate-400 text-[11px]">
+                  <td className="py-3.5 px-4 text-center font-mono   text-[11px]">
                     {row.unit}
                   </td>
                   {/* Period 1 Value */}
@@ -186,7 +186,7 @@ export default function AssessmentComparisonPage() {
                     </div>
                   </td>
                   {/* Period 2 Value */}
-                  <td className="py-3.5 px-4 text-right font-mono font-bold text-slate-200">
+                  <td className="py-3.5 px-4 text-right font-mono font-bold    dark:text-white">
                     {row.period2Value}
                     <div className="text-[9px] text-slate-500 font-sans font-normal uppercase mt-0.5">
                       {row.period2Status === 'PROVISIONAL' ? 'Provisional' : 'Approved Final'}

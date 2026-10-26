@@ -110,7 +110,7 @@ export default function ApprovalsPage() {
           <AlertTriangle className="w-7 h-7" />
         </div>
         <h2 className="text-xl font-extrabold text-white">Access Denied: Internal Auditor Queue</h2>
-        <p className="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
+        <p className="text-xs   max-w-md mx-auto leading-relaxed">
           The Reviewer Queue is reserved exclusively for internal compliance consultants, reviewers, and platform administrators.
           Client users should view and submit evidence via the <strong className="text-white">Client Portal</strong>.
         </p>
@@ -136,13 +136,13 @@ export default function ApprovalsPage() {
             <CheckCircle2 className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
             Reviewer Queue & Verification Approvals
           </h1>
-          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+          <p className="text-xs    dark:  mt-1">
             Independent audit sign-off for consultant verified monthly data and compliance filings.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-500 dark:text-slate-400">Current Role:</span>
+          <span className="text-xs text-slate-500 dark: ">Current Role:</span>
           <span className="px-2.5 py-1 text-xs font-bold rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/20">
             {currentRole}
           </span>
@@ -152,10 +152,10 @@ export default function ApprovalsPage() {
       {/* Queue Table */}
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-6 shadow-sm space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-black dark:text-slate-200">
+          <h3 className="text-sm font-bold text-black dark:   ">
             Verifications Awaiting Reviewer Sign-off
           </h3>
-          <span className="text-xs text-slate-500 dark:text-slate-400">
+          <span className="text-xs text-slate-500 dark: ">
             {datasets.filter((d) => d.verificationStatus === 'AWAITING_APPROVAL').length} Pending
           </span>
         </div>
@@ -163,7 +163,7 @@ export default function ApprovalsPage() {
         <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/80 text-[11px] font-bold text-slate-700 dark:text-slate-400 uppercase tracking-wider">
+              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/80 text-[11px] font-bold text-slate-700 dark:  uppercase tracking-wider">
                 <th className="py-3 px-4">Facility</th>
                 <th className="py-3 px-4">Dataset Type</th>
                 <th className="py-3 px-4">Period</th>
@@ -189,17 +189,17 @@ export default function ApprovalsPage() {
                     <td className="py-3.5 px-4 font-mono font-bold text-black dark:text-white">
                       {d.facilityId}
                     </td>
-                    <td className="py-3.5 px-4 text-slate-900 dark:text-slate-200 font-semibold">
+                    <td className="py-3.5 px-4 text-slate-900 dark:   font-semibold">
                       {d.datasetType.replace('_', ' ')}
                     </td>
-                    <td className="py-3.5 px-4 text-slate-700 dark:text-slate-400 font-mono">
+                    <td className="py-3.5 px-4 text-slate-700 dark:  font-mono">
                       {d.period}
                     </td>
                     <td className="py-3.5 px-4 text-center">
                       <StatusBadge status={d.verificationStatus} size="sm" />
                     </td>
                     <td className="py-3.5 px-4 text-center font-mono">
-                      <span className="font-bold text-slate-900 dark:text-slate-200">{dataGivenPct}%</span>
+                      <span className="font-bold text-slate-900 dark:   ">{dataGivenPct}%</span>
                       <span className="text-[10px] text-slate-500 block">({declaredCount}/12 mo)</span>
                     </td>
                     <td className="py-3.5 px-4 text-center font-mono">
@@ -211,28 +211,28 @@ export default function ApprovalsPage() {
                     <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300">
                       {d.consultantSubmission ? (
                         <div>
-                          <div className="text-slate-900 dark:text-slate-200 font-medium">{d.consultantSubmission.consultantName}</div>
+                          <div className="text-slate-900 dark:    font-medium">{d.consultantSubmission.consultantName}</div>
                           <div className="text-[11px] text-slate-500 line-clamp-1">{d.consultantSubmission.summary}</div>
                         </div>
                       ) : (
                         '—'
                       )}
                     </td>
-                    <td className="py-3.5 px-4 text-center font-mono text-slate-700 dark:text-slate-400">
+                    <td className="py-3.5 px-4 text-center font-mono text-slate-700 dark: ">
                       v{d.reviewerApproval?.version || 1}
                     </td>
                     <td className="py-3.5 px-4 text-center">
                       <div className="flex items-center justify-center gap-2">
                         <Link
                           href={`/datasets/${d._id}/verify`}
-                          className="px-2.5 py-1 text-xs rounded bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 dark:border-transparent transition-colors font-medium shadow-2xs"
+                          className="px-2.5 py-1 text-xs rounded bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 dark:    dark:border-transparent transition-colors font-medium shadow-2xs"
                         >
                           Inspect Rows
                         </Link>
                         {!isLocked && (
                           <button
                             onClick={() => setSelectedDataset(d)}
-                            className="px-2.5 py-1 text-xs font-semibold rounded bg-emerald-700 hover:bg-emerald-800 dark:bg-[#A56F63] dark:hover:bg-[#8C594E] !text-white transition-colors"
+                            className="px-2.5 py-1 text-xs font-semibold rounded bg-emerald-700 hover:bg-emerald-800 dark:bg-[#A56F63] dark:hover:bg-[#8C594E] transition-colors"
                             style={{ color: '#FFFFFF' }}
                           >
                             Sign-off
@@ -262,8 +262,8 @@ export default function ApprovalsPage() {
               <ShieldCheck className="w-5 h-5 text-emerald-400" />
               Sign-off & Lock Verification Dataset
             </h3>
-            <p className="text-xs text-slate-400">
-              Facility: <strong className="text-slate-200">{selectedDataset.facilityId}</strong> · {selectedDataset.datasetType} ({selectedDataset.period})
+            <p className="text-xs  ">
+              Facility: <strong className="   dark:text-white">{selectedDataset.facilityId}</strong> · {selectedDataset.datasetType} ({selectedDataset.period})
             </p>
 
             <div>
@@ -275,14 +275,14 @@ export default function ApprovalsPage() {
                 onChange={(e) => setActionComments(e.target.value)}
                 placeholder="e.g. Reconciliation verified against official PSPCL bills. All meters and units reconciled."
                 rows={3}
-                className="w-full px-3 py-2 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-emerald-500"
+                className="w-full px-3 py-2 text-xs bg-slate-950 border border-slate-700 rounded-lg    dark:text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500"
               />
             </div>
 
             <div className="flex items-center justify-between pt-2">
               <button
                 onClick={() => setSelectedDataset(null)}
-                className="px-3 py-1.5 text-xs text-slate-400 hover:text-white"
+                className="px-3 py-1.5 text-xs   hover:text-white"
               >
                 Cancel
               </button>

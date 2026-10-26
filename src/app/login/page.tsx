@@ -104,7 +104,7 @@ export default function LoginPage() {
             Carbon <span className="text-emerald-500">Crunch</span>
           </h1>
 
-          <p className="mx-auto max-w-xs text-xs text-slate-400">
+          <p className="mx-auto max-w-xs text-xs  ">
             Sign in to access your statutory compliance register,
             evidence verification, and audit workspace.
           </p>
@@ -142,7 +142,7 @@ export default function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-lg border border-slate-700 bg-slate-950 py-2 pl-9 pr-3 text-xs text-slate-200 focus:border-emerald-600 focus:outline-none"
+                  className="w-full rounded-lg border border-slate-700 bg-slate-950 py-2 pl-9 pr-3 text-xs    dark:text-white focus:border-emerald-600 focus:outline-none"
                 />
               </div>
             </div>
@@ -167,13 +167,13 @@ export default function LoginPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full rounded-lg border border-slate-700 bg-slate-950 py-2 pl-9 pr-10 text-xs text-slate-200 focus:border-emerald-600 focus:outline-none"
+                  className="w-full rounded-lg border border-slate-700 bg-slate-950 py-2 pl-9 pr-10 text-xs    dark:text-white focus:border-emerald-600 focus:outline-none"
                 />
 
                 <button
                   type="button"
                   onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute right-3 top-2.5 text-slate-400 transition-colors hover:text-slate-200 focus:outline-none"
+                  className="absolute right-3 top-2.5   transition-colors hover:   dark:text-white focus:outline-none"
                   aria-label={
                     showPassword ? 'Hide password' : 'Show password'
                   }
@@ -201,7 +201,7 @@ export default function LoginPage() {
 
           {/* Demo Role Logins */}
           <div className="space-y-3 border-t border-slate-800 pt-4">
-            <span className="block text-center text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+            <span className="block text-center text-[11px] font-semibold uppercase tracking-wider  ">
               Instant Demo Logins (No password needed)
             </span>
 
@@ -210,12 +210,12 @@ export default function LoginPage() {
                 type="button"
                 disabled={isSubmitting}
                 onClick={() => handleQuickLogin('CONSULTANT')}
-                className="flex flex-col items-center justify-center rounded-lg border border-slate-700 bg-slate-800 p-2 text-center text-xs font-medium text-slate-200 transition-colors hover:bg-slate-700 disabled:opacity-50"
+                className="flex flex-col items-center justify-center rounded-lg border border-slate-700 bg-slate-800 p-2 text-center text-xs font-medium    dark:text-white transition-colors hover:bg-slate-700 disabled:opacity-50"
               >
                 <span className="font-semibold text-emerald-400">
                   Consultant
                 </span>
-                <span className="text-[10px] text-slate-400">
+                <span className="text-[10px]  ">
                   Priya Sharma
                 </span>
               </button>
@@ -224,12 +224,12 @@ export default function LoginPage() {
                 type="button"
                 disabled={isSubmitting}
                 onClick={() => handleQuickLogin('CLIENT')}
-                className="flex flex-col items-center justify-center rounded-lg border border-slate-700 bg-slate-800 p-2 text-center text-xs font-medium text-slate-200 transition-colors hover:bg-slate-700 disabled:opacity-50"
+                className="flex flex-col items-center justify-center rounded-lg border border-slate-700 bg-slate-800 p-2 text-center text-xs font-medium    dark:text-white transition-colors hover:bg-slate-700 disabled:opacity-50"
               >
                 <span className="font-bold text-amber-400">
                   Client Portal
                 </span>
-                <span className="text-[10px] text-slate-400">
+                <span className="text-[10px]  ">
                   Trident Group
                 </span>
               </button>
@@ -238,12 +238,12 @@ export default function LoginPage() {
                 type="button"
                 disabled={isSubmitting}
                 onClick={() => handleQuickLogin('ADMIN')}
-                className="flex flex-col items-center justify-center rounded-lg border border-slate-700 bg-slate-800 p-2 text-center text-xs font-medium text-slate-200 transition-colors hover:bg-slate-700 disabled:opacity-50"
+                className="flex flex-col items-center justify-center rounded-lg border border-slate-700 bg-slate-800 p-2 text-center text-xs font-medium    dark:text-white transition-colors hover:bg-slate-700 disabled:opacity-50"
               >
                 <span className="font-bold text-purple-400">
                   Admin
                 </span>
-                <span className="text-[10px] text-slate-400">
+                <span className="text-[10px]  ">
                   Saurabh
                 </span>
               </button>

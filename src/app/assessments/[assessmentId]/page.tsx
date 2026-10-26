@@ -52,7 +52,7 @@ export default function AssessmentDetailPage() {
 
   if (!assessment) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-16 text-center text-slate-400">
+      <div className="max-w-7xl mx-auto px-4 py-16 text-center  ">
         <h2 className="text-lg font-bold text-white">Assessment Not Found</h2>
         <Link href="/facilities/TRIDENT_PAPER" className="mt-4 inline-block text-emerald-400 hover:underline text-xs">
           Return to Facility Matrix
@@ -64,15 +64,15 @@ export default function AssessmentDetailPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-xs text-slate-400">
+      <div className="flex items-center gap-2 text-xs  ">
         <Link
           href={`/facilities/${assessment.facilityId || 'TRIDENT_PAPER'}`}
           className="hover:text-emerald-400"
         >
           {assessment.facilityName || assessment.facilityId || 'Facility'}
         </Link>
-        <ChevronRight className="w-3 h-3 text-slate-600" />
-        <span className="text-slate-200 font-semibold">
+        <ChevronRight className="w-3 h-3   " />
+        <span className="   dark:text-white font-semibold">
           {assessment.complianceType} — {assessment.period}
         </span>
       </div>
@@ -98,7 +98,7 @@ export default function AssessmentDetailPage() {
             <div className="flex flex-wrap items-center gap-3">
               <StatusBadge status={assessment.workflowStatus} type="workflow" />
               <StatusBadge status={assessment.complianceOutcome} type="outcome" />
-              <span className="text-xs text-slate-400 font-mono">Version: v{assessment.version}</span>
+              <span className="text-xs   font-mono">Version: v{assessment.version}</span>
             </div>
 
             {assessment.approvedByName && (
@@ -114,7 +114,7 @@ export default function AssessmentDetailPage() {
           <div className="flex flex-wrap items-center gap-3">
             <Link
               href={`/assessments/${assessment._id}/data`}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-colors shadow-sm"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700    dark:text-white text-xs font-semibold border border-slate-700 transition-colors shadow-sm"
             >
               <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-400" />
               <span>Data Checklist</span>
@@ -139,7 +139,7 @@ export default function AssessmentDetailPage() {
               <ShieldCheck className="w-5 h-5 text-emerald-400" />
               Structured Regulatory Compliance Metrics
             </h3>
-            <p className="text-xs text-slate-600 dark:text-white mt-0.5">
+            <p className="text-xs    dark:text-white mt-0.5">
               Approved and verified parameters, accounting basis, and calculation outcomes.
             </p>
           </div>
@@ -148,7 +148,7 @@ export default function AssessmentDetailPage() {
         <div className="overflow-x-auto rounded-lg border border-slate-800">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-slate-800 bg-slate-950/80 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+              <tr className="border-b border-slate-800 bg-slate-950/80 text-[11px] font-semibold   uppercase tracking-wider">
                 <th className="py-3 px-4">Parameter</th>
                 <th className="py-3 px-4">Reported Value</th>
                 <th className="py-3 px-4">Source / Accounting Basis</th>
@@ -159,13 +159,13 @@ export default function AssessmentDetailPage() {
             <tbody className="divide-y divide-slate-800/70 text-xs">
               {assessment.metrics.map((metric, idx) => (
                 <tr key={idx} className="hover:bg-slate-800/30 transition-colors">
-                  <td className="py-3.5 px-4 font-semibold text-slate-600 dark:text-white">
+                  <td className="py-3.5 px-4 font-semibold    dark:text-white">
                     {metric.name}
                   </td>
                   <td className="py-3.5 px-4 font-mono font-bold text-emerald-400 text-sm">
-                    {metric.value} <span className="text-xs font-normal text-slate-400">{metric.unit}</span>
+                    {metric.value} <span className="text-xs font-normal  ">{metric.unit}</span>
                   </td>
-                  <td className="py-3.5 px-4 text-slate-400">
+                  <td className="py-3.5 px-4  ">
                     {metric.source}
                   </td>
                   <td className="py-3.5 px-4 text-center">
@@ -196,7 +196,7 @@ export default function AssessmentDetailPage() {
             <Folder className="w-5 h-5 text-emerald-400" />
             Verified Source Documents (Google Drive)
           </h3>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-xs   mt-0.5">
             Primary calculation workbooks, official regulator submission acknowledgements, and final published reports.
           </p>
         </div>
@@ -204,32 +204,32 @@ export default function AssessmentDetailPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="p-4 rounded-lg bg-slate-950/60 border border-slate-800 flex items-center justify-between">
             <div>
-              <div className="text-xs font-semibold text-slate-200">Final Assessment Report</div>
-              <div className="text-[11px] text-slate-400 mt-0.5">Signed executive compliance report PDF</div>
+              <div className="text-xs font-semibold    dark:text-white">Final Assessment Report</div>
+              <div className="text-[11px]   mt-0.5">Signed executive compliance report PDF</div>
             </div>
             <DriveLinkBadge url={assessment.documentLinks.finalReportUrl} label="Final Report" />
           </div>
 
           <div className="p-4 rounded-lg bg-slate-950/60 border border-slate-800 flex items-center justify-between">
             <div>
-              <div className="text-xs font-semibold text-slate-200">Regulatory Submission Acknowledgement</div>
-              <div className="text-[11px] text-slate-400 mt-0.5">Official PSERC/BEE portal acknowledgment receipt</div>
+              <div className="text-xs font-semibold    dark:text-white">Regulatory Submission Acknowledgement</div>
+              <div className="text-[11px]   mt-0.5">Official PSERC/BEE portal acknowledgment receipt</div>
             </div>
             <DriveLinkBadge url={assessment.documentLinks.submissionAckUrl} label="Submission Ack" />
           </div>
 
           <div className="p-4 rounded-lg bg-slate-950/60 border border-slate-800 flex items-center justify-between">
             <div>
-              <div className="text-xs font-semibold text-slate-200">Calculation Workbook Model</div>
-              <div className="text-[11px] text-slate-400 mt-0.5">Versioned audit-ready Excel formula model</div>
+              <div className="text-xs font-semibold    dark:text-white">Calculation Workbook Model</div>
+              <div className="text-[11px]   mt-0.5">Versioned audit-ready Excel formula model</div>
             </div>
             <DriveLinkBadge url={assessment.documentLinks.calculationWorkbookUrl} label="Model Excel" />
           </div>
 
           <div className="p-4 rounded-lg bg-slate-950/60 border border-slate-800 flex items-center justify-between">
             <div>
-              <div className="text-xs font-semibold text-slate-200">Supporting Evidence Folder</div>
-              <div className="text-[11px] text-slate-400 mt-0.5">All underlying utility bills & wheeling vouchers</div>
+              <div className="text-xs font-semibold    dark:text-white">Supporting Evidence Folder</div>
+              <div className="text-[11px]   mt-0.5">All underlying utility bills & wheeling vouchers</div>
             </div>
             <DriveLinkBadge url={assessment.documentLinks.evidenceFolderUrl} label="Evidence Drive" isFolder />
           </div>

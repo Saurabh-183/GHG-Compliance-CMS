@@ -113,7 +113,7 @@ export default function HomePage() {
             <Link
               href="/portal"
               onClick={() => switchRole('CLIENT')}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-sm border border-slate-700 transition-colors shadow-sm"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700    dark:text-white font-semibold text-sm border border-slate-700 transition-colors shadow-sm"
             >
               <span>Launch Client Portal</span>
               <ExternalLink className="w-3.5 h-3.5" />
@@ -130,7 +130,7 @@ export default function HomePage() {
               <CheckCircle2 className="w-5 h-5 text-emerald-400" />
               Initial End-to-End Acceptance Test Walkthrough
             </h2>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs   mt-1">
               Click any milestone step below to jump directly into the live demonstrated module with pre-loaded Trident Group seed data.
             </p>
           </div>
@@ -156,12 +156,12 @@ export default function HomePage() {
                 <h3 className="text-sm font-semibold text-slate-100 group-hover:text-emerald-300 transition-colors">
                   {item.title}
                 </h3>
-                <p className="text-xs text-slate-400 leading-relaxed">
+                <p className="text-xs   leading-relaxed">
                   {item.desc}
                 </p>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400 group-hover:text-emerald-400">
+              <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs   group-hover:text-emerald-400">
                 <span>Switch to <strong>{item.role}</strong> & Test</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </div>
@@ -176,8 +176,8 @@ export default function HomePage() {
           <div className="p-2 w-fit rounded-lg bg-emerald-500/10 text-emerald-400 mb-2.5">
             <ShieldCheck className="w-4 h-4" />
           </div>
-          <h4 className="text-xs font-bold text-slate-200">Strict RBAC & Isolation</h4>
-          <p className="text-[11px] text-slate-400 mt-1">
+          <h4 className="text-xs font-bold    dark:text-white">Strict RBAC & Isolation</h4>
+          <p className="text-[11px]   mt-1">
             Server-side authorization guarantees unapproved metrics and internal notes never leak to external clients.
           </p>
         </div>
@@ -186,8 +186,8 @@ export default function HomePage() {
           <div className="p-2 w-fit rounded-lg bg-emerald-950/60 text-emerald-400 mb-2.5">
             <Sliders className="w-4 h-4" />
           </div>
-          <h4 className="text-xs font-bold text-slate-200">Reconciliation Engine</h4>
-          <p className="text-[11px] text-slate-400 mt-1">
+          <h4 className="text-xs font-bold    dark:text-white">Reconciliation Engine</h4>
+          <p className="text-[11px]   mt-1">
             Declared client Excel data reconciled against DISCOM bills with configurable tolerance and discrepancy flagging.
           </p>
         </div>
@@ -196,8 +196,8 @@ export default function HomePage() {
           <div className="p-2 w-fit rounded-lg bg-slate-800 text-slate-300 mb-2.5">
             <FileSpreadsheet className="w-4 h-4" />
           </div>
-          <h4 className="text-xs font-bold text-slate-200">Google Drive Linked</h4>
-          <p className="text-[11px] text-slate-400 mt-1">
+          <h4 className="text-xs font-bold    dark:text-white">Google Drive Linked</h4>
+          <p className="text-[11px]   mt-1">
             Zero OCR friction for MVP; all primary evidence and reports reside securely on Google Drive with verified metadata.
           </p>
         </div>
@@ -206,8 +206,8 @@ export default function HomePage() {
           <div className="p-2 w-fit rounded-lg bg-indigo-500/10 text-indigo-400 mb-2.5">
             <Calendar className="w-4 h-4" />
           </div>
-          <h4 className="text-xs font-bold text-slate-200">Statutory Calendar</h4>
-          <p className="text-[11px] text-slate-400 mt-1">
+          <h4 className="text-xs font-bold    dark:text-white">Statutory Calendar</h4>
+          <p className="text-[11px]   mt-1">
             Centralized calendar tracking regulatory due dates, internal deadlines, and recurring monthly CEA filings.
           </p>
         </div>

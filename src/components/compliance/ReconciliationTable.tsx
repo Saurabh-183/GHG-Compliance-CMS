@@ -229,7 +229,7 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
                 Connected & Evidence Mapped
               </span>
             </div>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+            <p className="text-[11px] text-slate-500 dark:  mt-0.5">
               Direct pipeline enabled · Evidence PDFs & sheets mapped directly from Google Drive
             </p>
           </div>
@@ -248,7 +248,7 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
           <button
             type="button"
             onClick={() => setIsExcelModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-semibold text-xs border border-slate-300 dark:border-slate-700 shadow-2xs transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:   dark:text-white font-semibold text-xs border border-slate-300 dark:border-slate-700 shadow-2xs transition-colors"
           >
             <Upload className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
             <span>Import Excel / Templates</span>
@@ -260,7 +260,7 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* KPI 1: Data Given Percentage */}
         <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 shadow-xs space-y-2">
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold">
+          <div className="flex items-center justify-between text-slate-500 dark:  text-xs font-semibold">
             <span>Data Given Percentage</span>
             <TrendingUp className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
           </div>
@@ -268,7 +268,7 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
             <span className="text-2xl font-extrabold text-slate-900 dark:text-white">
               {dataGivenPercentage}%
             </span>
-            <span className="text-[11px] text-slate-500 dark:text-slate-400">
+            <span className="text-[11px] text-slate-500 dark: ">
               ({declaredMonths} / {totalPeriodsInScope} months)
             </span>
           </div>
@@ -285,14 +285,14 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
               style={{ width: `${Math.min(dataGivenPercentage, 100)}%` }}
             />
           </div>
-          <p className="text-[10px] text-slate-500 dark:text-slate-400">
+          <p className="text-[10px] text-slate-500 dark: ">
             Client declared energy logs logged into system
           </p>
         </div>
 
         {/* KPI 2: Data Matched Percentage */}
         <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 shadow-xs space-y-2">
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold">
+          <div className="flex items-center justify-between text-slate-500 dark:  text-xs font-semibold">
             <span>Data Matched Percentage</span>
             <CheckCheck className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
           </div>
@@ -300,7 +300,7 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
             <span className="text-2xl font-extrabold text-slate-900 dark:text-white">
               {dataMatchedPercentage}%
             </span>
-            <span className="text-[11px] text-slate-500 dark:text-slate-400">
+            <span className="text-[11px] text-slate-500 dark: ">
               ({matchedMonths} / {evaluatedMonths.length} evaluated)
             </span>
           </div>
@@ -317,14 +317,14 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
               style={{ width: `${Math.min(dataMatchedPercentage, 100)}%` }}
             />
           </div>
-          <p className="text-[10px] text-slate-500 dark:text-slate-400">
+          <p className="text-[10px] text-slate-500 dark: ">
             Reconciled within {tolerance} kWh tolerance against DISCOM bills
           </p>
         </div>
 
         {/* KPI 3: Evaluated Evidence Count */}
         <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 shadow-xs space-y-2">
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold">
+          <div className="flex items-center justify-between text-slate-500 dark:  text-xs font-semibold">
             <span>Evidence Provided</span>
             <Folder className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
           </div>
@@ -335,14 +335,14 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
           <div className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium">
             100% Mapped to Google Drive
           </div>
-          <p className="text-[10px] text-slate-500 dark:text-slate-400">
+          <p className="text-[10px] text-slate-500 dark: ">
             Verified consumer ID & meter parameters
           </p>
         </div>
 
         {/* KPI 4: Discrepancy & Flagged Variance */}
         <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 shadow-xs space-y-2">
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold">
+          <div className="flex items-center justify-between text-slate-500 dark:  text-xs font-semibold">
             <span>Flagged Discrepancies</span>
             <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400" />
           </div>
@@ -350,10 +350,10 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
             {evaluatedMonths.length - matchedMonths}{' '}
             <span className="text-xs font-normal text-slate-500">Mismatches</span>
           </div>
-          <div className="text-[11px] text-slate-600 dark:text-slate-400">
+          <div className="text-[11px]    dark: ">
             June 2025: +15,000 kWh variance
           </div>
-          <p className="text-[10px] text-slate-500 dark:text-slate-400">
+          <p className="text-[10px] text-slate-500 dark: ">
             Email clarification draft available
           </p>
         </div>
@@ -371,7 +371,7 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
                 <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
                   Grid Electricity Reconciliation Engine
                 </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-500 dark:  mt-0.5">
                   Facility: <strong className="text-slate-700 dark:text-slate-300">{dataset.facilityId}</strong> · Period: <strong className="text-slate-700 dark:text-slate-300">{dataset.period}</strong> · Verification Status:{' '}
                   <StatusBadge status={dataset.verificationStatus} size="sm" />
                 </p>
@@ -382,7 +382,7 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
           {/* Tolerance Threshold Controls */}
           <div className="flex flex-wrap items-center gap-3 bg-slate-100 dark:bg-slate-950/60 p-3 rounded-lg border border-slate-200 dark:border-slate-800">
             <div className="flex items-center gap-2">
-              <Sliders className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+              <Sliders className="w-4 h-4 text-slate-500 dark: " />
               <label className="text-xs text-slate-700 dark:text-slate-300 font-medium">Tolerance:</label>
               <div className="flex items-center gap-1.5">
                 {[0, 100, 500].map((tol) => (
@@ -393,7 +393,7 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
                     className={`px-2.5 py-0.5 text-xs rounded font-mono transition-colors ${
                       tolerance === tol
                         ? 'bg-emerald-700 text-white font-bold'
-                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-300 dark:border-transparent'
+                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:  hover:text-slate-900 dark:hover:   dark:text-white border border-slate-300 dark:border-transparent'
                     }`}
                   >
                     {tol} kWh
@@ -403,7 +403,7 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
             </div>
 
             {isLocked && (
-              <div className="flex items-center gap-1 px-2.5 py-1 rounded bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-400 text-xs">
+              <div className="flex items-center gap-1 px-2.5 py-1 rounded bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:  text-xs">
                 <Lock className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
                 <span>Locked (v{dataset.reviewerApproval?.version})</span>
               </div>
@@ -415,7 +415,7 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
         <div className="mt-6 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
           <table className="w-full text-left border-collapse min-w-[700px]">
             <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950/80 text-[11px] font-semibold text-slate-700 dark:text-slate-400 uppercase tracking-wider">
+              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950/80 text-[11px] font-semibold text-slate-700 dark:  uppercase tracking-wider">
                 <th className="py-3 px-4">Billing Month</th>
                 <th className="py-3 px-4">Declared (Client Excel)</th>
                 <th className="py-3 px-4">Evidence (DISCOM Bill)</th>
@@ -441,12 +441,12 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
                     }`}
                   >
                     {/* Month */}
-                    <td className="py-3 px-4 font-mono font-medium text-slate-900 dark:text-slate-200">
+                    <td className="py-3 px-4 font-mono font-medium text-slate-900 dark:   dark:text-white">
                       {record.month}
                     </td>
 
                     {/* Declared */}
-                    <td className="py-3 px-4 text-slate-800 dark:text-slate-200 font-mono">
+                    <td className="py-3 px-4 text-slate-800 dark:   dark:text-white font-mono">
                       {formatNumber(record.declaredValue)}{' '}
                       <span className="text-slate-500 text-[10px]">{record.unit}</span>
                     </td>
@@ -460,11 +460,11 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
                             value={evidenceInput}
                             onChange={(e) => setEvidenceInput(e.target.value)}
                             placeholder="Bill kWh"
-                            className="w-28 px-2 py-1 text-xs bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded text-slate-900 dark:text-slate-200 font-mono focus:border-emerald-500 focus:outline-none"
+                            className="w-28 px-2 py-1 text-xs bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded text-slate-900 dark:   dark:text-white font-mono focus:border-emerald-500 focus:outline-none"
                           />
                         </div>
                       ) : record.evidenceValue !== null ? (
-                        <span className="font-mono text-slate-800 dark:text-slate-200">
+                        <span className="font-mono text-slate-800 dark:   dark:text-white">
                           {formatNumber(record.evidenceValue)}{' '}
                           <span className="text-slate-500 text-[10px]">{record.unit}</span>
                         </span>
@@ -478,7 +478,7 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
                       className={`py-3 px-4 text-right font-mono ${
                         record.variance > 0
                           ? 'text-rose-700 dark:text-rose-400 font-semibold'
-                          : 'text-slate-600 dark:text-slate-400'
+                          : '   dark: '
                       }`}
                     >
                       {record.evidenceValue !== null ? formatNumber(record.variance) : '—'}
@@ -489,7 +489,7 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
                       className={`py-3 px-4 text-right font-mono ${
                         record.variancePercentage > 0
                           ? 'text-rose-700 dark:text-rose-400 font-semibold'
-                          : 'text-slate-600 dark:text-slate-400'
+                          : '   dark: '
                       }`}
                     >
                       {record.evidenceValue !== null ? `${record.variancePercentage.toFixed(3)}%` : '—'}
@@ -508,7 +508,7 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
                           value={evidenceUrlInput}
                           onChange={(e) => setEvidenceUrlInput(e.target.value)}
                           placeholder="Paste Google Drive URL"
-                          className="w-48 px-2 py-1 text-xs bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded text-slate-900 dark:text-slate-200 focus:border-emerald-500 focus:outline-none"
+                          className="w-48 px-2 py-1 text-xs bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded text-slate-900 dark:   dark:text-white focus:border-emerald-500 focus:outline-none"
                         />
                       ) : (
                         <DriveLinkBadge
@@ -532,7 +532,7 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
                             </button>
                             <button
                               onClick={() => setEditingMonth(null)}
-                              className="px-2 py-1 text-xs text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+                              className="px-2 py-1 text-xs    hover:text-slate-900 dark:  dark:hover:   dark:text-white"
                             >
                               Cancel
                             </button>
@@ -542,7 +542,7 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
                             {!isLocked && (
                               <button
                                 onClick={() => startEditMonth(record)}
-                                className="px-2 py-0.5 text-[11px] text-slate-600 hover:text-emerald-700 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-emerald-400 dark:hover:bg-slate-800 rounded transition-colors"
+                                className="px-2 py-0.5 text-[11px]    hover:text-emerald-700 hover:bg-slate-100 dark:  dark:hover:text-emerald-400 dark:hover:bg-slate-800 rounded transition-colors"
                               >
                                 Edit Bill / Drive
                               </button>
@@ -570,9 +570,9 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
 
         {/* PRD Section 7.3: Merged Consultant & Reviewer Approvals Action Bar */}
         <div className="mt-6 pt-5 border-t border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="text-xs text-slate-600 dark:text-slate-400">
+          <div className="text-xs    dark: ">
             Reconciliation Summary:{' '}
-            <strong className="text-slate-900 dark:text-slate-200">
+            <strong className="text-slate-900 dark:   dark:text-white">
               {matchedMonths} of {evaluatedMonths.length} evaluated months matched
             </strong>{' '}
             ({dataMatchedPercentage}% match rate)
@@ -585,7 +585,7 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
                 <button
                   onClick={handleSubmitReview}
                   disabled={isSubmittingReview || dataset.verificationStatus === 'AWAITING_APPROVAL'}
-                  className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 transition-colors disabled:opacity-50"
+                  className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:   dark:text-white transition-colors disabled:opacity-50"
                 >
                   <Send className="w-3.5 h-3.5" />
                   <span>
@@ -603,7 +603,7 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
                     placeholder="Audit / sign-off notes..."
                     value={approvalComment}
                     onChange={(e) => setApprovalComment(e.target.value)}
-                    className="px-3 py-1.5 text-xs bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-md text-slate-900 dark:text-slate-200 placeholder:text-slate-400 w-52 focus:outline-none focus:border-emerald-600"
+                    className="px-3 py-1.5 text-xs bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-md text-slate-900 dark:   dark:text-white placeholder:  w-52 focus:outline-none focus:border-emerald-600"
                   />
                   <button
                     onClick={handleApprove}
@@ -628,7 +628,7 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
                 <strong>Approved by {dataset.reviewerApproval.reviewerName}:</strong> &ldquo;{dataset.reviewerApproval.comments}&rdquo;
               </span>
             </div>
-            <span className="text-slate-500 dark:text-slate-400 text-[11px]">
+            <span className="text-slate-500 dark:  text-[11px]">
               Version: v{dataset.reviewerApproval.version} · {new Date(dataset.reviewerApproval.reviewedAt).toLocaleDateString('en-IN')}
             </span>
           </div>
@@ -639,14 +639,14 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
       {dataset.auditTrail && dataset.auditTrail.length > 0 && (
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 p-4">
           <h4 className="text-xs font-semibold text-slate-800 dark:text-slate-300 flex items-center gap-2 mb-3">
-            <History className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
+            <History className="w-3.5 h-3.5 text-slate-500 dark: " />
             Verification Audit Trail & Event Log
           </h4>
           <div className="space-y-2">
             {dataset.auditTrail.slice(-4).reverse().map((audit, i) => (
               <div
                 key={i}
-                className="text-xs text-slate-600 dark:text-slate-400 flex items-start gap-2 bg-white dark:bg-slate-950/40 p-2.5 rounded border border-slate-200 dark:border-slate-800/60"
+                className="text-xs    dark:  flex items-start gap-2 bg-white dark:bg-slate-950/40 p-2.5 rounded border border-slate-200 dark:border-slate-800/60"
               >
                 <span className="text-emerald-700 dark:text-emerald-400 font-mono text-[10px] mt-0.5">
                   {new Date(audit.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

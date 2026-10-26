@@ -52,7 +52,7 @@ export default function ClientHistoryPage() {
             <ShieldCheck className="w-6 h-6 text-emerald-400" />
             Approved Historical Compliance Records & Reports
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs   mt-1">
             Access final regulatory compliance filings, auditor signed assessment reports, and official authority submission acknowledgements.
           </p>
         </div>
@@ -75,7 +75,7 @@ export default function ClientHistoryPage() {
                     {item.complianceType} Compliance — {item.period}
                   </h3>
                 </div>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs  ">
                   Approved & Verified Version v{item.version}
                 </p>
               </div>
@@ -94,7 +94,7 @@ export default function ClientHistoryPage() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {item.metrics.map((m, idx) => (
                   <div key={idx} className="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
-                    <div className="text-[11px] text-slate-400">{m.name}</div>
+                    <div className="text-[11px]  ">{m.name}</div>
                     <div className="text-sm font-bold text-emerald-400 font-mono mt-0.5">
                       {m.value} <span className="text-[10px] text-slate-500 font-normal">{m.unit}</span>
                     </div>
@@ -111,7 +111,7 @@ export default function ClientHistoryPage() {
                 <DriveLinkBadge url={item.documentLinks?.calculationWorkbookUrl} label="Calculation Model" />
               </div>
 
-              <div className="text-xs text-slate-400 flex items-center gap-1.5">
+              <div className="text-xs   flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                 <span>Audited & verified on Google Drive</span>
               </div>
