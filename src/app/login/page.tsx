@@ -20,8 +20,8 @@ export default function LoginPage() {
   const router = useRouter();
   const { login, switchRole, theme, toggleTheme } = useAuth();
 
-  const [email, setEmail] = useState('consultant@carboncrunch.com');
-  const [password, setPassword] = useState('Demo@123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -137,6 +137,7 @@ export default function LoginPage() {
                 <input
                   id="email"
                   name="email"
+                  placeholder="Enter your email address"
                   type="email"
                   autoComplete="username"
                   required
@@ -162,6 +163,7 @@ export default function LoginPage() {
                 <input
                   id="password"
                   name="password"
+                  placeholder="Enter your password"
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
                   required
