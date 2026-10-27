@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
+import { GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
 import { MOCK_CLIENT_GROUPS, MOCK_FACILITIES } from '@/lib/mockFallback';
 
 function resolveClientGroup(facility: {
@@ -100,7 +101,7 @@ export default function FacilityDashboardPage() {
   const [stats, setStats] = useState({
     dataGivenPercentage: 100,
     dataMatchedPercentage: 91.7,
-    driveFolderUrl: 'https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7',
+    driveFolderUrl: process.env.NEXT_PUBLIC_GDRIVE_FOLDER_URL || GOOGLE_DRIVE_FOLDER_URL,
     driveFolderName: 'Carbon Crunch · Compliance Documents & Evidence Vault',
     isDriveConnected: true,
   });

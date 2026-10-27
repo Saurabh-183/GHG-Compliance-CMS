@@ -14,6 +14,7 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { notify } from '@/lib/notify';
+import { GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
 
 interface ExcelImportModalProps {
   isOpen: boolean;
@@ -35,7 +36,7 @@ export const ExcelImportModal: React.FC<ExcelImportModalProps> = ({
     'GRID_ELECTRICITY' | 'RENEWABLE_PURCHASE' | 'FUEL_CONSUMPTION' | 'PRODUCTION'
   >('GRID_ELECTRICITY');
   const [driveFolderUrl, setDriveFolderUrl] = useState(
-    'https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7'
+    process.env.NEXT_PUBLIC_GDRIVE_FOLDER_URL || GOOGLE_DRIVE_FOLDER_URL
   );
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
   const [csvContent, setCsvContent] = useState<string>('');

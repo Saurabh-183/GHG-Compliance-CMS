@@ -14,6 +14,7 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { notify } from '@/lib/notify';
+import { GOOGLE_DRIVE_FOLDER_URL, GOOGLE_DRIVE_FOLDER_ID } from '@/lib/gdrive';
 
 interface DriveConnectionModalProps {
   isOpen: boolean;
@@ -33,7 +34,7 @@ export const DriveConnectionModal: React.FC<DriveConnectionModalProps> = ({
   onSyncSuccess,
 }) => {
   const [folderUrl, setFolderUrl] = useState(
-    'https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7'
+    process.env.NEXT_PUBLIC_GDRIVE_FOLDER_URL || GOOGLE_DRIVE_FOLDER_URL
   );
   const [folderName, setFolderName] = useState('Carbon Crunch · Compliance Documents & Evidence Vault');
   const [spreadsheetUrl, setSpreadsheetUrl] = useState('');
@@ -190,8 +191,8 @@ export const DriveConnectionModal: React.FC<DriveConnectionModalProps> = ({
                 onClick={() =>
                   handleApplyPreset(
                     'Carbon Crunch · Compliance Documents & Evidence Vault',
-                    'https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7',
-                    'https://docs.google.com/spreadsheets/d/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7_Grid_Log'
+                    process.env.NEXT_PUBLIC_GDRIVE_FOLDER_URL || GOOGLE_DRIVE_FOLDER_URL,
+                    `https://docs.google.com/spreadsheets/d/${GOOGLE_DRIVE_FOLDER_ID}_Grid_Log`
                   )
                 }
                 className="p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 hover:border-emerald-500 text-left transition-colors text-[11px]"

@@ -14,6 +14,7 @@ import {
   Download,
 } from 'lucide-react';
 import { formatNumber } from '@/lib/utils';
+import { GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
 
 interface EvidenceDocumentModalProps {
   isOpen: boolean;
@@ -207,9 +208,9 @@ export const EvidenceDocumentModal: React.FC<EvidenceDocumentModalProps> = ({
               Google Drive Evidence Reference
             </span>
             <div className="flex items-center justify-between gap-3 font-mono text-[11px] text-slate-300 bg-slate-900 p-2.5 rounded-lg border border-slate-800">
-              <span className="truncate">{url || 'https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7' }</span>
+              <span className="truncate">{url || process.env.NEXT_PUBLIC_GDRIVE_FOLDER_URL || GOOGLE_DRIVE_FOLDER_URL }</span>
               <a
-                href={url || 'https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7'}
+                href={url || process.env.NEXT_PUBLIC_GDRIVE_FOLDER_URL || GOOGLE_DRIVE_FOLDER_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="shrink-0 px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700    dark:text-white hover:text-white inline-flex items-center gap-1 font-sans text-xs transition-colors"

@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { formatDate, formatNumber } from '@/lib/utils';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
+import { GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
 
 export default function ClientFacilityOverviewPage() {
   const params = useParams();
@@ -36,7 +37,7 @@ export default function ClientFacilityOverviewPage() {
     folderName: string;
     isConnected: boolean;
   }>({
-    folderUrl: 'https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7',
+    folderUrl: process.env.NEXT_PUBLIC_GDRIVE_FOLDER_URL || GOOGLE_DRIVE_FOLDER_URL,
     folderName: 'Carbon Crunch · Compliance Documents & Evidence Vault',
     isConnected: true,
   });
@@ -77,7 +78,7 @@ export default function ClientFacilityOverviewPage() {
           const dJson = await driveRes.json();
           if (dJson.data) {
             setDriveConnection({
-              folderUrl: dJson.data.folderUrl || 'https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7',
+              folderUrl: dJson.data.folderUrl || process.env.NEXT_PUBLIC_GDRIVE_FOLDER_URL || GOOGLE_DRIVE_FOLDER_URL,
               folderName: dJson.data.folderName || 'Carbon Crunch · Compliance Documents & Evidence Vault',
               isConnected: dJson.data.isConnected ?? true,
             });

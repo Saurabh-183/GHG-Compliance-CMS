@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { FacilityModel } from '@/models/Facility';
 import { getSessionFromRequest } from '@/lib/auth';
+import { GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,7 +16,7 @@ export async function GET(request: NextRequest) {
         success: true,
         data: {
           isConnected: false,
-          folderUrl: 'https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7',
+          folderUrl: GOOGLE_DRIVE_FOLDER_URL,
           folderName: 'Carbon Crunch · Compliance Documents & Evidence Vault',
           spreadsheetUrl: '',
           lastSyncedAt: null,
@@ -26,7 +27,7 @@ export async function GET(request: NextRequest) {
 
     const driveConnection = facility.driveConnection || {
       isConnected: false,
-      folderUrl: 'https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7',
+      folderUrl: GOOGLE_DRIVE_FOLDER_URL,
       folderName: `${facility.name} Compliance Vault`,
       spreadsheetUrl: '',
       lastSyncedAt: null,
@@ -43,7 +44,7 @@ export async function GET(request: NextRequest) {
       success: true,
       data: {
         isConnected: true,
-        folderUrl: 'https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7',
+        folderUrl: GOOGLE_DRIVE_FOLDER_URL,
         folderName: 'Carbon Crunch · Compliance Documents & Evidence Vault',
         spreadsheetUrl: '',
         lastSyncedAt: new Date().toISOString(),
@@ -95,7 +96,7 @@ export async function POST(request: NextRequest) {
       message: 'Google Drive repository connected successfully (Demo Mode)!',
       data: {
         isConnected: true,
-        folderUrl: body?.folderUrl || 'https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7',
+        folderUrl: body?.folderUrl || GOOGLE_DRIVE_FOLDER_URL,
         folderName: body?.folderName || 'Trident Paper Compliance Vault',
         spreadsheetUrl: body?.spreadsheetUrl || '',
         lastSyncedAt: new Date().toISOString(),

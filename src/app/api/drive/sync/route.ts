@@ -6,6 +6,7 @@ import { FacilityModel } from '@/models/Facility';
 import { DataRequirementModel } from '@/models/DataRequirement';
 import { getSessionFromRequest } from '@/lib/auth';
 import { calculateReconciliation } from '@/lib/utils';
+import { GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
 import { IMonthlyRecord, ReconciliationResult } from '@/types';
 
 // Default standard monthly compliance records with Google Drive evidence links
@@ -107,7 +108,7 @@ export async function POST(request: NextRequest) {
     const facilityId = (body.facilityId || 'TRIDENT_PAPER').toUpperCase().trim();
     const datasetType = body.datasetType || 'GRID_ELECTRICITY';
     const period = body.period || 'FY2025-26';
-    const folderUrl = body.folderUrl || 'https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7';
+    const folderUrl = body.folderUrl || GOOGLE_DRIVE_FOLDER_URL;
     const folderName = body.folderName || 'Carbon Crunch · Compliance Documents & Evidence Vault';
     const spreadsheetUrl = body.spreadsheetUrl || '';
     const rawCsv = body.rawCsv || '';
@@ -269,7 +270,7 @@ export async function POST(request: NextRequest) {
       message: 'Successfully synchronized 12 records directly from Google Drive repository (Demo Mode)!',
       data: {
         dataset: MOCK_DATASET,
-        folderUrl: 'https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7',
+        folderUrl: GOOGLE_DRIVE_FOLDER_URL,
         folderName: 'Trident Paper Compliance Vault',
         dataGivenPercentage: 100,
         dataMatchedPercentage: 66.7,

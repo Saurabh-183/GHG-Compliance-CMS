@@ -6,8 +6,15 @@ import { IDataset, IMonthlyRecord, ReconciliationResult } from '@/types';
  * https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7
  */
 
-export const GOOGLE_DRIVE_FOLDER_ID = '1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7';
-export const GOOGLE_DRIVE_FOLDER_URL = `https://drive.google.com/drive/folders/${GOOGLE_DRIVE_FOLDER_ID}`;
+export const GOOGLE_DRIVE_FOLDER_URL =
+  process.env.NEXT_PUBLIC_GDRIVE_FOLDER_URL ||
+  process.env.GDRIVE_FOLDER_URL ||
+  'https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7';
+
+export const GOOGLE_DRIVE_FOLDER_ID =
+  process.env.NEXT_PUBLIC_GDRIVE_FOLDER_ID ||
+  process.env.GDRIVE_FOLDER_ID ||
+  (GOOGLE_DRIVE_FOLDER_URL.match(/\/folders\/([a-zA-Z0-9_-]+)/)?.[1] || '1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7');
 
 export interface IDriveFileMetadata {
   id: string;

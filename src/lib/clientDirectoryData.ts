@@ -1,3 +1,4 @@
+import { GOOGLE_DRIVE_FOLDER_URL } from './gdrive';
 // Generated from Report Current Status - Sheet6 PDF (merged Group Name cells).
 // 53 companies, 109 units. Standalone rows in the PDF are their own companies.
 export const MOCK_CLIENT_GROUPS: any[] = [
@@ -2283,7 +2284,7 @@ export const MOCK_ASSESSMENTS: any[] = [
       finalReportUrl: 'https://drive.google.com/file/d/1A2B3C4D5E6F_Trident_Paper_RCO_FY24-25_Final_Report.pdf/view',
       submissionAckUrl: 'https://drive.google.com/file/d/2B3C4D5E6F7G_PSERC_RCO_Submission_Ack_FY24-25.pdf/view',
       calculationWorkbookUrl: 'https://drive.google.com/file/d/3C4D5E6F7G8H_Trident_Paper_RCO_Model_v2.4.xlsx/view',
-      evidenceFolderUrl: 'https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7',
+      evidenceFolderUrl: GOOGLE_DRIVE_FOLDER_URL,
     },
     metrics: [
       {
@@ -2336,7 +2337,7 @@ export const MOCK_ASSESSMENTS: any[] = [
     notes: 'Ongoing current year assessment. Data collection for Q1 & Q2 in progress.',
     documentLinks: {
       calculationWorkbookUrl: 'https://drive.google.com/file/d/5E6F7G8H9I0J_Trident_Paper_FY25-26_Draft_Model.xlsx/view',
-      evidenceFolderUrl: 'https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7',
+      evidenceFolderUrl: GOOGLE_DRIVE_FOLDER_URL,
     },
     metrics: [
       {
@@ -2389,7 +2390,7 @@ export const MOCK_DATASET: any = {
       consumerNumber: 'PSPCL-BARNALA-66KV-0042',
       meterNumber: 'L&T-EM-99214',
       billingPeriod: '01-Apr-2025 to 30-Apr-2025',
-      sourceDocumentUrl: 'https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7',
+      sourceDocumentUrl: GOOGLE_DRIVE_FOLDER_URL,
       evidenceDocumentUrl: 'https://drive.google.com/file/d/PSPCL_Apr2025_Bill.pdf/view',
       consultantNotes: 'Exact match with DISCOM energy bill. Verified power factor 0.99.',
     },
@@ -2405,7 +2406,7 @@ export const MOCK_DATASET: any = {
       consumerNumber: 'PSPCL-BARNALA-66KV-0042',
       meterNumber: 'L&T-EM-99214',
       billingPeriod: '01-May-2025 to 31-May-2025',
-      sourceDocumentUrl: 'https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7',
+      sourceDocumentUrl: GOOGLE_DRIVE_FOLDER_URL,
       evidenceDocumentUrl: 'https://drive.google.com/file/d/PSPCL_May2025_Bill.pdf/view',
       consultantNotes: 'Exact match verified. No TOD surcharge discrepancy.',
     },
@@ -2421,7 +2422,7 @@ export const MOCK_DATASET: any = {
       consumerNumber: 'PSPCL-BARNALA-66KV-0042',
       meterNumber: 'L&T-EM-99214',
       billingPeriod: '01-Jun-2025 to 30-Jun-2025',
-      sourceDocumentUrl: 'https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7',
+      sourceDocumentUrl: GOOGLE_DRIVE_FOLDER_URL,
       evidenceDocumentUrl: 'https://drive.google.com/file/d/PSPCL_Jun2025_Bill.pdf/view',
       consultantNotes: 'Mismatch identified: Declared Excel states 1,280,000 kWh while PSPCL bill specifies 1,265,000 kWh net energy recorded. Discrepancy of 15,000 kWh (1.186%). Clarification raised with client.',
     },
@@ -2437,7 +2438,7 @@ export const MOCK_DATASET: any = {
       consumerNumber: 'PSPCL-BARNALA-66KV-0042',
       meterNumber: 'L&T-EM-99214',
       billingPeriod: '01-Jul-2025 to 31-Jul-2025',
-      sourceDocumentUrl: 'https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7',
+      sourceDocumentUrl: GOOGLE_DRIVE_FOLDER_URL,
       evidenceDocumentUrl: '',
       consultantNotes: 'Client submission pending. Bill overdue.',
     },
@@ -2478,7 +2479,7 @@ export const MOCK_REQUIREMENTS: any[] = [
     dueDate: '2025-07-20T00:00:00.000Z',
     submittedDriveLinks: [
       {
-        url: 'https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7',
+        url: GOOGLE_DRIVE_FOLDER_URL,
         submittedAt: '2025-07-10T14:20:00.000Z',
         submittedBy: 'Vikram Singh (Client)',
         description: 'Client month-wise grid consumption Excel (Apr-Jun 2025)',
