@@ -22,6 +22,7 @@ import { formatDate } from '@/lib/utils';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import { MOCK_CLIENT_GROUPS } from '@/lib/mockFallback';
 import { CompanySelectMui } from '@/components/dashboard/CompanySelectMui';
+import { ClientUploadsPanel } from '@/components/uploads/ClientUploadsPanel';
 import { generateDeadlinesForFacilities } from '@/lib/statutoryCalendar';
 
 export default function DashboardPage() {
@@ -132,7 +133,7 @@ export default function DashboardPage() {
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            My Workspace — Consultant Dashboard
+            My Workspace — {currentRole === 'ADMIN' ? 'Admin' : 'Consultant'} Dashboard
           </h1>
           <p className="text-xs text-slate-500 dark:  mt-1">
             Logged in as <strong className="text-emerald-700 dark:text-emerald-400">{currentUser?.name}</strong> ({currentUser?.designation})
@@ -283,6 +284,16 @@ export default function DashboardPage() {
           </Link>
         </div>
       ) : null}
+
+      {/* Client uploads from portal → compliance vault */}
+      <ClientUploadsPanel
+        compact
+        facilityId={
+          selectedGroup && currentFacilities.length === 1
+            ? currentFacilities[0].facilityId
+            : undefined
+        }
+      />
 
       {/* Two Column Grid: Upcoming Deadlines & Dynamic Registered Facilities */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

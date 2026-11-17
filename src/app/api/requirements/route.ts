@@ -40,6 +40,16 @@ export async function GET(request: NextRequest) {
         _id: r._id.toString(),
         dueDate: r.dueDate ? r.dueDate.toISOString() : null,
         requestedAt: r.requestedAt ? r.requestedAt.toISOString() : null,
+        submittedDriveLinks: (r.submittedDriveLinks || []).map((link) => ({
+          ...link,
+          submittedAt:
+            link.submittedAt instanceof Date
+              ? link.submittedAt.toISOString()
+              : link.submittedAt,
+          mappedAt:
+            link.mappedAt instanceof Date ? link.mappedAt.toISOString() : link.mappedAt,
+          mappedDatasetId: link.mappedDatasetId?.toString?.() ?? link.mappedDatasetId,
+        })),
       })),
     });
   } catch (error) {

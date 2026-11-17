@@ -154,11 +154,32 @@ export interface IAssessment {
   updatedAt: string;
 }
 
+export type DriveLinkMappingStatus = 'PENDING' | 'MAPPED' | 'VERIFIED' | 'REJECTED';
+
 export interface ISubmittedDriveLink {
   url: string;
   submittedAt: string;
   submittedBy: string;
   description: string;
+  /** Original URL pasted by the client */
+  sourceUrl?: string;
+  /** Canonical link in the compliance vault (may match url after ingest) */
+  vaultUrl?: string;
+  vaultFolderUrl?: string;
+  vaultFolderPath?: string;
+  vaultCategory?: string;
+  driveFileId?: string;
+  driveFolderId?: string;
+  vaultFileId?: string;
+  vaultTargetFolderId?: string;
+  fileName?: string;
+  mappingStatus?: DriveLinkMappingStatus;
+  mappedMonth?: string;
+  mappedDatasetId?: string;
+  mappedAt?: string;
+  mappedBy?: string;
+  verificationNotes?: string;
+  ingestionMode?: 'VAULT_INDEXED' | 'DRIVE_API_COPIED';
 }
 
 export interface IDataRequirement {
