@@ -31,7 +31,20 @@ const complianceLabels: Record<ComplianceType, { title: string; subtitle: string
 
 export const ComplianceMatrixTable: React.FC<ComplianceMatrixTableProps> = ({ data }) => {
   const { periods, compliances, matrix, facility } = data;
+// Company started operating in 2024.
+// FY2022-23 and FY2023-24 should not show compliance statuses.
+const COMPANY_FOUNDING_FY = 'FY2024-25';
 
+const isBeforeFoundingYear = (period: string) => {
+  const yearMatch = period.match(/^FY(\d{4})-\d{2}$/);
+
+  if (!yearMatch) return false;
+
+  const periodStartYear = Number(yearMatch[1]);
+  const foundingStartYear = Number(COMPANY_FOUNDING_FY.match(/\d{4}/)?.[0]);
+
+  return periodStartYear < foundingStartYear;
+};
   return (
     <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-md">
       <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950/40">
@@ -79,8 +92,9 @@ export const ComplianceMatrixTable: React.FC<ComplianceMatrixTableProps> = ({ da
 
                   {/* Matrix Cells */}
                   {periods.map((period) => {
-                    const cell = matrix[comp]?.[period];
-                    if (!cell || !cell.isApplicable) {
+              const cell = matrix[comp]?.[period];
+
+if (isBeforeFoundingYear(period) || !cell || !cell.isApplicable) {
                       return (
                         <td key={period} className="py-4 px-3 align-top text-center">
                           <div className="p-3 rounded-lg bg-slate-100 dark:bg-slate-950/30 border border-slate-200 dark:border-slate-800/40 text-slate-500">
