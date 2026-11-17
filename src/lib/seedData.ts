@@ -12,6 +12,7 @@ import { ClarificationModel } from '@/models/Clarification';
 import { CalendarItemModel } from '@/models/CalendarItem';
 import { Notification } from '@/models/Notification';
 import { generateClarificationEmailDraft } from '@/lib/utils';
+import { buildClientData } from '@/lib/clientData';
 
 export async function seedDatabase() {
   await connectToDatabase();
@@ -113,42 +114,65 @@ export async function seedDatabase() {
     status: 'ACTIVE',
   });
 
-  // Seed all other client industrial conglomerates and facilities from Sheet6 PDF
-  const { MOCK_CLIENT_GROUPS, MOCK_FACILITIES } = await import('@/lib/mockFallback');
-  for (const mg of MOCK_CLIENT_GROUPS) {
-    if (mg.code !== 'TRIDENT') {
-      try {
-        await ClientGroupModel.create({
-          _id: new mongoose.Types.ObjectId(mg._id),
-          name: mg.name,
-          code: mg.code,
-          industry: mg.industry,
-          headquarters: mg.headquarters,
-          contactPerson: mg.contactPerson,
-        });
-      } catch (err) {
-        console.warn('Group already seeded or skipped:', mg.code, err);
-      }
+  // Seed all other client companies and their facilities from the Sheet6 data.
+  // Units that are really separate companies are split out in clientData.ts
+  const { groups: allGroups, facilities: allFacilities, droppedParents } = buildClientData();
+  const TRIDENT_FACILITY_IDS = ['TRIDENT_PAPER', 'TRIDENT_YARN', 'TRIDENT_TEXTILES'];
+
+  const failures: string[] = [];
+  let groupsMade = 1; // Trident already created above
+  let facilitiesMade = 3; // Trident's three facilities already created above
+
+  for (const g of allGroups) {
+    if (g.code === 'TRIDENT') continue;
+    try {
+      await ClientGroupModel.create({
+        _id: new mongoose.Types.ObjectId(g._id),
+        name: g.name,
+        code: g.code,
+        industry: g.industry,
+        headquarters: g.headquarters,
+        contactPerson: g.contactPerson,
+      });
+      groupsMade++;
+    } catch (err: any) {
+      failures.push(`Group ${g.code}: ${err.message}`);
     }
   }
 
-  for (const mf of MOCK_FACILITIES) {
-    if (!['TRIDENT_PAPER', 'TRIDENT_YARN', 'TRIDENT_TEXTILES'].includes(mf.facilityId)) {
-      try {
-        await FacilityModel.create({
-          facilityId: mf.facilityId,
-          name: mf.name,
-          clientGroupId: new mongoose.Types.ObjectId(mf.clientGroupId),
-          location: mf.location,
-          category: mf.category,
-          assignedConsultantId: consultantUser._id,
-          assignedReviewerId: reviewerUser._id,
-          status: 'ACTIVE',
-        });
-      } catch (err) {
-        console.warn('Facility already seeded or skipped:', mf.facilityId, err);
-      }
+  for (const f of allFacilities) {
+    if (TRIDENT_FACILITY_IDS.includes(f.facilityId)) continue;
+    try {
+      await FacilityModel.create({
+        facilityId: f.facilityId,
+        name: f.name,
+        clientGroupId: new mongoose.Types.ObjectId(f.clientGroupId),
+        location: f.location,
+        category: f.category,
+        assignedConsultantId: consultantUser._id,
+        assignedReviewerId: reviewerUser._id,
+        status: 'ACTIVE',
+      });
+      facilitiesMade++;
+    } catch (err: any) {
+      failures.push(`Facility ${f.facilityId}: ${err.message}`);
     }
+  }
+
+  console.log(
+    `Seeded ${groupsMade} companies / ${facilitiesMade} facilities. ` +
+      `Parents dropped (no units left): ${droppedParents.join(', ') || 'none'}`
+  );
+
+  if (
+    failures.length ||
+    groupsMade !== allGroups.length ||
+    facilitiesMade !== allFacilities.length
+  ) {
+    throw new Error(
+      `Seed mismatch: ${groupsMade}/${allGroups.length} companies, ` +
+        `${facilitiesMade}/${allFacilities.length} facilities.\n${failures.join('\n')}`
+    );
   }
 
   // 5. Compliance Applicability for Trident Paper
@@ -847,5 +871,6 @@ export async function seedDatabase() {
     clarificationId: clarification._id.toString(),
     historicalAssessmentId: historicalRcoAssessment._id.toString(),
     currentAssessmentId: currentRcoAssessment._id.toString(),
+    counts: { companies: groupsMade, facilities: facilitiesMade },
   };
 }

@@ -77,6 +77,7 @@ export interface IFacility {
   name: string;
   clientGroupId: string;
   clientGroupName?: string;
+  clientGroupCode?: string;
   location: string;
   category: string;
   assignedConsultantId: string;
@@ -134,6 +135,7 @@ export interface IDocumentLinks {
 export interface IAssessment {
   _id: string;
   facilityId: string;
+  facilityName?: string;
   complianceType: ComplianceType;
   period: string;
   workflowStatus: WorkflowStatus;
@@ -207,6 +209,7 @@ export interface IDatasetAudit {
 export interface IDataset {
   _id: string;
   facilityId: string;
+  facilityName?: string;
   datasetType: 'GRID_ELECTRICITY' | 'RENEWABLE_PURCHASE' | 'FUEL_CONSUMPTION' | 'PRODUCTION';
   period: string;
   dataRequirementId?: string;

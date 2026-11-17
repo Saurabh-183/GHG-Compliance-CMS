@@ -1,0 +1,56 @@
+{
+  "database": "carbon_crunch_compliance",
+  "createdAt": "2026-10-25T22:16:50.787Z",
+  "collections": [
+    {
+      "collection": "users",
+      "documents": 3,
+      "file": "users.json"
+    },
+    {
+      "collection": "clarifications",
+      "documents": 1,
+      "file": "clarifications.json"
+    },
+    {
+      "collection": "datarequirements",
+      "documents": 5,
+      "file": "datarequirements.json"
+    },
+    {
+      "collection": "complianceapplicabilities",
+      "documents": 6,
+      "file": "complianceapplicabilities.json"
+    },
+    {
+      "collection": "clientgroups",
+      "documents": 15,
+      "file": "clientgroups.json"
+    },
+    {
+      "collection": "facilities",
+      "documents": 109,
+      "file": "facilities.json"
+    },
+    {
+      "collection": "notifications",
+      "documents": 5,
+      "file": "notifications.json"
+    },
+    {
+      "collection": "calendaritems",
+      "documents": 5,
+      "file": "calendaritems.json"
+    },
+    {
+      "collection": "datasets",
+      "documents": 2,
+      "file": "datasets.json"
+    },
+    {
+      "collection": "assessments",
+      "documents": 2,
+      "file": "assessments.json"
+    }
+  ]
+}

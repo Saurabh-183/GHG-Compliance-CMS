@@ -1,0 +1,51 @@
+[
+  {
+    "_id": {
+      "$oid": "6ade76b2667ed7c3e0b3131c"
+    },
+    "facilityId": "TRIDENT_PAPER",
+    "datasetId": {
+      "$oid": "6adb9175b32c50edab95461f"
+    },
+    "month": "2025-06",
+    "parameter": "Grid Electricity Consumption",
+    "declaredValue": {
+      "$numberInt": "1280000"
+    },
+    "evidenceValue": {
+      "$numberInt": "1265000"
+    },
+    "variance": {
+      "$numberInt": "15000"
+    },
+    "variancePercentage": {
+      "$numberDouble": "1.186"
+    },
+    "comment": "Please clarify the difference of 15,000 kWh between the June 2025 grid consumption Excel and the corresponding electricity bill. Kindly share a revised Excel or supporting justification.",
+    "supportingLink": "https://drive.google.com/file/d/PSPCL_Jun2025_Bill.pdf/view",
+    "status": "OPEN",
+    "emailDraft": "Subject: Action Required: Clarification on June 2025 Grid Electricity Consumption for Trident Paper Complex\n\nDear Client Compliance Team,\n\nDuring our monthly regulatory compliance verification for Trident Paper Complex, we identified a discrepancy in the June 2025 data:\n\n- Parameter: Grid Electricity Consumption\n- Client Declared Value: 12,80,000 kWh\n- Evidence (DISCOM Bill) Value: 12,65,000 kWh\n- Identified Variance: 15,000 kWh (1.172%)\n\nPlease clarify the difference of 15,000 kWh between the June 2025 Grid Electricity Consumption Excel and the corresponding electricity bill. Kindly share a revised Excel or supporting justification via the Carbon Crunch Client Portal.\n\nBest regards,\nCarbon Crunch Compliance Verification Team\nsupport@carboncrunch.com",
+    "raisedBy": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "raisedByName": "Priya Sharma",
+    "raisedAt": {
+      "$date": {
+        "$numberLong": "1752833100000"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964274934"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964274934"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  }
+]

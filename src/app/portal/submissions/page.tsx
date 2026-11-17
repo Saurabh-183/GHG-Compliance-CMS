@@ -79,7 +79,7 @@ export default function ClientSubmissionsPage() {
             <MessageSquare className="w-6 h-6 text-emerald-400" />
             Client Submissions & Discrepancy Clarifications
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs   mt-1">
             Review discrepancies flagged during verification and provide explanation notes or revised supporting documentation.
           </p>
         </div>
@@ -101,7 +101,7 @@ export default function ClientSubmissionsPage() {
                   <h3 className="text-sm font-bold text-white">
                     {item.parameter} Discrepancy — Month: {item.month}
                   </h3>
-                  <p className="text-xs text-slate-400 mt-0.5">
+                  <p className="text-xs   mt-0.5">
                     Raised by Carbon Crunch Consultant on {formatDate(item.raisedAt)}
                   </p>
                 </div>
@@ -127,7 +127,7 @@ export default function ClientSubmissionsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 p-4 rounded-lg bg-slate-950/60 border border-slate-800 text-xs">
               <div>
                 <span className="text-slate-500">Your Declared Value:</span>
-                <div className="font-mono font-bold text-slate-200 mt-0.5">
+                <div className="font-mono font-bold    dark:text-white mt-0.5">
                   {formatNumber(item.declaredValue)} kWh
                 </div>
               </div>
@@ -161,14 +161,14 @@ export default function ClientSubmissionsPage() {
               <div className="text-xs text-slate-300 bg-slate-950/50 p-3 rounded-lg border border-slate-800 space-y-1.5">
                 <div className="flex items-center justify-between">
                   <strong className="text-emerald-400">Your Response:</strong>
-                  <span className="text-[11px] text-slate-400">
+                  <span className="text-[11px]  ">
                     {formatDate(item.clientResponse.respondedAt)}
                   </span>
                 </div>
                 <p>&ldquo;{item.clientResponse.responseText}&rdquo;</p>
                 {item.clientResponse.revisedDriveLink && (
                   <div className="pt-1 flex items-center gap-2">
-                    <span className="text-slate-400 text-[11px]">Revised Document:</span>
+                    <span className="  text-[11px]">Revised Document:</span>
                     <DriveLinkBadge url={item.clientResponse.revisedDriveLink} label="Revised Drive Document" />
                   </div>
                 )}

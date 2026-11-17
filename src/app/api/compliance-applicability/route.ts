@@ -25,16 +25,39 @@ export async function GET(request: NextRequest) {
       .sort({ period: 1 })
       .lean();
 
+    if (records.length > 0) {
+      return NextResponse.json({
+        success: true,
+        data: records.map((r) => ({
+          ...r,
+          _id: r._id.toString(),
+          deadline: r.deadline ? r.deadline.toISOString() : null,
+        })),
+      });
+    }
+
+    if (facilityId) {
+      const { generateFacilityApplicabilities } = await import('@/lib/complianceMatrixData');
+      const generated = generateFacilityApplicabilities(facilityId);
+      return NextResponse.json({
+        success: true,
+        data: generated,
+      });
+    }
+
     return NextResponse.json({
       success: true,
-      data: records.map((r) => ({
-        ...r,
-        _id: r._id.toString(),
-        deadline: r.deadline ? r.deadline.toISOString() : null,
-      })),
+      data: [],
     });
   } catch (error) {
-    console.warn('Error fetching compliance applicability from DB, returning fallback demo records:', error);
+    console.warn('Error fetching compliance applicability from DB, returning fallback records:', error);
+    const searchParams = request.nextUrl.searchParams;
+    const reqFacility = searchParams.get('facilityId');
+    if (reqFacility) {
+      const { generateFacilityApplicabilities } = await import('@/lib/complianceMatrixData');
+      const generated = generateFacilityApplicabilities(reqFacility);
+      return NextResponse.json({ success: true, data: generated });
+    }
     const { MOCK_APPLICABILITY } = await import('@/lib/mockFallback');
     return NextResponse.json({ success: true, data: MOCK_APPLICABILITY });
   }

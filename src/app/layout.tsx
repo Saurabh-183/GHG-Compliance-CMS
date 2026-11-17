@@ -28,7 +28,7 @@ export default function RootLayout({
           {/* React-Toastify Container for Minimalistic Lightweight Notifications */}
           <ToastContainer
             position="top-right"
-            autoClose={3500}
+            autoClose={1500}
             hideProgressBar={false}
             newestOnTop
             closeOnClick

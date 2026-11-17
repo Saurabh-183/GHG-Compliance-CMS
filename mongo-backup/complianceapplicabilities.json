@@ -1,0 +1,264 @@
+[
+  {
+    "_id": {
+      "$oid": "6ade76b1667ed7c3e0b31308"
+    },
+    "facilityId": "TRIDENT_PAPER",
+    "complianceType": "RCO",
+    "period": "FY2024-25",
+    "isApplicable": true,
+    "authority": "BEE / PSERC",
+    "ministry": "Ministry of Power",
+    "notificationReference": "PSERC/Tariff/RCO/2024/78",
+    "targetValue": {
+      "$numberDouble": "29.91"
+    },
+    "targetUnit": "%",
+    "targetMethodology": "Renewable Consumption Obligation as % of Total Electricity Consumption",
+    "deadline": {
+      "$date": {
+        "$numberLong": "1751241600000"
+      }
+    },
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "workflowStatus": "APPROVED",
+    "complianceOutcome": "SHORTFALL",
+    "notes": "Final shortfall of 5.00 MU recorded after REC adjustments.",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964273320"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964273320"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b1667ed7c3e0b3130a"
+    },
+    "facilityId": "TRIDENT_PAPER",
+    "complianceType": "RCO",
+    "period": "FY2026-27",
+    "isApplicable": true,
+    "authority": "BEE / PSERC",
+    "ministry": "Ministry of Power",
+    "notificationReference": "Draft Trajectory 2026-27",
+    "targetValue": {
+      "$numberDouble": "36.5"
+    },
+    "targetUnit": "%",
+    "targetMethodology": "Mandatory RCO Trajectory",
+    "deadline": {
+      "$date": {
+        "$numberLong": "1814313600000"
+      }
+    },
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "workflowStatus": "NOT_STARTED",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "notes": "Upcoming regulatory period.",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964273320"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964273320"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b1667ed7c3e0b3130c"
+    },
+    "facilityId": "TRIDENT_PAPER",
+    "complianceType": "CCTS",
+    "period": "Baseline (2024-25)",
+    "isApplicable": true,
+    "authority": "BEE / MoEFCC",
+    "ministry": "Ministry of Environment, Forest and Climate Change",
+    "notificationReference": "Carbon Credit Trading Scheme S.O. 2824(E)",
+    "targetValue": {
+      "$numberDouble": "1.84"
+    },
+    "targetUnit": "tCO2e/tonne paper",
+    "targetMethodology": "GHG Emission Intensity Baseline Boundary",
+    "deadline": {
+      "$date": {
+        "$numberLong": "1759190400000"
+      }
+    },
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "workflowStatus": "UNDER_REVIEW",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "notes": "Baseline verification under audit.",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964273320"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964273320"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b1667ed7c3e0b31309"
+    },
+    "facilityId": "TRIDENT_PAPER",
+    "complianceType": "RCO",
+    "period": "FY2025-26",
+    "isApplicable": true,
+    "authority": "BEE / PSERC",
+    "ministry": "Ministry of Power",
+    "notificationReference": "BEE/RCO-TRAJECTORY/2025-26/102",
+    "targetValue": {
+      "$numberDouble": "33.01"
+    },
+    "targetUnit": "%",
+    "targetMethodology": "Renewable share with solar, wind & biomass minimum mandates",
+    "deadline": {
+      "$date": {
+        "$numberLong": "1782777600000"
+      }
+    },
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "notes": "Current FY assessment under active monthly verification.",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964273320"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964273320"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b1667ed7c3e0b3130b"
+    },
+    "facilityId": "TRIDENT_PAPER",
+    "complianceType": "PAT",
+    "period": "Cycle-II",
+    "isApplicable": true,
+    "authority": "Bureau of Energy Efficiency (BEE)",
+    "ministry": "Ministry of Power",
+    "notificationReference": "BEE/PAT-II/DC-PULP-114",
+    "targetValue": {
+      "$numberDouble": "0.642"
+    },
+    "targetUnit": "toe/tonne",
+    "targetMethodology": "Specific Energy Consumption (SEC) Target Reduction",
+    "deadline": {
+      "$date": {
+        "$numberLong": "1743379200000"
+      }
+    },
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "workflowStatus": "APPROVED",
+    "complianceOutcome": "COMPLIANT",
+    "notes": "M&V completed. E-Certs issued by BEE.",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964273320"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964273320"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b1667ed7c3e0b3130d"
+    },
+    "facilityId": "TRIDENT_PAPER",
+    "complianceType": "CEA",
+    "period": "Monthly (FY2025-26)",
+    "isApplicable": true,
+    "authority": "Central Electricity Authority (CEA)",
+    "ministry": "Ministry of Power",
+    "notificationReference": "Section 74 of the Electricity Act 2003",
+    "targetValue": null,
+    "targetUnit": "MU",
+    "targetMethodology": "Monthly Electricity Returns Filing (Form A/B/C)",
+    "deadline": {
+      "$date": {
+        "$numberLong": "1763164800000"
+      }
+    },
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "COMPLIANT",
+    "notes": "Recurring monthly returns up to June 2025 submitted.",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964273320"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964273320"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  }
+]

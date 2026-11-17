@@ -3,6 +3,7 @@ import { connectToDatabase } from '@/lib/db';
 import { DatasetModel } from '@/models/Dataset';
 import { getSessionFromRequest } from '@/lib/auth';
 import { calculateReconciliation } from '@/lib/utils';
+import { GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
 import { IMonthlyRecord } from '@/types';
 
 export async function POST(request: NextRequest) {
@@ -14,7 +15,7 @@ export async function POST(request: NextRequest) {
     const facilityId = (body.facilityId || 'TRIDENT_PAPER').toUpperCase().trim();
     const datasetType = body.datasetType || 'GRID_ELECTRICITY';
     const period = body.period || 'FY2025-26';
-    const driveFolderUrl = body.driveFolderUrl || 'https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7';
+    const driveFolderUrl = body.driveFolderUrl || GOOGLE_DRIVE_FOLDER_URL;
     const tolerance = typeof body.tolerance === 'number' ? body.tolerance : 0;
     const rawRows = body.rows || [];
 

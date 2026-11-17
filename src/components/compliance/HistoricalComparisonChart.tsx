@@ -41,7 +41,7 @@ export const HistoricalComparisonChart: React.FC<HistoricalComparisonChartProps>
           <h3 className="text-sm font-semibold text-slate-100">
             Year-on-Year Metrics Trajectory
           </h3>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs  ">
             Comparing Historical Approved baseline ({period1}) vs Current Year Performance ({period2})
           </p>
         </div>

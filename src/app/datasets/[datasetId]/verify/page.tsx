@@ -19,23 +19,27 @@ export default function DatasetVerifyPage() {
 
   const loadData = async () => {
     try {
-      // First try to fetch by id; if not found, fetch the primary dataset for TRIDENT_PAPER
+      // First try to fetch by id; if not found, fetch by facilityId
       let res = await fetch(`/api/datasets/${datasetId}`);
+      let loadedDataset: IDataset | null = null;
       if (!res.ok) {
-        res = await fetch(`/api/datasets?facilityId=TRIDENT_PAPER`);
+        res = await fetch(`/api/datasets?facilityId=${datasetId}`);
         if (res.ok) {
           const listJson = (await res.json()) as { data: IDataset[] };
           if (listJson.data && listJson.data.length > 0) {
-            setDataset(listJson.data[0]);
+            loadedDataset = listJson.data[0];
+            setDataset(loadedDataset);
           }
         }
       } else {
         const json = (await res.json()) as { data: IDataset };
-        setDataset(json.data);
+        loadedDataset = json.data;
+        setDataset(loadedDataset);
       }
 
       // Fetch clarifications for this facility
-      const clarRes = await fetch(`/api/clarifications?facilityId=TRIDENT_PAPER`);
+      const targetFacility = loadedDataset?.facilityId || datasetId || 'TRIDENT_PAPER';
+      const clarRes = await fetch(`/api/clarifications?facilityId=${targetFacility}`);
       if (clarRes.ok) {
         const clarJson = (await clarRes.json()) as { data: IClarification[] };
         setClarifications(clarJson.data);
@@ -57,7 +61,7 @@ export default function DatasetVerifyPage() {
 
   if (!dataset) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-16 text-center text-slate-400">
+      <div className="max-w-7xl mx-auto px-4 py-16 text-center  ">
         <h2 className="text-lg font-bold text-white">Dataset Not Found</h2>
         <Link href="/facilities/TRIDENT_PAPER" className="mt-4 inline-block text-emerald-400 text-xs">
           Return to Facility Matrix
@@ -71,12 +75,22 @@ export default function DatasetVerifyPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       {/* Breadcrumbs */}
-      <div className="flex items-center gap-2 text-xs text-slate-400">
-        <Link href="/facilities/TRIDENT_PAPER" className="hover:text-emerald-400">Trident Paper</Link>
-        <ChevronRight className="w-3 h-3 text-slate-600" />
-        <Link href="/facilities/TRIDENT_PAPER" className="hover:text-emerald-400">Compliance Matrix</Link>
-        <ChevronRight className="w-3 h-3 text-slate-600" />
-        <span className="text-slate-200 font-semibold">Grid Electricity Reconciliation</span>
+      <div className="flex items-center gap-2 text-xs  ">
+        <Link
+          href={`/facilities/${dataset?.facilityId || 'TRIDENT_PAPER'}`}
+          className="hover:text-emerald-400"
+        >
+          {dataset?.facilityName || dataset?.facilityId || 'Trident Paper'}
+        </Link>
+        <ChevronRight className="w-3 h-3   " />
+        <Link
+          href={`/facilities/${dataset?.facilityId || 'TRIDENT_PAPER'}`}
+          className="hover:text-emerald-400"
+        >
+          Compliance Matrix
+        </Link>
+        <ChevronRight className="w-3 h-3   " />
+        <span className="   dark:text-white font-semibold">Grid Electricity Reconciliation</span>
       </div>
 
       {/* Main Reconciliation Engine Component */}

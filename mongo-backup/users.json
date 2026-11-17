@@ -1,0 +1,84 @@
+[
+  {
+    "_id": {
+      "$oid": "6ade76a9667ed7c3e0b31289"
+    },
+    "name": "Saurabh Agnihotri",
+    "email": "admin@carboncrunch.com",
+    "passwordHash": "$2b$10$BXsKXLzxXDV.so3tkDvCA.Pcfk80tFDld7vAAojLA75ELe2QIAadC",
+    "role": "ADMIN",
+    "authorizedFacilityIds": [],
+    "designation": "Principal Compliance Architect",
+    "avatarUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964265287"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964265287"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "name": "Priya Sharma",
+    "email": "consultant@carboncrunch.com",
+    "passwordHash": "$2b$10$BXsKXLzxXDV.so3tkDvCA.Pcfk80tFDld7vAAojLA75ELe2QIAadC",
+    "role": "CONSULTANT",
+    "authorizedFacilityIds": [],
+    "designation": "Senior Energy & Carbon Compliance Lead",
+    "avatarUrl": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop&crop=faces",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964265369"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964265369"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76a9667ed7c3e0b3128c"
+    },
+    "name": "Vikram Singh",
+    "email": "client@tridentindia.com",
+    "passwordHash": "$2b$10$BXsKXLzxXDV.so3tkDvCA.Pcfk80tFDld7vAAojLA75ELe2QIAadC",
+    "role": "CLIENT",
+    "clientGroupId": {
+      "$oid": "6ade76a9667ed7c3e0b3128b"
+    },
+    "authorizedFacilityIds": [
+      "TRIDENT_PAPER",
+      "TRIDENT_YARN",
+      "TRIDENT_TEXTILES"
+    ],
+    "designation": "Head of Regulatory Affairs & Sustainability",
+    "avatarUrl": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964265500"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964265500"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  }
+]

@@ -1,0 +1,298 @@
+[
+  {
+    "_id": {
+      "$oid": "6ade76b2667ed7c3e0b3130e"
+    },
+    "facilityId": "TRIDENT_PAPER",
+    "complianceType": "RCO",
+    "period": "FY2024-25",
+    "workflowStatus": "APPROVED",
+    "complianceOutcome": "SHORTFALL",
+    "isHistorical": true,
+    "metrics": [
+      {
+        "key": "applicable_rco_target",
+        "name": "Applicable RCO Target",
+        "value": {
+          "$numberDouble": "29.91"
+        },
+        "unit": "%",
+        "period": "FY2024-25",
+        "source": "PSERC Notification Ref 2024/78",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "achieved_renewable_share",
+        "name": "Achieved Renewable Share",
+        "value": {
+          "$numberDouble": "25.51"
+        },
+        "unit": "%",
+        "period": "FY2024-25",
+        "source": "Audited Power Purchase Registry",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "2"
+        }
+      },
+      {
+        "key": "renewable_electricity",
+        "name": "Renewable Electricity Procured",
+        "value": {
+          "$numberDouble": "76.53"
+        },
+        "unit": "MU",
+        "period": "FY2024-25",
+        "source": "DISCOM Green Tariff & Captive Solar",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "2"
+        }
+      },
+      {
+        "key": "non_renewable_electricity",
+        "name": "Non-Renewable Electricity",
+        "value": {
+          "$numberDouble": "223.47"
+        },
+        "unit": "MU",
+        "period": "FY2024-25",
+        "source": "PSPCL Grid Import Bills",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "2"
+        }
+      },
+      {
+        "key": "grid_electricity",
+        "name": "Total Applicable Grid Electricity",
+        "value": {
+          "$numberInt": "300"
+        },
+        "unit": "MU",
+        "period": "FY2024-25",
+        "source": "Substation Meter Reconciliation",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "2"
+        }
+      },
+      {
+        "key": "calculated_shortfall",
+        "name": "Calculated Shortfall",
+        "value": {
+          "$numberInt": "5"
+        },
+        "unit": "MU",
+        "period": "FY2024-25",
+        "source": "Reconciliation Model vs Mandate",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "2"
+        }
+      },
+      {
+        "key": "rec_adjustment",
+        "name": "REC Adjustment",
+        "value": {
+          "$numberInt": "0"
+        },
+        "unit": "MU",
+        "period": "FY2024-25",
+        "source": "IEX / PXIL Certificate Ledger",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "final_obligation_status",
+        "name": "Final Obligation Status",
+        "value": "Shortfall Penalty Determination Pending",
+        "unit": "Status",
+        "period": "FY2024-25",
+        "source": "PSERC Regulatory Filing",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "2"
+        }
+      }
+    ],
+    "documentLinks": {
+      "finalReportUrl": "https://drive.google.com/file/d/1A2B3C4D5E6F_Trident_Paper_RCO_FY24-25_Final_Report.pdf/view",
+      "submissionAckUrl": "https://drive.google.com/file/d/2B3C4D5E6F7G_PSERC_RCO_Submission_Ack_FY24-25.pdf/view",
+      "calculationWorkbookUrl": "https://drive.google.com/file/d/3C4D5E6F7G8H_Trident_Paper_RCO_Model_v2.4.xlsx/view",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/4D5E6F7G8H9I_Trident_Paper_Compliance_Evidence_FY24"
+    },
+    "version": {
+      "$numberInt": "2"
+    },
+    "approvedBy": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "approvedAt": {
+      "$date": {
+        "$numberLong": "1752579000000"
+      }
+    },
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "notes": "Approved historical assessment. Shortfall of 5.00 MU confirmed. Submission acknowledgment filed with PSERC.",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964274135"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964274135"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b2667ed7c3e0b3130f"
+    },
+    "facilityId": "TRIDENT_PAPER",
+    "complianceType": "RCO",
+    "period": "FY2025-26",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "applicable_rco_target",
+        "name": "Applicable RCO Target",
+        "value": {
+          "$numberDouble": "33.01"
+        },
+        "unit": "%",
+        "period": "FY2025-26",
+        "source": "BEE MoP Trajectory 2025-26",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "achieved_renewable_share",
+        "name": "Achieved Renewable Share (Provisional)",
+        "value": {
+          "$numberDouble": "28.15"
+        },
+        "unit": "%",
+        "period": "FY2025-26",
+        "source": "Provisional Q1 Monthly Sums",
+        "isProvisional": true,
+        "approvalStatus": "PENDING",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "renewable_electricity",
+        "name": "Renewable Electricity (YTD)",
+        "value": {
+          "$numberDouble": "22.4"
+        },
+        "unit": "MU",
+        "period": "FY2025-26",
+        "source": "Q1 Solar + Open Access",
+        "isProvisional": true,
+        "approvalStatus": "PENDING",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "non_renewable_electricity",
+        "name": "Non-Renewable Electricity (YTD)",
+        "value": {
+          "$numberDouble": "57.18"
+        },
+        "unit": "MU",
+        "period": "FY2025-26",
+        "source": "PSPCL Grid Invoices Q1",
+        "isProvisional": true,
+        "approvalStatus": "PENDING",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "grid_electricity",
+        "name": "Total Grid Electricity (YTD)",
+        "value": {
+          "$numberDouble": "79.58"
+        },
+        "unit": "MU",
+        "period": "FY2025-26",
+        "source": "Q1 Monthly Sums",
+        "isProvisional": true,
+        "approvalStatus": "PENDING",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "calculated_shortfall",
+        "name": "Calculated Shortfall / Surplus",
+        "value": "Assessment Pending",
+        "unit": "MU",
+        "period": "FY2025-26",
+        "source": "Provisional Model",
+        "isProvisional": true,
+        "approvalStatus": "PENDING",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "calculationWorkbookUrl": "https://drive.google.com/file/d/5E6F7G8H9I0J_Trident_Paper_FY25-26_Draft_Model.xlsx/view",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/6F7G8H9I0J1K_Trident_Paper_FY25-26_Data_Evidence"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "assignedConsultantId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "assignedReviewerId": {
+      "$oid": "6ade76a9667ed7c3e0b3128a"
+    },
+    "notes": "Ongoing current year assessment. Data collection for Q1 & Q2 in progress.",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792964274217"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792964274217"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  }
+]

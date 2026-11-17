@@ -24,6 +24,7 @@ import {
   Upload,
 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
+import { GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
 import { IFacility, IDataRequirement, IClarification } from '@/types';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 
@@ -42,6 +43,7 @@ export default function ClientPortalDashboard() {
       documentLinks: { finalReportUrl?: string; submissionAckUrl?: string };
     }>;
   } | null>(null);
+  const [driveFiles, setDriveFiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isExcelModalOpen, setIsExcelModalOpen] = useState(false);
   const [isDriveModalOpen, setIsDriveModalOpen] = useState(false);
@@ -49,10 +51,20 @@ export default function ClientPortalDashboard() {
   useEffect(() => {
     async function loadPortal() {
       try {
-        const res = await fetch('/api/portal/dashboard');
-        if (res.ok) {
+        const [res, filesRes] = await Promise.all([
+          fetch('/api/portal/dashboard').catch(() => null),
+          fetch('/api/drive/files').catch(() => null),
+        ]);
+
+        if (res && res.ok) {
           const json = (await res.json()) as { data: typeof data };
           setData(json.data);
+        }
+        if (filesRes && filesRes.ok) {
+          const fJson = await filesRes.json();
+          if (fJson.data?.files) {
+            setDriveFiles(fJson.data.files);
+          }
         }
       } catch (e) {
         console.error('Error fetching portal dashboard:', e);
@@ -75,7 +87,7 @@ export default function ClientPortalDashboard() {
           <Building2 className="w-7 h-7" />
         </div>
         <h2 className="text-xl font-extrabold text-white">Client Portal Area</h2>
-        <p className="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
+        <p className="text-xs   max-w-md mx-auto leading-relaxed">
           Your active account role is <strong className="text-emerald-400">{currentRole}</strong>.
           The Client Portal is reserved exclusively for external industrial client representatives (e.g., Trident Group) to upload Google Drive evidence and answer clarification queries.
         </p>
@@ -96,6 +108,11 @@ export default function ClientPortalDashboard() {
   const pendingRequests = data?.pendingRequests || [];
   const openClarifications = data?.openClarifications || [];
   const history = data?.approvedHistory || [];
+  const primaryFacilityId = facilities[0]?.facilityId || 'TRIDENT_PAPER';
+  const clientOrgName =
+    currentUser?.clientGroupId ||
+    facilities[0]?.clientGroupName ||
+    'Client Organization';
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -107,11 +124,11 @@ export default function ClientPortalDashboard() {
               Authorized Client Organization
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
-              Trident Group — Compliance Portal
+              {clientOrgName === 'TRIDENT' ? 'Trident Group' : clientOrgName} — Compliance Portal
             </h1>
             <p className="text-xs text-slate-300 mt-1">
-              Welcome, <strong className="text-emerald-400">{currentUser?.name || 'Vikram Singh'}</strong> (Head of Regulatory Affairs).
-              Direct visibility into authorized facilities, outstanding data submissions, and verified historical reports.
+              Welcome, <strong className="text-emerald-400">{currentUser?.name || 'Vikram Singh'}</strong> ({currentUser?.designation || 'Head of Regulatory Affairs'}).
+              Direct visibility into authorized facilities, outstanding data submissions, Google Drive repository evidence, and verified historical reports.
             </p>
           </div>
 
@@ -126,7 +143,7 @@ export default function ClientPortalDashboard() {
 
             <button
               onClick={() => setIsDriveModalOpen(true)}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs shadow-sm transition-colors"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700    dark:text-white border border-slate-700 font-semibold text-xs shadow-sm transition-colors"
             >
               <Folder className="w-3.5 h-3.5 text-emerald-400" />
               <span>Drive Evidence Vault</span>
@@ -137,7 +154,7 @@ export default function ClientPortalDashboard() {
         {/* PRD Highlights: Data Given % & Data Matched % */}
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-800 text-xs">
           <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
-            <div className="flex items-center justify-between text-slate-400">
+            <div className="flex items-center justify-between  ">
               <span className="font-semibold uppercase tracking-wider text-[10px]">Data Given</span>
               <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
             </div>
@@ -146,7 +163,7 @@ export default function ClientPortalDashboard() {
           </div>
 
           <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
-            <div className="flex items-center justify-between text-slate-400">
+            <div className="flex items-center justify-between  ">
               <span className="font-semibold uppercase tracking-wider text-[10px]">Data Matched</span>
               <CheckCheck className="w-3.5 h-3.5 text-emerald-400" />
             </div>
@@ -155,7 +172,7 @@ export default function ClientPortalDashboard() {
           </div>
 
           <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
-            <div className="flex items-center justify-between text-slate-400">
+            <div className="flex items-center justify-between  ">
               <span className="font-semibold uppercase tracking-wider text-[10px]">Operating Facilities</span>
               <Building2 className="w-3.5 h-3.5 text-emerald-400" />
             </div>
@@ -164,7 +181,7 @@ export default function ClientPortalDashboard() {
           </div>
 
           <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
-            <div className="flex items-center justify-between text-slate-400">
+            <div className="flex items-center justify-between  ">
               <span className="font-semibold uppercase tracking-wider text-[10px]">Action Items</span>
               <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
             </div>
@@ -227,11 +244,11 @@ export default function ClientPortalDashboard() {
                   <span className="text-[10px] text-slate-500 uppercase">{facility.location}</span>
                 </div>
                 <h3 className="text-base font-bold text-white">{facility.name}</h3>
-                <p className="text-xs text-slate-400">{facility.category}</p>
+                <p className="text-xs  ">{facility.category}</p>
               </div>
 
               <div className="pt-4 mt-4 border-t border-slate-800/80 flex items-center justify-between">
-                <span className="text-[11px] text-slate-400">
+                <span className="text-[11px]  ">
                   Obligations: <strong>RCO, PAT, CCTS, CEA</strong>
                 </span>
                 <Link
@@ -255,7 +272,7 @@ export default function ClientPortalDashboard() {
               <FileSpreadsheet className="w-5 h-5 text-emerald-400" />
               Outstanding Compliance Data Requests
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs   mt-0.5">
               Submit monthly energy logs, utility bills, and fuel lab test reports by attaching Google Drive URLs.
             </p>
           </div>
@@ -271,7 +288,7 @@ export default function ClientPortalDashboard() {
         <div className="overflow-x-auto rounded-lg border border-slate-800">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="bg-slate-950/80 text-slate-400 border-b border-slate-800 text-[11px] font-semibold uppercase tracking-wider">
+              <tr className="bg-slate-950/80   border-b border-slate-800 text-[11px] font-semibold uppercase tracking-wider">
                 <th className="py-3 px-4">Facility</th>
                 <th className="py-3 px-4">Requirement</th>
                 <th className="py-3 px-4">Compliances</th>
@@ -286,7 +303,7 @@ export default function ClientPortalDashboard() {
                   <td className="py-3 px-4 font-mono font-medium text-white">{req.facilityId}</td>
                   <td className="py-3 px-4">
                     <div className="font-semibold text-white">{req.title}</div>
-                    <div className="text-[11px] text-slate-400 mt-0.5">{req.description}</div>
+                    <div className="text-[11px]   mt-0.5">{req.description}</div>
                   </td>
                   <td className="py-3 px-4">
                     <div className="flex items-center gap-1">
@@ -297,7 +314,7 @@ export default function ClientPortalDashboard() {
                       ))}
                     </div>
                   </td>
-                  <td className="py-3 px-4 font-mono text-slate-400">{formatDate(req.dueDate)}</td>
+                  <td className="py-3 px-4 font-mono  ">{formatDate(req.dueDate)}</td>
                   <td className="py-3 px-4 text-center">
                     <StatusBadge status={req.submissionStatus} type="submission" size="sm" />
                   </td>
@@ -325,7 +342,7 @@ export default function ClientPortalDashboard() {
               <ShieldCheck className="w-5 h-5 text-emerald-400" />
               Released & Approved Compliance Filings
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs   mt-0.5">
               Official filings and submission acknowledgements certified by Carbon Crunch auditor.
             </p>
           </div>
@@ -341,7 +358,7 @@ export default function ClientPortalDashboard() {
         <div className="overflow-x-auto rounded-lg border border-slate-800">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="bg-slate-950/80 text-slate-400 border-b border-slate-800 text-[11px] font-semibold uppercase tracking-wider">
+              <tr className="bg-slate-950/80   border-b border-slate-800 text-[11px] font-semibold uppercase tracking-wider">
                 <th className="py-3 px-4">Facility</th>
                 <th className="py-3 px-4">Compliance Type</th>
                 <th className="py-3 px-4">Period</th>
@@ -355,7 +372,7 @@ export default function ClientPortalDashboard() {
                 <tr key={h._id} className="hover:bg-slate-800/40 transition-colors">
                   <td className="py-3 px-4 font-mono font-medium text-white">{h.facilityId}</td>
                   <td className="py-3 px-4 font-semibold text-white">{h.complianceType}</td>
-                  <td className="py-3 px-4 font-mono text-slate-400">{h.period}</td>
+                  <td className="py-3 px-4 font-mono  ">{h.period}</td>
                   <td className="py-3 px-4 text-center">
                     <StatusBadge status={h.complianceOutcome} type="outcome" size="sm" />
                   </td>
@@ -372,18 +389,87 @@ export default function ClientPortalDashboard() {
         </div>
       </div>
 
+      {/* Google Drive Evidence Vault Repository Files */}
+      {driveFiles.length > 0 && (
+        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 shadow-xl space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h3 className="text-base font-bold text-white flex items-center gap-2">
+                <Folder className="w-5 h-5 text-emerald-400" />
+                Google Drive Corporate Compliance Vault ({driveFiles.length} Documents)
+              </h3>
+              <p className="text-xs   mt-0.5">
+                Official invoices, energy sheets, and certificates residing directly in the Google Drive compliance repository.
+              </p>
+            </div>
+            <a
+              href={process.env.NEXT_PUBLIC_GDRIVE_FOLDER_URL || GOOGLE_DRIVE_FOLDER_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60 hover:bg-emerald-900 transition-colors self-start sm:self-center"
+            >
+              <span>Browse Google Drive Folder</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">
+            {driveFiles.slice(0, 9).map((f: any) => (
+              <div
+                key={f.id}
+                className="p-3.5 rounded-lg border border-slate-800 bg-slate-950/70 hover:border-emerald-500/50 transition-all flex flex-col justify-between gap-3 text-xs"
+              >
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+                      {f.category.replace(/_/g, ' ')}
+                    </span>
+                    {f.month && (
+                      <span className="text-[10px] font-mono text-emerald-400 font-bold">
+                        {f.month}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-xs font-bold text-white truncate" title={f.name}>
+                    {f.name}
+                  </div>
+                  <p className="text-[11px]  ">
+                    {f.mimeType.includes('pdf') ? 'Audited PDF Bill / Certificate' : 'Client Consumption Excel Sheet'}
+                  </p>
+                </div>
+
+                <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
+                  <span className="text-[10px]  ">
+                    {f.sizeBytes ? `${Math.round(f.sizeBytes / 1024)} KB` : 'Drive Asset'}
+                  </span>
+                  <a
+                    href={f.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-emerald-400 hover:underline font-semibold inline-flex items-center gap-1 text-[11px]"
+                  >
+                    <span>Open in Drive</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Google Drive Connection & Direct Sync Modal */}
       <DriveConnectionModal
         isOpen={isDriveModalOpen}
         onClose={() => setIsDriveModalOpen(false)}
-        facilityId="TRIDENT_PAPER"
+        facilityId={primaryFacilityId}
       />
 
       {/* Standardized Excel Import & Templates Modal */}
       <ExcelImportModal
         isOpen={isExcelModalOpen}
         onClose={() => setIsExcelModalOpen(false)}
-        facilityId="TRIDENT_PAPER"
+        facilityId={primaryFacilityId}
       />
     </div>
   );

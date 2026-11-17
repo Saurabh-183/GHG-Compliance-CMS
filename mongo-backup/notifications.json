@@ -1,0 +1,141 @@
+[
+  {
+    "_id": {
+      "$oid": "6ade76b3667ed7c3e0b31326"
+    },
+    "recipientRole": "ALL",
+    "senderRole": "SYSTEM",
+    "senderName": "Statutory Compliance Bot",
+    "type": "DEADLINE_EXTENDED",
+    "title": "Statutory Due Date Extension Logged",
+    "message": "BEE notified extension for PAT DC Assessment to 31-Oct-2025 (Ref: BEE/PAT-Ext/2025/19).",
+    "facilityId": "TRIDENT_PAPER",
+    "linkUrl": "/calendar",
+    "isRead": true,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792791475525"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792791475525"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b3667ed7c3e0b31324"
+    },
+    "recipientRole": "CONSULTANT",
+    "recipientUserId": "6ade76a9667ed7c3e0b3128a",
+    "senderRole": "CONSULTANT",
+    "senderName": "Priya Sharma (Consultant)",
+    "type": "REVIEW_REQUESTED",
+    "title": "Verification Sign-Off Ready",
+    "message": "Trident Paper FY2025-26 Grid Electricity Reconciliation v1 audited and ready for sign-off & lock.",
+    "facilityId": "TRIDENT_PAPER",
+    "linkUrl": "/approvals",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792921075525"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792921075525"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b3667ed7c3e0b31323"
+    },
+    "recipientRole": "CONSULTANT",
+    "recipientUserId": "6ade76a9667ed7c3e0b3128a",
+    "senderRole": "CLIENT",
+    "senderName": "Vikram Singh (Trident Group)",
+    "type": "EVIDENCE_SUBMITTED",
+    "title": "Google Drive Document Submitted",
+    "message": "Client uploaded verified Google Drive spreadsheet: \"Q1 Grid Consumption Verification Workbook FY2025-26\".",
+    "facilityId": "TRIDENT_PAPER",
+    "linkUrl": "/datasets/6adb9175b32c50edab95461f/verify",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792946275525"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792946275525"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b3667ed7c3e0b31325"
+    },
+    "recipientRole": "CONSULTANT",
+    "recipientUserId": "6ade76a9667ed7c3e0b3128a",
+    "senderRole": "CONSULTANT",
+    "senderName": "Priya Sharma (Compliance Lead)",
+    "type": "DATASET_APPROVED",
+    "title": "Audit Sign-off Approved & Locked",
+    "message": "FY2024-25 RCO Compliance Assessment verified against PSERC regulations and approved.",
+    "facilityId": "TRIDENT_PAPER",
+    "linkUrl": "/facilities/TRIDENT_PAPER",
+    "isRead": true,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792877875525"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792877875525"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ade76b3667ed7c3e0b31322"
+    },
+    "recipientRole": "CLIENT",
+    "recipientUserId": "6ade76a9667ed7c3e0b3128c",
+    "senderRole": "CONSULTANT",
+    "senderName": "Priya Sharma (Senior Energy & Carbon Consultant)",
+    "type": "CLARIFICATION_RAISED",
+    "title": "Discrepancy Clarification Required",
+    "message": "Reconciliation query raised for June 2025 Grid Electricity bill. A variance of +15,000 kWh was detected between declared log and DISCOM invoice.",
+    "facilityId": "TRIDENT_PAPER",
+    "linkUrl": "/portal/submissions",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1792957075525"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1792957075525"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  }
+]

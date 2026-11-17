@@ -171,7 +171,7 @@ export const NotificationBell: React.FC = () => {
                 className={`text-[11px] flex items-center gap-1 transition-colors ${
                   isLight
                     ? 'text-slate-500 hover:text-emerald-700'
-                    : 'text-slate-400 hover:text-emerald-300'
+                    : '  hover:text-emerald-300'
                 }`}
               >
                 <Check className="w-3 h-3" />
@@ -218,12 +218,12 @@ export const NotificationBell: React.FC = () => {
                     )}
                   </div>
 
-                  <p className={`text-[11px] line-clamp-2 pl-7 ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+                  <p className={`text-[11px] line-clamp-2 pl-7 ${isLight ? '  ' : ' '}`}>
                     {item.message}
                   </p>
 
                   <div className="flex items-center justify-between text-[10px] text-slate-500 pl-7 pt-0.5">
-                    <span className={`font-medium truncate max-w-[180px] ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+                    <span className={`font-medium truncate max-w-[180px] ${isLight ? '  ' : ' '}`}>
                       From: {item.senderName}
                     </span>
                     <span>{formatDate(item.createdAt)}</span>

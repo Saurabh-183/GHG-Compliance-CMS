@@ -34,17 +34,50 @@ export async function GET(request: NextRequest) {
 
     const datasets = rawDatasets as unknown as (IDatasetDocument & { _id: { toString(): string } })[];
 
+    if (datasets.length > 0) {
+      return NextResponse.json({
+        success: true,
+        data: datasets.map((d) => ({
+          ...d,
+          _id: d._id.toString(),
+        })),
+      });
+    }
+
+    // If query was for a specific facility and no dataset is saved yet, dynamically generate and seed from Drive
+    if (facilityId) {
+      const { generateDriveDatasetForFacility } = await import('@/lib/gdrive');
+      const fallbackDs = generateDriveDatasetForFacility(facilityId);
+      try {
+        // Attempt to persist to MongoDB for durability
+        await DatasetModel.create({
+          facilityId: fallbackDs.facilityId,
+          datasetType: fallbackDs.datasetType,
+          period: fallbackDs.period,
+          months: fallbackDs.months,
+          submissionStatus: fallbackDs.submissionStatus,
+          verificationStatus: fallbackDs.verificationStatus,
+          toleranceDefault: fallbackDs.toleranceDefault,
+          consultantSubmission: fallbackDs.consultantSubmission,
+          auditTrail: fallbackDs.auditTrail,
+        });
+      } catch (dbErr) {
+        console.warn('Could not persist auto-synced Drive dataset to DB:', dbErr);
+      }
+      return NextResponse.json({ success: true, data: [fallbackDs] });
+    }
+
     return NextResponse.json({
       success: true,
-      data: datasets.map((d) => ({
-        ...d,
-        _id: d._id.toString(),
-      })),
+      data: [],
     });
   } catch (error) {
     console.warn('Error fetching datasets from DB, returning fallback demo dataset:', error);
-    const { MOCK_DATASET } = await import('@/lib/mockFallback');
-    return NextResponse.json({ success: true, data: [MOCK_DATASET] });
+    const searchParams = request.nextUrl.searchParams;
+    const requestedFacility = searchParams.get('facilityId');
+    const { generateDriveDatasetForFacility } = await import('@/lib/gdrive');
+    const fallback = generateDriveDatasetForFacility(requestedFacility || 'TRIDENT_PAPER');
+    return NextResponse.json({ success: true, data: [fallback] });
   }
 }
 
