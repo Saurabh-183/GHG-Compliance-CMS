@@ -23,7 +23,6 @@ import {
 } from 'lucide-react';
 import { formatDate, formatNumber } from '@/lib/utils';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
-import { FacilityDataChecklistPanel } from '@/components/checklist/FacilityDataChecklistPanel';
 import { GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
 import { EnergyRecordsMuiTable } from '@/components/portal/EnergyRecordsMuiTable';
 import { ApplicableComplianceMuiTable } from '@/components/portal/ApplicableComplianceMuiTable';
@@ -223,8 +222,6 @@ export default function ClientFacilityOverviewPage() {
           </div>
         </div>
       </div>
-
-      <FacilityDataChecklistPanel facilityId={facilityId} facilityName={facility.name} mode="client" />
 
       {/* Google Drive Synced Monthly Energy Records Table (MUI Table) */}
       {months.length > 0 && (
