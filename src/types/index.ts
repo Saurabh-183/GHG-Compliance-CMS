@@ -180,8 +180,23 @@ export interface ISubmittedDriveLink {
   mappedBy?: string;
   verificationNotes?: string;
   ingestionMode?: 'VAULT_INDEXED' | 'DRIVE_API_COPIED';
-  billDetails?: { invoiceNumber: string; billingFrom: string; billingTo: string; consumptionKwh: number; billAmount: number };
-  utilityConnectionSnapshot?: { providerName: string; connectionType: string; subDivision: string; circle: string; consumerAccountNumber: string; consumerName: string; meterNumber: string; contractDemand: string };
+  billDetails?: {
+    invoiceNumber: string;
+    billingFrom: string;
+    billingTo: string;
+    consumptionKwh: number;
+    billAmount: number;
+  };
+  utilityConnectionSnapshot?: {
+    providerName: string;
+    connectionType: string;
+    subDivision: string;
+    circle: string;
+    consumerAccountNumber: string;
+    consumerName: string;
+    meterNumber: string;
+    contractDemand: string;
+  };
 }
 
 export interface IDataRequirement {
@@ -347,4 +362,29 @@ export interface IAuthUserSession {
   role: UserRole;
   clientGroupId?: string;
   authorizedFacilityIds?: string[];
+}
+
+export type DataChecklistItemStatus = 'DUE' | 'RECEIVED' | 'NOT_APPLICABLE' | 'NOT_REQUIRED';
+
+export interface IFacilityDataChecklistItem {
+  itemKey: string;
+  label: string;
+  status: DataChecklistItemStatus;
+  notes?: string;
+  sortOrder: number;
+}
+
+export interface IFacilityDataChecklist {
+  _id: string;
+  facilityId: string;
+  facilityName?: string;
+  period: string;
+  items: IFacilityDataChecklistItem[];
+  sharedWithClient: boolean;
+  sharedAt?: string;
+  sharedByName?: string;
+  lastUpdatedByName?: string;
+  consultantNotes?: string;
+  createdAt: string;
+  updatedAt: string;
 }

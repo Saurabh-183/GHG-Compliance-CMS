@@ -23,6 +23,7 @@ import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import { MOCK_CLIENT_GROUPS } from '@/lib/mockFallback';
 import { CompanySelectMui } from '@/components/dashboard/CompanySelectMui';
 import { ClientUploadsPanel } from '@/components/uploads/ClientUploadsPanel';
+import { FacilityDataChecklistPanel } from '@/components/checklist/FacilityDataChecklistPanel';
 import { generateDeadlinesForFacilities } from '@/lib/statutoryCalendar';
 
 export default function DashboardPage() {
@@ -31,6 +32,7 @@ export default function DashboardPage() {
   const [clarifications, setClarifications] = useState<IClarification[]>([]);
   const [groups, setGroups] = useState<IClientGroup[]>([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>('ALL');
+  const [checklistFacilityId, setChecklistFacilityId] = useState<string>('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -72,24 +74,34 @@ export default function DashboardPage() {
     loadData();
   }, []);
 
-  if (loading) {
-    return <CarbonCrunchLoader message="Loading consultant compliance workspace..." />;
-  }
-
-  // Find currently selected group
   const selectedGroup = groups.find(
     (g) => g._id === selectedCompanyId || g.code === selectedCompanyId
   );
 
-  // Collect all facilities across all client groups
   const allFacilities: IFacility[] = groups.flatMap((g) => g.facilities || []);
 
-  // Filter facilities based on selected company
   const currentFacilities: IFacility[] = selectedGroup
     ? selectedGroup.facilities && selectedGroup.facilities.length > 0
       ? selectedGroup.facilities
       : allFacilities.filter((f) => f.clientGroupId === selectedGroup._id)
     : allFacilities;
+
+  useEffect(() => {
+    if (currentFacilities.length === 0) {
+      setChecklistFacilityId('');
+      return;
+    }
+    setChecklistFacilityId((prev) => {
+      if (prev && currentFacilities.some((f) => f.facilityId === prev)) return prev;
+      return currentFacilities[0].facilityId;
+    });
+  }, [currentFacilities]);
+
+  const checklistFacility = currentFacilities.find((f) => f.facilityId === checklistFacilityId);
+
+  if (loading) {
+    return <CarbonCrunchLoader message="Loading consultant compliance workspace..." />;
+  }
 
   // Primary facility for the header Matrix link
   const primaryFacilityId =
@@ -224,7 +236,6 @@ export default function DashboardPage() {
 
       {/* Discrepancy Action Banner */}
       {isTridentSelected && clarifications.length > 0 ? (
-        <div className="rounded-md border border-rose-200 dark:border-rose-500/30 dark:bg-slate-900/60 p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="rounded-md border border-rose-200 dark:border-rose-500/30 bg-rose-50 dark:bg-rose-950/20 p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-start gap-3">
             <div className="p-2 rounded-lg bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-400 mt-0.5">
@@ -295,6 +306,33 @@ export default function DashboardPage() {
             : undefined
         }
       />
+
+      {selectedGroup && checklistFacility && (
+        <div className="space-y-3">
+          {currentFacilities.length > 1 && (
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <span className="font-semibold text-slate-600 dark:text-slate-400">Data checklist facility:</span>
+              <select
+                value={checklistFacilityId}
+                onChange={(e) => setChecklistFacilityId(e.target.value)}
+                className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-1.5 text-slate-800 dark:text-white min-w-[220px]"
+              >
+                {currentFacilities.map((f) => (
+                  <option key={f.facilityId} value={f.facilityId}>
+                    {f.name} ({f.facilityId})
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          <FacilityDataChecklistPanel
+            key={checklistFacility.facilityId}
+            facilityId={checklistFacility.facilityId}
+            facilityName={checklistFacility.name}
+            mode="internal"
+          />
+        </div>
+      )}
 
       {/* Two Column Grid: Upcoming Deadlines & Dynamic Registered Facilities */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -382,12 +420,17 @@ export default function DashboardPage() {
                       {fac.location} · {fac.category}
                     </p>
                   </div>
-                  <Link
-                    href={`/facilities/${fac.facilityId}`}
-                    className="px-2.5 py-1 text-xs rounded bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20 font-semibold transition-colors shrink-0"
-                  >
-                    Open Matrix
-                  </Link>
+                  <div className="flex flex-col gap-1 shrink-0">
+                    <Link
+                      href={`/facilities/${fac.facilityId}`}
+                      className="px-2.5 py-1 text-xs rounded bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20 font-semibold transition-colors text-center"
+                    >
+                      Open Facility
+                    </Link>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 text-center">
+                      Includes data checklist
+                    </span>
+                  </div>
                 </div>
                 <div className="mt-2.5 flex items-center gap-2 text-[11px]    dark: ">
                   <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">

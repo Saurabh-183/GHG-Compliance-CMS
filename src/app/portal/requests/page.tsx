@@ -1,282 +1,406 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { IDataRequirement } from '@/types';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { DriveLinkBadge } from '@/components/common/DriveLinkBadge';
-import {
-  FileSpreadsheet,
-  Link2,
-  CheckCircle2,
-  Clock,
-  ArrowRight,
-  AlertCircle,
-  Folder,
-} from 'lucide-react';
+import { EvidenceDocumentModal } from '@/components/common/EvidenceDocumentModal';
+import { FileSpreadsheet, Folder, Eye, X, UploadCloud } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import { notify } from '@/lib/notify';
+
+type ConnectionForm = {
+  providerName: string;
+  connectionType: string;
+  subDivision: string;
+  circle: string;
+  consumerAccountNumber: string;
+  consumerName: string;
+  meterNumber: string;
+  contractDemand: string;
+};
+
+type BillForm = {
+  invoiceNumber: string;
+  billingFrom: string;
+  billingTo: string;
+  consumptionKwh: string;
+  billAmount: string;
+};
+
+const EMPTY_CONNECTION: ConnectionForm = {
+  providerName: '',
+  connectionType: '',
+  subDivision: '',
+  circle: '',
+  consumerAccountNumber: '',
+  consumerName: '',
+  meterNumber: '',
+  contractDemand: '',
+};
+
+const EMPTY_BILL: BillForm = {
+  invoiceNumber: '',
+  billingFrom: '',
+  billingTo: '',
+  consumptionKwh: '',
+  billAmount: '',
+};
+
+const isGoogleDriveUrl = (value: string) =>
+  /^https:\/\/(drive\.google\.com|docs\.google\.com)\//i.test(value.trim());
 
 export default function ClientRequestsPage() {
   const [requirements, setRequirements] = useState<IDataRequirement[]>([]);
   const [selectedReq, setSelectedReq] = useState<IDataRequirement | null>(null);
   const [driveUrl, setDriveUrl] = useState('');
   const [fileDescription, setFileDescription] = useState('');
-  const [connection, setConnection] = useState({ providerName: '', connectionType: '', subDivision: '', circle: '', consumerAccountNumber: '', consumerName: '', meterNumber: '', contractDemand: '' });
-  const [bill, setBill] = useState({ invoiceNumber: '', billingFrom: '', billingTo: '', consumptionKwh: '', billAmount: '' });
-  const setConnectionField = (key: keyof typeof connection, value: string) => setConnection((current) => ({ ...current, [key]: value }));
-  const setBillField = (key: keyof typeof bill, value: string) => setBill((current) => ({ ...current, [key]: value }));
-  const isElectricityRequest = !!selectedReq && /electricity|grid|discom|power bill/i.test(`${selectedReq.title} ${selectedReq.description}`);
+  const [connection, setConnection] = useState<ConnectionForm>(EMPTY_CONNECTION);
+  const [bill, setBill] = useState<BillForm>(EMPTY_BILL);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
 
-  const loadRequests = async () => {
+  const isElectricityRequest = useMemo(
+    () => !!selectedReq && /electricity|grid|discom|power bill/i.test(`${selectedReq.title} ${selectedReq.description}`),
+    [selectedReq]
+  );
+
+  const loadRequests = useCallback(async () => {
+    setLoadError('');
     try {
-      const res = await fetch('/api/requirements');
-      if (res.ok) {
-        const json = (await res.json()) as { data: IDataRequirement[] };
-        setRequirements(json.data || []);
+      const response = await fetch('/api/requirements', { cache: 'no-store' });
+      const payload = await response.json().catch(() => null);
+      if (!response.ok) {
+        throw new Error(payload?.error || 'Failed to load compliance requests.');
       }
-    } catch (e) {
-      console.error(e);
-      notify.error('Failed to load compliance requests');
+      setRequirements(Array.isArray(payload?.data) ? payload.data : []);
+    } catch (error) {
+      console.error('Failed to load client requirements:', error);
+      const message = error instanceof Error ? error.message : 'Failed to load compliance requests.';
+      setLoadError(message);
+      notify.error(message);
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    loadRequests();
   }, []);
 
-  const handleSubmitDriveLink = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedReq || !driveUrl.trim()) {
-      notify.warning('Please enter a valid Google Drive URL');
-      return;
+  useEffect(() => {
+    void loadRequests();
+  }, [loadRequests]);
+
+  const resetForm = () => {
+    setSelectedReq(null);
+    setDriveUrl('');
+    setFileDescription('');
+    setConnection(EMPTY_CONNECTION);
+    setBill(EMPTY_BILL);
+    setIsPreviewOpen(false);
+  };
+
+  const openSubmissionForm = (requirement: IDataRequirement) => {
+    setSelectedReq(requirement);
+    setDriveUrl('');
+    setFileDescription('');
+    setConnection({
+      ...EMPTY_CONNECTION,
+      ...(requirement.utilityConnection || {}),
+    });
+    setBill(EMPTY_BILL);
+    setIsPreviewOpen(false);
+  };
+
+  const validateForm = (): boolean => {
+    if (!selectedReq) {
+      notify.error('Select a data requirement first.');
+      return false;
     }
+
+    if (!isGoogleDriveUrl(driveUrl)) {
+      notify.warning('Enter a valid HTTPS Google Drive or Google Docs URL.');
+      return false;
+    }
+
+    if (!isElectricityRequest) return true;
+
+    const missingConnection = Object.values(connection).some((value) => !value.trim());
+    const missingBill =
+      !bill.invoiceNumber.trim() ||
+      !bill.billingFrom ||
+      !bill.billingTo ||
+      bill.consumptionKwh.trim() === '' ||
+      bill.billAmount.trim() === '';
+
+    if (missingConnection || missingBill) {
+      notify.warning('Complete all electricity connection and bill fields before submitting.');
+      return false;
+    }
+
+    if (new Date(bill.billingFrom).getTime() > new Date(bill.billingTo).getTime()) {
+      notify.warning('Billing start date cannot be after the billing end date.');
+      return false;
+    }
+
+    const consumption = Number(bill.consumptionKwh);
+    const amount = Number(bill.billAmount);
+    if (!Number.isFinite(consumption) || consumption < 0 || !Number.isFinite(amount) || amount < 0) {
+      notify.warning('Consumption and bill amount must be valid non-negative numbers.');
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (isSubmitting || !validateForm() || !selectedReq) return;
+
     setIsSubmitting(true);
     try {
-      const res = await fetch(`/api/requirements/${selectedReq._id}/submissions`, {
+      const requestBody = {
+        url: driveUrl.trim(),
+        description: fileDescription.trim() || 'Client submission via portal',
+        ...(isElectricityRequest
+          ? {
+              utilityConnection: connection,
+              billDetails: {
+                invoiceNumber: bill.invoiceNumber.trim(),
+                billingFrom: bill.billingFrom,
+                billingTo: bill.billingTo,
+                consumptionKwh: Number(bill.consumptionKwh),
+                billAmount: Number(bill.billAmount),
+              },
+            }
+          : {}),
+      };
+
+      const response = await fetch(`/api/requirements/${selectedReq._id}/submissions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          url: driveUrl.trim(),
-          description: fileDescription || 'Client submission via portal',
-          ...(isElectricityRequest ? { utilityConnection: connection, billDetails: { ...bill, consumptionKwh: Number(bill.consumptionKwh), billAmount: Number(bill.billAmount) } } : {}),
-        }),
+        body: JSON.stringify(requestBody),
       });
+      const payload = await response.json().catch(() => null);
 
-      if (res.ok) {
-        const json = (await res.json()) as {
-          message?: string;
-          vault?: { folderPath?: string; uploadedToVault?: boolean };
-        };
-        notify.success(json.message || 'Document submitted to compliance vault.');
-        setDriveUrl('');
-        setFileDescription('');
-        setSelectedReq(null);
-        await loadRequests();
-      } else {
-        const error = await res.json().catch(() => null);
-        notify.error(error?.error || 'Failed to submit Google Drive link');
+      if (!response.ok) {
+        throw new Error(payload?.error || `Submission failed (${response.status}).`);
       }
-    } catch (err) {
-      notify.error('Network error submitting document link');
+
+      notify.success(payload?.message || 'Evidence submitted successfully.');
+      resetForm();
+      await loadRequests();
+    } catch (error) {
+      console.error('Client evidence submission failed:', error);
+      notify.error(error instanceof Error ? error.message : 'Network error submitting evidence.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  if (loading) {
-    return <CarbonCrunchLoader message="Loading compliance data requests..." />;
-  }
+  if (loading) return <CarbonCrunchLoader message="Loading compliance data requests..." />;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
         <div>
           <h1 className="text-2xl font-bold text-black dark:text-white flex items-center gap-2.5">
             <FileSpreadsheet className="w-6 h-6 text-emerald-400" />
             Outstanding Compliance Data Requests
           </h1>
-          <p className="text-xs   mt-1">
-            Submit required energy logs, production certificates, and DISCOM invoices by pasting verified Google Drive URLs.
+          <p className="text-xs mt-1 text-slate-500 dark:text-slate-400">
+            Submit required energy records, certificates and supporting Google Drive evidence.
           </p>
         </div>
+        <button type="button" onClick={() => void loadRequests()} className="px-3 py-2 text-xs rounded-md border border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+          Refresh requests
+        </button>
       </div>
 
-      {/* Requests Table */}
-      <div className="rounded-md border border-slate-800 bg-slate-900/60 p-6 space-y-4">
+      {loadError && (
+        <div role="alert" className="rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm text-rose-800 dark:border-rose-900 dark:bg-rose-950/30 dark:text-rose-300">
+          {loadError}
+        </div>
+      )}
+
+      <div className="rounded-md border border-slate-800 bg-slate-900/60 p-4 sm:p-6 space-y-4">
         <div className="overflow-x-auto rounded-lg border border-slate-800">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-slate-800 bg-slate-950/80 text-[11px] font-semibold   uppercase tracking-wider">
+              <tr className="border-b border-slate-800 bg-slate-950/80 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
                 <th className="py-3 px-4">Requirement Title</th>
                 <th className="py-3 px-4">Reporting Period</th>
                 <th className="py-3 px-4">Frameworks</th>
-                <th className="py-3 px-4">Submission Due Date</th>
-                <th className="py-3 px-4 text-center">Current Status</th>
+                <th className="py-3 px-4">Due Date</th>
+                <th className="py-3 px-4 text-center">Status</th>
                 <th className="py-3 px-4">Submitted Documents</th>
                 <th className="py-3 px-4 text-center">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-400/70 text-xs">
-              {requirements.map((req) => (
-                <tr key={req._id} className="hover:bg-slate-200/30 transition-colors">
+            <tbody className="divide-y divide-slate-700/70 text-xs">
+              {requirements.map((requirement) => (
+                <tr key={requirement._id} className="hover:bg-slate-800/30">
                   <td className="py-3.5 px-4">
-                    <div className="font-semibold dark:text-white">{req.title}</div>
-                    <div className="text-[11px]   mt-0.5 line-clamp-1">{req.description}</div>
+                    <div className="font-semibold text-slate-900 dark:text-white">{requirement.title}</div>
+                    <div className="mt-0.5 line-clamp-1 text-[11px] text-slate-500">{requirement.description}</div>
                   </td>
-                  <td className="py-3.5 px-4 font-mono text-slate-300">
-                    {req.period}
-                  </td>
+                  <td className="py-3.5 px-4 font-mono text-slate-500 dark:text-slate-300">{requirement.period}</td>
                   <td className="py-3.5 px-4">
-                    <div className="flex items-center gap-1">
-                      {req.linkedCompliances.map((c) => (
-                        <span key={c} className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-800 text-slate-300 border border-slate-700">
-                          {c}
-                        </span>
+                    <div className="flex flex-wrap items-center gap-1">
+                      {(requirement.linkedCompliances || []).map((compliance) => (
+                        <span key={compliance} className="rounded border border-slate-700 bg-slate-800 px-1.5 py-0.5 text-[10px] font-mono text-slate-300">{compliance}</span>
                       ))}
                     </div>
                   </td>
-                  <td className="py-3.5 px-4 text-slate-300 font-mono">
-                    {formatDate(req.dueDate)}
-                  </td>
-                  <td className="py-3.5 px-4 text-center">
-                    <StatusBadge status={req.submissionStatus} size="sm" />
-                  </td>
+                  <td className="py-3.5 px-4 font-mono text-slate-500 dark:text-slate-300">{requirement.dueDate ? formatDate(requirement.dueDate) : '—'}</td>
+                  <td className="py-3.5 px-4 text-center"><StatusBadge status={requirement.submissionStatus} size="sm" /></td>
                   <td className="py-3.5 px-4">
-                    <div className="flex flex-col gap-1">
-                      {req.submittedDriveLinks.length > 0 ? (
-                        req.submittedDriveLinks.map((link, i) => (
-                          <div key={i} className="space-y-0.5">
+                    <div className="flex flex-col gap-2">
+                      {requirement.submittedDriveLinks?.length ? (
+                        requirement.submittedDriveLinks.map((link, index) => (
+                          <div key={`${link.url}-${index}`} className="space-y-1">
                             <DriveLinkBadge
                               url={link.vaultUrl || link.url}
                               label={link.description || 'Drive Document'}
+                              billDetails={link.billDetails}
+                              utilityConnectionSnapshot={link.utilityConnectionSnapshot}
+                              facilityId={requirement.facilityId}
                             />
-                            {link.vaultFolderPath && (
-                              <div className="text-[9px] font-mono text-emerald-400/80 line-clamp-1 flex items-center gap-1">
-                                <Folder className="w-3 h-3 shrink-0" />
+                            {'vaultFolderPath' in link && link.vaultFolderPath && (
+                              <div className="flex items-center gap-1 line-clamp-1 font-mono text-[9px] text-emerald-500">
+                                <Folder className="h-3 w-3 shrink-0" />
                                 {link.vaultFolderPath}
                               </div>
                             )}
-                            {link.mappingStatus && (
-                              <span className="text-[9px] text-slate-500">
-                                Review: {link.mappingStatus}
-                              </span>
-                            )}
                           </div>
-                          <DriveLinkBadge key={i} url={link.url} label={link.description || 'Drive Document'} billDetails={link.billDetails} utilityConnectionSnapshot={link.utilityConnectionSnapshot} facilityId={req.facilityId} />
                         ))
                       ) : (
-                        <span className="text-slate-500 text-xs italic">No document submitted</span>
+                        <span className="text-xs italic text-slate-500">No document submitted</span>
                       )}
                     </div>
                   </td>
                   <td className="py-3.5 px-4 text-center">
-                    <button
-                      onClick={() => {
-                        setSelectedReq(req);
-                        setDriveUrl('');
-                        setFileDescription('');
-                        setConnection({ providerName: req.utilityConnection?.providerName || '', connectionType: req.utilityConnection?.connectionType || '', subDivision: req.utilityConnection?.subDivision || '', circle: req.utilityConnection?.circle || '', consumerAccountNumber: req.utilityConnection?.consumerAccountNumber || '', consumerName: req.utilityConnection?.consumerName || '', meterNumber: req.utilityConnection?.meterNumber || '', contractDemand: req.utilityConnection?.contractDemand || '' });
-                        setBill({ invoiceNumber: '', billingFrom: '', billingTo: '', consumptionKwh: '', billAmount: '' });
-                      }}
-                      className="px-2 py-1.5 w-28 text-xs font-semibold rounded-md bg-emerald-700 hover:bg-emerald-800 text-white transition-colors shadow-sm"
-                    >
+                    <button type="button" onClick={() => openSubmissionForm(requirement)} className="w-28 rounded-md bg-emerald-700 px-2 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-emerald-800">
                       + Submit Link
                     </button>
                   </td>
                 </tr>
               ))}
+              {requirements.length === 0 && (
+                <tr><td colSpan={7} className="px-4 py-10 text-center text-sm text-slate-500">No data requests are currently assigned to your facilities.</td></tr>
+              )}
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* Google Drive Link Submission Modal (Acceptance Step 6) */}
       {selectedReq && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in">
-          <div className="relative w-full max-w-md bg-slate-900 border border-slate-700 rounded-md shadow-2xl p-6">
-
-          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-6">
-            <h3 className="text-sm font-bold text-white mb-1">
-              Submit Google Drive Evidence
-            </h3>
-            <p className="text-xs   mb-4">
-              Requirement: <strong className="   dark:text-white">{selectedReq.title}</strong>
-            </p>
-
-            <form onSubmit={handleSubmitDriveLink} className="space-y-4">
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/75 p-3 backdrop-blur-sm" role="presentation">
+          <div className="relative max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-xl border border-slate-700 bg-slate-900 p-5 shadow-2xl sm:p-6" role="dialog" aria-modal="true" aria-labelledby="submission-dialog-title">
+            <div className="mb-5 flex items-start justify-between gap-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Google Drive Link (URL):
-                </label>
-                <input
-                  type="url"
-                  required
-                  placeholder="https://drive.google.com/file/d/..."
-                  value={driveUrl}
-                  onChange={(e) => setDriveUrl(e.target.value)}
-                  className="w-full px-3 py-2 text-xs bg-slate-950 border border-slate-700 rounded-lg    dark:text-white focus:outline-none focus:border-emerald-600"
-                />
-                <span className="text-[10px] text-slate-500 mt-1 block">
-                  Share the file/folder with your Carbon Crunch service account (or &quot;Anyone with
-                  link&quot;). The system copies it into the shared compliance Drive under{' '}
-                  <span className="font-mono text-emerald-400/90">Client_Submissions/…</span>.
-                </span>
+                <h2 id="submission-dialog-title" className="text-sm font-bold text-white">Submit Google Drive Evidence</h2>
+                <p className="mt-1 text-xs text-slate-400">Requirement: <strong className="text-white">{selectedReq.title}</strong></p>
+                <p className="mt-1 text-[10px] text-slate-500">Facility: {selectedReq.facilityId} · Period: {selectedReq.period}</p>
+              </div>
+              <button type="button" onClick={resetForm} aria-label="Close submission form" className="rounded-md p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white"><X className="h-4 w-4" /></button>
+            </div>
+
+            <form noValidate onSubmit={handleSubmit} className="space-y-5">
+              <div>
+                <label htmlFor="drive-url" className="mb-1 block text-xs font-semibold text-slate-300">Google Drive / Google Docs URL</label>
+                <input id="drive-url" type="url" value={driveUrl} onChange={(event) => setDriveUrl(event.target.value)} placeholder="https://drive.google.com/file/d/..." className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-xs text-white outline-none focus:border-emerald-600" />
+                <p className="mt-1 text-[10px] text-slate-500">The link must be accessible to the consultant. Previewing the entered data does not upload or save anything.</p>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Document Description / File Name:
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Q1 Monthly Grid Consumption Excel (Apr-Jun 2025)"
-                  value={fileDescription}
-                  onChange={(e) => setFileDescription(e.target.value)}
-                  className="w-full px-3 py-2 text-xs bg-slate-950 border border-slate-700 rounded-lg    dark:text-white focus:outline-none focus:border-emerald-600"
-                />
+                <label htmlFor="file-description" className="mb-1 block text-xs font-semibold text-slate-300">Document description / file name</label>
+                <input id="file-description" type="text" value={fileDescription} onChange={(event) => setFileDescription(event.target.value)} placeholder="e.g. April 2025 electricity bill" className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-xs text-white outline-none focus:border-emerald-600" />
               </div>
 
-              {isElectricityRequest && <>
-              <div className="border-t border-slate-800 pt-4 space-y-3">
-                <div><h4 className="text-xs font-bold text-white">Facility electricity connection</h4><p className="text-[10px] text-slate-500">Saved against this facility and reused for its future submissions.</p></div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {([['providerName','Electricity provider'],['connectionType','Connection type'],['subDivision','Sub-division'],['circle','Circle'],['consumerAccountNumber','Consumer account number'],['consumerName','Consumer name'],['meterNumber','Meter number'],['contractDemand','Contract demand']] as const).map(([key,label]) => <label key={key} className="block text-xs text-slate-300">{label}<input required value={connection[key]} onChange={(e) => setConnectionField(key,e.target.value)} placeholder={label} className="mt-1 w-full px-3 py-2 text-xs bg-slate-950 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-emerald-600" /></label>)}
-                </div>
-              </div>
-              <div className="border-t border-slate-800 pt-4 space-y-3">
-                <div><h4 className="text-xs font-bold text-white">This electricity bill</h4><p className="text-[10px] text-slate-500">These values belong only to this bill submission.</p></div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {([['invoiceNumber','Invoice number'],['billingFrom','Billing period from'],['billingTo','Billing period to'],['consumptionKwh','Consumption (kWh)'],['billAmount','Bill amount (₹)']] as const).map(([key,label]) => <label key={key} className="block text-xs text-slate-300">{label}<input required type={key === 'billingFrom' || key === 'billingTo' ? 'date' : key === 'consumptionKwh' || key === 'billAmount' ? 'number' : 'text'} min={key === 'consumptionKwh' || key === 'billAmount' ? '0' : undefined} step={key === 'consumptionKwh' || key === 'billAmount' ? 'any' : undefined} value={bill[key]} onChange={(e) => setBillField(key,e.target.value)} placeholder={label} className="mt-1 w-full px-3 py-2 text-xs bg-slate-950 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-emerald-600" /></label>)}
-                </div>
-              </div>
-              </>}
+              {isElectricityRequest && (
+                <>
+                  <section className="space-y-3 border-t border-slate-800 pt-4">
+                    <div>
+                      <h3 className="text-xs font-bold text-white">Facility electricity connection</h3>
+                      <p className="text-[10px] text-slate-500">These connection details are saved on the facility and copied into this submission as a historical snapshot.</p>
+                    </div>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      {([
+                        ['providerName', 'Electricity provider'],
+                        ['connectionType', 'Connection type'],
+                        ['subDivision', 'Sub-division'],
+                        ['circle', 'Circle'],
+                        ['consumerAccountNumber', 'Consumer account number'],
+                        ['consumerName', 'Consumer name'],
+                        ['meterNumber', 'Meter number'],
+                        ['contractDemand', 'Contract demand'],
+                      ] as const).map(([key, label]) => (
+                        <label key={key} className="block text-xs text-slate-300">
+                          {label}
+                          <input required value={connection[key]} onChange={(event) => setConnection((current) => ({ ...current, [key]: event.target.value }))} placeholder={label} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-xs text-white outline-none focus:border-emerald-600" />
+                        </label>
+                      ))}
+                    </div>
+                  </section>
 
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setSelectedReq(null)}
-                  className="px-3 py-1.5 text-xs text-black hover:text-white border border-slate-700 rounded-md"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="px-4 py-1.5 text-xs font-bold rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm disabled:opacity-50"
-                >
-                  {isSubmitting ? 'Submitting...' : 'Upload Link'}
+                  <section className="space-y-3 border-t border-slate-800 pt-4">
+                    <div>
+                      <h3 className="text-xs font-bold text-white">This electricity bill</h3>
+                      <p className="text-[10px] text-slate-500">These values are stored separately for each bill submission.</p>
+                    </div>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      {([
+                        ['invoiceNumber', 'Invoice number', 'text'],
+                        ['billingFrom', 'Billing period from', 'date'],
+                        ['billingTo', 'Billing period to', 'date'],
+                        ['consumptionKwh', 'Consumption (kWh)', 'number'],
+                        ['billAmount', 'Bill amount (₹)', 'number'],
+                      ] as const).map(([key, label, type]) => (
+                        <label key={key} className="block text-xs text-slate-300">
+                          {label}
+                          <input required type={type} min={type === 'number' ? '0' : undefined} step={type === 'number' ? 'any' : undefined} value={bill[key]} onChange={(event) => setBill((current) => ({ ...current, [key]: event.target.value }))} placeholder={type === 'number' ? '0' : label} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-xs text-white outline-none focus:border-emerald-600" />
+                        </label>
+                      ))}
+                    </div>
+                  </section>
+                </>
+              )}
+
+              <div className="flex flex-wrap justify-end gap-2 border-t border-slate-800 pt-4">
+                {isElectricityRequest && (
+                  <button type="button" onClick={() => setIsPreviewOpen(true)} className="inline-flex items-center gap-1.5 rounded-md border border-emerald-700 px-3 py-2 text-xs font-semibold text-emerald-300 hover:bg-emerald-950/50">
+                    <Eye className="h-3.5 w-3.5" /> Preview entered data
+                  </button>
+                )}
+                <button type="button" onClick={resetForm} className="rounded-md border border-slate-700 px-3 py-2 text-xs text-slate-300 hover:bg-slate-800">Cancel</button>
+                <button type="submit" disabled={isSubmitting} className="inline-flex items-center gap-1.5 rounded-md bg-emerald-700 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50">
+                  <UploadCloud className="h-3.5 w-3.5" />
+                  {isSubmitting ? 'Submitting...' : 'Submit evidence'}
                 </button>
               </div>
             </form>
           </div>
         </div>
+      )}
+
+      {selectedReq && isElectricityRequest && (
+        <EvidenceDocumentModal
+          isOpen={isPreviewOpen}
+          onClose={() => setIsPreviewOpen(false)}
+          url={driveUrl}
+          label={`Client-entered electricity bill · ${selectedReq.title}`}
+          facilityId={selectedReq.facilityId}
+          utilityConnectionSnapshot={connection}
+          billDetails={{
+            invoiceNumber: bill.invoiceNumber,
+            billingFrom: bill.billingFrom,
+            billingTo: bill.billingTo,
+            consumptionKwh: bill.consumptionKwh === '' ? null : Number(bill.consumptionKwh),
+            billAmount: bill.billAmount === '' ? null : Number(bill.billAmount),
+          }}
+          isDraftPreview
+        />
       )}
     </div>
   );
