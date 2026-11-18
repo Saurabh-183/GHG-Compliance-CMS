@@ -18,6 +18,23 @@ export interface IDataRequirementDocument extends Document {
     submittedAt: Date;
     submittedBy: string;
     description: string;
+    sourceUrl?: string;
+    vaultUrl?: string;
+    vaultFolderUrl?: string;
+    vaultFolderPath?: string;
+    vaultCategory?: string;
+    driveFileId?: string;
+    driveFolderId?: string;
+    vaultFileId?: string;
+    vaultTargetFolderId?: string;
+    fileName?: string;
+    mappingStatus?: 'PENDING' | 'MAPPED' | 'VERIFIED' | 'REJECTED';
+    mappedMonth?: string;
+    mappedDatasetId?: mongoose.Types.ObjectId;
+    mappedAt?: Date;
+    mappedBy?: string;
+    verificationNotes?: string;
+    ingestionMode?: 'VAULT_INDEXED' | 'DRIVE_API_COPIED';
   }>;
   datasetId?: mongoose.Types.ObjectId;
   createdAt: Date;
@@ -69,6 +86,27 @@ const DataRequirementSchema = new Schema<IDataRequirementDocument>(
         submittedAt: { type: Date, default: Date.now },
         submittedBy: { type: String, required: true },
         description: { type: String, default: '' },
+        sourceUrl: { type: String },
+        vaultUrl: { type: String },
+        vaultFolderUrl: { type: String },
+        vaultFolderPath: { type: String },
+        vaultCategory: { type: String },
+        driveFileId: { type: String },
+        driveFolderId: { type: String },
+        vaultFileId: { type: String },
+        vaultTargetFolderId: { type: String },
+        fileName: { type: String },
+        mappingStatus: {
+          type: String,
+          enum: ['PENDING', 'MAPPED', 'VERIFIED', 'REJECTED'],
+          default: 'PENDING',
+        },
+        mappedMonth: { type: String },
+        mappedDatasetId: { type: Schema.Types.ObjectId, ref: 'Dataset' },
+        mappedAt: { type: Date },
+        mappedBy: { type: String },
+        verificationNotes: { type: String },
+        ingestionMode: { type: String, enum: ['VAULT_INDEXED', 'DRIVE_API_COPIED'] },
       },
     ],
     datasetId: { type: Schema.Types.ObjectId, ref: 'Dataset' },
