@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import { Select, MenuItem, FormControl } from '@mui/material';
+import { useAuth } from '@/context/AuthContext';
 import { IAssessment, IComparisonRow } from '@/types';
 import { HistoricalComparisonChart } from '@/components/compliance/HistoricalComparisonChart';
 import {
@@ -15,6 +17,8 @@ import {
 } from 'lucide-react';
 
 export default function AssessmentComparisonPage() {
+  const { theme } = useAuth();
+  const isDark = theme === 'dark';
   const params = useParams();
   const assessmentId = params.assessmentId as string;
   const [assessment1, setAssessment1] = useState<IAssessment | null>(null);
@@ -115,21 +119,57 @@ export default function AssessmentComparisonPage() {
         </div>
 
         {/* Period Selector Controls */}
-        <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-950/60 p-3 rounded-lg border border-slate-200 dark:border-slate-800">
-          <label className="text-xs text-slate-600 dark:text-slate-400 font-medium">Compare With Period:</label>
-          <select
-            value={selectedPeriod}
-            onChange={(e) => setSelectedPeriod(e.target.value)}
-            className="px-3 py-1 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded text-slate-900 dark:text-white font-medium focus:outline-none focus:border-emerald-500"
-          >
-            {availablePeriods
-              .filter((p) => p !== period1Name)
-              .map((p) => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-          </select>
+        <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-950/60 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800">
+          <label className="text-xs text-slate-600 dark:text-slate-400 font-semibold">Compare With Period:</label>
+          <FormControl size="small" sx={{ minWidth: 160 }}>
+            <Select
+              value={selectedPeriod}
+              onChange={(e) => setSelectedPeriod(e.target.value)}
+              sx={{
+                height: 34,
+                fontSize: '12px',
+                fontWeight: 600,
+                borderRadius: '8px',
+                backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                color: isDark ? '#FFFFFF' : '#1E293B',
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
+                },
+                '&:hover .MuiOutlinedInput-notchedOutline': {
+                  borderColor: isDark ? '#34D399' : '#059669',
+                },
+                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                  borderColor: isDark ? '#34D399' : '#059669',
+                  borderWidth: '1.5px',
+                },
+                '& .MuiSelect-select': {
+                  py: '4px',
+                  px: '10px',
+                },
+              }}
+              MenuProps={{
+                slotProps: {
+                  paper: {
+                    sx: {
+                      backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                      color: isDark ? '#FFFFFF' : '#1E293B',
+                      borderRadius: '8px',
+                      border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0'}`,
+                      '& .MuiList-root': { py: '4px' },
+                    },
+                  },
+                },
+              }}
+            >
+              {availablePeriods
+                .filter((p) => p !== period1Name)
+                .map((p) => (
+                  <MenuItem key={p} value={p} sx={{ fontSize: '12px', fontWeight: 600 }}>
+                    {p}
+                  </MenuItem>
+                ))}
+            </Select>
+          </FormControl>
         </div>
       </div>
 

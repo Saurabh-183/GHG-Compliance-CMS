@@ -24,7 +24,10 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
   type = 'workflow',
   size = 'md',
 }) => {
-  const sizeClasses = size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-1 text-xs font-medium';
+  const sizeClasses =
+    size === 'sm'
+      ? 'px-2 py-0.5 text-xs whitespace-nowrap shrink-0'
+      : 'px-2.5 py-1 text-xs font-medium whitespace-nowrap shrink-0';
 
   // Workflow Status styling
   if (type === 'workflow' || ['NOT_STARTED', 'DATA_COLLECTION', 'UNDER_REVIEW', 'APPROVED', 'SUBMITTED'].includes(status)) {

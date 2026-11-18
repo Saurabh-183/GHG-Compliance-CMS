@@ -2,6 +2,8 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { Select, MenuItem, FormControl } from '@mui/material';
+import { useAuth } from '@/context/AuthContext';
 import { DriveLinkBadge } from '@/components/common/DriveLinkBadge';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import { formatDate } from '@/lib/utils';
@@ -33,6 +35,8 @@ export const ClientUploadsPanel: React.FC<ClientUploadsPanelProps> = ({
   compact = false,
   title = 'Client Document Uploads (Google Drive Vault)',
 }) => {
+  const { theme } = useAuth();
+  const isDark = theme === 'dark';
   const [uploads, setUploads] = useState<ClientUploadListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
@@ -193,17 +197,52 @@ export const ClientUploadsPanel: React.FC<ClientUploadsPanelProps> = ({
         </div>
         <div className="flex items-center gap-2">
           <Filter className="w-3.5 h-3.5 text-slate-400" />
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-2 py-1.5"
-          >
-            <option value="ALL">All statuses</option>
-            <option value="PENDING">Pending mapping</option>
-            <option value="MAPPED">Mapped</option>
-            <option value="VERIFIED">Verified</option>
-            <option value="REJECTED">Rejected</option>
-          </select>
+          <FormControl size="small" sx={{ minWidth: 140 }}>
+            <Select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              sx={{
+                height: 32,
+                fontSize: '11px',
+                borderRadius: '8px',
+                backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                color: isDark ? '#FFFFFF' : '#1E293B',
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
+                },
+                '&:hover .MuiOutlinedInput-notchedOutline': {
+                  borderColor: isDark ? '#34D399' : '#059669',
+                },
+                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                  borderColor: isDark ? '#34D399' : '#059669',
+                  borderWidth: '1.5px',
+                },
+                '& .MuiSelect-select': {
+                  py: '4px',
+                  px: '10px',
+                },
+              }}
+              MenuProps={{
+                slotProps: {
+                  paper: {
+                    sx: {
+                      backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                      color: isDark ? '#FFFFFF' : '#1E293B',
+                      borderRadius: '8px',
+                      border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0'}`,
+                      '& .MuiList-root': { py: '4px' },
+                    },
+                  },
+                },
+              }}
+            >
+              <MenuItem value="ALL" sx={{ fontSize: '11px' }}>All statuses</MenuItem>
+              <MenuItem value="PENDING" sx={{ fontSize: '11px' }}>Pending mapping</MenuItem>
+              <MenuItem value="MAPPED" sx={{ fontSize: '11px' }}>Mapped</MenuItem>
+              <MenuItem value="VERIFIED" sx={{ fontSize: '11px' }}>Verified</MenuItem>
+              <MenuItem value="REJECTED" sx={{ fontSize: '11px' }}>Rejected</MenuItem>
+            </Select>
+          </FormControl>
           {!compact && (
             <a
               href={vaultRootUrl}
