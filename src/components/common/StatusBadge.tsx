@@ -60,8 +60,8 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
       case 'NOT_STARTED':
       default:
         return (
-          <span className={`inline-flex items-center rounded-full border cc-badge-neutral ${sizeClasses}`}>
-            <span className="w-1.5 h-1.5 rounded-full mr-1.5 cc-dot"></span>
+          <span className={`inline-flex items-center rounded-md lborder cc-badge-neutral ${sizeClasses}`}>
+            <span className="w-1.5 h-1.5 rounded-md mr-1.5 cc-dot"></span>
             Not Started
           </span>
         );

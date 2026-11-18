@@ -1,20 +1,13 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { IAssessment } from '@/types';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { DriveLinkBadge } from '@/components/common/DriveLinkBadge';
 import {
   ShieldCheck,
-  Building2,
-  Calendar,
-  Folder,
-  FileText,
   CheckCircle2,
-  ExternalLink,
 } from 'lucide-react';
-import { formatDate } from '@/lib/utils';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 
 export default function ClientHistoryPage() {
@@ -27,7 +20,6 @@ export default function ClientHistoryPage() {
         const res = await fetch('/api/assessments');
         if (res.ok) {
           const json = (await res.json()) as { data: IAssessment[] };
-          // Client only sees approved assessments
           setAssessments((json.data || []).filter((a) => a.workflowStatus === 'APPROVED'));
         }
       } catch (e) {
@@ -44,11 +36,9 @@ export default function ClientHistoryPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2.5">
+          <h1 className="text-2xl font-bold text-black dark:text-white flex items-center gap-2.5">
             <ShieldCheck className="w-6 h-6 text-emerald-400" />
             Approved Historical Compliance Records & Reports
           </h1>
@@ -63,7 +53,7 @@ export default function ClientHistoryPage() {
         {assessments.map((item) => (
           <div
             key={item._id}
-            className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 shadow-xl space-y-5"
+            className="rounded-md border border-slate-800 bg-slate-900/60 p-6 shadow-xl space-y-5"
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800/80">
               <div className="space-y-1">
@@ -71,7 +61,7 @@ export default function ClientHistoryPage() {
                   <span className="px-2 py-0.5 rounded font-mono font-bold text-xs bg-slate-800 text-emerald-400 border border-slate-700">
                     {item.facilityId}
                   </span>
-                  <h3 className="text-lg font-bold text-white">
+                  <h3 className="text-lg font-bold text-black dark:text-white">
                     {item.complianceType} Compliance — {item.period}
                   </h3>
                 </div>

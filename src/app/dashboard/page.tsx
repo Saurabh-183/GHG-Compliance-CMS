@@ -170,7 +170,7 @@ export default function DashboardPage() {
       {/* Dynamic Metric Cards Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Card 1: Assigned Facilities */}
-        <div className="p-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm">
+        <div className="p-5 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-slate-500 dark: ">
               {selectedGroup ? 'Assigned Operating Units' : 'Assigned Facilities'}
@@ -190,7 +190,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Card 2: Active Compliances */}
-        <div className="p-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm">
+        <div className="p-5 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-slate-500 dark: ">Active Compliances</span>
             <TrendingUp className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
@@ -204,7 +204,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Card 3: Open Clarifications / Discrepancies */}
-        <div className="p-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm">
+        <div className="p-5 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-slate-500 dark: ">Open Clarifications</span>
             <AlertTriangle className={`w-4 h-4 ${isTridentSelected ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`} />
@@ -218,7 +218,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Card 4: Upcoming Filings */}
-        <div className="p-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm">
+        <div className="p-5 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-slate-500 dark: ">Upcoming Filings</span>
             <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
@@ -236,7 +236,7 @@ export default function DashboardPage() {
 
       {/* Discrepancy Action Banner */}
       {isTridentSelected && clarifications.length > 0 ? (
-        <div className="rounded-xl border border-rose-200 dark:border-rose-500/30 bg-rose-50 dark:bg-rose-950/20 p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="rounded-md border border-rose-200 dark:border-rose-500/30 bg-rose-50 dark:bg-rose-950/20 p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-start gap-3">
             <div className="p-2 rounded-lg bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-400 mt-0.5">
               <AlertTriangle className="w-5 h-5" />
@@ -266,7 +266,7 @@ export default function DashboardPage() {
           </Link>
         </div>
       ) : selectedGroup ? (
-        <div className="rounded-xl border border-emerald-200 dark:border-emerald-500/30 bg-emerald-50 dark:bg-emerald-950/20 p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="rounded-md border border-emerald-200 dark:border-emerald-500/30 bg-emerald-50 dark:bg-emerald-950/20 p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-start gap-3">
             <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-400 mt-0.5">
               <CheckCircle2 className="w-5 h-5" />
@@ -337,7 +337,7 @@ export default function DashboardPage() {
       {/* Two Column Grid: Upcoming Deadlines & Dynamic Registered Facilities */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Compliance Deadlines */}
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-5 shadow-sm space-y-4">
+        <div className="rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-5 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
               <Calendar className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
@@ -387,7 +387,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Dynamic Registered Client Facilities List */}
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-5 shadow-sm space-y-4">
+        <div className="rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-5 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
               <Building2 className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />

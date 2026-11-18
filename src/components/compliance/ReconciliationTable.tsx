@@ -215,7 +215,7 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Google Drive Connection & Quick Action Strip */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-md bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-xs">
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800 shrink-0">
             <Folder className="w-5 h-5" />
@@ -259,7 +259,7 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
       {/* Prominent PRD Metrics: Data Given Percentage & Data Matched Percentage */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* KPI 1: Data Given Percentage */}
-        <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 shadow-xs space-y-2">
+        <div className="p-4 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 shadow-xs space-y-2">
           <div className="flex items-center justify-between text-slate-500 dark:  text-xs font-semibold">
             <span>Data Given Percentage</span>
             <TrendingUp className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
@@ -291,7 +291,7 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
         </div>
 
         {/* KPI 2: Data Matched Percentage */}
-        <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 shadow-xs space-y-2">
+        <div className="p-4 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 shadow-xs space-y-2">
           <div className="flex items-center justify-between text-slate-500 dark:  text-xs font-semibold">
             <span>Data Matched Percentage</span>
             <CheckCheck className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
@@ -323,7 +323,7 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
         </div>
 
         {/* KPI 3: Evaluated Evidence Count */}
-        <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 shadow-xs space-y-2">
+        <div className="p-4 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 shadow-xs space-y-2">
           <div className="flex items-center justify-between text-slate-500 dark:  text-xs font-semibold">
             <span>Evidence Provided</span>
             <Folder className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
@@ -341,7 +341,7 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
         </div>
 
         {/* KPI 4: Discrepancy & Flagged Variance */}
-        <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 shadow-xs space-y-2">
+        <div className="p-4 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 shadow-xs space-y-2">
           <div className="flex items-center justify-between text-slate-500 dark:  text-xs font-semibold">
             <span>Flagged Discrepancies</span>
             <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400" />
@@ -360,7 +360,7 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
       </div>
 
       {/* Reconciliation Main Header & Controls */}
-      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-4 sm:p-6 shadow-md">
+      <div className="rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-4 sm:p-6 shadow-md">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2.5">
@@ -637,7 +637,7 @@ export const ReconciliationTable: React.FC<ReconciliationTableProps> = ({
 
       {/* Audit Log / History Drawer */}
       {dataset.auditTrail && dataset.auditTrail.length > 0 && (
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 p-4">
+        <div className="rounded-md border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 p-4">
           <h4 className="text-xs font-semibold text-slate-800 dark:text-slate-300 flex items-center gap-2 mb-3">
             <History className="w-3.5 h-3.5 text-slate-500 dark: " />
             Verification Audit Trail & Event Log

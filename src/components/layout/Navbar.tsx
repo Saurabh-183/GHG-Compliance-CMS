@@ -247,7 +247,7 @@ export const Navbar: React.FC = () => {
         <div className="flex items-center gap-6">
           <Link
             href={isClientPortal ? '/portal' : '/dashboard'}
-            className="group flex items-center gap-2.5"
+            className="group flex items-center gap-2.5 shrink-0"
           >
             {/* Carbon Crunch logo replaces ShieldCheck */}
             <div className="flex h-10 w-10 shrink-0 items-center justify-center">
@@ -261,7 +261,7 @@ export const Navbar: React.FC = () => {
               />
             </div>
 
-            <div>
+            <div className="shrink-0">
               <div className="flex items-center gap-1.5">
                 <span
                   className={`text-sm font-bold tracking-tight ${
@@ -293,7 +293,7 @@ export const Navbar: React.FC = () => {
               </div>
 
               <p
-                className={`hidden text-[10px] font-normal tracking-wide sm:block ${
+                className={`hidden text-[9px] mt-0.5 font-normal tracking-wide sm:block ${
                   isLight ? 'text-slate-500' : ' '
                 }`}
               >
@@ -317,12 +317,12 @@ export const Navbar: React.FC = () => {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`inline-flex items-center gap-1.5 rounded-md border border-transparent px-3 py-1.5 text-xs font-medium transition-all ${getNavLinkClass(
+                  className={`inline-flex items-center gap-1.5 rounded-md border border-transparent px-2.5 py-1.5 text-xs font-medium whitespace-nowrap transition-all ${getNavLinkClass(
                     isActive
                   )}`}
                 >
                   <Icon
-                    className={`h-3.5 w-3.5 ${
+                    className={`h-3.5 w-3.5 shrink-0 ${
                       isActive
                         ? isLight
                           ? 'text-emerald-700'
@@ -340,20 +340,19 @@ export const Navbar: React.FC = () => {
         </div>
 
         {/* User controls */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          <div className="hidden text-right sm:block">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-4">
+          <div className="hidden text-right md:block">
             <div
-              className={`text-xs font-semibold ${
-                isLight ? 'text-slate-900' : '   dark:text-white'
+              className={`text-xs font-semibold whitespace-nowrap ${
+                isLight ? 'text-slate-900' : 'text-white'
               }`}
             >
               {currentUser?.name || 'User'}
             </div>
 
             <div
-              className={`text-[10px] ${
-                isLight ? 'text-slate-500' : ' '
-              }`}
+              className={`hidden 2xl:block text-[10px] text-slate-500 dark:text-slate-400 max-w-[140px] truncate mt-0.5`}
+              title={currentUser?.designation || currentRole}
             >
               {currentUser?.designation || currentRole}
             </div>
@@ -362,20 +361,23 @@ export const Navbar: React.FC = () => {
           <div
             className={`flex items-center gap-1.5 rounded-full border p-1 ${
               isLight
-                ? 'border-slate-300 bg-slate-100'
+                ? 'border-slate-300 bg-white shadow-2xs'
                 : 'border-slate-700 bg-slate-800'
             }`}
           >
             <div
-              className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-medium ${
+              className={`user-avatar flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold shrink-0 ${
                 isLight
-                  ? 'bg-emerald-700 text-white'
+                  ? 'bg-[#17365D] text-white'
                   : 'bg-emerald-800 text-emerald-100'
               }`}
+              style={isLight ? { backgroundColor: '#17365D', color: '#FFFFFF' } : undefined}
             >
-              {currentUser?.name
-                ? currentUser.name[0]
-                : 'U'}
+              <span style={isLight ? { color: '#FFFFFF' } : undefined} className="text-white">
+                {currentUser?.name
+                  ? currentUser.name[0]
+                  : 'U'}
+              </span>
             </div>
 
             <span

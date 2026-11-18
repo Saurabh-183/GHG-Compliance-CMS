@@ -220,7 +220,7 @@ export const ExcelImportModal: React.FC<ExcelImportModalProps> = ({
         {/* Modal Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/80">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-300 dark:border-emerald-500/20 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
+            <div className="w-10 h-10 rounded-md bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-300 dark:border-emerald-500/20 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
               <FileSpreadsheet className="w-5 h-5" />
             </div>
             <div>
@@ -319,7 +319,7 @@ export const ExcelImportModal: React.FC<ExcelImportModalProps> = ({
               </div>
 
               {/* File Upload Box */}
-              <div className="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-emerald-500 rounded-xl p-6 text-center bg-slate-50 dark:bg-slate-950/50 transition-all">
+              <div className="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-emerald-500 rounded-md p-6 text-center bg-slate-50 dark:bg-slate-950/50 transition-all">
                 <input
                   type="file"
                   id="excelFileInput"
@@ -427,7 +427,7 @@ export const ExcelImportModal: React.FC<ExcelImportModalProps> = ({
                 ].map((tpl) => (
                   <div
                     key={tpl.type}
-                    className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 flex flex-col justify-between space-y-3"
+                    className="p-4 rounded-md border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 flex flex-col justify-between space-y-3"
                   >
                     <div>
                       <h4 className="font-bold text-slate-900 dark:text-white text-xs">{tpl.title}</h4>

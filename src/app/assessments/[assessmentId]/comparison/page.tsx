@@ -134,7 +134,7 @@ export default function AssessmentComparisonPage() {
       </div>
 
       {/* Side-by-Side Comparison Table (PRD Section 8) */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 shadow-xl space-y-4">
+      <div className="rounded-md border border-slate-800 bg-slate-900/60 p-6 shadow-xl space-y-4">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-base font-bold text-white flex items-center gap-2">
