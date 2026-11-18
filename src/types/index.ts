@@ -154,17 +154,54 @@ export interface IAssessment {
   updatedAt: string;
 }
 
+
 export interface ISubmittedDriveLink {
   url: string;
   submittedAt: string;
   submittedBy: string;
   description: string;
+
+  // Drive Vault information
   vaultUrl?: string;
   vaultFolderPath?: string;
+  sourceUrl?: string;
+  vaultFolderUrl?: string;
+  vaultCategory?: string;
+  vaultFileId?: string;
+  driveFolderId?: string;
+  vaultTargetFolderId?: string;
+
+  // File information
+  fileName?: string;
+  ingestionMode?: string;
+
+  // Mapping and verification
   mappingStatus?: string;
-  billDetails?: { invoiceNumber: string; billingFrom: string; billingTo: string; consumptionKwh: number; billAmount: number };
-  utilityConnectionSnapshot?: { providerName: string; connectionType: string; subDivision: string; circle: string; consumerAccountNumber: string; consumerName: string; meterNumber: string; contractDemand: string };
+  mappedMonth?: string;
+  mappedDatasetId?: string;
+  verificationNotes?: string;
+
+  // Electricity bill information
+  billDetails?: {
+    invoiceNumber: string;
+    billingFrom: string;
+    billingTo: string;
+    consumptionKwh: number;
+    billAmount: number;
+  };
+
+  utilityConnectionSnapshot?: {
+    providerName: string;
+    connectionType: string;
+    subDivision: string;
+    circle: string;
+    consumerAccountNumber: string;
+    consumerName: string;
+    meterNumber: string;
+    contractDemand: string;
+  };
 }
+
 
 export interface IDataRequirement {
   _id: string;
