@@ -223,7 +223,7 @@ export default function DashboardPage() {
 
       {/* Discrepancy Action Banner */}
       {isTridentSelected && clarifications.length > 0 ? (
-        <div className="rounded-md border border-rose-200 dark:border-rose-500/30 bg-rose-50 dark:bg-rose-950/20 p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="rounded-md border border-rose-200 dark:border-rose-500/30 dark:bg-slate-900/60 p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-start gap-3">
             <div className="p-2 rounded-lg bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-400 mt-0.5">
               <AlertTriangle className="w-5 h-5" />
