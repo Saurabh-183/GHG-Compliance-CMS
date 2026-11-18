@@ -35,6 +35,8 @@ export interface IDataRequirementDocument extends Document {
     mappedBy?: string;
     verificationNotes?: string;
     ingestionMode?: 'VAULT_INDEXED' | 'DRIVE_API_COPIED';
+    billDetails?: { invoiceNumber: string; billingFrom: string; billingTo: string; consumptionKwh: number; billAmount: number; };
+    utilityConnectionSnapshot?: { providerName: string; connectionType: string; subDivision: string; circle: string; consumerAccountNumber: string; consumerName: string; meterNumber: string; contractDemand: string };
   }>;
   datasetId?: mongoose.Types.ObjectId;
   createdAt: Date;
@@ -107,6 +109,12 @@ const DataRequirementSchema = new Schema<IDataRequirementDocument>(
         mappedBy: { type: String },
         verificationNotes: { type: String },
         ingestionMode: { type: String, enum: ['VAULT_INDEXED', 'DRIVE_API_COPIED'] },
+        utilityConnectionSnapshot: { providerName: String, connectionType: String, subDivision: String, circle: String, consumerAccountNumber: String, consumerName: String, meterNumber: String, contractDemand: String },
+        billDetails: {
+          invoiceNumber: { type: String, default: '' }, billingFrom: { type: String, default: '' },
+          billingTo: { type: String, default: '' }, consumptionKwh: { type: Number, default: null },
+          billAmount: { type: Number, default: null },
+        },
       },
     ],
     datasetId: { type: Schema.Types.ObjectId, ref: 'Dataset' },

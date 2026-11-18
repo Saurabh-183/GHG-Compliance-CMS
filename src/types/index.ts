@@ -180,6 +180,8 @@ export interface ISubmittedDriveLink {
   mappedBy?: string;
   verificationNotes?: string;
   ingestionMode?: 'VAULT_INDEXED' | 'DRIVE_API_COPIED';
+  billDetails?: { invoiceNumber: string; billingFrom: string; billingTo: string; consumptionKwh: number; billAmount: number };
+  utilityConnectionSnapshot?: { providerName: string; connectionType: string; subDivision: string; circle: string; consumerAccountNumber: string; consumerName: string; meterNumber: string; contractDemand: string };
 }
 
 export interface IDataRequirement {
@@ -196,6 +198,7 @@ export interface IDataRequirement {
   requestedAt?: string;
   dueDate?: string;
   submittedDriveLinks: ISubmittedDriveLink[];
+  utilityConnection?: { providerName: string; connectionType: string; subDivision: string; circle: string; consumerAccountNumber: string; consumerName: string; meterNumber: string; contractDemand: string };
   datasetId?: string;
   createdAt: string;
   updatedAt: string;

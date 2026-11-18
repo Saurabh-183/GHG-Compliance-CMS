@@ -10,6 +10,9 @@ interface DriveLinkBadgeProps {
   isFolder?: boolean;
   className?: string;
   month?: string;
+  billDetails?: { invoiceNumber: string; billingFrom: string; billingTo: string; consumptionKwh: number; billAmount: number };
+  utilityConnectionSnapshot?: { providerName: string; connectionType: string; subDivision: string; circle: string; consumerAccountNumber: string; consumerName: string; meterNumber: string; contractDemand: string };
+  facilityId?: string;
 }
 
 export const DriveLinkBadge: React.FC<DriveLinkBadgeProps> = ({
@@ -18,6 +21,9 @@ export const DriveLinkBadge: React.FC<DriveLinkBadgeProps> = ({
   isFolder = false,
   className = '',
   month,
+  billDetails,
+  utilityConnectionSnapshot,
+  facilityId,
 }) => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
@@ -53,6 +59,9 @@ export const DriveLinkBadge: React.FC<DriveLinkBadgeProps> = ({
         url={url}
         label={label}
         month={month}
+        billDetails={billDetails}
+        utilityConnectionSnapshot={utilityConnectionSnapshot}
+        facilityId={facilityId}
       />
     </>
   );

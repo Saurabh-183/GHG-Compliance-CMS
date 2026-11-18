@@ -9,6 +9,11 @@ export interface IFacilityDocument extends Document {
   assignedConsultantId?: mongoose.Types.ObjectId;
   assignedReviewerId?: mongoose.Types.ObjectId;
   status: 'ACTIVE' | 'INACTIVE';
+  utilityConnection?: {
+    providerName: string; connectionType: string; subDivision: string; circle: string;
+    consumerAccountNumber: string; consumerName: string; meterNumber: string; contractDemand: string;
+    updatedAt?: Date; updatedBy?: string;
+  };
   driveConnection?: {
     isConnected: boolean;
     folderUrl: string;
@@ -31,6 +36,13 @@ const FacilitySchema = new Schema<IFacilityDocument>(
     assignedConsultantId: { type: Schema.Types.ObjectId, ref: 'User' },
     assignedReviewerId: { type: Schema.Types.ObjectId, ref: 'User' },
     status: { type: String, enum: ['ACTIVE', 'INACTIVE'], default: 'ACTIVE' },
+    utilityConnection: {
+      providerName: { type: String, default: '' }, connectionType: { type: String, default: '' },
+      subDivision: { type: String, default: '' }, circle: { type: String, default: '' },
+      consumerAccountNumber: { type: String, default: '' }, consumerName: { type: String, default: '' },
+      meterNumber: { type: String, default: '' }, contractDemand: { type: String, default: '' },
+      updatedAt: { type: Date }, updatedBy: { type: String },
+    },
     driveConnection: {
       isConnected: { type: Boolean, default: false },
       folderUrl: { type: String, default: '' },
