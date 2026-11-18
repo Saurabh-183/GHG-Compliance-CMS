@@ -102,11 +102,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (nextTheme === 'dark') {
       document.documentElement.classList.add('dark');
       document.documentElement.classList.remove('light');
-      notify.info('Switched to Dark Mode');
     } else {
       document.documentElement.classList.add('light');
       document.documentElement.classList.remove('dark');
-      notify.info('Switched to Light Mode');
     }
   };
 

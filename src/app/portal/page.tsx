@@ -108,27 +108,202 @@ export default function ClientRequestsPage() {
     }
   };
 
-  if (loading) {
-    return <CarbonCrunchLoader message="Loading compliance data requests..." />;
+  // Strict RBAC: Consultants cannot enter the external Client Portal
+  if (currentRole !== 'CLIENT' && currentRole !== 'ADMIN') {
+    return (
+      <div className="max-w-xl mx-auto px-4 py-24 text-center space-y-4">
+        <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-slate-900 border border-emerald-200 dark:border-slate-700 flex items-center justify-center mx-auto text-emerald-600 dark:text-emerald-400 shadow-md">
+          <Building2 className="w-7 h-7" />
+        </div>
+        <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">Client Portal Area</h2>
+        <p className="text-xs text-slate-600 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
+          Your active account role is <strong className="text-emerald-700 dark:text-emerald-400">{currentRole}</strong>.
+          The Client Portal is reserved exclusively for external industrial client representatives (e.g., Trident Group) to upload Google Drive evidence and answer clarification queries.
+        </p>
+        <div className="pt-2">
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-xs text-white font-semibold shadow-sm transition-colors"
+          >
+            <span>Return to Internal Workspace</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
-        <div>
-          <h1 className="text-2xl font-bold text-black dark:text-white flex items-center gap-2.5">
-            <FileSpreadsheet className="w-6 h-6 text-emerald-400" />
-            Outstanding Compliance Data Requests
-          </h1>
-          <p className="text-xs   mt-1">
-            Submit required energy logs, production certificates, and DISCOM invoices by pasting verified Google Drive URLs.
-          </p>
+      {/* Client Group Overview Hero */}
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-6 sm:p-8 shadow-sm dark:shadow-xl">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-wider mb-2">
+              Authorized Client Organization
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              {clientOrgName === 'TRIDENT' ? 'Trident Group' : clientOrgName} — Compliance Portal
+            </h1>
+            <p className="text-xs text-slate-600 dark:text-slate-300 mt-1.5 leading-relaxed max-w-3xl">
+              Welcome, <strong className="text-emerald-700 dark:text-emerald-400">{currentUser?.name || 'Vikram Singh'}</strong> ({currentUser?.designation || 'Head of Regulatory Affairs'}).
+              Direct visibility into authorized facilities, outstanding data submissions, Google Drive repository evidence, and verified historical reports.
+            </p>
+          </div>
+
+          <div className="flex flex-row flex-wrap items-center gap-2.5 shrink-0 self-start md:self-center">
+            <button
+              onClick={() => setIsExcelModalOpen(true)}
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs shadow-sm transition-colors whitespace-nowrap"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Compliance Excel Templates</span>
+            </button>
+
+            <button
+              onClick={() => setIsDriveModalOpen(true)}
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-white border border-slate-300 dark:border-slate-700 font-semibold text-xs shadow-xs transition-colors whitespace-nowrap"
+            >
+              <Folder className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span>Drive Evidence Vault</span>
+            </button>
+          </div>
+        </div>
+
+        {/* PRD Highlights: Data Given % & Data Matched % */}
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-800 text-xs">
+          <div className="p-3.5 rounded-md bg-slate-950/60 border border-slate-800 space-y-1">
+            <div className="flex items-center justify-between  ">
+              <span className="font-semibold uppercase tracking-wider text-[10px]">Data Given</span>
+              <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
+            </div>
+            <div className="text-xl font-extrabold text-slate-900 dark:text-white">100%</div>
+            <p className="text-[11px] text-slate-500">12/12 months submitted by your units</p>
+          </div>
+
+          <div className="p-3.5 rounded-md bg-slate-950/60 border border-slate-800 space-y-1">
+            <div className="flex items-center justify-between  ">
+              <span className="font-semibold uppercase tracking-wider text-[10px]">Data Matched</span>
+              <CheckCheck className="w-3.5 h-3.5 text-emerald-400" />
+            </div>
+            <div className="text-xl font-extrabold text-slate-900 dark:text-white">75.0%</div>
+            <p className="text-[11px] text-slate-500">3 of 4 audited months verified</p>
+          </div>
+
+          <div className="p-3.5 rounded-md bg-slate-950/60 border border-slate-800 space-y-1">
+            <div className="flex items-center justify-between  ">
+              <span className="font-semibold uppercase tracking-wider text-[10px]">Operating Facilities</span>
+              <Building2 className="w-3.5 h-3.5 text-emerald-400" />
+            </div>
+            <div className="text-xl font-bold text-slate-900 dark:text-white">{facilities.length} Units</div>
+            <p className="text-[11px] text-slate-500">Paper, Yarn, Home Textiles</p>
+          </div>
+
+          <div className="p-3.5 rounded-md bg-slate-950/60 border border-slate-800 space-y-1">
+            <div className="flex items-center justify-between  ">
+              <span className="font-semibold uppercase tracking-wider text-[10px]">Action Items</span>
+              <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
+            </div>
+            <div className="text-xl font-bold text-rose-400">{openClarifications.length} Query</div>
+            <p className="text-[11px] text-slate-500">June 2025 PSPCL Bill Clarification</p>
+          </div>
         </div>
       </div>
 
-      {/* Requests Table */}
-      <div className="rounded-md border border-slate-800 bg-slate-900/60 p-6 space-y-4">
+      {/* Action Required: Discrepancy & Clarification Response */}
+      {openClarifications.length > 0 && (
+        <div className="rounded-lg bg-white dark:bg-slate-800 border border-rose-500/40 p-5 shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <div className="p-2 rounded-lg text-rose-400 mt-0.5">
+              <AlertTriangle className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-rose-300 dark:text-rose-400 dark:border-rose-500/30">
+                  Regulatory Query / Clarification Raised by Carbon Crunch
+                </h3>
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                  Action Required
+                </span>
+              </div>
+              <p className="text-xs text-gray-800 mt-2">
+                Consultant flagged a 15,000 kWh variance between your June 2025 Excel and electricity bill. Please provide explanation or revised bill.
+              </p>
+            </div>
+          </div>
+
+          <Link
+            href="/portal/submissions"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition-all shadow-md shrink-0"
+          >
+            <span>Respond with Revised Link</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+      )}
+
+      {/* Authorized Facilities Grid */}
+      <div className="space-y-4">
+        <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <Building2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+          Your Authorized Operating Facilities
+        </h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {facilities.map((facility) => (
+            <div
+              key={facility._id}
+              className="rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-5 shadow-sm flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-all"
+            >
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-emerald-700 dark:text-emerald-400 border border-slate-200 dark:border-slate-700">
+                    {facility.facilityId}
+                  </span>
+                  <span className="text-[10px] text-slate-500 uppercase">{facility.location}</span>
+                </div>
+                <h3 className="text-base font-bold text-slate-900 dark:text-white">{facility.name}</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{facility.category}</p>
+              </div>
+
+              <div className="pt-4 mt-4 border-t border-slate-800/80 flex items-center justify-between">
+                <span className="text-[11px]  ">
+                  Obligations: <strong>RCO, PAT, CCTS, CEA</strong>
+                </span>
+                <Link
+                  href={`/portal/facilities/${facility.facilityId}`}
+                  className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1"
+                >
+                  <span>View Overview</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Outstanding Data Requests Table */}
+      <div className="rounded-md border border-slate-800 bg-slate-900/60 p-6 shadow-md space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <FileSpreadsheet className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+              Outstanding Compliance Data Requests
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Submit monthly energy logs, utility bills, and fuel lab test reports by attaching Google Drive URLs.
+            </p>
+          </div>
+          <Link
+            href="/portal/requests"
+            className="text-xs text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1"
+          >
+            <span>View All ({pendingRequests.length})</span>
+            <ArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
+
         <div className="overflow-x-auto rounded-lg border border-slate-800">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -199,6 +374,16 @@ export default function ClientRequestsPage() {
         </div>
       </div>
 
+      {/* Approved Historical Assessments & Reports */}
+      <div className="rounded-md border border-slate-800 bg-slate-900/60 p-6 shadow-md space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+              Released & Approved Compliance Filings
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Official filings and submission acknowledgements certified by Carbon Crunch auditor.
       {/* Google Drive Link Submission Modal (Acceptance Step 6) */}
       {selectedReq && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in">
@@ -229,6 +414,29 @@ export default function ClientRequestsPage() {
                 </span>
               </div>
 
+      {/* Google Drive Evidence Vault Repository Files */}
+      {driveFiles.length > 0 && (
+        <div className="rounded-md border border-slate-800 bg-slate-900/60 p-6 shadow-xl space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <Folder className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                Google Drive Corporate Compliance Vault ({driveFiles.length} Documents)
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                Official invoices, energy sheets, and certificates residing directly in the Google Drive compliance repository.
+              </p>
+            </div>
+            <a
+              href={process.env.NEXT_PUBLIC_GDRIVE_FOLDER_URL || GOOGLE_DRIVE_FOLDER_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-2 py-1 text-xs font-semibold rounded-md text-blue-600 border border-blue-600/60 hover:bg-blue-600 hover:text-white transition-colors self-start sm:self-center"
+            >
+              <span>Browse Google Drive Folder</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
               <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-1">
                   Document Description / File Name:
