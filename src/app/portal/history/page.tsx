@@ -53,19 +53,19 @@ export default function ClientHistoryPage() {
         {assessments.map((item) => (
           <div
             key={item._id}
-            className="rounded-md border border-slate-800 bg-slate-900/60 p-6 shadow-xl space-y-5"
+            className="rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-6 shadow-xl space-y-5"
           >
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800/80">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800/80">
               <div className="space-y-1">
                 <div className="flex items-center gap-2.5">
-                  <span className="px-2 py-0.5 rounded font-mono font-bold text-xs bg-slate-800 text-emerald-400 border border-slate-700">
+                  <span className="px-2 py-0.5 rounded font-mono font-bold text-xs bg-slate-100 text-emerald-800 border border-slate-200 dark:bg-slate-800 dark:text-emerald-400 dark:border-slate-700">
                     {item.facilityId}
                   </span>
-                  <h3 className="text-lg font-bold text-black dark:text-white">
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                     {item.complianceType} Compliance — {item.period}
                   </h3>
                 </div>
-                <p className="text-xs  ">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   Approved & Verified Version v{item.version}
                 </p>
               </div>
@@ -78,14 +78,14 @@ export default function ClientHistoryPage() {
 
             {/* Approved Metrics Grid */}
             <div>
-              <h4 className="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2.5">
+              <h4 className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2.5">
                 Approved Summary Parameters
               </h4>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {item.metrics.map((m, idx) => (
-                  <div key={idx} className="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
-                    <div className="text-[11px]  ">{m.name}</div>
-                    <div className="text-sm font-bold text-emerald-400 font-mono mt-0.5">
+                  <div key={idx} className="p-3 rounded-lg bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
+                    <div className="text-[11px] text-slate-500 dark:text-slate-400">{m.name}</div>
+                    <div className="text-sm font-bold text-emerald-700 dark:text-emerald-400 font-mono mt-0.5">
                       {m.value} <span className="text-[10px] text-slate-500 font-normal">{m.unit}</span>
                     </div>
                   </div>
@@ -94,15 +94,15 @@ export default function ClientHistoryPage() {
             </div>
 
             {/* Final Report & Submission Acknowledgement Links */}
-            <div className="pt-2 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-4">
+            <div className="pt-2 border-t border-slate-200 dark:border-slate-800/80 flex flex-wrap items-center justify-between gap-4">
               <div className="flex flex-wrap items-center gap-3">
                 <DriveLinkBadge url={item.documentLinks?.finalReportUrl} label="Final Assessment Report" />
                 <DriveLinkBadge url={item.documentLinks?.submissionAckUrl} label="Regulatory Submission Ack" />
                 <DriveLinkBadge url={item.documentLinks?.calculationWorkbookUrl} label="Calculation Model" />
               </div>
 
-              <div className="text-xs   flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                 <span>Audited & verified on Google Drive</span>
               </div>
             </div>

@@ -83,12 +83,12 @@ export default function ClientPortalDashboard() {
   if (currentRole !== 'CLIENT' && currentRole !== 'ADMIN') {
     return (
       <div className="max-w-xl mx-auto px-4 py-24 text-center space-y-4">
-        <div className="w-14 h-14 rounded-2xl bg-slate-900 border border-slate-700 flex items-center justify-center mx-auto text-emerald-400 shadow-md">
+        <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-slate-900 border border-emerald-200 dark:border-slate-700 flex items-center justify-center mx-auto text-emerald-600 dark:text-emerald-400 shadow-md">
           <Building2 className="w-7 h-7" />
         </div>
-        <h2 className="text-xl font-extrabold text-white">Client Portal Area</h2>
-        <p className="text-xs   max-w-md mx-auto leading-relaxed">
-          Your active account role is <strong className="text-emerald-400">{currentRole}</strong>.
+        <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">Client Portal Area</h2>
+        <p className="text-xs text-slate-600 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
+          Your active account role is <strong className="text-emerald-700 dark:text-emerald-400">{currentRole}</strong>.
           The Client Portal is reserved exclusively for external industrial client representatives (e.g., Trident Group) to upload Google Drive evidence and answer clarification queries.
         </p>
         <div className="pt-2">
@@ -225,8 +225,8 @@ export default function ClientPortalDashboard() {
 
       {/* Authorized Facilities Grid */}
       <div className="space-y-4">
-        <h2 className="text-base font-bold text-black dark:text-white flex items-center gap-2">
-          <Building2 className="w-5 h-5 text-emerald-400" />
+        <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <Building2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
           Your Authorized Operating Facilities
         </h2>
 
@@ -234,17 +234,17 @@ export default function ClientPortalDashboard() {
           {facilities.map((facility) => (
             <div
               key={facility._id}
-              className="rounded-md border border-slate-800 bg-slate-900/60 p-5 shadow-md flex flex-col justify-between hover:border-slate-700 transition-all"
+              className="rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-5 shadow-sm flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-all"
             >
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-slate-800 text-emerald-400 border border-slate-700">
+                  <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-emerald-700 dark:text-emerald-400 border border-slate-200 dark:border-slate-700">
                     {facility.facilityId}
                   </span>
                   <span className="text-[10px] text-slate-500 uppercase">{facility.location}</span>
                 </div>
-                <h3 className="text-base font-bold text-white">{facility.name}</h3>
-                <p className="text-xs  ">{facility.category}</p>
+                <h3 className="text-base font-bold text-slate-900 dark:text-white">{facility.name}</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{facility.category}</p>
               </div>
 
               <div className="pt-4 mt-4 border-t border-slate-800/80 flex items-center justify-between">
@@ -268,11 +268,11 @@ export default function ClientPortalDashboard() {
       <div className="rounded-md border border-slate-800 bg-slate-900/60 p-6 shadow-md space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-base font-bold text-black dark:text-white flex items-center gap-2">
-              <FileSpreadsheet className="w-5 h-5 text-emerald-400" />
+            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <FileSpreadsheet className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
               Outstanding Compliance Data Requests
             </h3>
-            <p className="text-xs   mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Submit monthly energy logs, utility bills, and fuel lab test reports by attaching Google Drive URLs.
             </p>
           </div>
@@ -338,11 +338,11 @@ export default function ClientPortalDashboard() {
       <div className="rounded-md border border-slate-800 bg-slate-900/60 p-6 shadow-md space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-emerald-400" />
+            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
               Released & Approved Compliance Filings
             </h3>
-            <p className="text-xs   mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Official filings and submission acknowledgements certified by Carbon Crunch auditor.
             </p>
           </div>
@@ -394,11 +394,11 @@ export default function ClientPortalDashboard() {
         <div className="rounded-md border border-slate-800 bg-slate-900/60 p-6 shadow-xl space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h3 className="text-base font-bold text-black dark:text-white flex items-center gap-2">
-                <Folder className="w-5 h-5 text-emerald-400" />
+              <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <Folder className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                 Google Drive Corporate Compliance Vault ({driveFiles.length} Documents)
               </h3>
-              <p className="text-xs   mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 Official invoices, energy sheets, and certificates residing directly in the Google Drive compliance repository.
               </p>
             </div>

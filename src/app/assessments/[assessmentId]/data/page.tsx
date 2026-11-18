@@ -72,7 +72,7 @@ export default function AssessmentDataPage() {
         <ChevronRight className="w-3 h-3   " />
         <Link href={`/assessments/${assessmentId}`} className="hover:text-emerald-400">Assessment</Link>
         <ChevronRight className="w-3 h-3   " />
-        <span className="   dark:text-white font-semibold">Data Collection Checklist</span>
+        <span className="text-slate-900 dark:text-white font-semibold">Data Collection Checklist</span>
       </div>
 
       {/* Header */}
@@ -83,10 +83,10 @@ export default function AssessmentDataPage() {
               <FileSpreadsheet className="w-5 h-5" />
             </span>
             <div>
-              <h1 className="text-xl font-bold text-white">
+              <h1 className="text-xl font-bold text-slate-900 dark:text-white">
                 Current-Year Data Collection Checklist (FY 2025-26)
               </h1>
-              <p className="text-xs   mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 Replaces Excel tracker: Common energy data & compliance-specific requirements linked to Trident Paper.
               </p>
             </div>
@@ -105,10 +105,10 @@ export default function AssessmentDataPage() {
       {/* Checklist Table */}
       <div className="rounded-md border border-slate-800 bg-slate-900/60 p-6 shadow-xl space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold    dark:text-white">
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
             Active Data Requirements & Verification States
           </h3>
-          <span className="text-xs  ">
+          <span className="text-xs text-slate-500 dark:text-slate-400">
             Separate state machines: Submission Status vs Verification Status
           </span>
         </div>
@@ -116,7 +116,7 @@ export default function AssessmentDataPage() {
         <div className="overflow-x-auto rounded-lg border border-slate-800">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-slate-800 bg-slate-950/80 text-[11px] font-semibold   uppercase tracking-wider">
+              <tr className="border-b border-slate-800 bg-slate-950/80 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
                 <th className="py-3 px-4">Requirement</th>
                 <th className="py-3 px-4">Category</th>
                 <th className="py-3 px-4">Linked Compliances</th>
@@ -130,7 +130,7 @@ export default function AssessmentDataPage() {
               {requirements.map((req) => (
                 <tr key={req._id} className="hover:bg-slate-800/30 transition-colors">
                   <td className="py-3.5 px-4">
-                    <div className="font-semibold    dark:text-white">{req.title}</div>
+                    <div className="font-semibold text-slate-900 dark:text-white">{req.title}</div>
                     <div className="text-[11px]   mt-0.5 line-clamp-1">{req.description}</div>
                   </td>
                   <td className="py-3.5 px-4">

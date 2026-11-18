@@ -13,6 +13,12 @@ import {
   ArrowRight,
   AlertCircle,
   Folder,
+  UploadCloud,
+  X,
+  Zap,
+  Receipt,
+  ShieldCheck,
+  Info,
 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
@@ -156,6 +162,9 @@ export default function ClientRequestsPage() {
                             <DriveLinkBadge
                               url={link.vaultUrl || link.url}
                               label={link.description || 'Drive Document'}
+                              billDetails={link.billDetails}
+                              utilityConnectionSnapshot={link.utilityConnectionSnapshot}
+                              facilityId={req.facilityId}
                             />
                             {link.vaultFolderPath && (
                               <div className="text-[9px] font-mono text-emerald-400/80 line-clamp-1 flex items-center gap-1">
@@ -169,7 +178,6 @@ export default function ClientRequestsPage() {
                               </span>
                             )}
                           </div>
-                          <DriveLinkBadge key={i} url={link.url} label={link.description || 'Drive Document'} billDetails={link.billDetails} utilityConnectionSnapshot={link.utilityConnectionSnapshot} facilityId={req.facilityId} />
                         ))
                       ) : (
                         <span className="text-slate-500 text-xs italic">No document submitted</span>
@@ -197,82 +205,350 @@ export default function ClientRequestsPage() {
         </div>
       </div>
 
-      {/* Google Drive Link Submission Modal (Acceptance Step 6) */}
+      {/* Google Drive Link Submission Modal */}
       {selectedReq && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in">
-          <div className="relative w-full max-w-md bg-slate-900 border border-slate-700 rounded-md shadow-2xl p-6">
-
-          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-6">
-            <h3 className="text-sm font-bold text-white mb-1">
-              Submit Google Drive Evidence
-            </h3>
-            <p className="text-xs   mb-4">
-              Requirement: <strong className="   dark:text-white">{selectedReq.title}</strong>
-            </p>
-
-            <form onSubmit={handleSubmitDriveLink} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Google Drive Link (URL):
-                </label>
-                <input
-                  type="url"
-                  required
-                  placeholder="https://drive.google.com/file/d/..."
-                  value={driveUrl}
-                  onChange={(e) => setDriveUrl(e.target.value)}
-                  className="w-full px-3 py-2 text-xs bg-slate-950 border border-slate-700 rounded-lg    dark:text-white focus:outline-none focus:border-emerald-600"
-                />
-                <span className="text-[10px] text-slate-500 mt-1 block">
-                  Share the file/folder with your Carbon Crunch service account (or &quot;Anyone with
-                  link&quot;). The system copies it into the shared compliance Drive under{' '}
-                  <span className="font-mono text-emerald-400/90">Client_Submissions/…</span>.
-                </span>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Document Description / File Name:
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Q1 Monthly Grid Consumption Excel (Apr-Jun 2025)"
-                  value={fileDescription}
-                  onChange={(e) => setFileDescription(e.target.value)}
-                  className="w-full px-3 py-2 text-xs bg-slate-950 border border-slate-700 rounded-lg    dark:text-white focus:outline-none focus:border-emerald-600"
-                />
-              </div>
-
-              {isElectricityRequest && <>
-              <div className="border-t border-slate-800 pt-4 space-y-3">
-                <div><h4 className="text-xs font-bold text-white">Facility electricity connection</h4><p className="text-[10px] text-slate-500">Saved against this facility and reused for its future submissions.</p></div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {([['providerName','Electricity provider'],['connectionType','Connection type'],['subDivision','Sub-division'],['circle','Circle'],['consumerAccountNumber','Consumer account number'],['consumerName','Consumer name'],['meterNumber','Meter number'],['contractDemand','Contract demand']] as const).map(([key,label]) => <label key={key} className="block text-xs text-slate-300">{label}<input required value={connection[key]} onChange={(e) => setConnectionField(key,e.target.value)} placeholder={label} className="mt-1 w-full px-3 py-2 text-xs bg-slate-950 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-emerald-600" /></label>)}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-sm animate-fade-in">
+          <div className="relative w-full max-w-2xl max-h-[92vh] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+            {/* Modal Fixed Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/80 shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800/60 flex items-center justify-center text-emerald-700 dark:text-emerald-400 shrink-0">
+                  <UploadCloud className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                      Submit Supporting Evidence
+                    </h3>
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/60">
+                      Google Drive Vault
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                    Requirement: <strong className="font-semibold text-slate-800 dark:text-slate-200">{selectedReq.title}</strong> · Facility: <span className="font-mono font-medium text-emerald-700 dark:text-emerald-400">{selectedReq.facilityId}</span>
+                  </p>
                 </div>
               </div>
-              <div className="border-t border-slate-800 pt-4 space-y-3">
-                <div><h4 className="text-xs font-bold text-white">This electricity bill</h4><p className="text-[10px] text-slate-500">These values belong only to this bill submission.</p></div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {([['invoiceNumber','Invoice number'],['billingFrom','Billing period from'],['billingTo','Billing period to'],['consumptionKwh','Consumption (kWh)'],['billAmount','Bill amount (₹)']] as const).map(([key,label]) => <label key={key} className="block text-xs text-slate-300">{label}<input required type={key === 'billingFrom' || key === 'billingTo' ? 'date' : key === 'consumptionKwh' || key === 'billAmount' ? 'number' : 'text'} min={key === 'consumptionKwh' || key === 'billAmount' ? '0' : undefined} step={key === 'consumptionKwh' || key === 'billAmount' ? 'any' : undefined} value={bill[key]} onChange={(e) => setBillField(key,e.target.value)} placeholder={label} className="mt-1 w-full px-3 py-2 text-xs bg-slate-950 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-emerald-600" /></label>)}
-                </div>
-              </div>
-              </>}
 
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setSelectedReq(null)}
-                  className="px-3 py-1.5 text-xs text-black hover:text-white border border-slate-700 rounded-md"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="px-4 py-1.5 text-xs font-bold rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm disabled:opacity-50"
-                >
-                  {isSubmitting ? 'Submitting...' : 'Upload Link'}
-                </button>
+              <button
+                type="button"
+                onClick={() => setSelectedReq(null)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-colors"
+                title="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Form */}
+            <form onSubmit={handleSubmitDriveLink} className="flex flex-col flex-1 overflow-hidden">
+              <div className="p-6 overflow-y-auto space-y-5 text-xs flex-1">
+                {/* Google Drive Link Section */}
+                <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/40 space-y-3.5">
+                  <div className="flex items-center gap-2 text-xs font-bold text-slate-900 dark:text-white">
+                    <Link2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    <span>Google Drive Evidence Link</span>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                      Google Drive URL (File or Folder) <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="url"
+                      required
+                      placeholder="https://drive.google.com/file/d/... or folders/..."
+                      value={driveUrl}
+                      onChange={(e) => setDriveUrl(e.target.value)}
+                      className="w-full px-3.5 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 dark:focus:border-emerald-500 transition-all shadow-2xs font-mono"
+                    />
+                    <div className="mt-1.5 flex items-start gap-1.5 text-[11px] text-slate-500 dark:text-slate-400 leading-normal">
+                      <Info className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0 mt-0.5" />
+                      <span>
+                        Ensure the file is shared with your Carbon Crunch auditor account or set to &quot;Anyone with the link can view&quot;. It will be archived under <code className="text-emerald-700 dark:text-emerald-400 font-mono text-[10px]">Client_Submissions/{selectedReq.facilityId}/</code>.
+                      </span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                      Document Description / Notes
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Q1 Monthly Grid Consumption Excel & Official DISCOM Bills (Apr-Jun 2025)"
+                      value={fileDescription}
+                      onChange={(e) => setFileDescription(e.target.value)}
+                      className="w-full px-3.5 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 dark:focus:border-emerald-500 transition-all shadow-2xs"
+                    />
+                  </div>
+                </div>
+
+                {/* Section 2: Facility Electricity Connection (if electricity request) */}
+                {isElectricityRequest && (
+                  <>
+                    <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/40 space-y-3.5">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Zap className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                          <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                            Facility Electricity Connection Profile
+                          </h4>
+                        </div>
+                        <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-300 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700">
+                          Reused across cycles
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 -mt-1">
+                        DISCOM connection attributes linked to this facility for automatic compliance matrix reconciliation.
+                      </p>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                            Electricity Provider / DISCOM <span className="text-rose-500">*</span>
+                          </label>
+                          <input
+                            required
+                            type="text"
+                            placeholder="e.g. PSPCL, Tata Power, BESCOM"
+                            value={connection.providerName}
+                            onChange={(e) => setConnectionField('providerName', e.target.value)}
+                            className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 dark:focus:border-emerald-500 transition-all shadow-2xs"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                            Connection Type <span className="text-rose-500">*</span>
+                          </label>
+                          <input
+                            required
+                            type="text"
+                            placeholder="e.g. High Tension (HT) Industrial"
+                            value={connection.connectionType}
+                            onChange={(e) => setConnectionField('connectionType', e.target.value)}
+                            className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 dark:focus:border-emerald-500 transition-all shadow-2xs"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                            Sub-Division <span className="text-rose-500">*</span>
+                          </label>
+                          <input
+                            required
+                            type="text"
+                            placeholder="e.g. Barnala Industrial Area"
+                            value={connection.subDivision}
+                            onChange={(e) => setConnectionField('subDivision', e.target.value)}
+                            className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 dark:focus:border-emerald-500 transition-all shadow-2xs"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                            Circle <span className="text-rose-500">*</span>
+                          </label>
+                          <input
+                            required
+                            type="text"
+                            placeholder="e.g. Sangrur Circle"
+                            value={connection.circle}
+                            onChange={(e) => setConnectionField('circle', e.target.value)}
+                            className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 dark:focus:border-emerald-500 transition-all shadow-2xs"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                            Consumer Account Number <span className="text-rose-500">*</span>
+                          </label>
+                          <input
+                            required
+                            type="text"
+                            placeholder="e.g. PSPCL-BNL-66KV-0042"
+                            value={connection.consumerAccountNumber}
+                            onChange={(e) => setConnectionField('consumerAccountNumber', e.target.value)}
+                            className="w-full px-3 py-1.5 text-xs font-mono rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 dark:focus:border-emerald-500 transition-all shadow-2xs"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                            Consumer Name <span className="text-rose-500">*</span>
+                          </label>
+                          <input
+                            required
+                            type="text"
+                            placeholder="e.g. Trident Paper Limited"
+                            value={connection.consumerName}
+                            onChange={(e) => setConnectionField('consumerName', e.target.value)}
+                            className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 dark:focus:border-emerald-500 transition-all shadow-2xs"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                            Meter Serial Number <span className="text-rose-500">*</span>
+                          </label>
+                          <input
+                            required
+                            type="text"
+                            placeholder="e.g. L&T-EM-99214"
+                            value={connection.meterNumber}
+                            onChange={(e) => setConnectionField('meterNumber', e.target.value)}
+                            className="w-full px-3 py-1.5 text-xs font-mono rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 dark:focus:border-emerald-500 transition-all shadow-2xs"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                            Contract Demand <span className="text-rose-500">*</span>
+                          </label>
+                          <input
+                            required
+                            type="text"
+                            placeholder="e.g. 12,000 kVA (66 kV)"
+                            value={connection.contractDemand}
+                            onChange={(e) => setConnectionField('contractDemand', e.target.value)}
+                            className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 dark:focus:border-emerald-500 transition-all shadow-2xs"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Section 3: Electricity Bill Details */}
+                    <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/40 space-y-3.5">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Receipt className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                          <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                            Electricity Bill & Consumption Particulars
+                          </h4>
+                        </div>
+                        <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-blue-50 text-blue-800 border border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800/60">
+                          This bill cycle
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 -mt-1">
+                        Specific invoice values for energy reconciliation against declared plant logs.
+                      </p>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                        <div className="sm:col-span-2">
+                          <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                            Bill / Invoice Number <span className="text-rose-500">*</span>
+                          </label>
+                          <input
+                            required
+                            type="text"
+                            placeholder="e.g. PSPCL/BNL/2025/06/9821"
+                            value={bill.invoiceNumber}
+                            onChange={(e) => setBillField('invoiceNumber', e.target.value)}
+                            className="w-full px-3 py-1.5 text-xs font-mono rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 dark:focus:border-emerald-500 transition-all shadow-2xs"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                            Billing Period (From) <span className="text-rose-500">*</span>
+                          </label>
+                          <input
+                            required
+                            type="date"
+                            value={bill.billingFrom}
+                            onChange={(e) => setBillField('billingFrom', e.target.value)}
+                            className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 dark:focus:border-emerald-500 transition-all shadow-2xs"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                            Billing Period (To) <span className="text-rose-500">*</span>
+                          </label>
+                          <input
+                            required
+                            type="date"
+                            value={bill.billingTo}
+                            onChange={(e) => setBillField('billingTo', e.target.value)}
+                            className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 dark:focus:border-emerald-500 transition-all shadow-2xs"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                            Billed Active Energy Consumption (kWh) <span className="text-rose-500">*</span>
+                          </label>
+                          <div className="relative">
+                            <input
+                              required
+                              type="number"
+                              min="0"
+                              step="any"
+                              placeholder="e.g. 1265000"
+                              value={bill.consumptionKwh}
+                              onChange={(e) => setBillField('consumptionKwh', e.target.value)}
+                              className="w-full pl-3 pr-12 py-1.5 text-xs font-mono font-semibold text-slate-900 dark:text-white rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 dark:focus:border-emerald-500 transition-all shadow-2xs"
+                            />
+                            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 pointer-events-none">
+                              kWh
+                            </span>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                            Total Bill Amount (₹) <span className="text-rose-500">*</span>
+                          </label>
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-500 dark:text-slate-400 pointer-events-none">
+                              ₹
+                            </span>
+                            <input
+                              required
+                              type="number"
+                              min="0"
+                              step="any"
+                              placeholder="e.g. 8855000"
+                              value={bill.billAmount}
+                              onChange={(e) => setBillField('billAmount', e.target.value)}
+                              className="w-full pl-7 pr-3 py-1.5 text-xs font-mono font-semibold text-slate-900 dark:text-white rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 dark:focus:border-emerald-500 transition-all shadow-2xs"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Modal Sticky Footer */}
+              <div className="flex items-center justify-between px-6 py-3.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/80 shrink-0">
+                <div className="flex items-center gap-2 text-[11px] text-slate-600 dark:text-slate-400">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <span className="hidden sm:inline">Encrypted & securely logged into audit trail</span>
+                  <span className="sm:hidden">Audited submission</span>
+                </div>
+
+                <div className="flex items-center gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedReq(null)}
+                    className="px-4 py-2 text-xs font-semibold rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-white border border-slate-300 dark:border-slate-700 shadow-2xs transition-colors"
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 !text-white shadow-sm transition-all disabled:opacity-50"
+                  >
+                    <UploadCloud className="w-4 h-4" />
+                    <span>{isSubmitting ? 'Uploading & Indexing...' : 'Submit Evidence Link'}</span>
+                  </button>
+                </div>
               </div>
             </form>
           </div>

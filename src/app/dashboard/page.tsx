@@ -135,10 +135,10 @@ export default function DashboardPage() {
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
             My Workspace — {currentRole === 'ADMIN' ? 'Admin' : 'Consultant'} Dashboard
           </h1>
-          <p className="text-xs text-slate-500 dark:  mt-1">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Logged in as <strong className="text-emerald-700 dark:text-emerald-400">{currentUser?.name}</strong> ({currentUser?.designation})
             {selectedGroup && (
-              <span> · Active View: <strong className="text-slate-800 dark:   dark:text-white">{selectedGroup.name}</strong></span>
+              <span> · Active View: <strong className="text-slate-800 dark:text-white">{selectedGroup.name}</strong></span>
             )}
           </p>
         </div>
@@ -160,7 +160,7 @@ export default function DashboardPage() {
         {/* Card 1: Assigned Facilities */}
         <div className="p-5 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500 dark: ">
+            <span className="text-xs font-medium text-slate-500 dark:text-slate-400 ">
               {selectedGroup ? 'Assigned Operating Units' : 'Assigned Facilities'}
             </span>
             <Building2 className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
@@ -180,13 +180,13 @@ export default function DashboardPage() {
         {/* Card 2: Active Compliances */}
         <div className="p-5 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500 dark: ">Active Compliances</span>
+            <span className="text-xs font-medium text-slate-500 dark:text-slate-400 ">Active Compliances</span>
             <TrendingUp className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
           </div>
           <div className="text-2xl font-bold text-slate-900 dark:text-white mt-2">
             {selectedGroup ? `${currentFacilities.length * 4} Records` : '436 Records'}
           </div>
-          <div className="text-[11px]    dark:  mt-1">
+          <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
             RCO, PAT, CCTS, CEA Returns
           </div>
         </div>
@@ -194,7 +194,7 @@ export default function DashboardPage() {
         {/* Card 3: Open Clarifications / Discrepancies */}
         <div className="p-5 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500 dark: ">Open Clarifications</span>
+            <span className="text-xs font-medium text-slate-500 dark:text-slate-400 ">Open Clarifications</span>
             <AlertTriangle className={`w-4 h-4 ${isTridentSelected ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`} />
           </div>
           <div className={`text-2xl font-bold mt-2 ${isTridentSelected ? 'text-rose-700 dark:text-rose-400' : 'text-slate-900 dark:text-white'}`}>
@@ -208,7 +208,7 @@ export default function DashboardPage() {
         {/* Card 4: Upcoming Filings */}
         <div className="p-5 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500 dark: ">Upcoming Filings</span>
+            <span className="text-xs font-medium text-slate-500 dark:text-slate-400 ">Upcoming Filings</span>
             <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
           </div>
           <div className="text-2xl font-bold text-slate-900 dark:text-white mt-2">
@@ -224,7 +224,6 @@ export default function DashboardPage() {
 
       {/* Discrepancy Action Banner */}
       {isTridentSelected && clarifications.length > 0 ? (
-        <div className="rounded-md border border-rose-200 dark:border-rose-500/30 dark:bg-slate-900/60 p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="rounded-md border border-rose-200 dark:border-rose-500/30 bg-rose-50 dark:bg-rose-950/20 p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-start gap-3">
             <div className="p-2 rounded-lg bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-400 mt-0.5">
@@ -324,13 +323,13 @@ export default function DashboardPage() {
                 className="p-3 rounded-lg bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800/80 flex items-center justify-between text-xs"
               >
                 <div>
-                  <div className="font-semibold text-slate-900 dark:   dark:text-white flex items-center gap-2">
+                  <div className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                     <span>{item.facilityName}</span>
                     <span className="px-1.5 py-0.2 rounded text-[10px] font-mono bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-transparent">
                       {item.complianceType}
                     </span>
                   </div>
-                  <div className="text-[11px] text-slate-500 dark:  mt-0.5">
+                  <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                     {item.reportingPeriod}
                   </div>
                 </div>
@@ -378,7 +377,7 @@ export default function DashboardPage() {
                     <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
                       {fac.name}
                     </h4>
-                    <p className="text-[11px] text-slate-500 dark:  truncate">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
                       {fac.location} · {fac.category}
                     </p>
                   </div>
@@ -389,7 +388,7 @@ export default function DashboardPage() {
                     Open Matrix
                   </Link>
                 </div>
-                <div className="mt-2.5 flex items-center gap-2 text-[11px]    dark: ">
+                <div className="mt-2.5 flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 ">
                   <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                     {fac.facilityId}
                   </span>

@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -71,8 +70,6 @@ export const EvidenceDocumentModal: React.FC<EvidenceDocumentModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
       <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-
-        {/* Modal Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/80">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800/60 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
@@ -87,8 +84,6 @@ export const EvidenceDocumentModal: React.FC<EvidenceDocumentModalProps> = ({
                   Google Drive Evidence
                 </span>
               </h3>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                Official Supporting Audit Record · Facility: TRIDENT_PAPER
 
               <p className="text-[11px] text-slate-500 dark:text-slate-400">
                 Official Supporting Audit Record · Facility: {facilityId}
@@ -103,77 +98,38 @@ export const EvidenceDocumentModal: React.FC<EvidenceDocumentModalProps> = ({
             <X className="w-5 h-5" />
           </button>
         </div>
-
-        {/* Modal Body */}
         <div className="p-6 overflow-y-auto space-y-6 text-xs">
-          {/* Simulated Official Bill / Sheet Document */}
           <div className="p-6 rounded-md border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-950 shadow-inner space-y-5">
-            {/* Top Official Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800 gap-3">
-              <div>
-                <span className="text-[10px] uppercase tracking-wider text-emerald-700 dark:text-emerald-400 font-bold block">
-                  Punjab State Power Corporation Limited (PSPCL)
-                </span>
-                <h4 className="text-base font-extrabold text-slate-900 dark:text-white mt-0.5">
-                  High Tension (HT) Industrial Electricity Bill
-                </h4>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                  Sub-Division: Barnala Industrial Area · Circle: Sangrur
-
-          {/* Electricity Bill Preview */}
-          <div className="p-6 rounded-md border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-950 shadow-inner space-y-5">
-
-            {/* Official Bill Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800 gap-3">
               <div>
                 <span className="text-[10px] uppercase tracking-wider text-emerald-700 dark:text-emerald-400 font-bold block">
                   {display(connection?.providerName)}
                 </span>
-
                 <h4 className="text-base font-extrabold text-slate-900 dark:text-white mt-0.5">
                   {display(connection?.connectionType)} Electricity Bill
                 </h4>
-
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">
                   Sub-Division: {display(connection?.subDivision)} · Circle:{' '}
                   {display(connection?.circle)}
                 </p>
               </div>
-
               <div className="text-right">
-                <div className="text-[10px] text-slate-500">Bill Invoice Number</div>
-                <div className="font-mono font-bold text-slate-900 dark:text-white">{billNo}</div>
-                <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Billing Cycle: {billingPeriod}</div>
-              </div>
-            </div>
-
-            {/* Consumer & Meter Specs */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3.5 rounded-lg bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 text-[11px]">
-              <div>
-                <span className="text-slate-500 block">Consumer Account:</span>
-                <span className="font-mono font-bold text-slate-900 dark:text-white">PSPCL-BARNALA-66KV-0042</span>
                 <div className="text-[10px] text-slate-500">
                   Bill Invoice Number
                 </div>
-
                 <div className="font-mono font-bold text-slate-900 dark:text-white">
                   {display(bill?.invoiceNumber)}
                 </div>
-
                 <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
                   Billing Cycle: {billingPeriod}
                 </div>
-
                 <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
                   Bill Amount: ₹
                   {bill ? formatNumber(bill.billAmount) : 'Not provided'}
                 </div>
               </div>
             </div>
-
-            {/* Consumer & Meter Specifications */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3.5 rounded-lg bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 text-[11px]">
-
               <div>
                 <span className="text-slate-500 block">
                   Consumer Account:
@@ -182,10 +138,7 @@ export const EvidenceDocumentModal: React.FC<EvidenceDocumentModalProps> = ({
                   {display(connection?.consumerAccountNumber)}
                 </span>
               </div>
-
               <div>
-                <span className="text-slate-500 block">Consumer Name:</span>
-                <span className="font-semibold text-slate-900 dark:text-white">Trident Paper Limited</span>
                 <span className="text-slate-500 block">
                   Consumer Name:
                 </span>
@@ -193,10 +146,7 @@ export const EvidenceDocumentModal: React.FC<EvidenceDocumentModalProps> = ({
                   {display(connection?.consumerName)}
                 </span>
               </div>
-
               <div>
-                <span className="text-slate-500 block">Meter Number:</span>
-                <span className="font-mono font-bold text-slate-900 dark:text-white">L&T-EM-99214</span>
                 <span className="text-slate-500 block">
                   Meter Number:
                 </span>
@@ -204,14 +154,7 @@ export const EvidenceDocumentModal: React.FC<EvidenceDocumentModalProps> = ({
                   {display(connection?.meterNumber)}
                 </span>
               </div>
-
               <div>
-                <span className="text-slate-500 block">Contract Demand:</span>
-                <span className="font-mono font-bold text-emerald-700 dark:text-emerald-400">12,000 kVA (66 kV)</span>
-              </div>
-            </div>
-
-            {/* Energy Metering Table */}
                 <span className="text-slate-500 block">
                   Contract Demand:
                 </span>
@@ -220,18 +163,10 @@ export const EvidenceDocumentModal: React.FC<EvidenceDocumentModalProps> = ({
                 </span>
               </div>
             </div>
-
-            {/* Energy Consumption Table */}
             <div className="rounded-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-[10px] uppercase tracking-wider text-slate-600 dark:text-slate-400 font-semibold">
-                    <th className="py-2 px-3">Parameter Description</th>
-                    <th className="py-2 px-3 text-right">Units</th>
-                    <th className="py-2 px-3 text-right">Recorded Value</th>
-                    <th className="py-2 px-3 text-center">Status</th>
-                  </tr>
-                </thead>
                     <th className="py-2 px-3">
                       Parameter Description
                     </th>
@@ -246,53 +181,20 @@ export const EvidenceDocumentModal: React.FC<EvidenceDocumentModalProps> = ({
                     </th>
                   </tr>
                 </thead>
-
                 <tbody className="divide-y divide-slate-200 dark:divide-slate-800/70 font-mono text-[11px]">
                   <tr>
                     <td className="py-2.5 px-3 font-sans text-slate-700 dark:text-slate-300">
                       Total Active Energy Consumption (Net Import)
                     </td>
-                    <td className="py-2.5 px-3 text-right text-slate-500 dark:text-slate-400">kWh</td>
-                    <td className="py-2.5 px-3 text-right font-bold text-emerald-700 dark:text-emerald-400">
-                      {formatNumber(billedUnits)}
-                    </td>
-                    <td className="py-2.5 px-3 text-center font-sans">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
-                        Meter Audited
-                      </span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="py-2.5 px-3 font-sans text-slate-700 dark:text-slate-300">
-                      Maximum Demand Recorded (MDI)
-                    </td>
-                    <td className="py-2.5 px-3 text-right text-slate-500 dark:text-slate-400">kVA</td>
-                    <td className="py-2.5 px-3 text-right font-bold text-slate-900 dark:text-white">9,840</td>
-                    <td className="py-2.5 px-3 text-center font-sans">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700">
-                        Within Limit
-                      </span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="py-2.5 px-3 font-sans text-slate-700 dark:text-slate-300">Average Monthly Power Factor</td>
-                    <td className="py-2.5 px-3 text-right text-slate-500 dark:text-slate-400">PF</td>
-                    <td className="py-2.5 px-3 text-right font-bold text-slate-900 dark:text-white">0.995 Lag</td>
-                    <td className="py-2.5 px-3 text-center font-sans">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
-                        Incentive Eligible
-
-                    <td className="py-2.5 px-3 text-right text-slate-500 dark:text-slate-400">
+                    <td className="py-2.5 px-2 text-right text-slate-500 dark:text-slate-400">
                       kWh
                     </td>
-
-                    <td className="py-2.5 px-3 text-right font-bold text-emerald-700 dark:text-emerald-400">
+                    <td className="py-2.5 px-2 text-right font-bold text-emerald-700 dark:text-emerald-400">
                       {bill
                         ? formatNumber(bill.consumptionKwh)
                         : 'Not provided'}
                     </td>
-
-                    <td className="py-2.5 px-3 text-center font-sans">
+                    <td className="py-2.5 px-2 text-center font-sans">
                       <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
                         Client submitted
                       </span>
@@ -302,32 +204,6 @@ export const EvidenceDocumentModal: React.FC<EvidenceDocumentModalProps> = ({
               </table>
             </div>
 
-            {/* Discrepancy Banner if June */}
-            {isMismatch ? (
-              <div className="p-3.5 rounded-lg bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-500/40 text-rose-800 dark:text-rose-300 flex items-start gap-3">
-                <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
-                <div className="space-y-1">
-                  <div className="font-bold text-rose-900 dark:text-white text-xs">
-                    Reconciliation Variance Detected (+15,000 kWh / 1.186%)
-                  </div>
-                  <p className="text-[11px] text-rose-700 dark:text-rose-200 leading-relaxed">
-                    Client declared monthly Excel states <strong className="font-semibold text-rose-900 dark:text-white">1,280,000 kWh</strong>,
-                    whereas this official PSPCL DISCOM invoice records <strong className="font-semibold text-rose-900 dark:text-white">1,265,000 kWh</strong>.
-                    Clarification query has been logged and sent to client.
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                <span className="text-[11px] font-medium">
-                  Reconciliation Match Confirmed: Declared energy ({formatNumber(declaredUnits)} kWh) matches PSPCL bill exactly.
-                </span>
-              </div>
-            )}
-          </div>
-
-          {/* Google Drive Link Metadata & Info */}
             {/* Submission Information */}
             <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 text-amber-800 dark:text-amber-300 flex items-start gap-2">
               <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5" />
@@ -344,8 +220,6 @@ export const EvidenceDocumentModal: React.FC<EvidenceDocumentModalProps> = ({
             <span className="text-slate-600 dark:text-slate-400 font-semibold block text-[11px] uppercase tracking-wider">
               Google Drive Evidence Reference
             </span>
-            <div className="flex items-center justify-between gap-3 font-mono text-[11px] text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800">
-              <span className="truncate">{url || process.env.NEXT_PUBLIC_GDRIVE_FOLDER_URL || GOOGLE_DRIVE_FOLDER_URL }</span>
 
             <div className="flex items-center justify-between gap-3 font-mono text-[11px] text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800">
               <span className="truncate">
@@ -375,7 +249,6 @@ export const EvidenceDocumentModal: React.FC<EvidenceDocumentModalProps> = ({
         <div className="flex items-center justify-between px-6 py-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/80">
           <div className="flex items-center gap-2 text-[11px] text-slate-600 dark:text-slate-400">
             <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-            <span>Audited & verified by Carbon Crunch Consultant</span>
             <span>
               Client-submitted information · Verification pending
             </span>
