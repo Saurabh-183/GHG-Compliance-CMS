@@ -78,7 +78,7 @@ export default function LoginPage() {
         <button
           type="button"
           onClick={toggleTheme}
-          className="rounded-xl border border-slate-700/80 bg-slate-900/80 p-2 text-slate-300 shadow-lg backdrop-blur-md transition-colors hover:bg-slate-800 hover:text-white"
+          className="rounded-md border border-slate-700/80 bg-slate-900/80 p-2 text-slate-300 shadow-lg backdrop-blur-md transition-colors hover:bg-slate-800 hover:text-white"
           title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
           aria-label="Toggle theme"
         >

@@ -94,7 +94,7 @@ export default function ClientRequestsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2.5">
+          <h1 className="text-2xl font-bold text-black dark:text-white flex items-center gap-2.5">
             <FileSpreadsheet className="w-6 h-6 text-emerald-400" />
             Outstanding Compliance Data Requests
           </h1>
@@ -105,7 +105,7 @@ export default function ClientRequestsPage() {
       </div>
 
       {/* Requests Table */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 shadow-xl space-y-4">
+      <div className="rounded-md border border-slate-800 bg-slate-900/60 p-6 space-y-4">
         <div className="overflow-x-auto rounded-lg border border-slate-800">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -119,11 +119,11 @@ export default function ClientRequestsPage() {
                 <th className="py-3 px-4 text-center">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/70 text-xs">
+            <tbody className="divide-y divide-slate-400/70 text-xs">
               {requirements.map((req) => (
-                <tr key={req._id} className="hover:bg-slate-800/30 transition-colors">
+                <tr key={req._id} className="hover:bg-slate-200/30 transition-colors">
                   <td className="py-3.5 px-4">
-                    <div className="font-semibold    dark:text-white">{req.title}</div>
+                    <div className="font-semibold dark:text-white">{req.title}</div>
                     <div className="text-[11px]   mt-0.5 line-clamp-1">{req.description}</div>
                   </td>
                   <td className="py-3.5 px-4 font-mono text-slate-300">
@@ -164,7 +164,7 @@ export default function ClientRequestsPage() {
                         setConnection({ providerName: req.utilityConnection?.providerName || '', connectionType: req.utilityConnection?.connectionType || '', subDivision: req.utilityConnection?.subDivision || '', circle: req.utilityConnection?.circle || '', consumerAccountNumber: req.utilityConnection?.consumerAccountNumber || '', consumerName: req.utilityConnection?.consumerName || '', meterNumber: req.utilityConnection?.meterNumber || '', contractDemand: req.utilityConnection?.contractDemand || '' });
                         setBill({ invoiceNumber: '', billingFrom: '', billingTo: '', consumptionKwh: '', billAmount: '' });
                       }}
-                      className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white transition-colors shadow-sm"
+                      className="px-2 py-1.5 w-28 text-xs font-semibold rounded-md bg-emerald-700 hover:bg-emerald-800 text-white transition-colors shadow-sm"
                     >
                       + Submit Link
                     </button>
@@ -179,6 +179,7 @@ export default function ClientRequestsPage() {
       {/* Google Drive Link Submission Modal (Acceptance Step 6) */}
       {selectedReq && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in">
+
           <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-6">
             <h3 className="text-sm font-bold text-white mb-1">
               Submit Google Drive Evidence
@@ -237,7 +238,7 @@ export default function ClientRequestsPage() {
                 <button
                   type="button"
                   onClick={() => setSelectedReq(null)}
-                  className="px-3 py-1.5 text-xs   hover:text-white"
+                  className="px-3 py-1.5 text-xs text-black hover:text-white border border-slate-700 rounded-md"
                 >
                   Cancel
                 </button>

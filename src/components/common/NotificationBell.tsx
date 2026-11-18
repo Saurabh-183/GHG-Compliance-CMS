@@ -12,7 +12,6 @@ import {
   ShieldCheck,
   Send,
   Clock,
-  ExternalLink,
   Check,
 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
@@ -133,7 +132,10 @@ export const NotificationBell: React.FC = () => {
       >
         <Bell className="w-4 h-4" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-700 text-[10px] font-semibold text-white shadow-sm">
+          <span
+            className="notification-badge absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-700 text-[10px] font-semibold text-white shadow-sm"
+            style={isLight ? { color: '#FFFFFF' } : undefined}
+          >
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}

@@ -142,7 +142,7 @@ export const DriveConnectionModal: React.FC<DriveConnectionModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/80">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
+            <div className="w-10 h-10 rounded-md bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
               <Folder className="w-5 h-5" />
             </div>
             <div>
@@ -170,7 +170,7 @@ export const DriveConnectionModal: React.FC<DriveConnectionModalProps> = ({
         {/* Body */}
         <div className="p-6 overflow-y-auto space-y-6 text-xs">
           {/* Information Notice */}
-          <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 flex items-start gap-3 text-emerald-900 dark:text-emerald-200">
+          <div className="p-4 rounded-md bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 flex items-start gap-3 text-emerald-900 dark:text-emerald-200">
             <Database className="w-5 h-5 text-emerald-700 dark:text-emerald-400 shrink-0 mt-0.5" />
             <div className="space-y-1">
               <p className="font-semibold text-xs">Direct Drive Pipeline (PRD v1.0)</p>
@@ -297,7 +297,7 @@ export const DriveConnectionModal: React.FC<DriveConnectionModalProps> = ({
 
           {/* Stats if available */}
           {stats && (
-            <div className="grid grid-cols-2 gap-3 p-4 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800">
+            <div className="grid grid-cols-2 gap-3 p-4 rounded-md bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800">
               <div className="space-y-1">
                 <span className="text-[10px] text-slate-500 dark:  font-semibold uppercase">
                   Data Given Percentage

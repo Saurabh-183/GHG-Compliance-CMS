@@ -117,25 +117,25 @@ export default function ClientPortalDashboard() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Client Group Overview Hero */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-6 sm:p-8 shadow-xl">
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-6 sm:p-8 shadow-sm dark:shadow-xl">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-950/60 border border-emerald-800/60 text-emerald-400 text-[11px] font-bold uppercase tracking-wider mb-2">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-wider mb-2">
               Authorized Client Organization
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               {clientOrgName === 'TRIDENT' ? 'Trident Group' : clientOrgName} — Compliance Portal
             </h1>
-            <p className="text-xs text-slate-300 mt-1">
-              Welcome, <strong className="text-emerald-400">{currentUser?.name || 'Vikram Singh'}</strong> ({currentUser?.designation || 'Head of Regulatory Affairs'}).
+            <p className="text-xs text-slate-600 dark:text-slate-300 mt-1.5 leading-relaxed max-w-3xl">
+              Welcome, <strong className="text-emerald-700 dark:text-emerald-400">{currentUser?.name || 'Vikram Singh'}</strong> ({currentUser?.designation || 'Head of Regulatory Affairs'}).
               Direct visibility into authorized facilities, outstanding data submissions, Google Drive repository evidence, and verified historical reports.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-row flex-wrap items-center gap-2.5 shrink-0 self-start md:self-center">
             <button
               onClick={() => setIsExcelModalOpen(true)}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs shadow-sm transition-colors"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs shadow-sm transition-colors whitespace-nowrap"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Compliance Excel Templates</span>
@@ -143,9 +143,9 @@ export default function ClientPortalDashboard() {
 
             <button
               onClick={() => setIsDriveModalOpen(true)}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700    dark:text-white border border-slate-700 font-semibold text-xs shadow-sm transition-colors"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-white border border-slate-300 dark:border-slate-700 font-semibold text-xs shadow-xs transition-colors whitespace-nowrap"
             >
-              <Folder className="w-3.5 h-3.5 text-emerald-400" />
+              <Folder className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
               <span>Drive Evidence Vault</span>
             </button>
           </div>
@@ -153,34 +153,34 @@ export default function ClientPortalDashboard() {
 
         {/* PRD Highlights: Data Given % & Data Matched % */}
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-800 text-xs">
-          <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
+          <div className="p-3.5 rounded-md bg-slate-950/60 border border-slate-800 space-y-1">
             <div className="flex items-center justify-between  ">
               <span className="font-semibold uppercase tracking-wider text-[10px]">Data Given</span>
               <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
             </div>
-            <div className="text-xl font-extrabold text-white">100%</div>
+            <div className="text-xl font-extrabold text-slate-900 dark:text-white">100%</div>
             <p className="text-[11px] text-slate-500">12/12 months submitted by your units</p>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
+          <div className="p-3.5 rounded-md bg-slate-950/60 border border-slate-800 space-y-1">
             <div className="flex items-center justify-between  ">
               <span className="font-semibold uppercase tracking-wider text-[10px]">Data Matched</span>
               <CheckCheck className="w-3.5 h-3.5 text-emerald-400" />
             </div>
-            <div className="text-xl font-extrabold text-white">75.0%</div>
+            <div className="text-xl font-extrabold text-slate-900 dark:text-white">75.0%</div>
             <p className="text-[11px] text-slate-500">3 of 4 audited months verified</p>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
+          <div className="p-3.5 rounded-md bg-slate-950/60 border border-slate-800 space-y-1">
             <div className="flex items-center justify-between  ">
               <span className="font-semibold uppercase tracking-wider text-[10px]">Operating Facilities</span>
               <Building2 className="w-3.5 h-3.5 text-emerald-400" />
             </div>
-            <div className="text-xl font-bold text-white">{facilities.length} Units</div>
+            <div className="text-xl font-bold text-slate-900 dark:text-white">{facilities.length} Units</div>
             <p className="text-[11px] text-slate-500">Paper, Yarn, Home Textiles</p>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
+          <div className="p-3.5 rounded-md bg-slate-950/60 border border-slate-800 space-y-1">
             <div className="flex items-center justify-between  ">
               <span className="font-semibold uppercase tracking-wider text-[10px]">Action Items</span>
               <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
@@ -193,21 +193,21 @@ export default function ClientPortalDashboard() {
 
       {/* Action Required: Discrepancy & Clarification Response */}
       {openClarifications.length > 0 && (
-        <div className="rounded-xl border border-rose-500/40 bg-rose-950/20 p-5 shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="rounded-lg bg-white dark:bg-slate-800 border border-rose-500/40 p-5 shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-start gap-3">
-            <div className="p-2 rounded-lg bg-rose-500/20 text-rose-400 mt-0.5">
+            <div className="p-2 rounded-lg text-rose-400 mt-0.5">
               <AlertTriangle className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-sm font-bold text-rose-300">
+                <h3 className="text-sm font-semibold text-rose-300 dark:text-rose-400 dark:border-rose-500/30">
                   Regulatory Query / Clarification Raised by Carbon Crunch
                 </h3>
                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
                   Action Required
                 </span>
               </div>
-              <p className="text-xs text-slate-300 mt-1">
+              <p className="text-xs text-gray-800 mt-2">
                 Consultant flagged a 15,000 kWh variance between your June 2025 Excel and electricity bill. Please provide explanation or revised bill.
               </p>
             </div>
@@ -225,7 +225,7 @@ export default function ClientPortalDashboard() {
 
       {/* Authorized Facilities Grid */}
       <div className="space-y-4">
-        <h2 className="text-base font-bold text-white flex items-center gap-2">
+        <h2 className="text-base font-bold text-black dark:text-white flex items-center gap-2">
           <Building2 className="w-5 h-5 text-emerald-400" />
           Your Authorized Operating Facilities
         </h2>
@@ -234,7 +234,7 @@ export default function ClientPortalDashboard() {
           {facilities.map((facility) => (
             <div
               key={facility._id}
-              className="rounded-xl border border-slate-800 bg-slate-900/60 p-5 shadow-md flex flex-col justify-between hover:border-slate-700 transition-all"
+              className="rounded-md border border-slate-800 bg-slate-900/60 p-5 shadow-md flex flex-col justify-between hover:border-slate-700 transition-all"
             >
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
@@ -265,10 +265,10 @@ export default function ClientPortalDashboard() {
       </div>
 
       {/* Outstanding Data Requests Table */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 shadow-md space-y-4">
+      <div className="rounded-md border border-slate-800 bg-slate-900/60 p-6 shadow-md space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
+            <h3 className="text-base font-bold text-black dark:text-white flex items-center gap-2">
               <FileSpreadsheet className="w-5 h-5 text-emerald-400" />
               Outstanding Compliance Data Requests
             </h3>
@@ -300,9 +300,9 @@ export default function ClientPortalDashboard() {
             <tbody className="divide-y divide-slate-800 text-slate-300">
               {pendingRequests.map((req) => (
                 <tr key={req._id} className="hover:bg-slate-800/40 transition-colors">
-                  <td className="py-3 px-4 font-mono font-medium text-white">{req.facilityId}</td>
+                  <td className="py-3 px-4 font-mono font-medium text-slate-900 dark:text-white">{req.facilityId}</td>
                   <td className="py-3 px-4">
-                    <div className="font-semibold text-white">{req.title}</div>
+                    <div className="font-semibold text-slate-900 dark:text-white">{req.title}</div>
                     <div className="text-[11px]   mt-0.5">{req.description}</div>
                   </td>
                   <td className="py-3 px-4">
@@ -335,7 +335,7 @@ export default function ClientPortalDashboard() {
       </div>
 
       {/* Approved Historical Assessments & Reports */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 shadow-md space-y-4">
+      <div className="rounded-md border border-slate-800 bg-slate-900/60 p-6 shadow-md space-y-4">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-base font-bold text-white flex items-center gap-2">
@@ -370,8 +370,8 @@ export default function ClientPortalDashboard() {
             <tbody className="divide-y divide-slate-800 text-slate-300">
               {history.map((h) => (
                 <tr key={h._id} className="hover:bg-slate-800/40 transition-colors">
-                  <td className="py-3 px-4 font-mono font-medium text-white">{h.facilityId}</td>
-                  <td className="py-3 px-4 font-semibold text-white">{h.complianceType}</td>
+                  <td className="py-3 px-4 font-mono font-medium text-slate-900 dark:text-white">{h.facilityId}</td>
+                  <td className="py-3 px-4 font-semibold text-slate-900 dark:text-white">{h.complianceType}</td>
                   <td className="py-3 px-4 font-mono  ">{h.period}</td>
                   <td className="py-3 px-4 text-center">
                     <StatusBadge status={h.complianceOutcome} type="outcome" size="sm" />
@@ -391,10 +391,10 @@ export default function ClientPortalDashboard() {
 
       {/* Google Drive Evidence Vault Repository Files */}
       {driveFiles.length > 0 && (
-        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 shadow-xl space-y-4">
+        <div className="rounded-md border border-slate-800 bg-slate-900/60 p-6 shadow-xl space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
+              <h3 className="text-base font-bold text-black dark:text-white flex items-center gap-2">
                 <Folder className="w-5 h-5 text-emerald-400" />
                 Google Drive Corporate Compliance Vault ({driveFiles.length} Documents)
               </h3>
@@ -406,7 +406,7 @@ export default function ClientPortalDashboard() {
               href={process.env.NEXT_PUBLIC_GDRIVE_FOLDER_URL || GOOGLE_DRIVE_FOLDER_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60 hover:bg-emerald-900 transition-colors self-start sm:self-center"
+              className="inline-flex items-center gap-1.5 px-2 py-1 text-xs font-semibold rounded-md text-blue-600 border border-blue-600/60 hover:bg-blue-600 hover:text-white transition-colors self-start sm:self-center"
             >
               <span>Browse Google Drive Folder</span>
               <ExternalLink className="w-3 h-3" />
@@ -430,7 +430,7 @@ export default function ClientPortalDashboard() {
                       </span>
                     )}
                   </div>
-                  <div className="text-xs font-bold text-white truncate" title={f.name}>
+                  <div className="text-xs font-bold text-slate-900 dark:text-white truncate" title={f.name}>
                     {f.name}
                   </div>
                   <p className="text-[11px]  ">
