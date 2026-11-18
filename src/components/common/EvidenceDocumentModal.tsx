@@ -10,7 +10,6 @@ import {
 } from 'lucide-react';
 
 import { formatNumber } from '@/lib/utils';
-import { GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
 
 interface EvidenceDocumentModalProps {
   isOpen: boolean;
@@ -63,10 +62,7 @@ export const EvidenceDocumentModal: React.FC<EvidenceDocumentModalProps> = ({
       ? `${bill.billingFrom} to ${bill.billingTo}`
       : 'Not provided';
 
-  const driveUrl =
-    url ||
-    process.env.NEXT_PUBLIC_GDRIVE_FOLDER_URL ||
-    GOOGLE_DRIVE_FOLDER_URL;
+  const driveUrl = url.trim();
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
@@ -140,7 +136,7 @@ export const EvidenceDocumentModal: React.FC<EvidenceDocumentModalProps> = ({
 
                 <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
                   Bill Amount: ₹
-                  {bill ? formatNumber(bill.billAmount) : 'Not provided'}
+                  {bill && Number.isFinite(bill.billAmount) ? formatNumber(bill.billAmount) : 'Not provided'}
                 </div>
               </div>
             </div>
@@ -216,7 +212,7 @@ export const EvidenceDocumentModal: React.FC<EvidenceDocumentModalProps> = ({
                     </td>
 
                     <td className="py-2.5 px-3 text-right font-bold text-emerald-700 dark:text-emerald-400">
-                      {bill
+                      {bill && Number.isFinite(bill.consumptionKwh)
                         ? formatNumber(bill.consumptionKwh)
                         : 'Not provided'}
                     </td>
@@ -242,33 +238,22 @@ export const EvidenceDocumentModal: React.FC<EvidenceDocumentModalProps> = ({
             </div>
           </div>
 
-          {/* Google Drive Link Metadata */}
+          {/* Drive link is optional while previewing unsaved form values. */}
           <div className="space-y-2 p-3.5 rounded-md bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
             <span className="text-slate-600 dark:text-slate-400 font-semibold block text-[11px] uppercase tracking-wider">
               Google Drive Evidence Reference
             </span>
-
-            <div className="flex items-center justify-between gap-3 font-mono text-[11px] text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800">
-              <span className="truncate">
-                {driveUrl}
-              </span>
-
-              <a
-                href={driveUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="shrink-0 px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-white hover:text-slate-900 border border-slate-300 dark:border-slate-700 inline-flex items-center gap-1 font-sans text-xs transition-colors"
-              >
-                <span>Open in Drive</span>
-                <ExternalLink className="w-3 h-3" />
-              </a>
-            </div>
-
-            <p className="text-[10px] text-slate-500">
-              This preview displays information submitted by the client. The
-              linked source document remains the supporting evidence for
-              consultant verification.
-            </p>
+            {driveUrl ? (
+              <div className="flex items-center justify-between gap-3 font-mono text-[11px] text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800">
+                <span className="truncate">{driveUrl}</span>
+                <a href={driveUrl} target="_blank" rel="noopener noreferrer" className="shrink-0 px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-white hover:text-slate-900 border border-slate-300 dark:border-slate-700 inline-flex items-center gap-1 font-sans text-xs transition-colors">
+                  <span>Open in Drive</span><ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            ) : (
+              <p className="text-[11px] text-slate-500">No Drive URL entered yet. This is a local preview; no document has been uploaded or submitted.</p>
+            )}
+            <p className="text-[10px] text-slate-500">The values shown are client-entered information. The linked source document, when provided, is supporting evidence for consultant verification.</p>
           </div>
         </div>
 

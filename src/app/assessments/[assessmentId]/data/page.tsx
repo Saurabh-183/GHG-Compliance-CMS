@@ -29,19 +29,22 @@ export default function AssessmentDataPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const [assRes, reqRes] = await Promise.all([
-          fetch(`/api/assessments/${assessmentId}`),
-          fetch(`/api/assessments/${assessmentId}/requirements`),
-        ]);
+        const assRes = await fetch(`/api/assessments/${assessmentId}`, { cache: 'no-store' });
+        if (!assRes.ok) throw new Error('Unable to load assessment details');
 
-        if (assRes.ok) {
-          const assJson = (await assRes.json()) as { data: IAssessment };
-          setAssessment(assJson.data);
-        }
-        if (reqRes.ok) {
-          const reqJson = (await reqRes.json()) as { data: IDataRequirement[] };
-          setRequirements(reqJson.data);
-        }
+        const assJson = (await assRes.json()) as { data: IAssessment };
+        setAssessment(assJson.data);
+
+        // Load the exact DataRequirement records used by the client portal.
+        // This avoids the previous second query's strict compliance filter hiding submissions.
+        const query = new URLSearchParams({
+          facilityId: assJson.data.facilityId,
+          period: assJson.data.period,
+        });
+        const reqRes = await fetch(`/api/requirements?${query.toString()}`, { cache: 'no-store' });
+        if (!reqRes.ok) throw new Error('Unable to load client submissions for this facility and period');
+        const reqJson = (await reqRes.json()) as { data: IDataRequirement[] };
+        setRequirements(reqJson.data || []);
       } catch (e) {
         console.error('Error fetching data checklist:', e);
       } finally {
@@ -157,7 +160,7 @@ export default function AssessmentDataPage() {
                     <div className="flex flex-col gap-1">
                       {req.submittedDriveLinks.length > 0 ? (
                         req.submittedDriveLinks.map((link, i) => (
-                          <DriveLinkBadge key={i} url={link.url} label={link.description || 'Drive Document'} />
+                          <DriveLinkBadge key={i} url={link.url} label={link.description || 'Drive Document'} billDetails={link.billDetails} utilityConnectionSnapshot={link.utilityConnectionSnapshot} facilityId={req.facilityId} />
                         ))
                       ) : (
                         <span className="text-slate-500 text-xs italic">Awaiting submission</span>
