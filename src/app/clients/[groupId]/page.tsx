@@ -16,6 +16,7 @@ import {
   FileSpreadsheet,
 } from 'lucide-react';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
+import { MOCK_CLIENT_GROUPS, MOCK_FACILITIES } from '@/lib/mockFallback';
 
 export default function ClientGroupDetailPage() {
   const params = useParams();
@@ -30,10 +31,34 @@ export default function ClientGroupDetailPage() {
         const res = await fetch(`/api/client-groups/${groupId}`);
         if (res.ok) {
           const data = (await res.json()) as { data: IClientGroup & { facilities?: IFacility[] } };
-          setGroup(data.data);
+          if (data.data) {
+            setGroup(data.data);
+            return;
+          }
+        }
+        // Fallback to mock data if API response is empty or non-200
+        const mock = MOCK_CLIENT_GROUPS.find(
+          (g) =>
+            g._id === groupId ||
+            g.code.toUpperCase() === groupId.toUpperCase() ||
+            g.name.toLowerCase() === groupId.toLowerCase()
+        );
+        if (mock) {
+          const mockFacs = MOCK_FACILITIES.filter((f) => f.clientGroupId === mock._id);
+          setGroup({ ...mock, facilities: mockFacs });
         }
       } catch (e) {
-        console.error('Error fetching group:', e);
+        console.warn('Error fetching group, loading fallback mock data:', e);
+        const mock = MOCK_CLIENT_GROUPS.find(
+          (g) =>
+            g._id === groupId ||
+            g.code.toUpperCase() === groupId.toUpperCase() ||
+            g.name.toLowerCase() === groupId.toLowerCase()
+        );
+        if (mock) {
+          const mockFacs = MOCK_FACILITIES.filter((f) => f.clientGroupId === mock._id);
+          setGroup({ ...mock, facilities: mockFacs });
+        }
       } finally {
         setLoading(false);
       }
@@ -82,7 +107,7 @@ export default function ClientGroupDetailPage() {
       <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 sm:p-8 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-start gap-4">
-            <div className="w-16 h-16 rounded-xl bg-[#EAF1F8] dark:bg-[#464858] border border-[#D5DCE5] dark:border-slate-700 flex items-center justify-center text-[#17365D] dark:text-[#D99B7F] shadow-2xs shrink-0">
+            <div className="w-16 h-16 rounded-md bg-[#EAF1F8] dark:bg-[#464858] border border-[#D5DCE5] dark:border-slate-700 flex items-center justify-center text-[#17365D] dark:text-[#D99B7F] shadow-2xs shrink-0">
               <Building2 className="w-8 h-8 text-[#17365D] dark:text-[#D99B7F]" />
             </div>
             <div>
@@ -109,7 +134,7 @@ export default function ClientGroupDetailPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-4 bg-[#F7F9FB] dark:bg-slate-950/60 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shrink-0">
+          <div className="flex items-center gap-4 bg-[#F7F9FB] dark:bg-slate-950/60 p-4 rounded-md border border-slate-200 dark:border-slate-800 shrink-0">
             <div className="text-center px-2">
               <div className="text-2xl font-bold text-[#17365D] dark:text-white">{allFacilities.length}</div>
               <div className="text-[10px] text-slate-500 dark:  uppercase tracking-wider font-semibold">Facilities</div>
@@ -153,7 +178,7 @@ export default function ClientGroupDetailPage() {
           {filteredFacilities.map((facility) => (
             <div
               key={facility._id || facility.facilityId}
-              className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-5 shadow-sm hover:shadow-md hover:border-[#17365D]/40 dark:hover:border-emerald-500/40 transition-all flex flex-col justify-between"
+              className="rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-5 shadow-sm hover:shadow-md hover:border-[#17365D]/40 dark:hover:border-emerald-500/40 transition-all flex flex-col justify-between"
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between gap-2">

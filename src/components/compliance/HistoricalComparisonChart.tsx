@@ -35,7 +35,7 @@ export const HistoricalComparisonChart: React.FC<HistoricalComparisonChartProps>
     }));
 
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5 shadow-lg">
+    <div className="rounded-md border border-slate-800 bg-slate-900/60 p-5 shadow-lg">
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="text-sm font-semibold text-slate-100">

@@ -36,18 +36,18 @@ html.light {
   --border-divider: #E5E7EB;
   --border-input: #C5CED8;
 
-  --status-success: #237347;
+  --status-success: #008a3e;
   --status-success-bg: #E7F3EB;
   --status-warning: #986A16;
   --status-warning-bg: #FFF4D6;
-  --status-error: #B42318;
+  --status-error: #cc2519;
   --status-error-bg: #FDECEC;
   --status-info: #245A91;
   --status-info-bg: #EAF1F8;
 }
 
 html.dark {
-  --primary-navy: #0F3040;
+  --primary-navy: #0e425c;
   --navy-hover: #173d52;
   --secondary-forest: #A56F63;
   --link-blue: #D99B7F;
@@ -79,6 +79,40 @@ html.dark {
 /* Application-wide Strict Sans-Serif Typography */
 *, *::before, *::after, html, body, input, button, select, textarea, optgroup, p, span, h1, h2, h3, h4, h5, h6, table, td, th, a, div, label, li {
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+}
+
+/* ==========================================================================
+   GLOBAL INTERACTIVE CONTROLS: POINTER CURSOR ON HOVER
+   ========================================================================== */
+button,
+[role="button"],
+[type="button"],
+[type="submit"],
+[type="reset"],
+a,
+summary,
+select,
+input[type="checkbox"],
+input[type="radio"],
+input[type="file"],
+input[type="button"],
+input[type="submit"],
+label[for],
+.cursor-pointer,
+[class*="cursor-pointer"] {
+  cursor: pointer !important;
+}
+
+button:disabled,
+button[disabled],
+[role="button"][aria-disabled="true"],
+[type="button"]:disabled,
+[type="submit"]:disabled,
+[type="reset"]:disabled,
+select:disabled,
+input:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed !important;
 }
 
 /* ==========================================================================
@@ -132,30 +166,57 @@ a.bg-emerald-600 svg,
    SECONDARY & OUTLINE BUTTONS IN LIGHT MODE: CRISP DARK TEXT (#343A40)
    ========================================================================== */
 html:not(.dark) button.bg-white,
-html:not(.dark) button.bg-white *,
+html:not(.dark) button.bg-white *:not(.notification-badge):not(.notification-badge *),
 html:not(.dark) button[class*="bg-white"],
-html:not(.dark) button[class*="bg-white"] *,
+html:not(.dark) button[class*="bg-white"] *:not(.notification-badge):not(.notification-badge *),
 html:not(.dark) a.bg-white,
-html:not(.dark) a.bg-white *,
+html:not(.dark) a.bg-white *:not(.notification-badge):not(.notification-badge *),
 html:not(.dark) a[class*="bg-white"],
-html:not(.dark) a[class*="bg-white"] *,
+html:not(.dark) a[class*="bg-white"] *:not(.notification-badge):not(.notification-badge *),
 html:not(.dark) button[class*="text-slate-"],
-html:not(.dark) button[class*="text-slate-"] *,
+html:not(.dark) button[class*="text-slate-"] *:not(.notification-badge):not(.notification-badge *),
 html:not(.dark) a[class*="text-slate-"],
-html:not(.dark) a[class*="text-slate-"] *,
+html:not(.dark) a[class*="text-slate-"] *:not(.notification-badge):not(.notification-badge *),
 html.light button.bg-white,
-html.light button.bg-white *,
+html.light button.bg-white *:not(.notification-badge):not(.notification-badge *),
 html.light button[class*="bg-white"],
-html.light button[class*="bg-white"] *,
+html.light button[class*="bg-white"] *:not(.notification-badge):not(.notification-badge *),
 html.light a.bg-white,
-html.light a.bg-white *,
+html.light a.bg-white *:not(.notification-badge):not(.notification-badge *),
 html.light a[class*="bg-white"],
-html.light a[class*="bg-white"] *,
+html.light a[class*="bg-white"] *:not(.notification-badge):not(.notification-badge *),
 html.light button[class*="text-slate-"],
-html.light button[class*="text-slate-"] *,
+html.light button[class*="text-slate-"] *:not(.notification-badge):not(.notification-badge *),
 html.light a[class*="text-slate-"],
-html.light a[class*="text-slate-"] * {
+html.light a[class*="text-slate-"] *:not(.notification-badge):not(.notification-badge *) {
   color: #343A40 !important;
+}
+
+/* Notification Count Badge in Light Mode: High-contrast white text on badge */
+html:not(.dark) .notification-badge,
+html:not(.dark) .notification-badge *,
+html:not(.dark) button .notification-badge,
+html:not(.dark) button[class*="bg-white"] .notification-badge,
+html:not(.dark) button[class*="text-slate-"] .notification-badge,
+html.light .notification-badge,
+html.light .notification-badge *,
+html.light button .notification-badge,
+html.light button[class*="bg-white"] .notification-badge,
+html.light button[class*="text-slate-"] .notification-badge {
+  color: #FFFFFF !important;
+  fill: #FFFFFF !important;
+}
+
+/* User Avatar Circle: Crisp pure white text on Navy circle */
+html:not(.dark) .user-avatar,
+html:not(.dark) .user-avatar *,
+html.light .user-avatar,
+html.light .user-avatar *,
+.user-avatar,
+.user-avatar * {
+  background-color: #17365D !important;
+  color: #FFFFFF !important;
+  fill: #FFFFFF !important;
 }
 
 html:not(.dark) button.bg-white svg:not(.text-emerald-700):not(.text-emerald-600):not(.text-rose-600):not(.text-amber-500),
@@ -378,7 +439,11 @@ html.light h5:not(button *):not([class*="bg-[#17365D]"] *):not([class*="bg-emera
 html.light h6:not(button *):not([class*="bg-[#17365D]"] *):not([class*="bg-emerald"] *),
 html.light .text-slate-900,
 html.light .text-slate-100:not(button *):not([class*="bg-[#17365D]"] *):not([class*="bg-emerald"] *),
-html.light .text-slate-200:not(button *):not([class*="bg-[#17365D]"] *):not([class*="bg-emerald"] *) {
+html.light .text-slate-200:not(button *):not([class*="bg-[#17365D]"] *):not([class*="bg-emerald"] *),
+html:not(.dark) div[class*="bg-slate-"] > div.text-white:not(button *):not(a *):not(.user-avatar):not(.user-avatar *),
+html:not(.dark) div[class*="bg-slate-"] > .text-white:not(button *):not(a *):not(.user-avatar):not(.user-avatar *),
+html.light div[class*="bg-slate-"] > div.text-white:not(button *):not(a *):not(.user-avatar):not(.user-avatar *),
+html.light div[class*="bg-slate-"] > .text-white:not(button *):not(a *):not(.user-avatar):not(.user-avatar *) {
   color: #343A40 !important;
 }
 
@@ -562,11 +627,13 @@ html:not(.dark) .text-rose-800,
 html:not(.dark) .text-rose-600,
 html:not(.dark) .text-rose-400,
 html:not(.dark) .text-rose-300,
+html:not(.dark) .text-rose-200,
 html.light .text-rose-700,
 html.light .text-rose-800,
 html.light .text-rose-600,
 html.light .text-rose-400,
-html.light .text-rose-300 {
+html.light .text-rose-300,
+html.light .text-rose-200 {
   color: #B42318 !important;
 }
 
