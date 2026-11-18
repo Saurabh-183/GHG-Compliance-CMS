@@ -61,6 +61,7 @@ export function proxy(request: NextRequest) {
   // 1. RBAC Restriction: Client role is strictly confined to /portal
   const isInternalRoute =
     pathname.startsWith('/dashboard') ||
+    pathname.startsWith('/client-uploads') ||
     pathname.startsWith('/approvals') ||
     pathname.startsWith('/datasets') ||
     pathname.startsWith('/assessments') ||
