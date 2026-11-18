@@ -28,7 +28,10 @@ yarn-error.log*
 # local env files
 .env*.local
 
-.env    
+.env
+
+# facility checklist JSON fallback store (local dev)
+.data/
 
 # vercel
 .vercel

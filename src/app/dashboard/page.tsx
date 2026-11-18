@@ -25,6 +25,7 @@ import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import { MOCK_CLIENT_GROUPS } from '@/lib/mockFallback';
 import { CompanySelectMui } from '@/components/dashboard/CompanySelectMui';
 import { ClientUploadsPanel } from '@/components/uploads/ClientUploadsPanel';
+import { FacilityDataChecklistPanel } from '@/components/checklist/FacilityDataChecklistPanel';
 import { generateDeadlinesForFacilities } from '@/lib/statutoryCalendar';
 
 export default function DashboardPage() {
@@ -34,6 +35,7 @@ export default function DashboardPage() {
   const [clarifications, setClarifications] = useState<IClarification[]>([]);
   const [groups, setGroups] = useState<IClientGroup[]>([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>('ALL');
+  const [checklistFacilityId, setChecklistFacilityId] = useState<string>('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -105,6 +107,8 @@ export default function DashboardPage() {
   );
 
   // Filter facilities based on the selected company.
+  const allFacilities: IFacility[] = groups.flatMap((g) => g.facilities || []);
+
   const currentFacilities: IFacility[] = selectedGroup
     ? selectedGroup.facilities?.length
       ? selectedGroup.facilities
@@ -114,6 +118,29 @@ export default function DashboardPage() {
     : allFacilities;
 
   // Filter calendar deadlines for the selected company.
+  useEffect(() => {
+    if (currentFacilities.length === 0) {
+      setChecklistFacilityId('');
+      return;
+    }
+    setChecklistFacilityId((prev) => {
+      if (prev && currentFacilities.some((f) => f.facilityId === prev)) return prev;
+      return currentFacilities[0].facilityId;
+    });
+  }, [currentFacilities]);
+
+  const checklistFacility = currentFacilities.find((f) => f.facilityId === checklistFacilityId);
+
+  if (loading) {
+    return <CarbonCrunchLoader message="Loading consultant compliance workspace..." />;
+  }
+
+  // Primary facility for the header Matrix link
+  const primaryFacilityId =
+    selectedGroup?.facilities?.[0]?.facilityId ||
+    (selectedGroup ? 'UTC_KOTPUTLI' : 'TRIDENT_PAPER');
+
+  // Filter calendar deadlines for selected company if applicable
   const filteredCalendarItems = selectedGroup
     ? calendarItems.filter((item) =>
         currentFacilities.some(
@@ -178,6 +205,10 @@ export default function DashboardPage() {
                   {selectedGroup.name}
                 </strong>
               </span>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            Logged in as <strong className="text-emerald-700 dark:text-emerald-400">{currentUser?.name}</strong> ({currentUser?.designation})
+            {selectedGroup && (
+              <span> · Active View: <strong className="text-slate-800 dark:text-white">{selectedGroup.name}</strong></span>
             )}
           </p>
         </div>
@@ -200,6 +231,8 @@ export default function DashboardPage() {
               {selectedGroup
                 ? 'Assigned Operating Units'
                 : 'Assigned Facilities'}
+            <span className="text-xs font-medium text-slate-500 dark:text-slate-400 ">
+              {selectedGroup ? 'Assigned Operating Units' : 'Assigned Facilities'}
             </span>
             <Building2 className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
           </div>
@@ -229,6 +262,7 @@ export default function DashboardPage() {
             <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
               Active Compliances
             </span>
+            <span className="text-xs font-medium text-slate-500 dark:text-slate-400 ">Active Compliances</span>
             <TrendingUp className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
           </div>
 
@@ -257,6 +291,8 @@ export default function DashboardPage() {
                   : 'text-emerald-600 dark:text-emerald-400'
               }`}
             />
+            <span className="text-xs font-medium text-slate-500 dark:text-slate-400 ">Open Clarifications</span>
+            <AlertTriangle className={`w-4 h-4 ${isTridentSelected ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`} />
           </div>
 
           <div
@@ -290,6 +326,7 @@ export default function DashboardPage() {
             <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
               Upcoming Filings
             </span>
+            <span className="text-xs font-medium text-slate-500 dark:text-slate-400 ">Upcoming Filings</span>
             <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
           </div>
 
@@ -394,6 +431,34 @@ export default function DashboardPage() {
       />
 
       {/* Upcoming Deadlines & Registered Facilities */}
+      {selectedGroup && checklistFacility && (
+        <div className="space-y-3">
+          {currentFacilities.length > 1 && (
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <span className="font-semibold text-slate-600 dark:text-slate-400">Data checklist facility:</span>
+              <select
+                value={checklistFacilityId}
+                onChange={(e) => setChecklistFacilityId(e.target.value)}
+                className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-1.5 text-slate-800 dark:text-white min-w-[220px]"
+              >
+                {currentFacilities.map((f) => (
+                  <option key={f.facilityId} value={f.facilityId}>
+                    {f.name} ({f.facilityId})
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          <FacilityDataChecklistPanel
+            key={checklistFacility.facilityId}
+            facilityId={checklistFacility.facilityId}
+            facilityName={checklistFacility.name}
+            mode="internal"
+          />
+        </div>
+      )}
+
+      {/* Two Column Grid: Upcoming Deadlines & Dynamic Registered Facilities */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Compliance Deadlines */}
         <div className="rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-5 shadow-sm space-y-4">
@@ -508,6 +573,23 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="mt-2.5 flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                      {fac.location} · {fac.category}
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-1 shrink-0">
+                    <Link
+                      href={`/facilities/${fac.facilityId}`}
+                      className="px-2.5 py-1 text-xs rounded bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20 font-semibold transition-colors text-center"
+                    >
+                      Open Facility
+                    </Link>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 text-center">
+                      Includes data checklist
+                    </span>
+                  </div>
+                </div>
+                <div className="mt-2.5 flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 ">
                   <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                     {facility.facilityId}
                   </span>

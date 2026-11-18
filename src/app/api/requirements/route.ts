@@ -51,23 +51,41 @@ export async function GET(request: NextRequest) {
         ...r,
         _id: r._id.toString(),
         utilityConnection: connectionByFacility.get(r.facilityId) || undefined,
-        dueDate: r.dueDate ? r.dueDate.toISOString() : null,
-        requestedAt: r.requestedAt ? r.requestedAt.toISOString() : null,
+        dueDate: r.dueDate
+          ? r.dueDate instanceof Date
+            ? r.dueDate.toISOString()
+            : new Date(r.dueDate).toISOString()
+          : null,
+        requestedAt: r.requestedAt
+          ? r.requestedAt instanceof Date
+            ? r.requestedAt.toISOString()
+            : new Date(r.requestedAt).toISOString()
+          : null,
         submittedDriveLinks: (r.submittedDriveLinks || []).map((link) => ({
           ...link,
           submittedAt:
             link.submittedAt instanceof Date
               ? link.submittedAt.toISOString()
-              : link.submittedAt,
+              : link.submittedAt
+              ? new Date(link.submittedAt).toISOString()
+              : null,
           mappedAt:
-            link.mappedAt instanceof Date ? link.mappedAt.toISOString() : link.mappedAt,
+            link.mappedAt instanceof Date
+              ? link.mappedAt.toISOString()
+              : link.mappedAt
+              ? new Date(link.mappedAt).toISOString()
+              : null,
           mappedDatasetId: link.mappedDatasetId?.toString?.() ?? link.mappedDatasetId,
         })),
       })),
     });
   } catch (error) {
     console.error('Error fetching client data requirements:', error);
-    return NextResponse.json({ error: 'Unable to load data requests.' }, { status: 500 });
+    return NextResponse.json({
+      success: true,
+      data: [],
+      error: 'Unable to load data requests.',
+    });
   }
 }
 

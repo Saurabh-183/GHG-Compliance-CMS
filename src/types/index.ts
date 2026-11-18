@@ -154,6 +154,7 @@ export interface IAssessment {
   updatedAt: string;
 }
 
+export type DriveLinkMappingStatus = 'PENDING' | 'MAPPED' | 'VERIFIED' | 'REJECTED';
 
 export interface ISubmittedDriveLink {
   url: string;
@@ -162,7 +163,11 @@ export interface ISubmittedDriveLink {
   description: string;
 
   // Drive Vault information
+  /** Original URL pasted by the client */
+  sourceUrl?: string;
+  /** Canonical link in the compliance vault (may match url after ingest) */
   vaultUrl?: string;
+  vaultFolderUrl?: string;
   vaultFolderPath?: string;
   sourceUrl?: string;
   vaultFolderUrl?: string;
@@ -182,6 +187,19 @@ export interface ISubmittedDriveLink {
   verificationNotes?: string;
 
   // Electricity bill information
+  vaultCategory?: string;
+  driveFileId?: string;
+  driveFolderId?: string;
+  vaultFileId?: string;
+  vaultTargetFolderId?: string;
+  fileName?: string;
+  mappingStatus?: DriveLinkMappingStatus;
+  mappedMonth?: string;
+  mappedDatasetId?: string;
+  mappedAt?: string;
+  mappedBy?: string;
+  verificationNotes?: string;
+  ingestionMode?: 'VAULT_INDEXED' | 'DRIVE_API_COPIED';
   billDetails?: {
     invoiceNumber: string;
     billingFrom: string;
@@ -366,4 +384,29 @@ export interface IAuthUserSession {
   role: UserRole;
   clientGroupId?: string;
   authorizedFacilityIds?: string[];
+}
+
+export type DataChecklistItemStatus = 'DUE' | 'RECEIVED' | 'NOT_APPLICABLE' | 'NOT_REQUIRED';
+
+export interface IFacilityDataChecklistItem {
+  itemKey: string;
+  label: string;
+  status: DataChecklistItemStatus;
+  notes?: string;
+  sortOrder: number;
+}
+
+export interface IFacilityDataChecklist {
+  _id: string;
+  facilityId: string;
+  facilityName?: string;
+  period: string;
+  items: IFacilityDataChecklistItem[];
+  sharedWithClient: boolean;
+  sharedAt?: string;
+  sharedByName?: string;
+  lastUpdatedByName?: string;
+  consultantNotes?: string;
+  createdAt: string;
+  updatedAt: string;
 }

@@ -61,9 +61,9 @@ export default function DatasetVerifyPage() {
 
   if (!dataset) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-16 text-center  ">
-        <h2 className="text-lg font-bold text-white">Dataset Not Found</h2>
-        <Link href="/facilities/TRIDENT_PAPER" className="mt-4 inline-block text-emerald-400 text-xs">
+      <div className="max-w-7xl mx-auto px-4 py-16 text-center">
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white">Dataset Not Found</h2>
+        <Link href="/facilities/TRIDENT_PAPER" className="mt-4 inline-block text-emerald-600 dark:text-emerald-400 text-xs">
           Return to Facility Matrix
         </Link>
       </div>
@@ -90,7 +90,7 @@ export default function DatasetVerifyPage() {
           Compliance Matrix
         </Link>
         <ChevronRight className="w-3 h-3   " />
-        <span className="   dark:text-white font-semibold">Grid Electricity Reconciliation</span>
+        <span className="text-slate-900 dark:text-white font-semibold">Grid Electricity Reconciliation</span>
       </div>
 
       {/* Main Reconciliation Engine Component */}

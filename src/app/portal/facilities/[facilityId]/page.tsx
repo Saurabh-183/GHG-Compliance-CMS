@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { formatDate, formatNumber } from '@/lib/utils';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
+import { FacilityDataChecklistPanel } from '@/components/checklist/FacilityDataChecklistPanel';
 import { GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
 import { EnergyRecordsMuiTable } from '@/components/portal/EnergyRecordsMuiTable';
 import { ApplicableComplianceMuiTable } from '@/components/portal/ApplicableComplianceMuiTable';
@@ -101,9 +102,9 @@ export default function ClientFacilityOverviewPage() {
 
   if (!facility) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-16 text-center  ">
-        <h2 className="text-lg font-bold text-white">Facility Not Found</h2>
-        <Link href="/portal" className="mt-4 inline-block text-emerald-400 text-xs">
+      <div className="max-w-7xl mx-auto px-4 py-16 text-center">
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white">Facility Not Found</h2>
+        <Link href="/portal" className="mt-4 inline-block text-emerald-600 dark:text-emerald-400 text-xs">
           Return to Portal
         </Link>
       </div>
@@ -121,10 +122,10 @@ export default function ClientFacilityOverviewPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-xs  ">
-        <Link href="/portal" className="hover:text-emerald-400">Client Portal</Link>
-        <ChevronRight className="w-3 h-3   " />
-        <span className="   dark:text-white font-semibold">{facility.name}</span>
+      <div className="flex items-center gap-2 text-xs">
+        <Link href="/portal" className="hover:text-emerald-600 dark:hover:text-emerald-400 text-slate-500 dark:text-slate-400">Client Portal</Link>
+        <ChevronRight className="w-3 h-3 text-slate-400" />
+        <span className="text-slate-900 dark:text-white font-semibold">{facility.name}</span>
       </div>
 
       {/* Header */}
@@ -222,6 +223,8 @@ export default function ClientFacilityOverviewPage() {
           </div>
         </div>
       </div>
+
+      <FacilityDataChecklistPanel facilityId={facilityId} facilityName={facility.name} mode="client" />
 
       {/* Google Drive Synced Monthly Energy Records Table (MUI Table) */}
       {months.length > 0 && (

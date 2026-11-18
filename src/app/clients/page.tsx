@@ -121,7 +121,7 @@ export default function ClientsPage() {
               Client Companies
             </h1>
 
-            <span className="rounded-full border border-[#D5DCE5] bg-[#EAF1F8] px-2.5 py-1 text-xs font-semibold text-[#17365D] dark:border-slate-700 dark:bg-slate-800 dark:   dark:text-white">
+            <span className="rounded-full border border-[#D5DCE5] bg-[#EAF1F8] px-2.5 py-1 text-xs font-semibold text-[#17365D] dark:border-slate-700 dark:bg-slate-800 dark:text-white">
               {groups.length} Companies
             </span>
 
@@ -130,7 +130,7 @@ export default function ClientsPage() {
             </span>
           </div>
 
-          <p className="mt-2 text-sm    dark: ">
+          <p className="mt-2 text-sm text-slate-600 dark:text-slate-400 ">
             Select a company to view its assigned facilities and operating
             units.
           </p>
@@ -155,7 +155,7 @@ export default function ClientsPage() {
           <h2 className="mt-4 font-semibold text-slate-900 dark:text-white">
             No companies found
           </h2>
-          <p className="mt-1 text-sm text-slate-500 dark: ">
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 ">
             Try another company name, industry, or facility search.
           </p>
         </div>
@@ -189,21 +189,21 @@ export default function ClientsPage() {
                     {company.name}
                   </h2>
 
-                  <p className="mt-1 line-clamp-2 text-sm    dark: ">
+                  <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-400 ">
                     {company.industry || 'Industry not specified'}
                   </p>
 
                   <div className="mt-4 space-y-3 border-t border-slate-100 pt-4 text-sm dark:border-slate-800">
-                    <div className="flex items-start gap-2    dark: ">
+                    <div className="flex items-start gap-2    dark:text-slate-400 ">
                       <MapPin className="mt-0.5 h-4 w-4 shrink-0" />
                       <span>{company.headquarters || 'Location not specified'}</span>
                     </div>
 
-                    <div className="flex items-start gap-2    dark: ">
+                    <div className="flex items-start gap-2    dark:text-slate-400 ">
                       <Users className="mt-0.5 h-4 w-4 shrink-0" />
                       <span>
                         Contact:{' '}
-                        <strong className="font-medium text-slate-800 dark:   dark:text-white">
+                        <strong className="font-medium text-slate-800 dark:text-white">
                           {company.contactPerson?.name || 'Not specified'}
                         </strong>
                       </span>

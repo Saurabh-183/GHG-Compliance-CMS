@@ -52,25 +52,25 @@ export const ClarificationEmailModal: React.FC<ClarificationEmailModalProps> = (
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in">
-      <div className="relative w-full max-w-2xl bg-slate-900 border border-slate-700/80 rounded-md shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-950/50">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 shrink-0">
+            <div className="p-2 rounded-lg bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 text-rose-600 dark:text-rose-400 shrink-0">
               <AlertTriangle className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-semibold text-white">
+              <h3 className="text-base font-semibold text-slate-900 dark:text-white">
                 Discrepancy Clarification — {clarification.month}
               </h3>
-              <p className="text-xs  ">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 {clarification.parameter} · Variance: {formatNumber(clarification.variance)} kWh ({clarification.variancePercentage}%)
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1   hover:   dark:text-white hover:bg-slate-800 rounded-md transition-colors"
+            className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -79,10 +79,10 @@ export const ClarificationEmailModal: React.FC<ClarificationEmailModalProps> = (
         {/* Modal Body */}
         <div className="p-6 space-y-5 overflow-y-auto">
           {/* Numbers comparison highlight */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 rounded-lg bg-slate-950/60 border border-slate-800">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 rounded-lg bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
             <div>
-              <div className="text-[11px] font-medium   uppercase tracking-wider">Client Declared</div>
-              <div className="text-base font-semibold    dark:text-white mt-0.5">
+              <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Client Declared</div>
+              <div className="text-base font-semibold text-slate-900 dark:text-white mt-0.5">
                 {formatNumber(clarification.declaredValue)} kWh
               </div>
             </div>
@@ -159,12 +159,12 @@ export const ClarificationEmailModal: React.FC<ClarificationEmailModalProps> = (
 
           {/* Client response input form */}
           {(!clarification.clientResponse || isClientView) && onClientRespond && (
-            <form onSubmit={handleSubmitResponse} className="p-4 rounded-lg bg-slate-800/50 border border-slate-700/60 space-y-3">
-              <h4 className="text-xs font-semibold    dark:text-white">
+            <form onSubmit={handleSubmitResponse} className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 space-y-3">
+              <h4 className="text-xs font-semibold text-slate-900 dark:text-white">
                 Submit Client Response & Revised Evidence
               </h4>
               <div>
-                <label className="block text-[11px]   mb-1">
+                <label className="block text-[11px] text-slate-600 dark:text-slate-400 mb-1">
                   Explanation / Remarks:
                 </label>
                 <textarea
@@ -173,11 +173,11 @@ export const ClarificationEmailModal: React.FC<ClarificationEmailModalProps> = (
                   rows={2}
                   required
                   placeholder="e.g. Revised calculation attached. 15,000 kWh was billed under auxiliary backup meter 02."
-                  className="w-full px-3 py-2 text-xs bg-slate-950 border border-slate-700 rounded-md    dark:text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500"
+                  className="w-full px-3 py-2 text-xs bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-md text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:border-emerald-500"
                 />
               </div>
               <div>
-                <label className="block text-[11px]   mb-1">
+                <label className="block text-[11px] text-slate-600 dark:text-slate-400 mb-1">
                   Revised Google Drive Document URL:
                 </label>
                 <input
@@ -185,14 +185,14 @@ export const ClarificationEmailModal: React.FC<ClarificationEmailModalProps> = (
                   value={revisedDriveLink}
                   onChange={(e) => setRevisedDriveLink(e.target.value)}
                   placeholder="https://drive.google.com/file/d/..."
-                  className="w-full px-3 py-2 text-xs bg-slate-950 border border-slate-700 rounded-md    dark:text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500"
+                  className="w-full px-3 py-2 text-xs bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-md text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:border-emerald-500"
                 />
               </div>
               <div className="flex justify-end gap-2 pt-1">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-3 py-1.5 text-xs   hover:   dark:text-white"
+                  className="px-3 py-1.5 text-xs text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
                 >
                   Cancel
                 </button>

@@ -79,7 +79,7 @@ export default function ClientSubmissionsPage() {
             <MessageSquare className="w-6 h-6 text-emerald-400" />
             Client Submissions & Discrepancy Clarifications
           </h1>
-          <p className="text-xs   mt-1">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Review discrepancies flagged during verification and provide explanation notes or revised supporting documentation.
           </p>
         </div>
@@ -90,25 +90,25 @@ export default function ClientSubmissionsPage() {
         {clarifications.map((item) => (
           <div
             key={item._id}
-            className="rounded-md border border-slate-800 bg-slate-900/60 p-6 shadow-xl space-y-4"
+            className="rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-6 shadow-xl space-y-4"
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-2.5">
-                <span className="p-2 rounded-lg bg-rose-500/10 text-rose-400">
+                <span className="p-2 rounded-lg bg-rose-500/10 text-rose-500 dark:text-rose-400">
                   <AlertTriangle className="w-5 h-5" />
                 </span>
                 <div>
-                  <h3 className="text-sm font-bold text-black dark:text-white">
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">
                     {item.parameter} Discrepancy — Month: {item.month}
                   </h3>
-                  <p className="text-xs   mt-0.5">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                     Raised by Carbon Crunch Consultant on {formatDate(item.raisedAt)}
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-rose-500/10 text-rose-300 border border-rose-500/20">
+                <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-rose-500/10 text-rose-700 dark:text-rose-300 border border-rose-500/20">
                   {item.status.replace('_', ' ')}
                 </span>
                 <button
@@ -124,22 +124,22 @@ export default function ClientSubmissionsPage() {
             </div>
 
             {/* Reconciliation Variance Details */}
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 p-4 rounded-lg bg-slate-950/60 border border-slate-800 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 p-4 rounded-lg bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 text-xs">
               <div>
                 <span className="text-slate-500">Your Declared Value:</span>
-                <div className="font-mono font-bold    dark:text-white mt-0.5">
+                <div className="font-mono font-bold text-slate-900 dark:text-white mt-0.5">
                   {formatNumber(item.declaredValue)} kWh
                 </div>
               </div>
               <div>
                 <span className="text-slate-500">DISCOM Bill Value:</span>
-                <div className="font-mono font-bold text-amber-400 mt-0.5">
+                <div className="font-mono font-bold text-amber-600 dark:text-amber-400 mt-0.5">
                   {formatNumber(item.evidenceValue)} kWh
                 </div>
               </div>
               <div>
                 <span className="text-slate-500">Flagged Variance:</span>
-                <div className="font-mono font-bold text-rose-400 mt-0.5">
+                <div className="font-mono font-bold text-rose-600 dark:text-rose-400 mt-0.5">
                   +{formatNumber(item.variance)} kWh ({item.variancePercentage}%)
                 </div>
               </div>
@@ -152,23 +152,23 @@ export default function ClientSubmissionsPage() {
             </div>
 
             {/* Consultant query note */}
-            <div className="text-xs text-slate-300 bg-slate-950/40 p-3 rounded-lg border border-slate-800">
-              <strong className="text-emerald-400">Consultant Query:</strong> &ldquo;{item.comment}&rdquo;
+            <div className="text-xs text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-950/40 p-3 rounded-lg border border-slate-200 dark:border-slate-800">
+              <strong className="text-emerald-700 dark:text-emerald-400">Consultant Query:</strong> &ldquo;{item.comment}&rdquo;
             </div>
 
             {/* Existing Client Response */}
             {item.clientResponse && (
-              <div className="text-xs text-slate-300 bg-slate-950/50 p-3 rounded-lg border border-slate-800 space-y-1.5">
+              <div className="text-xs text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-950/50 p-3 rounded-lg border border-slate-200 dark:border-slate-800 space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <strong className="text-emerald-400">Your Response:</strong>
-                  <span className="text-[11px]  ">
+                  <strong className="text-emerald-700 dark:text-emerald-400">Your Response:</strong>
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400">
                     {formatDate(item.clientResponse.respondedAt)}
                   </span>
                 </div>
                 <p>&ldquo;{item.clientResponse.responseText}&rdquo;</p>
                 {item.clientResponse.revisedDriveLink && (
                   <div className="pt-1 flex items-center gap-2">
-                    <span className="  text-[11px]">Revised Document:</span>
+                    <span className="text-slate-500 dark:text-slate-400 text-[11px]">Revised Document:</span>
                     <DriveLinkBadge url={item.clientResponse.revisedDriveLink} label="Revised Drive Document" />
                   </div>
                 )}
