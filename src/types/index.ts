@@ -169,37 +169,25 @@ export interface ISubmittedDriveLink {
   vaultUrl?: string;
   vaultFolderUrl?: string;
   vaultFolderPath?: string;
-  sourceUrl?: string;
-  vaultFolderUrl?: string;
   vaultCategory?: string;
   vaultFileId?: string;
+  driveFileId?: string;
   driveFolderId?: string;
   vaultTargetFolderId?: string;
 
   // File information
   fileName?: string;
-  ingestionMode?: string;
+  ingestionMode?: 'VAULT_INDEXED' | 'DRIVE_API_COPIED' | string;
 
   // Mapping and verification
-  mappingStatus?: string;
-  mappedMonth?: string;
-  mappedDatasetId?: string;
-  verificationNotes?: string;
-
-  // Electricity bill information
-  vaultCategory?: string;
-  driveFileId?: string;
-  driveFolderId?: string;
-  vaultFileId?: string;
-  vaultTargetFolderId?: string;
-  fileName?: string;
-  mappingStatus?: DriveLinkMappingStatus;
+  mappingStatus?: DriveLinkMappingStatus | string;
   mappedMonth?: string;
   mappedDatasetId?: string;
   mappedAt?: string;
   mappedBy?: string;
   verificationNotes?: string;
-  ingestionMode?: 'VAULT_INDEXED' | 'DRIVE_API_COPIED';
+
+  // Electricity bill information
   billDetails?: {
     invoiceNumber: string;
     billingFrom: string;

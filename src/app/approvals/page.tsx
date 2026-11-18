@@ -157,7 +157,7 @@ export default function ApprovalsPage() {
         <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/80 text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/80 text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider whitespace-nowrap">
                 <th className="py-3 px-4">Facility</th>
                 <th className="py-3 px-4">Dataset Type</th>
                 <th className="py-3 px-4">Period</th>
@@ -180,42 +180,90 @@ export default function ApprovalsPage() {
 
                 return (
                   <tr key={d._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                    <td className="py-3.5 px-4 font-mono font-bold text-slate-900 dark:text-white">
+                    <td className="py-3.5 px-4 font-mono font-bold text-slate-900 dark:text-white whitespace-nowrap">
                       {d.facilityId}
                     </td>
-                    <td className="py-3.5 px-4 text-slate-900 dark:text-white font-semibold">
+                    <td className="py-3.5 px-4 text-slate-900 dark:text-white font-semibold whitespace-nowrap">
                       {d.datasetType.replace('_', ' ')}
                     </td>
-                    <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300 font-mono">
+                    <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300 font-mono whitespace-nowrap">
                       {d.period}
                     </td>
-                    <td className="py-3.5 px-4 text-center">
+                    <td className="py-3.5 px-4 text-center whitespace-nowrap">
                       <StatusBadge status={d.verificationStatus} size="sm" />
                     </td>
-                    <td className="py-3.5 px-4 text-center font-mono">
-                      <span className="font-bold text-slate-900 dark:text-white ">{dataGivenPct}%</span>
-                      <span className="text-[10px] text-slate-500 block">({declaredCount}/12 mo)</span>
+                    <td className="py-3.5 px-4 text-center font-mono whitespace-nowrap">
+                      <div
+                        className="inline-flex items-center justify-center gap-1.5 cursor-help"
+                        title={`${declaredCount} of 12 monthly energy logs declared by client (${dataGivenPct}%)`}
+                      >
+                        <span className="font-bold text-slate-900 dark:text-white">{dataGivenPct}%</span>
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400">({declaredCount}/12 mo)</span>
+                      </div>
                     </td>
-                    <td className="py-3.5 px-4 text-center font-mono">
-                      <span className={`font-bold ${dataMatchedPct >= 80 ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'}`}>
-                        {dataMatchedPct}%
-                      </span>
-                      <span className="text-[10px] text-slate-500 block">({matchedCount}/{evalCount} match)</span>
+                    <td className="py-3.5 px-4 text-center font-mono whitespace-nowrap">
+                      <div
+                        className="inline-flex items-center justify-center gap-1.5 cursor-help"
+                        title={
+                          evalCount > 0
+                            ? `${matchedCount} of ${evalCount} audited months matched evidence within tolerance (${dataMatchedPct}%)`
+                            : 'Pending evidence reconciliation against bills'
+                        }
+                      >
+                        <span
+                          className={`font-bold ${
+                            dataMatchedPct >= 80
+                              ? 'text-emerald-700 dark:text-emerald-400'
+                              : 'text-amber-700 dark:text-amber-400'
+                          }`}
+                        >
+                          {dataMatchedPct}%
+                        </span>
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                          ({matchedCount}/{evalCount || 0} match)
+                        </span>
+                      </div>
                     </td>
-                    <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300">
+                    <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300 whitespace-nowrap">
                       {d.consultantSubmission ? (
-                        <div>
-                          <div className="text-slate-900 dark:text-white font-medium">{d.consultantSubmission.consultantName}</div>
-                          <div className="text-[11px] text-slate-500 line-clamp-1">{d.consultantSubmission.summary}</div>
+                        <div
+                          className="inline-flex items-center gap-1.5 max-w-[340px] cursor-help group"
+                          title={`Consultant: ${d.consultantSubmission.consultantName}\n\nFull Description:\n${
+                            d.consultantSubmission.summary || 'No detailed description provided.'
+                          }`}
+                        >
+                          <span className="font-semibold text-slate-900 dark:text-white shrink-0">
+                            {d.consultantSubmission.consultantName}
+                          </span>
+                          {d.consultantSubmission.summary && (
+                            <>
+                              <span className="text-slate-400 dark:text-slate-600 shrink-0">·</span>
+                              <span className="text-[11px] text-slate-600 dark:text-slate-300 truncate max-w-[200px] group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                                {d.consultantSubmission.summary}
+                              </span>
+                            </>
+                          )}
                         </div>
                       ) : (
-                        '—'
+                        <span
+                          className="inline-flex items-center gap-1 text-[11px] text-slate-400 dark:text-slate-500 italic cursor-help hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                          title="No consultant notes submitted yet. Monthly dataset created and awaiting audit sign-off."
+                        >
+                          No submission notes
+                        </span>
                       )}
                     </td>
-                    <td className="py-3.5 px-4 text-center font-mono text-slate-700 dark:text-slate-300 ">
-                      v{d.reviewerApproval?.version || 1}
+                    <td className="py-3.5 px-4 text-center font-mono text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                      <span
+                        className="cursor-help"
+                        title={`Version ${d.reviewerApproval?.version || 1} · ${
+                          isLocked ? 'Approved and locked against modification' : 'Pending reviewer sign-off'
+                        }`}
+                      >
+                        v{d.reviewerApproval?.version || 1}
+                      </span>
                     </td>
-                    <td className="py-3.5 px-4 text-center">
+                    <td className="py-3.5 px-4 text-center whitespace-nowrap">
                       <div className="flex items-center justify-center gap-2">
                         <Link
                           href={`/datasets/${d._id}/verify`}
@@ -243,6 +291,21 @@ export default function ApprovalsPage() {
                   </tr>
                 );
               })}
+              {datasets.length === 0 && (
+                <tr>
+                  <td colSpan={9} className="py-12 px-4 text-center text-sm text-slate-500 dark:text-slate-400">
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <CheckCircle2 className="w-8 h-8 text-emerald-600/40" />
+                      <span className="font-semibold text-slate-700 dark:text-slate-300">
+                        All reviewer queues are clear
+                      </span>
+                      <span className="text-xs text-slate-500">
+                        No monthly datasets currently require audit sign-off.
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

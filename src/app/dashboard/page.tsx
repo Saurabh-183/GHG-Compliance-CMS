@@ -24,6 +24,7 @@ import { formatDate } from '@/lib/utils';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import { MOCK_CLIENT_GROUPS } from '@/lib/mockFallback';
 import { CompanySelectMui } from '@/components/dashboard/CompanySelectMui';
+import { FacilitySelectMui } from '@/components/dashboard/FacilitySelectMui';
 import { ClientUploadsPanel } from '@/components/uploads/ClientUploadsPanel';
 import { FacilityDataChecklistPanel } from '@/components/checklist/FacilityDataChecklistPanel';
 import { generateDeadlinesForFacilities } from '@/lib/statutoryCalendar';
@@ -88,12 +89,6 @@ export default function DashboardPage() {
     loadData();
   }, []);
 
-  if (loading) {
-    return (
-      <CarbonCrunchLoader message="Loading consultant compliance workspace..." />
-    );
-  }
-
   // Find the currently selected company group.
   const selectedGroup = groups.find(
     (group) =>
@@ -105,9 +100,6 @@ export default function DashboardPage() {
   const allFacilities: IFacility[] = groups.flatMap(
     (group) => group.facilities || []
   );
-
-  // Filter facilities based on the selected company.
-  const allFacilities: IFacility[] = groups.flatMap((g) => g.facilities || []);
 
   const currentFacilities: IFacility[] = selectedGroup
     ? selectedGroup.facilities?.length
@@ -192,20 +184,6 @@ export default function DashboardPage() {
           </h1>
 
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Logged in as{' '}
-            <strong className="text-emerald-700 dark:text-emerald-400">
-              {currentUser?.name}
-            </strong>{' '}
-            ({currentUser?.designation})
-            {selectedGroup && (
-              <span>
-                {' '}
-                · Active View:{' '}
-                <strong className="text-slate-800 dark:text-white">
-                  {selectedGroup.name}
-                </strong>
-              </span>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Logged in as <strong className="text-emerald-700 dark:text-emerald-400">{currentUser?.name}</strong> ({currentUser?.designation})
             {selectedGroup && (
               <span> · Active View: <strong className="text-slate-800 dark:text-white">{selectedGroup.name}</strong></span>
@@ -228,10 +206,6 @@ export default function DashboardPage() {
         <div className="p-5 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
-              {selectedGroup
-                ? 'Assigned Operating Units'
-                : 'Assigned Facilities'}
-            <span className="text-xs font-medium text-slate-500 dark:text-slate-400 ">
               {selectedGroup ? 'Assigned Operating Units' : 'Assigned Facilities'}
             </span>
             <Building2 className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
@@ -434,19 +408,13 @@ export default function DashboardPage() {
       {selectedGroup && checklistFacility && (
         <div className="space-y-3">
           {currentFacilities.length > 1 && (
-            <div className="flex flex-wrap items-center gap-2 text-xs">
+            <div className="flex flex-wrap items-center gap-3 text-xs">
               <span className="font-semibold text-slate-600 dark:text-slate-400">Data checklist facility:</span>
-              <select
-                value={checklistFacilityId}
-                onChange={(e) => setChecklistFacilityId(e.target.value)}
-                className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-1.5 text-slate-800 dark:text-white min-w-[220px]"
-              >
-                {currentFacilities.map((f) => (
-                  <option key={f.facilityId} value={f.facilityId}>
-                    {f.name} ({f.facilityId})
-                  </option>
-                ))}
-              </select>
+              <FacilitySelectMui
+                facilities={currentFacilities}
+                selectedFacilityId={checklistFacilityId}
+                onFacilityChange={(id) => setChecklistFacilityId(id)}
+              />
             </div>
           )}
           <FacilityDataChecklistPanel
@@ -573,27 +541,9 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="mt-2.5 flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                      {fac.location} · {fac.category}
-                    </p>
-                  </div>
-                  <div className="flex flex-col gap-1 shrink-0">
-                    <Link
-                      href={`/facilities/${fac.facilityId}`}
-                      className="px-2.5 py-1 text-xs rounded bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20 font-semibold transition-colors text-center"
-                    >
-                      Open Facility
-                    </Link>
-                    <span className="text-[10px] text-slate-500 dark:text-slate-400 text-center">
-                      Includes data checklist
-                    </span>
-                  </div>
-                </div>
-                <div className="mt-2.5 flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 ">
                   <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                     {facility.facilityId}
                   </span>
-
                   <span>·</span>
                   <span>Active BEE/CCTS Monitoring</span>
                 </div>

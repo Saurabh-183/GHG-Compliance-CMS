@@ -113,7 +113,7 @@ export default function ClientsPage() {
 
   return (
     <main className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
-      <header className="flex flex-col justify-between gap-4 border-b border-slate-200 pb-5 dark:border-slate-800 sm:flex-row sm:items-center">
+      <header className="p-6 flex flex-col justify-between gap-4 border-b border-slate-200 pb-5 dark:border-slate-800 sm:flex-row sm:items-center">
         <div>
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="flex items-center gap-2 text-2xl font-bold text-slate-900 dark:text-white">

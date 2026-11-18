@@ -2,111 +2,78 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { IDataRequirement } from '@/types';
+import { useAuth } from '@/context/AuthContext';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { DriveLinkBadge } from '@/components/common/DriveLinkBadge';
+import { ExcelImportModal } from '@/components/compliance/ExcelImportModal';
+import { DriveConnectionModal } from '@/components/common/DriveConnectionModal';
 import {
+  ShieldCheck,
+  Building2,
   FileSpreadsheet,
-  Link2,
-  CheckCircle2,
-  Clock,
-  ArrowRight,
-  AlertCircle,
+  AlertTriangle,
   Folder,
+  ArrowRight,
+  ExternalLink,
+  Download,
+  TrendingUp,
+  CheckCheck,
 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
+import { GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
+import { IFacility, IDataRequirement, IClarification } from '@/types';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
-import { notify } from '@/lib/notify';
-import { EvidenceDocumentModal } from '@/components/common/EvidenceDocumentModal';
 
-export default function ClientRequestsPage() {
-  const [requirements, setRequirements] = useState<IDataRequirement[]>([]);
-  const [selectedReq, setSelectedReq] = useState<IDataRequirement | null>(null);
-  const [driveUrl, setDriveUrl] = useState('');
-  const [fileDescription, setFileDescription] = useState('');
-  const [connection, setConnection] = useState({ providerName: '', connectionType: '', subDivision: '', circle: '', consumerAccountNumber: '', consumerName: '', meterNumber: '', contractDemand: '' });
-  const [bill, setBill] = useState({ invoiceNumber: '', billingFrom: '', billingTo: '', consumptionKwh: '', billAmount: '' });
-  const setConnectionField = (key: keyof typeof connection, value: string) => setConnection((current) => ({ ...current, [key]: value }));
-  const setBillField = (key: keyof typeof bill, value: string) => setBill((current) => ({ ...current, [key]: value }));
-  const isElectricityRequest = !!selectedReq && /electricity|grid|discom|power bill/i.test(`${selectedReq.title} ${selectedReq.description}`);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isFormPreviewOpen, setIsFormPreviewOpen] = useState(false);
+export default function ClientPortalDashboard() {
+  const { currentUser, currentRole } = useAuth();
+  const [data, setData] = useState<{
+    facilities: IFacility[];
+    pendingRequests: IDataRequirement[];
+    openClarifications: IClarification[];
+    approvedHistory: Array<{
+      _id: string;
+      facilityId: string;
+      complianceType: string;
+      period: string;
+      complianceOutcome: string;
+      documentLinks: { finalReportUrl?: string; submissionAckUrl?: string };
+    }>;
+  } | null>(null);
+  const [driveFiles, setDriveFiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const loadRequests = async () => {
-    try {
-      const res = await fetch('/api/requirements');
-      if (res.ok) {
-        const json = (await res.json()) as { data: IDataRequirement[] };
-        setRequirements(json.data || []);
-      }
-    } catch (e) {
-      console.error(e);
-      notify.error('Failed to load compliance requests');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [isExcelModalOpen, setIsExcelModalOpen] = useState(false);
+  const [isDriveModalOpen, setIsDriveModalOpen] = useState(false);
 
   useEffect(() => {
-    loadRequests();
+    async function loadPortal() {
+      try {
+        const [res, filesRes] = await Promise.all([
+          fetch('/api/portal/dashboard').catch(() => null),
+          fetch('/api/drive/files').catch(() => null),
+        ]);
+
+        if (res && res.ok) {
+          const json = (await res.json()) as { data: typeof data };
+          setData(json.data);
+        }
+        if (filesRes && filesRes.ok) {
+          const fJson = await filesRes.json();
+          if (fJson.data?.files) {
+            setDriveFiles(fJson.data.files);
+          }
+        }
+      } catch (e) {
+        console.error('Error fetching portal dashboard:', e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadPortal();
   }, []);
 
-  const handleSubmitDriveLink = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedReq) return;
-
-    const normalizedUrl = driveUrl.trim();
-    if (!/^https:\/\/(drive\.google\.com|docs\.google\.com)\//i.test(normalizedUrl)) {
-      notify.warning('Enter a valid Google Drive URL before submitting.');
-      return;
-    }
-
-    if (isElectricityRequest) {
-      const missingConnection = Object.entries(connection).some(([, value]) => !value.trim());
-      const missingBill = !bill.invoiceNumber.trim() || !bill.billingFrom || !bill.billingTo || bill.consumptionKwh === '' || bill.billAmount === '';
-      if (missingConnection || missingBill) {
-        notify.warning('Complete all electricity connection and bill fields before submitting.');
-        return;
-      }
-      if (new Date(bill.billingFrom) > new Date(bill.billingTo)) {
-        notify.warning('Billing start date cannot be after the billing end date.');
-        return;
-      }
-      if (Number(bill.consumptionKwh) < 0 || Number(bill.billAmount) < 0 || !Number.isFinite(Number(bill.consumptionKwh)) || !Number.isFinite(Number(bill.billAmount))) {
-        notify.warning('Consumption and bill amount must be valid non-negative numbers.');
-        return;
-      }
-    }
-    setIsSubmitting(true);
-    try {
-      const res = await fetch(`/api/requirements/${selectedReq._id}/submissions`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          url: normalizedUrl,
-          description: fileDescription || 'Client submission via portal',
-          ...(isElectricityRequest ? { utilityConnection: connection, billDetails: { ...bill, consumptionKwh: Number(bill.consumptionKwh), billAmount: Number(bill.billAmount) } } : {}),
-        }),
-      });
-
-      if (res.ok) {
-        notify.success('Google Drive evidence link submitted successfully! Status updated to RECEIVED.');
-        setDriveUrl('');
-        setFileDescription('');
-        setSelectedReq(null);
-        setIsFormPreviewOpen(false);
-        await loadRequests();
-      } else {
-        const error = await res.json().catch(() => null);
-        notify.error(error?.error || 'Failed to submit Google Drive link');
-      }
-    } catch (err) {
-      notify.error('Network error submitting document link');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  if (loading) {
+    return <CarbonCrunchLoader message="Loading Client Compliance Portal..." />;
+  }
 
   // Strict RBAC: Consultants cannot enter the external Client Portal
   if (currentRole !== 'CLIENT' && currentRole !== 'ADMIN') {
@@ -132,6 +99,16 @@ export default function ClientRequestsPage() {
       </div>
     );
   }
+
+  const facilities = data?.facilities || [];
+  const pendingRequests = data?.pendingRequests || [];
+  const openClarifications = data?.openClarifications || [];
+  const history = data?.approvedHistory || [];
+  const primaryFacilityId = facilities[0]?.facilityId || 'TRIDENT_PAPER';
+  const clientOrgName =
+    currentUser?.clientGroupId ||
+    facilities[0]?.clientGroupName ||
+    'Client Organization';
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -171,40 +148,40 @@ export default function ClientRequestsPage() {
         </div>
 
         {/* PRD Highlights: Data Given % & Data Matched % */}
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-800 text-xs">
-          <div className="p-3.5 rounded-md bg-slate-950/60 border border-slate-800 space-y-1">
-            <div className="flex items-center justify-between  ">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-200 dark:border-slate-800 text-xs">
+          <div className="p-3.5 rounded-md bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 space-y-1">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
               <span className="font-semibold uppercase tracking-wider text-[10px]">Data Given</span>
-              <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
+              <TrendingUp className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             </div>
             <div className="text-xl font-extrabold text-slate-900 dark:text-white">100%</div>
             <p className="text-[11px] text-slate-500">12/12 months submitted by your units</p>
           </div>
 
-          <div className="p-3.5 rounded-md bg-slate-950/60 border border-slate-800 space-y-1">
-            <div className="flex items-center justify-between  ">
+          <div className="p-3.5 rounded-md bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 space-y-1">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
               <span className="font-semibold uppercase tracking-wider text-[10px]">Data Matched</span>
-              <CheckCheck className="w-3.5 h-3.5 text-emerald-400" />
+              <CheckCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             </div>
             <div className="text-xl font-extrabold text-slate-900 dark:text-white">75.0%</div>
             <p className="text-[11px] text-slate-500">3 of 4 audited months verified</p>
           </div>
 
-          <div className="p-3.5 rounded-md bg-slate-950/60 border border-slate-800 space-y-1">
-            <div className="flex items-center justify-between  ">
+          <div className="p-3.5 rounded-md bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 space-y-1">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
               <span className="font-semibold uppercase tracking-wider text-[10px]">Operating Facilities</span>
-              <Building2 className="w-3.5 h-3.5 text-emerald-400" />
+              <Building2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             </div>
             <div className="text-xl font-bold text-slate-900 dark:text-white">{facilities.length} Units</div>
             <p className="text-[11px] text-slate-500">Paper, Yarn, Home Textiles</p>
           </div>
 
-          <div className="p-3.5 rounded-md bg-slate-950/60 border border-slate-800 space-y-1">
-            <div className="flex items-center justify-between  ">
+          <div className="p-3.5 rounded-md bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 space-y-1">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
               <span className="font-semibold uppercase tracking-wider text-[10px]">Action Items</span>
-              <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
+              <AlertTriangle className="w-3.5 h-3.5 text-rose-500 dark:text-rose-400" />
             </div>
-            <div className="text-xl font-bold text-rose-400">{openClarifications.length} Query</div>
+            <div className="text-xl font-bold text-rose-600 dark:text-rose-400">{openClarifications.length} Query</div>
             <p className="text-[11px] text-slate-500">June 2025 PSPCL Bill Clarification</p>
           </div>
         </div>
@@ -212,21 +189,21 @@ export default function ClientRequestsPage() {
 
       {/* Action Required: Discrepancy & Clarification Response */}
       {openClarifications.length > 0 && (
-        <div className="rounded-lg bg-white dark:bg-slate-800 border border-rose-500/40 p-5 shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="rounded-lg bg-white dark:bg-slate-800 border border-rose-300 dark:border-rose-500/40 p-5 shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-start gap-3">
-            <div className="p-2 rounded-lg text-rose-400 mt-0.5">
+            <div className="p-2 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 mt-0.5">
               <AlertTriangle className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-sm font-semibold text-rose-300 dark:text-rose-400 dark:border-rose-500/30">
+                <h3 className="text-sm font-semibold text-rose-700 dark:text-rose-400">
                   Regulatory Query / Clarification Raised by Carbon Crunch
                 </h3>
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-300 dark:bg-rose-500/20 dark:text-rose-300 dark:border-rose-500/30">
                   Action Required
                 </span>
               </div>
-              <p className="text-xs text-gray-800 mt-2">
+              <p className="text-xs text-slate-700 dark:text-slate-300 mt-2">
                 Consultant flagged a 15,000 kWh variance between your June 2025 Excel and electricity bill. Please provide explanation or revised bill.
               </p>
             </div>
@@ -266,13 +243,13 @@ export default function ClientRequestsPage() {
                 <p className="text-xs text-slate-500 dark:text-slate-400">{facility.category}</p>
               </div>
 
-              <div className="pt-4 mt-4 border-t border-slate-800/80 flex items-center justify-between">
-                <span className="text-[11px]  ">
+              <div className="pt-4 mt-4 border-t border-slate-200 dark:border-slate-800/80 flex items-center justify-between">
+                <span className="text-[11px] text-slate-600 dark:text-slate-400">
                   Obligations: <strong>RCO, PAT, CCTS, CEA</strong>
                 </span>
                 <Link
                   href={`/portal/facilities/${facility.facilityId}`}
-                  className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1"
+                  className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-300 flex items-center gap-1"
                 >
                   <span>View Overview</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -284,7 +261,7 @@ export default function ClientRequestsPage() {
       </div>
 
       {/* Outstanding Data Requests Table */}
-      <div className="rounded-md border border-slate-800 bg-slate-900/60 p-6 shadow-md space-y-4">
+      <div className="rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-6 shadow-md space-y-4">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
@@ -297,75 +274,54 @@ export default function ClientRequestsPage() {
           </div>
           <Link
             href="/portal/requests"
-            className="text-xs text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1"
+            className="text-xs text-emerald-700 dark:text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-300 font-semibold flex items-center gap-1"
           >
             <span>View All ({pendingRequests.length})</span>
             <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
 
-        <div className="overflow-x-auto rounded-lg border border-slate-800">
-          <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
+          <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="border-b border-slate-800 bg-slate-950/80 text-[11px] font-semibold   uppercase tracking-wider">
-                <th className="py-3 px-4">Requirement Title</th>
-                <th className="py-3 px-4">Reporting Period</th>
-                <th className="py-3 px-4">Frameworks</th>
-                <th className="py-3 px-4">Submission Due Date</th>
-                <th className="py-3 px-4 text-center">Current Status</th>
-                <th className="py-3 px-4">Submitted Documents</th>
+              <tr className="bg-slate-50 dark:bg-slate-950/80 text-slate-700 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 text-[11px] font-semibold uppercase tracking-wider">
+                <th className="py-3 px-4">Facility</th>
+                <th className="py-3 px-4">Requirement</th>
+                <th className="py-3 px-4">Compliances</th>
+                <th className="py-3 px-4">Due Date</th>
+                <th className="py-3 px-4 text-center">Submission Status</th>
                 <th className="py-3 px-4 text-center">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-400/70 text-xs">
-              {requirements.map((req) => (
-                <tr key={req._id} className="hover:bg-slate-200/30 transition-colors">
-                  <td className="py-3.5 px-4">
-                    <div className="font-semibold dark:text-white">{req.title}</div>
-                    <div className="text-[11px]   mt-0.5 line-clamp-1">{req.description}</div>
+            <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
+              {pendingRequests.map((req) => (
+                <tr key={req._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                  <td className="py-3 px-4 font-mono font-medium text-slate-900 dark:text-white">{req.facilityId}</td>
+                  <td className="py-3 px-4">
+                    <div className="font-semibold text-slate-900 dark:text-white">{req.title}</div>
+                    <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{req.description}</div>
                   </td>
-                  <td className="py-3.5 px-4 font-mono text-slate-300">
-                    {req.period}
-                  </td>
-                  <td className="py-3.5 px-4">
+                  <td className="py-3 px-4">
                     <div className="flex items-center gap-1">
                       {req.linkedCompliances.map((c) => (
-                        <span key={c} className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-800 text-slate-300 border border-slate-700">
+                        <span key={c} className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-[10px]">
                           {c}
                         </span>
                       ))}
                     </div>
                   </td>
-                  <td className="py-3.5 px-4 text-slate-300 font-mono">
-                    {formatDate(req.dueDate)}
+                  <td className="py-3 px-4 font-mono text-slate-600 dark:text-slate-300">{formatDate(req.dueDate)}</td>
+                  <td className="py-3 px-4 text-center">
+                    <StatusBadge status={req.submissionStatus} type="submission" size="sm" />
                   </td>
-                  <td className="py-3.5 px-4 text-center">
-                    <StatusBadge status={req.submissionStatus} size="sm" />
-                  </td>
-                  <td className="py-3.5 px-4">
-                    <div className="flex flex-col gap-1">
-                      {req.submittedDriveLinks.length > 0 ? (
-                        req.submittedDriveLinks.map((link, i) => (
-                          <DriveLinkBadge key={i} url={link.url} label={link.description || 'Drive Document'} billDetails={link.billDetails} utilityConnectionSnapshot={link.utilityConnectionSnapshot} facilityId={req.facilityId} />
-                        ))
-                      ) : (
-                        <span className="text-slate-500 text-xs italic">No document submitted</span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="py-3.5 px-4 text-center">
-                    <button
-                      onClick={() => {
-                        setSelectedReq(req);
-                        setDriveUrl('');
-                        setFileDescription('');
-                        setConnection({ providerName: req.utilityConnection?.providerName || '', connectionType: req.utilityConnection?.connectionType || '', subDivision: req.utilityConnection?.subDivision || '', circle: req.utilityConnection?.circle || '', consumerAccountNumber: req.utilityConnection?.consumerAccountNumber || '', consumerName: req.utilityConnection?.consumerName || '', meterNumber: req.utilityConnection?.meterNumber || '', contractDemand: req.utilityConnection?.contractDemand || '' });
-                        setBill({ invoiceNumber: '', billingFrom: '', billingTo: '', consumptionKwh: '', billAmount: '' });
-                      }}
-                      className="px-2 py-1.5 w-28 text-xs font-semibold rounded-md bg-emerald-700 hover:bg-emerald-800 text-white transition-colors shadow-sm"
+                  <td className="py-3 px-4 text-center">
+                    <Link
+                      href="/portal/requests"
+                      className="inline-flex items-center gap-1 px-3 py-1 rounded bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-[11px] transition-colors"
                     >
-                      + Submit Link
-                    </button>
+                      <Folder className="w-3 h-3" />
+                      <span>Attach Drive URL</span>
+                    </Link>
                   </td>
                 </tr>
               ))}
@@ -375,7 +331,7 @@ export default function ClientRequestsPage() {
       </div>
 
       {/* Approved Historical Assessments & Reports */}
-      <div className="rounded-md border border-slate-800 bg-slate-900/60 p-6 shadow-md space-y-4">
+      <div className="rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-6 shadow-md space-y-4">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
@@ -384,39 +340,54 @@ export default function ClientRequestsPage() {
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Official filings and submission acknowledgements certified by Carbon Crunch auditor.
-      {/* Google Drive Link Submission Modal (Acceptance Step 6) */}
-      {selectedReq && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in">
-
-          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-6">
-            <h3 className="text-sm font-bold text-white mb-1">
-              Submit Google Drive Evidence
-            </h3>
-            <p className="text-xs   mb-4">
-              Requirement: <strong className="   dark:text-white">{selectedReq.title}</strong>
             </p>
+          </div>
+          <Link
+            href="/portal/history"
+            className="text-xs text-emerald-700 dark:text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-300 font-semibold flex items-center gap-1"
+          >
+            <span>View All History</span>
+            <ArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
 
-            <form noValidate onSubmit={handleSubmitDriveLink} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Google Drive Link (URL):
-                </label>
-                <input
-                  type="url"
-                  required
-                  placeholder="https://drive.google.com/file/d/..."
-                  value={driveUrl}
-                  onChange={(e) => setDriveUrl(e.target.value)}
-                  className="w-full px-3 py-2 text-xs bg-slate-950 border border-slate-700 rounded-lg    dark:text-white focus:outline-none focus:border-emerald-600"
-                />
-                <span className="text-[10px] text-slate-500 mt-1 block">
-                  Ensure link sharing permission is set to viewable by Carbon Crunch consultants.
-                </span>
-              </div>
+        <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
+          <table className="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr className="bg-slate-50 dark:bg-slate-950/80 text-slate-700 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 text-[11px] font-semibold uppercase tracking-wider">
+                <th className="py-3 px-4">Facility</th>
+                <th className="py-3 px-4">Compliance Type</th>
+                <th className="py-3 px-4">Period</th>
+                <th className="py-3 px-4 text-center">Obligation Outcome</th>
+                <th className="py-3 px-4">Final Report</th>
+                <th className="py-3 px-4">Regulatory Acknowledgement</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
+              {history.map((h) => (
+                <tr key={h._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                  <td className="py-3 px-4 font-mono font-medium text-slate-900 dark:text-white">{h.facilityId}</td>
+                  <td className="py-3 px-4 font-semibold text-slate-900 dark:text-white">{h.complianceType}</td>
+                  <td className="py-3 px-4 font-mono text-slate-600 dark:text-slate-300">{h.period}</td>
+                  <td className="py-3 px-4 text-center">
+                    <StatusBadge status={h.complianceOutcome} type="outcome" size="sm" />
+                  </td>
+                  <td className="py-3 px-4">
+                    <DriveLinkBadge url={h.documentLinks?.finalReportUrl} label="Executive Report" />
+                  </td>
+                  <td className="py-3 px-4">
+                    <DriveLinkBadge url={h.documentLinks?.submissionAckUrl} label="Regulator Ack" />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       {/* Google Drive Evidence Vault Repository Files */}
       {driveFiles.length > 0 && (
-        <div className="rounded-md border border-slate-800 bg-slate-900/60 p-6 shadow-xl space-y-4">
+        <div className="rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-6 shadow-xl space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
@@ -437,79 +408,65 @@ export default function ClientRequestsPage() {
               <ExternalLink className="w-3 h-3" />
             </a>
           </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Document Description / File Name:
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Q1 Monthly Grid Consumption Excel (Apr-Jun 2025)"
-                  value={fileDescription}
-                  onChange={(e) => setFileDescription(e.target.value)}
-                  className="w-full px-3 py-2 text-xs bg-slate-950 border border-slate-700 rounded-lg    dark:text-white focus:outline-none focus:border-emerald-600"
-                />
-              </div>
 
-              {isElectricityRequest && <>
-              <div className="border-t border-slate-800 pt-4 space-y-3">
-                <div><h4 className="text-xs font-bold text-white">Facility electricity connection</h4><p className="text-[10px] text-slate-500">Saved against this facility and reused for its future submissions.</p></div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {([['providerName','Electricity provider'],['connectionType','Connection type'],['subDivision','Sub-division'],['circle','Circle'],['consumerAccountNumber','Consumer account number'],['consumerName','Consumer name'],['meterNumber','Meter number'],['contractDemand','Contract demand']] as const).map(([key,label]) => <label key={key} className="block text-xs text-slate-300">{label}<input required value={connection[key]} onChange={(e) => setConnectionField(key,e.target.value)} placeholder={label} className="mt-1 w-full px-3 py-2 text-xs bg-slate-950 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-emerald-600" /></label>)}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">
+            {driveFiles.slice(0, 9).map((f: any) => (
+              <div
+                key={f.id}
+                className="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/70 hover:border-emerald-500/50 transition-all flex flex-col justify-between gap-3 text-xs"
+              >
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                      {f.category.replace(/_/g, ' ')}
+                    </span>
+                    {f.month && (
+                      <span className="text-[10px] font-mono text-emerald-700 dark:text-emerald-400 font-bold">
+                        {f.month}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-xs font-bold text-slate-900 dark:text-white truncate" title={f.name}>
+                    {f.name}
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    {f.mimeType.includes('pdf') ? 'Audited PDF Bill / Certificate' : 'Client Consumption Excel Sheet'}
+                  </p>
+                </div>
+
+                <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs">
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400">
+                    {f.sizeBytes ? `${Math.round(f.sizeBytes / 1024)} KB` : 'Drive Asset'}
+                  </span>
+                  <a
+                    href={f.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-emerald-700 dark:text-emerald-400 hover:underline font-semibold inline-flex items-center gap-1 text-[11px]"
+                  >
+                    <span>Open in Drive</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
                 </div>
               </div>
-              <div className="border-t border-slate-800 pt-4 space-y-3">
-                <div><h4 className="text-xs font-bold text-white">This electricity bill</h4><p className="text-[10px] text-slate-500">These values belong only to this bill submission.</p></div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {([['invoiceNumber','Invoice number'],['billingFrom','Billing period from'],['billingTo','Billing period to'],['consumptionKwh','Consumption (kWh)'],['billAmount','Bill amount (₹)']] as const).map(([key,label]) => <label key={key} className="block text-xs text-slate-300">{label}<input required type={key === 'billingFrom' || key === 'billingTo' ? 'date' : key === 'consumptionKwh' || key === 'billAmount' ? 'number' : 'text'} min={key === 'consumptionKwh' || key === 'billAmount' ? '0' : undefined} step={key === 'consumptionKwh' || key === 'billAmount' ? 'any' : undefined} value={bill[key]} onChange={(e) => setBillField(key,e.target.value)} placeholder={label} className="mt-1 w-full px-3 py-2 text-xs bg-slate-950 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-emerald-600" /></label>)}
-                </div>
-              </div>
-              </>}
-
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setIsFormPreviewOpen(true)}
-                  className="px-3 py-1.5 text-xs font-semibold text-emerald-300 hover:text-white border border-emerald-700 rounded-md"
-                >
-                  Preview entered data
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setSelectedReq(null); setIsFormPreviewOpen(false); }}
-                  className="px-3 py-1.5 text-xs text-black hover:text-white border border-slate-700 rounded-md"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="px-4 py-1.5 text-xs font-bold rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm disabled:opacity-50"
-                >
-                  {isSubmitting ? 'Submitting...' : 'Upload Link'}
-                </button>
-              </div>
-            </form>
+            ))}
           </div>
         </div>
       )}
 
-      {selectedReq && isElectricityRequest && (
-        <EvidenceDocumentModal
-          isOpen={isFormPreviewOpen}
-          onClose={() => setIsFormPreviewOpen(false)}
-          url={driveUrl.trim()}
-          label={`Electricity bill preview · ${selectedReq.title}`}
-          facilityId={selectedReq.facilityId}
-          utilityConnectionSnapshot={connection}
-          billDetails={{
-            invoiceNumber: bill.invoiceNumber,
-            billingFrom: bill.billingFrom,
-            billingTo: bill.billingTo,
-            consumptionKwh: Number(bill.consumptionKwh),
-            billAmount: Number(bill.billAmount),
-          }}
-        />
-      )}
+      {/* Google Drive Connection & Direct Sync Modal */}
+      <DriveConnectionModal
+        isOpen={isDriveModalOpen}
+        onClose={() => setIsDriveModalOpen(false)}
+        facilityId={primaryFacilityId}
+      />
+
+      {/* Standardized Excel Import & Templates Modal */}
+      <ExcelImportModal
+        isOpen={isExcelModalOpen}
+        onClose={() => setIsExcelModalOpen(false)}
+        facilityId={primaryFacilityId}
+      />
     </div>
   );
 }

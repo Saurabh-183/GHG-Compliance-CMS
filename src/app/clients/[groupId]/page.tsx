@@ -116,7 +116,7 @@ export default function ClientGroupDetailPage() {
                 <span className="px-2 py-0.5 rounded text-xs font-mono font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                   {group.code}
                 </span>
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#EAF1F8] dark:bg-[#A56F63]/25 text-[#17365D] dark:text-[#D99B7F] border border-[#D5DCE5] dark:border-[#A56F63]/40">
+                <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-[#EAF1F8] dark:bg-[#A56F63]/25 text-black dark:text-[#D99B7F] border border-[#D5DCE5] dark:border-[#A56F63]/40">
                   Client Conglomerate
                 </span>
               </div>
