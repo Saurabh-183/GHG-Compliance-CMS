@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import '@/models/Dataset';
 import { connectToDatabase } from '@/lib/db';
 import { DataRequirementModel } from '@/models/DataRequirement';
+import { FacilityModel } from '@/models/Facility';
 import { getSessionFromRequest, isAuthorizedForFacility, authorizeRole } from '@/lib/auth';
 import { ComplianceType } from '@/types';
 
@@ -8,6 +10,10 @@ export async function GET(request: NextRequest) {
   try {
     await connectToDatabase();
     const session = getSessionFromRequest(request);
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (session.role === 'CLIENT' && !session.authorizedFacilityIds?.length) {
+      return NextResponse.json({ success: true, data: [] });
+    }
     const searchParams = request.nextUrl.searchParams;
     const facilityId = searchParams.get('facilityId');
     const period = searchParams.get('period');
@@ -22,8 +28,10 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
       query.facilityId = facilityId.toUpperCase();
-    } else if (session && session.role === 'CLIENT' && session.authorizedFacilityIds) {
-      query.facilityId = { $in: session.authorizedFacilityIds };
+    } else if (session.role === 'CLIENT') {
+      query.facilityId = { $in: session.authorizedFacilityIds || [] };
+    } else if (!['ADMIN', 'CONSULTANT'].includes(session.role)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     if (period) query.period = period;
@@ -33,19 +41,23 @@ export async function GET(request: NextRequest) {
       .sort({ dueDate: 1 })
       .lean();
 
+    const facilityIds = [...new Set(requirements.map((r) => r.facilityId))];
+    const facilities = await FacilityModel.find({ facilityId: { $in: facilityIds } }).lean();
+    const connectionByFacility = new Map(facilities.map((f) => [f.facilityId, f.utilityConnection]));
+
     return NextResponse.json({
       success: true,
       data: requirements.map((r) => ({
         ...r,
         _id: r._id.toString(),
+        utilityConnection: connectionByFacility.get(r.facilityId) || undefined,
         dueDate: r.dueDate ? r.dueDate.toISOString() : null,
         requestedAt: r.requestedAt ? r.requestedAt.toISOString() : null,
       })),
     });
   } catch (error) {
-    console.warn('Error fetching requirements from DB, returning fallback demo requirements:', error);
-    const { MOCK_REQUIREMENTS } = await import('@/lib/mockFallback');
-    return NextResponse.json({ success: true, data: MOCK_REQUIREMENTS });
+    console.error('Error fetching client data requirements:', error);
+    return NextResponse.json({ error: 'Unable to load data requests.' }, { status: 500 });
   }
 }
 
