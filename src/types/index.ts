@@ -161,12 +161,32 @@ export interface ISubmittedDriveLink {
   submittedAt: string;
   submittedBy: string;
   description: string;
+
+  // Drive Vault information
   /** Original URL pasted by the client */
   sourceUrl?: string;
   /** Canonical link in the compliance vault (may match url after ingest) */
   vaultUrl?: string;
   vaultFolderUrl?: string;
   vaultFolderPath?: string;
+  sourceUrl?: string;
+  vaultFolderUrl?: string;
+  vaultCategory?: string;
+  vaultFileId?: string;
+  driveFolderId?: string;
+  vaultTargetFolderId?: string;
+
+  // File information
+  fileName?: string;
+  ingestionMode?: string;
+
+  // Mapping and verification
+  mappingStatus?: string;
+  mappedMonth?: string;
+  mappedDatasetId?: string;
+  verificationNotes?: string;
+
+  // Electricity bill information
   vaultCategory?: string;
   driveFileId?: string;
   driveFolderId?: string;
@@ -187,6 +207,7 @@ export interface ISubmittedDriveLink {
     consumptionKwh: number;
     billAmount: number;
   };
+
   utilityConnectionSnapshot?: {
     providerName: string;
     connectionType: string;
@@ -198,6 +219,7 @@ export interface ISubmittedDriveLink {
     contractDemand: string;
   };
 }
+
 
 export interface IDataRequirement {
   _id: string;
