@@ -142,7 +142,7 @@ export default function HomePage() {
               key={index}
               href={item.link}
               onClick={() => switchRole(item.role as any)}
-              className="group p-5 rounded-xl border border-slate-800 bg-slate-900/60 hover:bg-slate-850 hover:border-emerald-500/40 transition-all flex flex-col justify-between shadow-md"
+              className="group p-5 rounded-md border border-slate-800 bg-slate-900/60 hover:bg-slate-850 hover:border-emerald-500/40 transition-all flex flex-col justify-between shadow-md"
             >
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
@@ -172,7 +172,7 @@ export default function HomePage() {
 
       {/* Core Architectural Pillars */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-4 rounded-xl border border-slate-800 bg-slate-900/40">
+        <div className="p-4 rounded-md border border-slate-800 bg-slate-900/40">
           <div className="p-2 w-fit rounded-lg bg-emerald-500/10 text-emerald-400 mb-2.5">
             <ShieldCheck className="w-4 h-4" />
           </div>
@@ -182,7 +182,7 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="p-4 rounded-xl border border-slate-800 bg-slate-900/40">
+        <div className="p-4 rounded-md border border-slate-800 bg-slate-900/40">
           <div className="p-2 w-fit rounded-lg bg-emerald-950/60 text-emerald-400 mb-2.5">
             <Sliders className="w-4 h-4" />
           </div>
@@ -192,7 +192,7 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="p-4 rounded-xl border border-slate-800 bg-slate-900/40">
+        <div className="p-4 rounded-md border border-slate-800 bg-slate-900/40">
           <div className="p-2 w-fit rounded-lg bg-slate-800 text-slate-300 mb-2.5">
             <FileSpreadsheet className="w-4 h-4" />
           </div>
@@ -202,7 +202,7 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="p-4 rounded-xl border border-slate-800 bg-slate-900/40">
+        <div className="p-4 rounded-md border border-slate-800 bg-slate-900/40">
           <div className="p-2 w-fit rounded-lg bg-indigo-500/10 text-indigo-400 mb-2.5">
             <Calendar className="w-4 h-4" />
           </div>

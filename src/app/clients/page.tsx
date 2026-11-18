@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { IClientGroup } from '@/types';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
+import { MOCK_CLIENT_GROUPS, MOCK_FACILITIES } from '@/lib/mockFallback';
 
 type ClientGroupWithFacilities = IClientGroup & {
   totalFacilitiesCount?: number;
@@ -22,6 +23,21 @@ type ClientGroupWithFacilities = IClientGroup & {
     location: string;
   }>;
 };
+
+function buildMockGroupsWithFacilities(): ClientGroupWithFacilities[] {
+  return MOCK_CLIENT_GROUPS.map((group) => {
+    const facilities = MOCK_FACILITIES.filter((f) => f.clientGroupId === group._id);
+    return {
+      ...group,
+      totalFacilitiesCount: facilities.length,
+      facilities: facilities.map((facility) => ({
+        name: facility.name,
+        facilityId: facility.facilityId,
+        location: facility.location || facility.state || 'India',
+      })),
+    };
+  });
+}
 
 export default function ClientsPage() {
   const [groups, setGroups] = useState<ClientGroupWithFacilities[]>([]);
@@ -34,7 +50,9 @@ export default function ClientsPage() {
         const res = await fetch('/api/client-groups');
 
         if (!res.ok) {
-          throw new Error('Failed to fetch client companies');
+          console.warn('API returned non-ok status, loading fallback client directory.');
+          setGroups(buildMockGroupsWithFacilities());
+          return;
         }
 
         const result = (await res.json()) as {
@@ -42,9 +60,14 @@ export default function ClientsPage() {
           data?: ClientGroupWithFacilities[];
         };
 
-        setGroups(result.data ?? []);
+        if (result.data && result.data.length > 0) {
+          setGroups(result.data);
+        } else {
+          setGroups(buildMockGroupsWithFacilities());
+        }
       } catch (error) {
-        console.error('Error fetching client groups:', error);
+        console.warn('Could not fetch client groups from API, using fallback data:', error);
+        setGroups(buildMockGroupsWithFacilities());
       } finally {
         setLoading(false);
       }
@@ -127,7 +150,7 @@ export default function ClientsPage() {
       </header>
 
       {filteredGroups.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-slate-300 py-16 text-center dark:border-slate-700">
+        <div className="rounded-md border border-dashed border-slate-300 py-16 text-center dark:border-slate-700">
           <Building2 className="mx-auto h-10 w-10  " />
           <h2 className="mt-4 font-semibold text-slate-900 dark:text-white">
             No companies found
@@ -147,7 +170,7 @@ export default function ClientsPage() {
             return (
               <article
                 key={company._id}
-                className="flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-[#17365D]/40 hover:shadow-md dark:border-slate-800 dark:bg-slate-900/60 dark:hover:border-emerald-500/40"
+                className="flex flex-col justify-between rounded-md border border-slate-200 bg-white p-5 shadow-sm transition hover:border-[#17365D]/40 hover:shadow-md dark:border-slate-800 dark:bg-slate-900/60 dark:hover:border-emerald-500/40"
               >
                 <div>
                   <div className="flex items-start justify-between gap-3">

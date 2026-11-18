@@ -33,7 +33,7 @@ export const ComplianceMatrixTable: React.FC<ComplianceMatrixTableProps> = ({ da
   const { periods, compliances, matrix, facility } = data;
 
   return (
-    <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-md">
+    <div className="overflow-hidden rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-md">
       <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950/40">
         <div>
           <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">

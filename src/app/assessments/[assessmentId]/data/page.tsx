@@ -103,7 +103,7 @@ export default function AssessmentDataPage() {
       </div>
 
       {/* Checklist Table */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 shadow-xl space-y-4">
+      <div className="rounded-md border border-slate-800 bg-slate-900/60 p-6 shadow-xl space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold    dark:text-white">
             Active Data Requirements & Verification States

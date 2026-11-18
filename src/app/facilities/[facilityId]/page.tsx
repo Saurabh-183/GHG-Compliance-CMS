@@ -271,7 +271,7 @@ export default function FacilityDashboardPage() {
 
         {/* PRD Highlights: Data Given % & Data Matched % KPI Bar */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 pt-6 border-t border-slate-200 dark:border-slate-800 text-xs">
-          <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 space-y-1">
+          <div className="p-3.5 rounded-md bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 space-y-1">
             <div className="flex items-center justify-between text-slate-500 dark: ">
               <span className="font-semibold uppercase tracking-wider text-[10px]">Data Given Percentage</span>
               <TrendingUp className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
@@ -282,7 +282,7 @@ export default function FacilityDashboardPage() {
             <p className="text-[11px] text-slate-500">12 of 12 financial year months client-declared</p>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 space-y-1">
+          <div className="p-3.5 rounded-md bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 space-y-1">
             <div className="flex items-center justify-between text-slate-500 dark: ">
               <span className="font-semibold uppercase tracking-wider text-[10px]">Data Matched Percentage</span>
               <CheckCheck className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
@@ -293,7 +293,7 @@ export default function FacilityDashboardPage() {
             <p className="text-[11px] text-slate-500">3 of 4 evaluated months match within 0 kWh tolerance</p>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 space-y-1">
+          <div className="p-3.5 rounded-md bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 space-y-1">
             <div className="flex items-center justify-between text-slate-500 dark: ">
               <span className="font-semibold uppercase tracking-wider text-[10px]">Google Drive Evidence Vault</span>
               <Folder className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
@@ -318,7 +318,7 @@ export default function FacilityDashboardPage() {
       <ComplianceMatrixTable data={matrixData} />
 
       {/* Registered Compliance Applicabilities Detail Table */}
-      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-6 shadow-md space-y-4">
+      <div className="rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-6 shadow-md space-y-4">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
@@ -380,7 +380,7 @@ export default function FacilityDashboardPage() {
       </div>
 
       {/* Google Drive Evidence Vault & Synced Repository Files */}
-      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-6 shadow-md space-y-4">
+      <div className="rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-6 shadow-md space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">

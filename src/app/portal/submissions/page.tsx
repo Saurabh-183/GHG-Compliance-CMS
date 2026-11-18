@@ -75,7 +75,7 @@ export default function ClientSubmissionsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2.5">
+          <h1 className="text-2xl font-bold text-black dark:text-white flex items-center gap-2.5">
             <MessageSquare className="w-6 h-6 text-emerald-400" />
             Client Submissions & Discrepancy Clarifications
           </h1>
@@ -90,7 +90,7 @@ export default function ClientSubmissionsPage() {
         {clarifications.map((item) => (
           <div
             key={item._id}
-            className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 shadow-xl space-y-4"
+            className="rounded-md border border-slate-800 bg-slate-900/60 p-6 shadow-xl space-y-4"
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-2.5">
@@ -98,7 +98,7 @@ export default function ClientSubmissionsPage() {
                   <AlertTriangle className="w-5 h-5" />
                 </span>
                 <div>
-                  <h3 className="text-sm font-bold text-white">
+                  <h3 className="text-sm font-bold text-black dark:text-white">
                     {item.parameter} Discrepancy — Month: {item.month}
                   </h3>
                   <p className="text-xs   mt-0.5">

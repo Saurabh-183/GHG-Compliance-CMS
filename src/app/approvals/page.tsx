@@ -150,7 +150,7 @@ export default function ApprovalsPage() {
       </div>
 
       {/* Queue Table */}
-      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-6 shadow-sm space-y-4">
+      <div className="rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-6 shadow-sm space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-bold text-black dark:   ">
             Verifications Awaiting Reviewer Sign-off
@@ -257,7 +257,7 @@ export default function ApprovalsPage() {
       {/* Reviewer Sign-off Action Modal */}
       {selectedDataset && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in">
-          <div className="relative w-full max-w-lg bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-6 space-y-4">
+          <div className="relative w-full max-w-lg bg-slate-900 border border-slate-700 rounded-md shadow-2xl p-6 space-y-4">
             <h3 className="text-base font-bold text-white flex items-center gap-2">
               <ShieldCheck className="w-5 h-5 text-emerald-400" />
               Sign-off & Lock Verification Dataset
