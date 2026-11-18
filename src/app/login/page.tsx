@@ -100,8 +100,8 @@ export default function LoginPage() {
             />
           </div>
 
-          <h1 className="text-2xl font-bold tracking-tight text-white">
-            Carbon <span className="text-emerald-500">Crunch</span>
+          <h1 className="text-2xl font-bold tracking-tight dark:text-white text-orange-400">
+            Carbon <span className="text-green-800">Crunch</span>
           </h1>
 
           <p className="mx-auto max-w-xs text-xs  ">

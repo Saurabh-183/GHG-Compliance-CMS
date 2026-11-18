@@ -2479,10 +2479,19 @@ export const MOCK_REQUIREMENTS: any[] = [
     dueDate: '2025-07-20T00:00:00.000Z',
     submittedDriveLinks: [
       {
-        url: GOOGLE_DRIVE_FOLDER_URL,
+        url: `${GOOGLE_DRIVE_FOLDER_URL}/Client_Consumption_Sheets/TRIDENT_PAPER_FY25-26_Consumption_Log.xlsx`,
+        sourceUrl: `${GOOGLE_DRIVE_FOLDER_URL}/Client_Consumption_Sheets/TRIDENT_PAPER_FY25-26_Consumption_Log.xlsx`,
+        vaultUrl: `${GOOGLE_DRIVE_FOLDER_URL}/Client_Consumption_Sheets/TRIDENT_PAPER_FY25-26_Consumption_Log.xlsx`,
+        vaultFolderUrl: GOOGLE_DRIVE_FOLDER_URL,
+        vaultFolderPath:
+          'Client_Submissions/TRI/TRIDENT_PAPER/FY2025-26/Client_Consumption_Sheets',
+        vaultCategory: 'Client_Consumption_Sheets',
+        fileName: '2025-07-10_Monthly_Grid_Electricity_Invoices_document',
+        mappingStatus: 'PENDING',
         submittedAt: '2025-07-10T14:20:00.000Z',
         submittedBy: 'Vikram Singh (Client)',
         description: 'Client month-wise grid consumption Excel (Apr-Jun 2025)',
+        ingestionMode: 'VAULT_INDEXED',
       },
     ],
     createdAt: new Date().toISOString(),

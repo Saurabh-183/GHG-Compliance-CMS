@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { DataRequirementModel } from '@/models/DataRequirement';
 import { FacilityModel } from '@/models/Facility';
+import { ClientGroupModel } from '@/models/ClientGroup';
 import { getSessionFromRequest, isAuthorizedForFacility } from '@/lib/auth';
+import { parseGoogleDriveUrl } from '@/lib/driveVaultShared';
+import { ingestClientDriveLink, isDriveVaultSyncConfigured } from '@/lib/driveVaultServer';
 
 export async function POST(
   request: NextRequest,
@@ -40,6 +43,14 @@ export async function POST(
       return NextResponse.json({ error: 'Complete the electricity connection and bill details before submitting.' }, { status: 400 });
     }
 
+    const parsed = parseGoogleDriveUrl(body.url);
+    if (!parsed.resourceId) {
+      return NextResponse.json(
+        { error: 'Could not parse Google Drive link. Use a share link to a file or folder.' },
+        { status: 400 }
+      );
+    }
+
     const submitterName = session?.name || 'Client User';
     if (isElectricityRequest && connection) {
       const facility = await FacilityModel.findOne({ facilityId: requirement.facilityId });
@@ -48,23 +59,47 @@ export async function POST(
       await facility.save();
     }
 
-    requirement.submittedDriveLinks.push({
-      url: body.url.trim(),
-      submittedAt: new Date(),
-      submittedBy: submitterName,
+    const facility = await FacilityModel.findOne({ facilityId: requirement.facilityId }).lean();
+    let clientGroupCode: string | undefined;
+    let clientGroupName: string | undefined;
+    if (facility?.clientGroupId) {
+      const group = await ClientGroupModel.findById(facility.clientGroupId).lean();
+      clientGroupCode = group?.code;
+      clientGroupName = group?.name;
+    }
+
+    const vaultEntry = await ingestClientDriveLink({
+      sourceUrl: body.url.trim(),
       description: body.description || 'Supporting documentation via Client Portal',
+      submittedBy: submitterName,
+      requirement,
+      clientGroupCode,
+      clientGroupName,
+      facilityName: facility?.name,
       ...(isElectricityRequest && bill && connection ? {
         billDetails: { ...bill, invoiceNumber: bill.invoiceNumber.trim(), consumptionKwh: Number(bill.consumptionKwh), billAmount: Number(bill.billAmount) },
         utilityConnectionSnapshot: connection,
       } : {}),
     });
 
+    if (parsed.resourceType === 'folder' && parsed.resourceId) {
+      const { pickPrimarySpreadsheetInFolder } = await import('@/lib/spreadsheetFetchServer');
+      const primary = await pickPrimarySpreadsheetInFolder(parsed.resourceId);
+      if (primary?.id) {
+        vaultEntry.vaultFileId = primary.id;
+        vaultEntry.vaultUrl = `https://drive.google.com/file/d/${primary.id}/view`;
+        vaultEntry.url = vaultEntry.vaultUrl;
+        if (primary.name) vaultEntry.fileName = primary.name;
+      }
+    }
+
+    requirement.submittedDriveLinks.push(vaultEntry);
+
     requirement.submissionStatus = 'RECEIVED';
     requirement.verificationStatus = 'UNDER_REVIEW';
 
     await requirement.save();
 
-    // Trigger notification to Consultant that evidence was received
     try {
       const { Notification } = await import('@/models/Notification');
       await Notification.create({
@@ -73,9 +108,21 @@ export async function POST(
         senderName: submitterName,
         type: 'EVIDENCE_SUBMITTED',
         title: 'New Client Evidence Submitted',
-        message: `${submitterName} submitted Google Drive document for "${requirement.title}" (${requirement.facilityId}).`,
+        message: `${submitterName} submitted Google Drive document for "${requirement.title}" (${requirement.facilityId}). Vault: ${vaultEntry.vaultFolderPath}`,
         facilityId: requirement.facilityId,
-        linkUrl: `/portal/requests`,
+        linkUrl: '/client-uploads',
+        isRead: false,
+        createdAt: new Date(),
+      });
+      await Notification.create({
+        recipientRole: 'ADMIN',
+        senderRole: 'CLIENT',
+        senderName: submitterName,
+        type: 'EVIDENCE_SUBMITTED',
+        title: 'Client document ingested to vault',
+        message: `"${requirement.title}" — indexed at ${vaultEntry.vaultFolderPath}`,
+        facilityId: requirement.facilityId,
+        linkUrl: '/client-uploads',
         isRead: false,
         createdAt: new Date(),
       });
@@ -83,10 +130,25 @@ export async function POST(
       console.warn('Failed to dispatch notification:', e);
     }
 
+    const uploadedToVault = vaultEntry.ingestionMode === 'DRIVE_API_COPIED';
+
     return NextResponse.json({
       success: true,
-      message: 'Document link submitted successfully. Status updated to RECEIVED / UNDER REVIEW.',
+      message: uploadedToVault
+        ? 'Document copied into the shared compliance Drive vault with folder structure.'
+        : isDriveVaultSyncConfigured()
+          ? 'Vault sync attempted; link indexed. Check Drive API permissions if the file is missing.'
+          : 'Document indexed in vault path (enable service account in .env for automatic Drive upload).',
       data: requirement,
+      vault: {
+        folderPath: vaultEntry.vaultFolderPath,
+        folderUrl: vaultEntry.vaultFolderUrl,
+        vaultUrl: vaultEntry.vaultUrl,
+        vaultFileId: vaultEntry.vaultFileId,
+        targetFolderId: vaultEntry.vaultTargetFolderId,
+        ingestionMode: vaultEntry.ingestionMode,
+        uploadedToVault,
+      },
     });
   } catch (error) {
     console.error('Error submitting client data request:', error);

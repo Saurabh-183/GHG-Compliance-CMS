@@ -11,6 +11,7 @@ import {
   Calendar,
   CheckCircle2,
   FileSpreadsheet,
+  FolderInput,
   RotateCcw,
   LogOut,
   Sun,
@@ -99,6 +100,11 @@ export const Navbar: React.FC = () => {
       currentRole === 'ADMIN' ||
       currentRole === 'CONSULTANT'
     ) {
+      items.push({
+        label: 'Client Uploads',
+        href: '/client-uploads',
+        icon: FolderInput,
+      });
       items.push({
         label: 'Approvals Queue',
         href: '/approvals',
