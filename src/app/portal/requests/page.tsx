@@ -69,7 +69,11 @@ export default function ClientRequestsPage() {
       });
 
       if (res.ok) {
-        notify.success('Google Drive evidence link submitted successfully! Status updated to RECEIVED.');
+        const json = (await res.json()) as {
+          message?: string;
+          vault?: { folderPath?: string; uploadedToVault?: boolean };
+        };
+        notify.success(json.message || 'Document submitted to compliance vault.');
         setDriveUrl('');
         setFileDescription('');
         setSelectedReq(null);
@@ -148,6 +152,23 @@ export default function ClientRequestsPage() {
                     <div className="flex flex-col gap-1">
                       {req.submittedDriveLinks.length > 0 ? (
                         req.submittedDriveLinks.map((link, i) => (
+                          <div key={i} className="space-y-0.5">
+                            <DriveLinkBadge
+                              url={link.vaultUrl || link.url}
+                              label={link.description || 'Drive Document'}
+                            />
+                            {link.vaultFolderPath && (
+                              <div className="text-[9px] font-mono text-emerald-400/80 line-clamp-1 flex items-center gap-1">
+                                <Folder className="w-3 h-3 shrink-0" />
+                                {link.vaultFolderPath}
+                              </div>
+                            )}
+                            {link.mappingStatus && (
+                              <span className="text-[9px] text-slate-500">
+                                Review: {link.mappingStatus}
+                              </span>
+                            )}
+                          </div>
                           <DriveLinkBadge key={i} url={link.url} label={link.description || 'Drive Document'} billDetails={link.billDetails} utilityConnectionSnapshot={link.utilityConnectionSnapshot} facilityId={req.facilityId} />
                         ))
                       ) : (
@@ -179,6 +200,7 @@ export default function ClientRequestsPage() {
       {/* Google Drive Link Submission Modal (Acceptance Step 6) */}
       {selectedReq && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in">
+          <div className="relative w-full max-w-md bg-slate-900 border border-slate-700 rounded-md shadow-2xl p-6">
 
           <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-6">
             <h3 className="text-sm font-bold text-white mb-1">
@@ -202,7 +224,9 @@ export default function ClientRequestsPage() {
                   className="w-full px-3 py-2 text-xs bg-slate-950 border border-slate-700 rounded-lg    dark:text-white focus:outline-none focus:border-emerald-600"
                 />
                 <span className="text-[10px] text-slate-500 mt-1 block">
-                  Ensure link sharing permission is set to viewable by Carbon Crunch consultants.
+                  Share the file/folder with your Carbon Crunch service account (or &quot;Anyone with
+                  link&quot;). The system copies it into the shared compliance Drive under{' '}
+                  <span className="font-mono text-emerald-400/90">Client_Submissions/…</span>.
                 </span>
               </div>
 
