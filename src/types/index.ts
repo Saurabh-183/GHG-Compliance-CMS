@@ -345,3 +345,28 @@ export interface IAuthUserSession {
   clientGroupId?: string;
   authorizedFacilityIds?: string[];
 }
+
+export type DataChecklistItemStatus = 'DUE' | 'RECEIVED' | 'NOT_APPLICABLE' | 'NOT_REQUIRED';
+
+export interface IFacilityDataChecklistItem {
+  itemKey: string;
+  label: string;
+  status: DataChecklistItemStatus;
+  notes?: string;
+  sortOrder: number;
+}
+
+export interface IFacilityDataChecklist {
+  _id: string;
+  facilityId: string;
+  facilityName?: string;
+  period: string;
+  items: IFacilityDataChecklistItem[];
+  sharedWithClient: boolean;
+  sharedAt?: string;
+  sharedByName?: string;
+  lastUpdatedByName?: string;
+  consultantNotes?: string;
+  createdAt: string;
+  updatedAt: string;
+}

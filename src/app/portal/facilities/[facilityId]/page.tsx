@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { formatDate, formatNumber } from '@/lib/utils';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
+import { FacilityDataChecklistPanel } from '@/components/checklist/FacilityDataChecklistPanel';
 import { GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
 
 export default function ClientFacilityOverviewPage() {
@@ -220,6 +221,8 @@ export default function ClientFacilityOverviewPage() {
           </div>
         </div>
       </div>
+
+      <FacilityDataChecklistPanel facilityId={facilityId} facilityName={facility.name} mode="client" />
 
       {/* Google Drive Synced Monthly Energy Records Table */}
       {months.length > 0 && (

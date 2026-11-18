@@ -24,6 +24,8 @@ import {
 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
+import { FacilityDataChecklistPanel } from '@/components/checklist/FacilityDataChecklistPanel';
+import { useAuth } from '@/context/AuthContext';
 import { GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
 import { MOCK_CLIENT_GROUPS, MOCK_FACILITIES } from '@/lib/mockFallback';
 
@@ -88,6 +90,7 @@ function resolveClientGroup(facility: {
 }
 
 export default function FacilityDashboardPage() {
+  const { currentRole } = useAuth();
   const params = useParams();
   const facilityId = (params.facilityId as string) || 'TRIDENT_PAPER';
   const [matrixData, setMatrixData] = useState<IFacilityComplianceMatrix | null>(null);
@@ -313,6 +316,15 @@ export default function FacilityDashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Facility data collection checklist (manual consultant / admin tracking) */}
+      {['ADMIN', 'CONSULTANT'].includes(currentRole) && (
+        <FacilityDataChecklistPanel
+          facilityId={facilityId}
+          facilityName={facility.name}
+          mode="internal"
+        />
+      )}
 
       {/* Module 1: Multi-Year Compliance Matrix (Section 5.2) */}
       <ComplianceMatrixTable data={matrixData} />
