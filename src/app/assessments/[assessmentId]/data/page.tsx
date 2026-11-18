@@ -1,22 +1,12 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { IAssessment, IDataRequirement } from '@/types';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { DriveLinkBadge } from '@/components/common/DriveLinkBadge';
-import {
-  FileSpreadsheet,
-  CheckCircle2,
-  Calendar,
-  Building2,
-  ChevronRight,
-  ArrowRight,
-  Layers,
-  Plus,
-  ExternalLink,
-} from 'lucide-react';
+import { ChevronRight, FileSpreadsheet, RefreshCw } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 
 export default function AssessmentDataPage() {
@@ -25,38 +15,47 @@ export default function AssessmentDataPage() {
   const [assessment, setAssessment] = useState<IAssessment | null>(null);
   const [requirements, setRequirements] = useState<IDataRequirement[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const [assRes, reqRes] = await Promise.all([
-          fetch(`/api/assessments/${assessmentId}`),
-          fetch(`/api/assessments/${assessmentId}/requirements`),
-        ]);
-
-        if (assRes.ok) {
-          const assJson = (await assRes.json()) as { data: IAssessment };
-          setAssessment(assJson.data);
-        }
-        if (reqRes.ok) {
-          const reqJson = (await reqRes.json()) as { data: IDataRequirement[] };
-          setRequirements(reqJson.data);
-        }
-      } catch (e) {
-        console.error('Error fetching data checklist:', e);
-      } finally {
-        setLoading(false);
+  const loadData = useCallback(async () => {
+    if (!assessmentId) return;
+    setLoading(true);
+    setError('');
+    try {
+      const assessmentResponse = await fetch(`/api/assessments/${assessmentId}`, { cache: 'no-store' });
+      const assessmentPayload = await assessmentResponse.json().catch(() => null);
+      if (!assessmentResponse.ok || !assessmentPayload?.data) {
+        throw new Error(assessmentPayload?.error || 'Unable to load assessment details.');
       }
+
+      const currentAssessment = assessmentPayload.data as IAssessment;
+      setAssessment(currentAssessment);
+
+      // Use the same DataRequirement collection and facility/period filter as the client portal.
+      const query = new URLSearchParams({
+        facilityId: currentAssessment.facilityId,
+        period: currentAssessment.period,
+      });
+      const requirementsResponse = await fetch(`/api/requirements?${query.toString()}`, { cache: 'no-store' });
+      const requirementsPayload = await requirementsResponse.json().catch(() => null);
+      if (!requirementsResponse.ok) {
+        throw new Error(requirementsPayload?.error || 'Unable to load client submissions.');
+      }
+      setRequirements(Array.isArray(requirementsPayload?.data) ? requirementsPayload.data : []);
+    } catch (loadError) {
+      console.error('Error loading consultant data checklist:', loadError);
+      setError(loadError instanceof Error ? loadError.message : 'Unable to load client submissions.');
+    } finally {
+      setLoading(false);
     }
-    if (assessmentId) loadData();
   }, [assessmentId]);
 
+  useEffect(() => {
+    void loadData();
+  }, [loadData]);
+
   if (loading) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 py-16 text-center   text-xs">
-        Loading Data Collection Checklist...
-      </div>
-    );
+    return <div className="mx-auto max-w-7xl px-4 py-16 text-center text-xs text-slate-500">Loading Data Collection Checklist...</div>;
   }
 
   return (
@@ -92,15 +91,12 @@ export default function AssessmentDataPage() {
             </div>
           </div>
         </div>
+        <button type="button" onClick={() => void loadData()} className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-slate-700 px-3 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-800">
+          <RefreshCw className="h-3.5 w-3.5" /> Refresh submissions
+        </button>
+      </section>
 
-        <Link
-          href="/datasets/6adb9175b32c50edab95461f/verify"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-md transition-all shrink-0"
-        >
-          <span>Open Reconciliation Engine</span>
-          <ArrowRight className="w-3.5 h-3.5" />
-        </Link>
-      </div>
+      {error && <div role="alert" className="rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm text-rose-800 dark:border-rose-900 dark:bg-rose-950/30 dark:text-rose-300">{error}</div>}
 
       {/* Checklist Table */}
       <div className="rounded-md border border-slate-800 bg-slate-900/60 p-6 shadow-xl space-y-4">
@@ -114,7 +110,7 @@ export default function AssessmentDataPage() {
         </div>
 
         <div className="overflow-x-auto rounded-lg border border-slate-800">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full border-collapse text-left">
             <thead>
               <tr className="border-b border-slate-800 bg-slate-950/80 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
                 <th className="py-3 px-4">Requirement</th>
@@ -138,48 +134,46 @@ export default function AssessmentDataPage() {
                       {req.category === 'COMMON_ENERGY' ? 'Common Energy' : 'Specific Mandate'}
                     </span>
                   </td>
-                  <td className="py-3.5 px-4">
-                    <div className="flex items-center gap-1">
-                      {req.linkedCompliances.map((c) => (
-                        <span key={c} className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-800 text-emerald-400">
-                          {c}
-                        </span>
-                      ))}
+                  <td className="px-4 py-3.5">
+                    <span className="rounded bg-slate-800 px-2 py-0.5 text-[10px] text-slate-300">{requirement.category === 'COMMON_ENERGY' ? 'Common Energy' : 'Specific Mandate'}</span>
+                  </td>
+                  <td className="px-4 py-3.5">
+                    <div className="flex flex-wrap gap-1">{(requirement.linkedCompliances || []).map((compliance) => <span key={compliance} className="rounded bg-slate-800 px-1.5 py-0.5 font-mono text-[10px] text-emerald-400">{compliance}</span>)}</div>
+                  </td>
+                  <td className="px-4 py-3.5 text-center"><StatusBadge status={requirement.submissionStatus} size="sm" /></td>
+                  <td className="px-4 py-3.5 text-center"><StatusBadge status={requirement.verificationStatus} size="sm" /></td>
+                  <td className="px-4 py-3.5">
+                    <div className="flex min-w-[190px] flex-col gap-2">
+                      {requirement.submittedDriveLinks?.length ? requirement.submittedDriveLinks.map((submission, index) => (
+                        <div key={`${submission.url}-${index}`} className="space-y-1">
+                          <DriveLinkBadge
+                            url={submission.url}
+                            label={submission.description || 'Client evidence'}
+                            billDetails={submission.billDetails}
+                            utilityConnectionSnapshot={submission.utilityConnectionSnapshot}
+                            facilityId={requirement.facilityId}
+                          />
+                          {submission.billDetails && (
+                            <p className="text-[10px] text-slate-500">Invoice: {submission.billDetails.invoiceNumber || '—'} · Consumption: {submission.billDetails.consumptionKwh ?? '—'} kWh</p>
+                          )}
+                          <p className="text-[10px] text-slate-500">Submitted by {submission.submittedBy || 'Client'} · {submission.submittedAt ? formatDate(submission.submittedAt) : ''}</p>
+                        </div>
+                      )) : <span className="italic text-slate-500">Awaiting client submission</span>}
                     </div>
                   </td>
-                  <td className="py-3.5 px-4 text-center">
-                    <StatusBadge status={req.submissionStatus} size="sm" />
-                  </td>
-                  <td className="py-3.5 px-4 text-center">
-                    <StatusBadge status={req.verificationStatus} size="sm" />
-                  </td>
-                  <td className="py-3.5 px-4">
-                    <div className="flex flex-col gap-1">
-                      {req.submittedDriveLinks.length > 0 ? (
-                        req.submittedDriveLinks.map((link, i) => (
-                          <DriveLinkBadge key={i} url={link.url} label={link.description || 'Drive Document'} />
-                        ))
-                      ) : (
-                        <span className="text-slate-500 text-xs italic">Awaiting submission</span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="py-3.5 px-4 text-center">
-                    {req.datasetId && (
-                      <Link
-                        href="/datasets/6adb9175b32c50edab95461f/verify"
-                        className="px-2.5 py-1 text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 rounded transition-colors"
-                      >
-                        Reconcile Data
-                      </Link>
-                    )}
+                  <td className="px-4 py-3.5 text-slate-500">{requirement.dueDate ? formatDate(requirement.dueDate) : '—'}</td>
+                  <td className="px-4 py-3.5">
+                    {requirement.datasetId ? (
+                      <Link href={`/datasets/${requirement.datasetId}/verify`} className="whitespace-nowrap rounded bg-emerald-500/10 px-2.5 py-1 text-[11px] font-semibold text-emerald-400 hover:bg-emerald-500/20">Reconcile data</Link>
+                    ) : <span className="text-[10px] text-slate-600">Not linked</span>}
                   </td>
                 </tr>
               ))}
+              {requirements.length === 0 && <tr><td colSpan={8} className="px-4 py-10 text-center text-sm text-slate-500">No data requirements found for this facility and reporting period.</td></tr>}
             </tbody>
           </table>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

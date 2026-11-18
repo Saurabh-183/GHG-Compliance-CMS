@@ -76,10 +76,6 @@ export async function POST(
       clientGroupCode,
       clientGroupName,
       facilityName: facility?.name,
-      ...(isElectricityRequest && bill && connection ? {
-        billDetails: { ...bill, invoiceNumber: bill.invoiceNumber.trim(), consumptionKwh: Number(bill.consumptionKwh), billAmount: Number(bill.billAmount) },
-        utilityConnectionSnapshot: connection,
-      } : {}),
     });
 
     if (parsed.resourceType === 'folder' && parsed.resourceId) {
@@ -93,7 +89,21 @@ export async function POST(
       }
     }
 
-    requirement.submittedDriveLinks.push(vaultEntry);
+    const storedLink = {
+      ...vaultEntry,
+      ...(isElectricityRequest && bill && connection
+        ? {
+            billDetails: {
+              ...bill,
+              invoiceNumber: bill.invoiceNumber.trim(),
+              consumptionKwh: Number(bill.consumptionKwh),
+              billAmount: Number(bill.billAmount),
+            },
+            utilityConnectionSnapshot: connection,
+          }
+        : {}),
+    };
+    requirement.submittedDriveLinks.push(storedLink);
 
     requirement.submissionStatus = 'RECEIVED';
     requirement.verificationStatus = 'UNDER_REVIEW';
