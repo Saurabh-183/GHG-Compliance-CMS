@@ -26,7 +26,6 @@ import { MOCK_CLIENT_GROUPS } from '@/lib/mockFallback';
 import { CompanySelectMui } from '@/components/dashboard/CompanySelectMui';
 import { FacilitySelectMui } from '@/components/dashboard/FacilitySelectMui';
 import { ClientUploadsPanel } from '@/components/uploads/ClientUploadsPanel';
-import { FacilityDataChecklistPanel } from '@/components/checklist/FacilityDataChecklistPanel';
 import { generateDeadlinesForFacilities } from '@/lib/statutoryCalendar';
 
 export default function DashboardPage() {
@@ -36,7 +35,6 @@ export default function DashboardPage() {
   const [clarifications, setClarifications] = useState<IClarification[]>([]);
   const [groups, setGroups] = useState<IClientGroup[]>([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>('ALL');
-  const [checklistFacilityId, setChecklistFacilityId] = useState<string>('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -531,6 +529,11 @@ export default function DashboardPage() {
                       {facility.location} · {facility.category}
                     </p>
                   </div>
+                  <Link
+                    href={`/facilities/${fac.facilityId}`}
+                    className="px-2.5 py-1 text-xs rounded bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20 font-semibold transition-colors shrink-0"
+                  >
+                    Open Facility
 
                   <Link
                     href={`/facilities/${facility.facilityId}`}

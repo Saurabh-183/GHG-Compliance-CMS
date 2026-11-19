@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { IAssessment } from '@/types';
@@ -22,12 +22,16 @@ import {
 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
+import { FacilityDataChecklistPanel } from '@/components/checklist/FacilityDataChecklistPanel';
+import { DEFAULT_CHECKLIST_PERIOD } from '@/lib/facilityDataChecklistTemplate';
 
 export default function AssessmentDetailPage() {
   const params = useParams();
   const assessmentId = params.assessmentId as string;
   const [assessment, setAssessment] = useState<IAssessment | null>(null);
   const [loading, setLoading] = useState(true);
+  const [checklistOpen, setChecklistOpen] = useState(false);
+  const checklistAnchorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     async function loadAssessment() {
@@ -112,8 +116,31 @@ export default function AssessmentDetailPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                const opening = !checklistOpen;
+                setChecklistOpen(opening);
+                if (opening) {
+                  requestAnimationFrame(() => {
+                    checklistAnchorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  });
+                }
+              }}
+              className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-md text-xs font-semibold border transition-colors ${
+                checklistOpen
+                  ? 'border-emerald-600 bg-emerald-600 text-white shadow-sm'
+                  : 'border-emerald-600 bg-white text-emerald-800 hover:bg-emerald-50 dark:bg-slate-800 dark:text-emerald-300 dark:hover:bg-slate-700'
+              }`}
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5" />
+              <span>{checklistOpen ? 'Hide Data Checklist' : 'Data Checklist'}</span>
+            </button>
             <Link
               href={`/assessments/${assessment._id}/data`}
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-xs font-medium text-slate-600 hover:text-emerald-700 underline-offset-2 hover:underline dark:text-slate-400"
+            >
+              Client submissions table
               className="inline-flex items-center gap-2 px-3.5 py-2 rounded-md hover:bg-slate-100 text-slate-700 dark:text-white text-xs font-semibold border border-slate-300 dark:border-slate-700 transition-colors"
             >
               <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
@@ -130,6 +157,17 @@ export default function AssessmentDetailPage() {
           </div>
         </div>
       </div>
+
+      {checklistOpen && assessment.facilityId && (
+        <div ref={checklistAnchorRef} className="scroll-mt-24">
+          <FacilityDataChecklistPanel
+            facilityId={assessment.facilityId}
+            facilityName={assessment.facilityName}
+            period={assessment.period || DEFAULT_CHECKLIST_PERIOD}
+            mode="internal"
+          />
+        </div>
+      )}
 
       {/* Structured Summary Metrics Table (PRD Section 5.3) */}
       <div className="rounded-md border border-slate-800 bg-slate-900/60 p-6 shadow-xl space-y-4">
