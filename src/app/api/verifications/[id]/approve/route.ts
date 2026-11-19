@@ -4,6 +4,7 @@ import { connectToDatabase } from '@/lib/db';
 import { DatasetModel } from '@/models/Dataset';
 import { DataRequirementModel } from '@/models/DataRequirement';
 import { AssessmentModel } from '@/models/Assessment';
+import { ComplianceApplicabilityModel } from '@/models/ComplianceApplicability';
 import { getSessionFromRequest, authorizeRole } from '@/lib/auth';
 
 export async function POST(
@@ -57,14 +58,24 @@ export async function POST(
       });
     }
 
-    // Update Assessment workflow status if linked
-    await AssessmentModel.findOneAndUpdate(
+    const approvedAt = new Date();
+
+    // Propagate approval to all assessments and applicability rows for this facility & reporting period
+    await AssessmentModel.updateMany(
       { facilityId: dataset.facilityId, period: dataset.period },
       {
-        workflowStatus: 'APPROVED',
-        approvedBy: reviewerId,
-        approvedAt: new Date(),
+        $set: {
+          workflowStatus: 'APPROVED',
+          approvedBy: reviewerId,
+          approvedAt,
+        },
+        $inc: { version: 1 },
       }
+    );
+
+    await ComplianceApplicabilityModel.updateMany(
+      { facilityId: dataset.facilityId, period: dataset.period },
+      { $set: { workflowStatus: 'APPROVED' } }
     );
 
     // Trigger notification to Consultant and Client that Reviewer approved & locked dataset

@@ -12,6 +12,36 @@ import { GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
 export const COMPLIANCE_FRAMEWORKS: ComplianceType[] = ['RCO', 'PAT', 'CCTS', 'CEA'];
 export const COMPLIANCE_PERIODS = ['FY2024-25', 'FY2025-26', 'FY2026-27'];
 
+const WORKFLOW_STATUS_RANK: Record<string, number> = {
+  NOT_STARTED: 0,
+  DATA_COLLECTION: 1,
+  UNDER_REVIEW: 2,
+  APPROVED: 3,
+  SUBMITTED: 4,
+};
+
+function resolveMatrixPeriod(period: string): string | undefined {
+  const exact = COMPLIANCE_PERIODS.find((p) => p.toLowerCase() === period.toLowerCase());
+  if (exact) return exact;
+  if (period.includes('2024-25') || period.includes('Cycle-II')) return 'FY2024-25';
+  if (period.includes('2025-26') || period.includes('Monthly')) return 'FY2025-26';
+  if (period.includes('2026-27')) return 'FY2026-27';
+  return undefined;
+}
+
+function periodsAlign(a: string, b: string): boolean {
+  if (a.toLowerCase() === b.toLowerCase()) return true;
+  const matrixA = resolveMatrixPeriod(a);
+  const matrixB = resolveMatrixPeriod(b);
+  return matrixA !== undefined && matrixA === matrixB;
+}
+
+function preferWorkflowStatus(current: string, next: string): string {
+  const rankCurrent = WORKFLOW_STATUS_RANK[current] ?? 0;
+  const rankNext = WORKFLOW_STATUS_RANK[next] ?? 0;
+  return rankNext >= rankCurrent ? next : current;
+}
+
 /**
  * Generates Statutory Compliance Applicability records for any facility.
  * Mapped to availability in the corporate Google Drive compliance repository:
@@ -496,16 +526,7 @@ export function buildMultiYearComplianceMatrix(
   // Populate from active applicability records (where Drive evidence exists)
   applicabilities.forEach((app) => {
     const comp = app.complianceType as ComplianceType;
-    let matchedPeriod = COMPLIANCE_PERIODS.find((p) => p.toLowerCase() === app.period.toLowerCase());
-    if (!matchedPeriod) {
-      if (app.period.includes('2024-25') || app.period.includes('Cycle-II')) {
-        matchedPeriod = 'FY2024-25';
-      } else if (app.period.includes('2025-26') || app.period.includes('Monthly')) {
-        matchedPeriod = 'FY2025-26';
-      } else if (app.period.includes('2026-27')) {
-        matchedPeriod = 'FY2026-27';
-      }
-    }
+    const matchedPeriod = resolveMatrixPeriod(app.period);
 
     if (matchedPeriod && matrix[comp]) {
       const assessmentId =
@@ -523,6 +544,33 @@ export function buildMultiYearComplianceMatrix(
         deadline: app.deadline || undefined,
       };
     }
+  });
+
+  // Overlay assessment workflow (e.g. after admin/consultant report approval) so consultant views stay in sync
+  assessments.forEach((asm) => {
+    const comp = asm.complianceType as ComplianceType;
+    const matchedPeriod = resolveMatrixPeriod(asm.period);
+    if (!matchedPeriod || !matrix[comp]) return;
+
+    const cell = matrix[comp][matchedPeriod];
+    if (!cell?.isApplicable) return;
+
+    cell.workflowStatus = preferWorkflowStatus(cell.workflowStatus, asm.workflowStatus);
+    cell.complianceOutcome = asm.complianceOutcome;
+    cell.assessmentId = asm._id;
+  });
+
+  applicabilities.forEach((app) => {
+    const matchedAssessment = assessments.find(
+      (asm) => asm.complianceType === app.complianceType && periodsAlign(asm.period, app.period)
+    );
+    if (!matchedAssessment) return;
+
+    app.workflowStatus = preferWorkflowStatus(
+      app.workflowStatus,
+      matchedAssessment.workflowStatus
+    ) as IComplianceApplicability['workflowStatus'];
+    app.complianceOutcome = matchedAssessment.complianceOutcome;
   });
 
   return { matrix, applicabilities, assessments };

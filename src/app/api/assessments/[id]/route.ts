@@ -45,6 +45,12 @@ export async function GET(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    const approvedBy = assessment.approvedBy as { name?: string } | undefined;
+    const approvedAt =
+      assessment.approvedAt instanceof Date
+        ? assessment.approvedAt.toISOString()
+        : assessment.approvedAt;
+
     // Client portal permission enforcement: unapproved metrics and internal notes hidden
     if (session && session.role === 'CLIENT') {
       return NextResponse.json({
@@ -52,6 +58,8 @@ export async function GET(
         data: {
           ...assessment,
           _id: assessment._id.toString(),
+          approvedByName: approvedBy?.name,
+          approvedAt,
           metrics: (assessment.metrics || []).filter((m: any) => m.approvalStatus === 'APPROVED'),
           notes: undefined,
         },
@@ -63,6 +71,8 @@ export async function GET(
       data: {
         ...assessment,
         _id: assessment._id.toString(),
+        approvedByName: approvedBy?.name,
+        approvedAt,
       },
     });
   } catch (error) {
