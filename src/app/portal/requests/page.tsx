@@ -72,6 +72,7 @@ export default function ClientRequestsPage() {
   const [selectedReq, setSelectedReq] = useState<IDataRequirement | null>(null);
   const [driveUrl, setDriveUrl] = useState('');
   const [fileDescription, setFileDescription] = useState('');
+  const [reportingMonth, setReportingMonth] = useState('');
   const [connection, setConnection] = useState<ConnectionForm>(EMPTY_CONNECTION);
   const [bill, setBill] = useState<BillForm>(EMPTY_BILL);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -132,6 +133,7 @@ export default function ClientRequestsPage() {
     setSelectedReq(null);
     setDriveUrl('');
     setFileDescription('');
+    setReportingMonth('');
     setConnection(EMPTY_CONNECTION);
     setBill(EMPTY_BILL);
     setIsPreviewOpen(false);
@@ -141,6 +143,7 @@ export default function ClientRequestsPage() {
     setSelectedReq(requirement);
     setDriveUrl('');
     setFileDescription('');
+    setReportingMonth('');
     setConnection({
       ...EMPTY_CONNECTION,
       ...(requirement.utilityConnection || {}),
@@ -152,6 +155,11 @@ export default function ClientRequestsPage() {
   const validateForm = (): boolean => {
     if (!selectedReq) {
       notify.error('Select a data requirement first.');
+      return false;
+    }
+
+    if (selectedReq.monthlyFrequency && (!reportingMonth || !(selectedReq.reportingMonths || []).includes(reportingMonth))) {
+      notify.warning('Select one of the reporting months requested by your consultant.');
       return false;
     }
 
@@ -199,6 +207,7 @@ export default function ClientRequestsPage() {
       const requestBody = {
         url: driveUrl.trim(),
         description: fileDescription.trim() || 'Client submission via portal',
+        ...(selectedReq.monthlyFrequency ? { reportingMonth } : {}),
         ...(isElectricityRequest
           ? {
               utilityConnection: connection,
@@ -496,6 +505,15 @@ export default function ClientRequestsPage() {
                       </div>
                     </div>
 
+                    {selectedReq.monthlyFrequency && (
+                      <div className="mt-4">
+                        <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1.5">Reporting month <span className="text-rose-500">*</span></label>
+                        <select required value={reportingMonth} onChange={(event) => setReportingMonth(event.target.value)} className="w-full px-3.5 py-2.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white">
+                          <option value="">Select month</option>
+                          {(selectedReq.reportingMonths || []).map((month) => <option key={month} value={month}>{month}</option>)}
+                        </select>
+                      </div>
+                    )}
                     <div>
                       <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
                         Document Description / File Title

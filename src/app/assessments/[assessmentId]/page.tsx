@@ -127,11 +127,10 @@ export default function AssessmentDetailPage() {
                   });
                 }
               }}
-              className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-md text-xs font-semibold border transition-colors ${
-                checklistOpen
+              className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-md text-xs font-semibold border transition-colors ${checklistOpen
                   ? 'border-emerald-600 bg-emerald-600 text-white shadow-sm'
                   : 'border-emerald-600 bg-white text-emerald-800 hover:bg-emerald-50 dark:bg-slate-800 dark:text-emerald-300 dark:hover:bg-slate-700'
-              }`}
+                }`}
             >
               <FileSpreadsheet className="w-3.5 h-3.5" />
               <span>{checklistOpen ? 'Hide Data Checklist' : 'Data Checklist'}</span>

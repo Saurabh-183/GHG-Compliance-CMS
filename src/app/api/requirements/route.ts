@@ -5,6 +5,7 @@ import { DataRequirementModel } from '@/models/DataRequirement';
 import { FacilityModel } from '@/models/Facility';
 import { getSessionFromRequest, isAuthorizedForFacility, authorizeRole } from '@/lib/auth';
 import { ComplianceType } from '@/types';
+import { Notification } from '@/models/Notification';
 
 export async function GET(request: NextRequest) {
   try {
@@ -35,6 +36,18 @@ export async function GET(request: NextRequest) {
     }
 
     if (period) query.period = period;
+
+    if (session.role === 'CONSULTANT') {
+      if (facilityId) {
+        const assignedFacility = await FacilityModel.findOne({ facilityId: facilityId.toUpperCase() }).select('assignedConsultantId').lean();
+        if (!assignedFacility || assignedFacility.assignedConsultantId?.toString() !== session.userId) {
+          return NextResponse.json({ error: 'This facility is not assigned to your consultant account.' }, { status: 403 });
+        }
+      } else {
+        const assignedFacilities = await FacilityModel.find({ assignedConsultantId: session.userId }).select('facilityId').lean();
+        query.facilityId = { $in: assignedFacilities.map((facility) => facility.facilityId) };
+      }
+    }
 
     const requirements = await DataRequirementModel.find(query)
       .populate('datasetId')
@@ -86,11 +99,7 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error fetching client data requirements:', error);
-    return NextResponse.json({
-      success: true,
-      data: [],
-      error: 'Unable to load data requests.',
-    });
+    return NextResponse.json({ error: 'Unable to load data requests. Check the database connection.' }, { status: 500 });
   }
 }
 
@@ -113,10 +122,37 @@ export async function POST(request: NextRequest) {
       linkedCompliances: ComplianceType[];
       description: string;
       dueDate?: string;
+      monthlyFrequency?: boolean;
+      reportingMonths?: string[];
     };
+
+    if (!body.facilityId?.trim() || !body.period?.trim() || !body.title?.trim() || !body.description?.trim()) {
+      return NextResponse.json({ error: 'facilityId, period, title and description are required.' }, { status: 400 });
+    }
+    if (!['COMMON_ENERGY', 'COMPLIANCE_SPECIFIC'].includes(body.category)) {
+      return NextResponse.json({ error: 'Select a valid requirement category.' }, { status: 400 });
+    }
+    if (!Array.isArray(body.linkedCompliances) || body.linkedCompliances.length === 0 || body.linkedCompliances.some((c) => !['RCO', 'PAT', 'CCTS', 'CEA'].includes(c))) {
+      return NextResponse.json({ error: 'Select at least one valid compliance.' }, { status: 400 });
+    }
+    const facility = await FacilityModel.findOne({ facilityId: body.facilityId.toUpperCase() }).lean();
+    if (!facility) return NextResponse.json({ error: 'Facility not found.' }, { status: 404 });
+    if (session!.role === 'CONSULTANT' && facility.assignedConsultantId && facility.assignedConsultantId.toString() !== session!.userId) {
+      return NextResponse.json({ error: 'This facility is not assigned to your consultant account.' }, { status: 403 });
+    }
+    if (body.dueDate && Number.isNaN(Date.parse(body.dueDate))) {
+      return NextResponse.json({ error: 'Invalid due date.' }, { status: 400 });
+    }
+    if (body.monthlyFrequency && (!Array.isArray(body.reportingMonths) || body.reportingMonths.length === 0 || body.reportingMonths.some((month) => !/^\d{4}-(0[1-9]|1[0-2])$/.test(month)))) {
+      return NextResponse.json({ error: 'Monthly requests require reporting months in YYYY-MM format.' }, { status: 400 });
+    }
 
     const newReq = await DataRequirementModel.create({
       ...body,
+      title: body.title.trim(),
+      description: body.description.trim(),
+      requestedBy: session!.userId,
+      requestedByName: session!.name,
       facilityId: body.facilityId.toUpperCase(),
       submissionStatus: 'REQUESTED',
       verificationStatus: 'NOT_STARTED',
@@ -124,25 +160,28 @@ export async function POST(request: NextRequest) {
       dueDate: body.dueDate ? new Date(body.dueDate) : undefined,
     });
 
+    try {
+      await Notification.create({
+        recipientRole: 'CLIENT',
+        senderRole: session!.role === 'ADMIN' ? 'ADMIN' : 'CONSULTANT',
+        senderName: session!.name,
+        type: 'DATA_CHECKLIST_SHARED',
+        title: `New data request — ${facility.name}`,
+        message: `${session!.name} requested ${body.title.trim()} for ${body.period}. Please open the Data Requests page to submit the required evidence.`,
+        facilityId: facility.facilityId,
+        linkUrl: '/portal/requests',
+        isRead: false,
+      });
+    } catch (notificationError) {
+      console.error('Data request was saved but client notification failed:', notificationError);
+    }
+
     return NextResponse.json(
-      { success: true, message: 'Data requirement created', data: newReq },
+      { success: true, message: 'Data requirement created and client notified', data: newReq },
       { status: 201 }
     );
   } catch (error) {
-    console.warn('Error creating requirement in DB, returning demo fallback:', error);
-    return NextResponse.json(
-      {
-        success: true,
-        message: 'Data requirement created (Demo Mode)',
-        data: {
-          _id: 'req_demo_' + Date.now(),
-          title: 'Demo Data Requirement',
-          submissionStatus: 'REQUESTED',
-          verificationStatus: 'NOT_STARTED',
-          requestedAt: new Date().toISOString(),
-        },
-      },
-      { status: 201 }
-    );
+    console.error('Error creating requirement:', error);
+    return NextResponse.json({ error: 'Unable to create data request. Check database connection and request details.' }, { status: 500 });
   }
 }
