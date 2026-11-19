@@ -141,10 +141,6 @@ export default function AssessmentDetailPage() {
               className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-xs font-medium text-slate-600 hover:text-emerald-700 underline-offset-2 hover:underline dark:text-slate-400"
             >
               Client submissions table
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-md hover:bg-slate-100 text-slate-700 dark:text-white text-xs font-semibold border border-slate-300 dark:border-slate-700 transition-colors"
-            >
-              <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-              <span>Data Checklist</span>
             </Link>
 
             <Link

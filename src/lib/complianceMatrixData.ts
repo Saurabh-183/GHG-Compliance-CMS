@@ -36,7 +36,7 @@ function periodsAlign(a: string, b: string): boolean {
   return matrixA !== undefined && matrixA === matrixB;
 }
 
-function preferWorkflowStatus(current: string, next: string): string {
+function preferWorkflowStatus<T extends string>(current: T, next: T): T {
   const rankCurrent = WORKFLOW_STATUS_RANK[current] ?? 0;
   const rankNext = WORKFLOW_STATUS_RANK[next] ?? 0;
   return rankNext >= rankCurrent ? next : current;
