@@ -35,6 +35,7 @@ export function proxy(request: NextRequest) {
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api/auth/login') ||
     pathname.startsWith('/api/auth/logout') ||
+    pathname.startsWith('/api/notifications') ||
     pathname.startsWith('/api/seed') ||
     pathname === '/login' ||
     pathname === '/favicon.ico' ||
@@ -45,8 +46,11 @@ export function proxy(request: NextRequest) {
 
   const token = request.cookies.get('cc_auth_token')?.value;
 
-  // If not logged in, redirect to login page
+  // If not logged in, return 401 for API routes or redirect to login page for UI routes
   if (!token) {
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
@@ -54,6 +58,9 @@ export function proxy(request: NextRequest) {
 
   const user = decodeJwtPayload(token);
   if (!user) {
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 });
+    }
     const loginUrl = new URL('/login', request.url);
     return NextResponse.redirect(loginUrl);
   }

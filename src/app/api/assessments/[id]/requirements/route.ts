@@ -35,6 +35,11 @@ export async function GET(
       data: requirements.map((r) => ({
         ...r,
         _id: r._id.toString(),
+        datasetId: r.datasetId
+          ? typeof r.datasetId === 'object' && '_id' in (r.datasetId as any)
+            ? String((r.datasetId as any)._id)
+            : r.datasetId.toString()
+          : undefined,
       })),
     });
   } catch (error) {

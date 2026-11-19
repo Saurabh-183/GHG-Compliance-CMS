@@ -19,6 +19,7 @@ import {
   Building2,
   CheckCircle2,
   Sparkles,
+  LucideRefreshCcw,
 } from 'lucide-react';
 import { EvidenceDocumentModal } from '@/components/common/EvidenceDocumentModal';
 import { formatDate, formatNumber } from '@/lib/utils';
@@ -71,11 +72,13 @@ export default function ClientRequestsPage() {
   const [selectedReq, setSelectedReq] = useState<IDataRequirement | null>(null);
   const [driveUrl, setDriveUrl] = useState('');
   const [fileDescription, setFileDescription] = useState('');
+  const [reportingMonth, setReportingMonth] = useState('');
   const [connection, setConnection] = useState<ConnectionForm>(EMPTY_CONNECTION);
   const [bill, setBill] = useState<BillForm>(EMPTY_BILL);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [loadError, setLoadError] = useState('');
 
   const setConnectionField = (key: keyof ConnectionForm, value: string) =>
@@ -115,10 +118,22 @@ export default function ClientRequestsPage() {
     void loadRequests();
   }, [loadRequests]);
 
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await loadRequests();
+    } finally {
+      setTimeout(() => {
+        setIsRefreshing(false);
+      }, 600);
+    }
+  };
+
   const resetForm = () => {
     setSelectedReq(null);
     setDriveUrl('');
     setFileDescription('');
+    setReportingMonth('');
     setConnection(EMPTY_CONNECTION);
     setBill(EMPTY_BILL);
     setIsPreviewOpen(false);
@@ -128,6 +143,7 @@ export default function ClientRequestsPage() {
     setSelectedReq(requirement);
     setDriveUrl('');
     setFileDescription('');
+    setReportingMonth('');
     setConnection({
       ...EMPTY_CONNECTION,
       ...(requirement.utilityConnection || {}),
@@ -139,6 +155,11 @@ export default function ClientRequestsPage() {
   const validateForm = (): boolean => {
     if (!selectedReq) {
       notify.error('Select a data requirement first.');
+      return false;
+    }
+
+    if (selectedReq.monthlyFrequency && (!reportingMonth || !(selectedReq.reportingMonths || []).includes(reportingMonth))) {
+      notify.warning('Select one of the reporting months requested by your consultant.');
       return false;
     }
 
@@ -186,6 +207,7 @@ export default function ClientRequestsPage() {
       const requestBody = {
         url: driveUrl.trim(),
         description: fileDescription.trim() || 'Client submission via portal',
+        ...(selectedReq.monthlyFrequency ? { reportingMonth } : {}),
         ...(isElectricityRequest
           ? {
               utilityConnection: connection,
@@ -239,10 +261,17 @@ export default function ClientRequestsPage() {
         </div>
         <button
           type="button"
-          onClick={() => void loadRequests()}
-          className="px-3.5 py-2 text-xs font-semibold rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-2xs transition-colors"
+          onClick={() => void handleRefresh()}
+          disabled={isRefreshing}
+          className="px-3.5 py-2 inline-flex items-center gap-2 text-xs font-semibold rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/80 shadow-2xs transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+          title="Refresh outstanding requests"
         >
-          Refresh requests
+          <LucideRefreshCcw
+            className={`h-3.5 w-3.5 transition-transform ${
+              isRefreshing ? 'animate-spin text-emerald-600 dark:text-emerald-400' : ''
+            }`}
+          />
+          <span>{isRefreshing ? 'Refreshing...' : 'Refresh requests'}</span>
         </button>
       </div>
 
@@ -406,7 +435,7 @@ export default function ClientRequestsPage() {
                 Sections:
               </span>
               <div className="flex items-center gap-1.5 shrink-0 px-2.5 py-1 rounded-md bg-white dark:bg-slate-900 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 font-semibold shadow-2xs">
-                <span className="w-4 h-4 rounded-full bg-emerald-600 text-white text-[10px] font-bold flex items-center justify-center">1</span>
+                <span className="w-4 h-4 rounded-full bg-green-600 text-white text-[10px] font-bold flex items-center justify-center">1</span>
                 <span>Drive Evidence Link</span>
               </div>
               {isElectricityRequest && (
@@ -434,12 +463,12 @@ export default function ClientRequestsPage() {
                   {/* Section 1 Header */}
                   <div className="px-5 py-3.5 bg-slate-50 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-6 h-6 rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
+                      <div className="w-6 h-6 rounded-full bg-green-600 text-white dark:text-white font-bold text-xs flex items-center justify-center shrink-0">
                         1
                       </div>
                       <div>
-                        <h4 className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                          <Link2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                        <h4 className="text-xs font-bold text-slate-400 dark:text-white flex items-center gap-2">
+                          <Link2 className="w-4 h-4 text-slate-600 dark:text-emerald-400" />
                           <span>Google Drive Evidence Link & Documentation</span>
                         </h4>
                         <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
@@ -476,6 +505,15 @@ export default function ClientRequestsPage() {
                       </div>
                     </div>
 
+                    {selectedReq.monthlyFrequency && (
+                      <div className="mt-4">
+                        <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1.5">Reporting month <span className="text-rose-500">*</span></label>
+                        <select required value={reportingMonth} onChange={(event) => setReportingMonth(event.target.value)} className="w-full px-3.5 py-2.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white">
+                          <option value="">Select month</option>
+                          {(selectedReq.reportingMonths || []).map((month) => <option key={month} value={month}>{month}</option>)}
+                        </select>
+                      </div>
+                    )}
                     <div>
                       <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
                         Document Description / File Title

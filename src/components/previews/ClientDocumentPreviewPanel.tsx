@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { Select, MenuItem, FormControl } from '@mui/material';
+import { useAuth } from '@/context/AuthContext';
 import type { ClientUploadListItem } from '@/app/api/client-uploads/route';
 import type { IPspclBillPreview } from '@/lib/pspclBillPreview';
 import { getDrivePreviewEmbedUrl, parseGoogleDriveUrl } from '@/lib/driveVaultShared';
@@ -29,6 +31,9 @@ export const ClientDocumentPreviewPanel: React.FC<ClientDocumentPreviewPanelProp
   item,
   onClose,
 }) => {
+  const { theme } = useAuth();
+  const isDark = theme === 'dark';
+
   const [bill, setBill] = useState<IPspclBillPreview | null>(null);
   const [embedUrl, setEmbedUrl] = useState<string | null>(null);
   const [openUrl, setOpenUrl] = useState<string | null>(null);
@@ -114,21 +119,63 @@ export const ClientDocumentPreviewPanel: React.FC<ClientDocumentPreviewPanelProp
         </div>
         <div className="flex items-center gap-2">
           {months.length > 1 && (
-            <select
-              value={selectedMonth}
-              onChange={(e) => {
-                setSelectedMonth(e.target.value);
-                loadPreview(e.target.value);
-              }}
-              className="text-[10px] rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-950 px-2 py-1 text-slate-800 dark:text-slate-200"
-            >
-              <option value="">Latest row</option>
-              {months.map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
-              ))}
-            </select>
+            <FormControl size="small" sx={{ minWidth: 105 }}>
+              <Select
+                value={selectedMonth}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setSelectedMonth(val);
+                  loadPreview(val);
+                }}
+                displayEmpty
+                sx={{
+                  height: 26,
+                  fontSize: '11px',
+                  borderRadius: '6px',
+                  backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                  color: isDark ? '#FFFFFF' : '#1E293B',
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: isDark ? '#34D399' : '#059669',
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: isDark ? '#34D399' : '#059669',
+                    borderWidth: '1.5px',
+                  },
+                  '& .MuiSelect-select': {
+                    py: '2px',
+                    px: '8px',
+                  },
+                }}
+                MenuProps={{
+                  slotProps: {
+                    paper: {
+                      sx: {
+                        backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                        color: isDark ? '#FFFFFF' : '#1E293B',
+                        borderRadius: '8px',
+                        border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0'}`,
+                        boxShadow: isDark
+                          ? '0 10px 25px -5px rgba(0, 0, 0, 0.6)'
+                          : '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
+                        '& .MuiList-root': { py: '4px' },
+                      },
+                    },
+                  },
+                }}
+              >
+                <MenuItem value="" sx={{ fontSize: '11px' }}>
+                  Latest row
+                </MenuItem>
+                {months.map((m) => (
+                  <MenuItem key={m} value={m} sx={{ fontSize: '11px' }}>
+                    {m}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           )}
           {openUrl && (
             <a

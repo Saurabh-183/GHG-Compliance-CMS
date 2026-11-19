@@ -47,8 +47,8 @@ export const NotificationBell: React.FC = () => {
         setNotifications(json.data || []);
         setUnreadCount(json.unreadCount || 0);
       }
-    } catch (e) {
-      console.warn('Failed to fetch notifications:', e);
+    } catch {
+      // Gracefully ignore transient network drops or dev server restarts
     }
   };
 

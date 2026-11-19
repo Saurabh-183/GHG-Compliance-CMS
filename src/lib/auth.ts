@@ -2,14 +2,22 @@ import { NextRequest } from 'next/server';
 import jwt from 'jsonwebtoken';
 import { IAuthUserSession, UserRole } from '@/types';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'carbon_crunch_jwt_secret_token_mvp_2026_secure';
+const JWT_SECRET = process.env.JWT_SECRET || (process.env.NODE_ENV === 'production' ? '' : 'carbon_crunch_local_development_only_change_me');
+
+function assertJwtSecret() {
+  if (!JWT_SECRET || JWT_SECRET.length < 32) {
+    throw new Error('JWT_SECRET must be configured with at least 32 characters.');
+  }
+}
 
 export function signToken(payload: IAuthUserSession): string {
+  assertJwtSecret();
   return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
 }
 
 export function verifyToken(token: string): IAuthUserSession | null {
   try {
+    assertJwtSecret();
     const decoded = jwt.verify(token, JWT_SECRET) as IAuthUserSession;
     return decoded;
   } catch {
@@ -33,6 +41,7 @@ export function getSessionFromRequest(request: NextRequest): IAuthUserSession | 
   }
 
   // For seamless demo switching without breaking API calls, support custom demo header
+  if (process.env.NODE_ENV === 'production' || process.env.ENABLE_DEMO_ROLE_HEADER !== 'true') return null;
   const demoRole = request.headers.get('X-Demo-Role') as UserRole | null;
   const demoUser = request.headers.get('X-Demo-User-Id');
   if (demoRole && ['ADMIN', 'CONSULTANT', 'CLIENT'].includes(demoRole)) {
