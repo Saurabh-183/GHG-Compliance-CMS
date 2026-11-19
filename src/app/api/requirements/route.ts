@@ -50,6 +50,11 @@ export async function GET(request: NextRequest) {
       data: requirements.map((r) => ({
         ...r,
         _id: r._id.toString(),
+        datasetId: r.datasetId
+          ? typeof r.datasetId === 'object' && '_id' in (r.datasetId as any)
+            ? String((r.datasetId as any)._id)
+            : r.datasetId.toString()
+          : undefined,
         utilityConnection: connectionByFacility.get(r.facilityId) || undefined,
         dueDate: r.dueDate
           ? r.dueDate instanceof Date

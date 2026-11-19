@@ -66,3 +66,4 @@ NotificationSchema.index({ recipientRole: 1, isRead: 1, createdAt: -1 });
 
 export const Notification: Model<INotification> =
   mongoose.models.Notification || mongoose.model<INotification>('Notification', NotificationSchema);
+export const NotificationModel = Notification;

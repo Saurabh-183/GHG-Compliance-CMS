@@ -15,6 +15,7 @@ import {
 import type { DataChecklistItemStatus, IFacilityDataChecklist, IFacilityDataChecklistItem } from '@/types';
 import { DEFAULT_CHECKLIST_PERIOD } from '@/lib/facilityDataChecklistTemplate';
 import { notify } from '@/lib/notify';
+import { ChecklistStatusSelectMui } from './ChecklistStatusSelectMui';
 
 type Mode = 'internal' | 'client';
 
@@ -488,21 +489,13 @@ export function FacilityDataChecklistPanel({
                 </td>
                 <td className="py-2 px-3">
                   {canEdit ? (
-                    <select
+                    <ChecklistStatusSelectMui
                       value={row.status}
-                      onChange={(e) => {
-                        const status = e.target.value as DataChecklistItemStatus;
+                      onChange={(status) => {
                         const nextItems = items.map((r, i) => (i === index ? { ...r, status } : r));
                         persistStatusChange(nextItems);
                       }}
-                      className={`w-full rounded-md border px-2 py-1 text-[11px] font-semibold ${statusPill(row.status)}`}
-                    >
-                      {STATUS_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
+                    />
                   ) : (
                     <span className={`inline-flex px-2 py-0.5 rounded border text-[11px] font-semibold ${statusPill(row.status)}`}>
                       {STATUS_OPTIONS.find((o) => o.value === row.status)?.label || row.status}

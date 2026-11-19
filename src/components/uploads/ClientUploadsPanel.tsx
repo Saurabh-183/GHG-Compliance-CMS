@@ -402,40 +402,127 @@ export const ClientUploadsPanel: React.FC<ClientUploadsPanelProps> = ({
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <label className="text-[11px] text-slate-700 dark:text-slate-300 space-y-1">
-                Dataset
-                <select
-                  value={selectedDatasetId}
-                  onChange={(e) => {
-                    setSelectedDatasetId(e.target.value);
-                    setSelectedMonth('');
-                  }}
-                  className="w-full text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-2 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
-                >
-                  <option value="">— Select dataset —</option>
-                  {datasets.map((d) => (
-                    <option key={d._id} value={d._id}>
-                      {d.datasetType} ({d.period})
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="text-[11px] text-slate-700 dark:text-slate-300 space-y-1">
-                Billing month
-                <select
-                  value={selectedMonth}
-                  onChange={(e) => setSelectedMonth(e.target.value)}
-                  className="w-full text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-2 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
-                  disabled={!selectedDatasetId}
-                >
-                  <option value="">— Month —</option>
-                  {monthOptions.map((m) => (
-                    <option key={m} value={m}>
-                      {m}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <div className="space-y-1">
+                <span className="block text-[11px] font-medium text-slate-700 dark:text-slate-300">
+                  Dataset
+                </span>
+                <FormControl size="small" fullWidth>
+                  <Select
+                    value={selectedDatasetId}
+                    onChange={(e) => {
+                      setSelectedDatasetId(e.target.value);
+                      setSelectedMonth('');
+                    }}
+                    displayEmpty
+                    sx={{
+                      height: 38,
+                      fontSize: '12px',
+                      borderRadius: '8px',
+                      backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                      color: isDark ? '#FFFFFF' : '#1E293B',
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
+                      },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: isDark ? '#34D399' : '#059669',
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: isDark ? '#34D399' : '#059669',
+                        borderWidth: '1.5px',
+                      },
+                      '& .MuiSelect-select': {
+                        py: '6px',
+                        px: '10px',
+                      },
+                    }}
+                    MenuProps={{
+                      slotProps: {
+                        paper: {
+                          sx: {
+                            backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                            color: isDark ? '#FFFFFF' : '#1E293B',
+                            borderRadius: '8px',
+                            border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0'}`,
+                            boxShadow: isDark
+                              ? '0 10px 25px -5px rgba(0, 0, 0, 0.6)'
+                              : '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
+                            '& .MuiList-root': { py: '4px' },
+                          },
+                        },
+                      },
+                    }}
+                  >
+                    <MenuItem value="" sx={{ fontSize: '12px', color: isDark ? '#94A3B8' : '#64748B' }}>
+                      <em>— Select dataset —</em>
+                    </MenuItem>
+                    {datasets.map((d) => (
+                      <MenuItem key={d._id} value={d._id} sx={{ fontSize: '12px' }}>
+                        {d.datasetType} ({d.period})
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+
+              <div className="space-y-1">
+                <span className="block text-[11px] font-medium text-slate-700 dark:text-slate-300">
+                  Billing month
+                </span>
+                <FormControl size="small" fullWidth disabled={!selectedDatasetId}>
+                  <Select
+                    value={selectedMonth}
+                    onChange={(e) => setSelectedMonth(e.target.value)}
+                    displayEmpty
+                    disabled={!selectedDatasetId}
+                    sx={{
+                      height: 38,
+                      fontSize: '12px',
+                      borderRadius: '8px',
+                      backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                      color: isDark ? '#FFFFFF' : '#1E293B',
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
+                      },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: isDark ? '#34D399' : '#059669',
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: isDark ? '#34D399' : '#059669',
+                        borderWidth: '1.5px',
+                      },
+                      '& .MuiSelect-select': {
+                        py: '6px',
+                        px: '10px',
+                      },
+                    }}
+                    MenuProps={{
+                      slotProps: {
+                        paper: {
+                          sx: {
+                            backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                            color: isDark ? '#FFFFFF' : '#1E293B',
+                            borderRadius: '8px',
+                            border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0'}`,
+                            boxShadow: isDark
+                              ? '0 10px 25px -5px rgba(0, 0, 0, 0.6)'
+                              : '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
+                            '& .MuiList-root': { py: '4px' },
+                          },
+                        },
+                      },
+                    }}
+                  >
+                    <MenuItem value="" sx={{ fontSize: '12px', color: isDark ? '#94A3B8' : '#64748B' }}>
+                      <em>— Month —</em>
+                    </MenuItem>
+                    {monthOptions.map((m) => (
+                      <MenuItem key={m} value={m} sx={{ fontSize: '12px' }}>
+                        {m}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
             </div>
 
             <label className="text-[11px] text-slate-700 dark:text-slate-300 space-y-1 block">

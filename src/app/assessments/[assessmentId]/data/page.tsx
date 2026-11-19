@@ -81,7 +81,7 @@ export default function AssessmentDataPage() {
       </div>
 
       {/* Header */}
-      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5">
             <span className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
@@ -195,16 +195,25 @@ export default function AssessmentDataPage() {
                     {req.dueDate ? formatDate(req.dueDate) : '—'}
                   </td>
                   <td className="py-3.5 px-4 text-center">
-                    {req.datasetId ? (
-                      <Link
-                        href={`/datasets/${req.datasetId}/verify`}
-                        className="whitespace-nowrap rounded bg-emerald-50 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 px-2.5 py-1 text-[11px] font-semibold hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition-colors"
-                      >
-                        Reconcile data
-                      </Link>
-                    ) : (
-                      <span className="text-[10px] text-slate-500">Not linked</span>
-                    )}
+                    {(() => {
+                      const datasetIdStr =
+                        typeof req.datasetId === 'object' && req.datasetId !== null
+                          ? ((req.datasetId as { _id?: unknown })._id?.toString() || '')
+                          : req.datasetId
+                          ? String(req.datasetId)
+                          : '';
+
+                      return datasetIdStr ? (
+                        <Link
+                          href={`/datasets/${datasetIdStr}/verify`}
+                          className="whitespace-nowrap rounded bg-emerald-50 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 px-2.5 py-1 text-[11px] font-semibold hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition-colors"
+                        >
+                          Reconcile data
+                        </Link>
+                      ) : (
+                        <span className="text-[10px] text-slate-500">Not linked</span>
+                      );
+                    })()}
                   </td>
                 </tr>
               ))}
