@@ -1,80 +1,129 @@
+
 import { NextRequest, NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import { connectToDatabase } from '@/lib/db';
 import { FacilityModel } from '@/models/Facility';
 import { ComplianceApplicabilityModel } from '@/models/ComplianceApplicability';
 import { AssessmentModel } from '@/models/Assessment';
-import { getSessionFromRequest, isAuthorizedForFacility } from '@/lib/auth';
-import { ComplianceType, IComplianceMatrixCell } from '@/types';
+import {
+  getSessionFromRequest,
+  isAuthorizedForFacility,
+} from '@/lib/auth';
+
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
+  const { id: rawId } = await params;
+  const id = typeof rawId === 'string' ? rawId.trim() : '';
+
+  // Authentication is required only in production.
+  const session = getSessionFromRequest(request);
+
+  if (!id) {
+    return NextResponse.json(
+      { success: false, error: 'Facility ID is required.' },
+      { status: 400 }
+    );
+  }
+
+  if (!isDevelopment && !session) {
+    return NextResponse.json(
+      { success: false, error: 'Authentication required.' },
+      { status: 401 }
+    );
+  }
+
   try {
     await connectToDatabase();
-    const session = getSessionFromRequest(request);
 
     let facility;
+    let isMockFacility = false;
+
+    // Find facility by MongoDB ObjectId.
     if (mongoose.Types.ObjectId.isValid(id)) {
       facility = await FacilityModel.findById(id).lean();
     }
+
+    // Find facility by facilityId.
     if (!facility) {
-      facility = await FacilityModel.findOne({ facilityId: id.toUpperCase() }).lean();
+      facility = await FacilityModel.findOne({
+        facilityId: id.toUpperCase(),
+      }).lean();
     }
 
-    if (!facility) {
-      const facilityCount = await FacilityModel.countDocuments();
-      if (facilityCount === 0) {
-        const { seedDatabase } = await import('@/lib/seedData');
-        await seedDatabase();
-        if (mongoose.Types.ObjectId.isValid(id)) {
-          facility = await FacilityModel.findById(id).lean();
-        }
-        if (!facility) {
-          facility = await FacilityModel.findOne({ facilityId: id.toUpperCase() }).lean();
-        }
-      }
-    }
-
-    if (!facility) {
+    // Do not seed or reset the database from a GET request.
+    // Use mock fallback only in development.
+    if (!facility && isDevelopment) {
       const { MOCK_FACILITIES } = await import('@/lib/mockFallback');
+
       const found = MOCK_FACILITIES.find(
-        (f) => f.facilityId === id.toUpperCase() || f._id === id
+        (item) =>
+          item.facilityId?.toUpperCase() === id.toUpperCase() ||
+          item._id === id
       );
+
       if (found) {
         facility = found as any;
+        isMockFacility = true;
       }
     }
 
     if (!facility) {
-      return NextResponse.json({ error: 'Facility not found' }, { status: 404 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Facility "${id}" was not found.`,
+        },
+        { status: 404 }
+      );
     }
 
-    if (!isAuthorizedForFacility(session, facility.facilityId)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    // Enforce facility authorization only in production.
+    if (
+      !isDevelopment &&
+      (!session || !isAuthorizedForFacility(session, facility.facilityId))
+    ) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'You are not authorized to access this facility.',
+        },
+        { status: 403 }
+      );
     }
 
-    // Resolve client group details (name and code) for accurate breadcrumbs and routing
+    // Resolve client group information.
     let clientGroupName = (facility as any).clientGroupName;
-    let clientGroupCode = (facility as any).clientGroupCode || (facility as any).code;
-    const rawGroupId = (facility as any).clientGroupId?.toString() || '';
+    let clientGroupCode =
+      (facility as any).clientGroupCode || (facility as any).code;
+
+    const rawGroupId =
+      (facility as any).clientGroupId?.toString() || '';
 
     if (!clientGroupName && rawGroupId) {
       if (mongoose.Types.ObjectId.isValid(rawGroupId)) {
         const { ClientGroupModel } = await import('@/models/ClientGroup');
+
         const cg = await ClientGroupModel.findById(rawGroupId).lean();
+
         if (cg) {
           clientGroupName = cg.name;
           clientGroupCode = cg.code;
         }
       }
-      if (!clientGroupName) {
+
+      if (!clientGroupName && isDevelopment) {
         const { MOCK_CLIENT_GROUPS } = await import('@/lib/mockFallback');
+
         const cg = MOCK_CLIENT_GROUPS.find(
-          (g) => g._id === rawGroupId || g.code.toUpperCase() === rawGroupId.toUpperCase()
+          (group) =>
+            group._id === rawGroupId ||
+            group.code?.toUpperCase() === rawGroupId.toUpperCase()
         );
+
         if (cg) {
           clientGroupName = cg.name;
           clientGroupCode = cg.code;
@@ -84,38 +133,58 @@ export async function GET(
 
     const facilityCode = facility.facilityId;
 
-    // Fetch applicability records for this facility
-    let applicabilityRecords = await ComplianceApplicabilityModel.find({
-      facilityId: facilityCode,
-    }).lean();
+    // Fetch compliance applicability records.
+    const applicabilityRecords =
+      isMockFacility
+        ? []
+        : await ComplianceApplicabilityModel.find({
+            facilityId: facilityCode,
+          }).lean();
 
-    // Fetch assessments to get assessmentId for direct navigation
-    let assessments = await AssessmentModel.find({
-      facilityId: facilityCode,
-    }).lean();
+    // Fetch existing assessments.
+    const assessments =
+      isMockFacility
+        ? []
+        : await AssessmentModel.find({
+            facilityId: facilityCode,
+          }).lean();
 
-    const { buildMultiYearComplianceMatrix, COMPLIANCE_FRAMEWORKS, COMPLIANCE_PERIODS } = await import('@/lib/complianceMatrixData');
+    const {
+      buildMultiYearComplianceMatrix,
+      COMPLIANCE_FRAMEWORKS,
+      COMPLIANCE_PERIODS,
+    } = await import('@/lib/complianceMatrixData');
 
-    const formattedExistingApps = applicabilityRecords.map((r) => ({
-      ...r,
-      _id: r._id.toString(),
-      deadline: r.deadline ? r.deadline.toISOString() : null,
+    const formattedExistingApps = applicabilityRecords.map((record) => ({
+      ...record,
+      _id: record._id.toString(),
+      deadline: record.deadline
+        ? record.deadline.toISOString()
+        : null,
     }));
 
-    const formattedExistingAsms = assessments.map((a) => ({
-      ...a,
-      _id: a._id.toString(),
+    const formattedExistingAsms = assessments.map((assessment) => ({
+      ...assessment,
+      _id: assessment._id.toString(),
     }));
 
-    const { matrix, applicabilities, assessments: generatedAssessments } = buildMultiYearComplianceMatrix(
+    const {
+      matrix,
+      applicabilities,
+      assessments: generatedAssessments,
+    } = buildMultiYearComplianceMatrix(
       facilityCode,
       facility.name,
       formattedExistingApps as any,
       formattedExistingAsms as any
     );
 
-    // Persist to MongoDB if it was newly generated
-    if (applicabilityRecords.length === 0 && applicabilities.length > 0) {
+    // Persist generated applicability records only for real DB facilities.
+    if (
+      !isMockFacility &&
+      applicabilityRecords.length === 0 &&
+      applicabilities.length > 0
+    ) {
       try {
         await ComplianceApplicabilityModel.insertMany(
           applicabilities.map((app) => ({
@@ -136,40 +205,55 @@ export async function GET(
           })),
           { ordered: false }
         );
-      } catch (insertErr) {
-        // Ignore duplicate key or connection warnings
+      } catch (insertError) {
+        console.warn(
+          'Could not persist generated applicability records:',
+          insertError
+        );
       }
     }
 
-    if (assessments.length === 0 && generatedAssessments.length > 0) {
+    // Persist generated assessments only for real DB facilities.
+    if (
+      !isMockFacility &&
+      assessments.length === 0 &&
+      generatedAssessments.length > 0
+    ) {
       try {
         await AssessmentModel.insertMany(
-          generatedAssessments.map((asm) => ({
-            facilityId: asm.facilityId,
-            complianceType: asm.complianceType,
-            period: asm.period,
-            workflowStatus: asm.workflowStatus,
-            complianceOutcome: asm.complianceOutcome,
-            isHistorical: asm.isHistorical || false,
-            version: asm.version || 1,
-            documentLinks: asm.documentLinks,
-            metrics: asm.metrics,
+          generatedAssessments.map((assessment) => ({
+            facilityId: assessment.facilityId,
+            complianceType: assessment.complianceType,
+            period: assessment.period,
+            workflowStatus: assessment.workflowStatus,
+            complianceOutcome: assessment.complianceOutcome,
+            isHistorical: assessment.isHistorical || false,
+            version: assessment.version || 1,
+            documentLinks: assessment.documentLinks,
+            metrics: assessment.metrics,
           })),
           { ordered: false }
         );
-      } catch (insertErr) {
-        // Ignore duplicate key or connection warnings
+      } catch (insertError) {
+        console.warn(
+          'Could not persist generated assessments:',
+          insertError
+        );
       }
     }
 
     return NextResponse.json({
       success: true,
+      source: isMockFacility ? 'development-mock' : 'database',
       data: {
         facility: {
           ...facility,
           _id: facility._id.toString(),
           clientGroupId: rawGroupId,
-          clientGroupName: clientGroupName || (facility as any).clientGroupName || 'Client Group',
+          clientGroupName:
+            clientGroupName ||
+            (facility as any).clientGroupName ||
+            'Client Group',
           clientGroupCode: clientGroupCode || rawGroupId,
         },
         periods: COMPLIANCE_PERIODS,
@@ -179,54 +263,102 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.warn('Error fetching compliance matrix from DB, returning fallback multi-year matrix:', error);
-    const { buildMultiYearComplianceMatrix, COMPLIANCE_FRAMEWORKS, COMPLIANCE_PERIODS } = await import('@/lib/complianceMatrixData');
-    const { MOCK_FACILITIES, MOCK_CLIENT_GROUPS } = await import('@/lib/mockFallback');
-
-    const foundFacility = MOCK_FACILITIES.find(
-      (f) => f.facilityId === id.toUpperCase() || f._id === id
+    console.error(
+      'Failed to load facility compliance matrix:',
+      error
     );
 
-    let resolvedFacility = foundFacility;
-    if (!resolvedFacility) {
-      resolvedFacility = {
-        _id: 'fac_' + id.toLowerCase(),
-        facilityId: id.toUpperCase(),
-        name: id.replace(/_/g, ' '),
-        clientGroupId: 'TRIDENT',
-        clientGroupName: 'Trident Group',
-        clientGroupCode: 'TRIDENT',
-        location: 'Industrial Complex Site',
-        category: 'Designated Consumer (DC)',
-        status: 'ACTIVE',
-      };
-    } else {
-      const matchedGroup = MOCK_CLIENT_GROUPS.find(
-        (g) => g._id === resolvedFacility.clientGroupId || g.code === resolvedFacility.clientGroupId
+    // Never silently serve mock records in production.
+    if (!isDevelopment) {
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            'The facility compliance service is temporarily unavailable.',
+        },
+        { status: 503 }
       );
-      if (matchedGroup) {
-        resolvedFacility = {
-          ...resolvedFacility,
-          clientGroupName: matchedGroup.name,
-          clientGroupCode: matchedGroup.code,
-        };
-      }
     }
 
-    const { matrix, applicabilities } = buildMultiYearComplianceMatrix(
-      resolvedFacility.facilityId,
-      resolvedFacility.name
-    );
+    // Development fallback.
+    try {
+      const {
+        MOCK_FACILITIES,
+        MOCK_CLIENT_GROUPS,
+      } = await import('@/lib/mockFallback');
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        facility: resolvedFacility,
-        periods: COMPLIANCE_PERIODS,
-        compliances: COMPLIANCE_FRAMEWORKS,
+      const foundFacility = MOCK_FACILITIES.find(
+        (item) =>
+          item.facilityId?.toUpperCase() === id.toUpperCase() ||
+          item._id === id
+      );
+
+      if (!foundFacility) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Facility "${id}" was not found.`,
+          },
+          { status: 404 }
+        );
+      }
+
+      const matchedGroup = MOCK_CLIENT_GROUPS.find(
+        (group) =>
+          group._id === foundFacility.clientGroupId ||
+          group.code === foundFacility.clientGroupId
+      );
+
+      const resolvedFacility = {
+        ...foundFacility,
+        clientGroupName:
+          foundFacility.clientGroupName ||
+          matchedGroup?.name ||
+          'Client Group',
+        clientGroupCode:
+          foundFacility.clientGroupCode ||
+          matchedGroup?.code ||
+          '',
+      };
+
+      const {
+        buildMultiYearComplianceMatrix,
+        COMPLIANCE_FRAMEWORKS,
+        COMPLIANCE_PERIODS,
+      } = await import('@/lib/complianceMatrixData');
+
+      const {
         matrix,
-        rawApplicability: applicabilities,
-      },
-    });
+        applicabilities,
+      } = buildMultiYearComplianceMatrix(
+        resolvedFacility.facilityId,
+        resolvedFacility.name
+      );
+
+      return NextResponse.json({
+        success: true,
+        source: 'development-fallback',
+        data: {
+          facility: resolvedFacility,
+          periods: COMPLIANCE_PERIODS,
+          compliances: COMPLIANCE_FRAMEWORKS,
+          matrix,
+          rawApplicability: applicabilities,
+        },
+      });
+    } catch (fallbackError) {
+      console.error(
+        'Facility fallback failed:',
+        fallbackError
+      );
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Unable to load facility compliance data.',
+        },
+        { status: 500 }
+      );
+    }
   }
 }

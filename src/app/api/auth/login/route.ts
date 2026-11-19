@@ -51,13 +51,7 @@ export async function POST(request: NextRequest) {
       await connectToDatabase();
       dbConnected = true;
 
-      // Auto-seed if database is empty on first cloud run
-      const userCount = await UserModel.countDocuments();
-      if (userCount === 0) {
-        console.log('MongoDB collection is empty. Auto-seeding initial demo data...');
-        const { seedDatabase } = await import('@/lib/seedData');
-        await seedDatabase();
-      }
+      // Demo fallback is handled below; login must never reset database collections.
 
       if (role && !email) {
         user = (await UserModel.findOne({ role: role.toUpperCase() } as Record<string, unknown>)) as IUserDocument | null;

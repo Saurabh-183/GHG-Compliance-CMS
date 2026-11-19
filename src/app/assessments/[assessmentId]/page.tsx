@@ -26,30 +26,66 @@ export default function AssessmentDetailPage() {
 
   const [assessment, setAssessment] = useState<IAssessment | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
   const [checklistOpen, setChecklistOpen] = useState(false);
 
   const checklistAnchorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    async function loadAssessment() {
-      try {
-        const res = await fetch(`/api/assessments/${assessmentId}`);
+    let cancelled = false;
 
-        if (res.ok) {
-          const json = (await res.json()) as { data: IAssessment };
-          setAssessment(json.data);
+    async function loadAssessment() {
+      setLoading(true);
+      setLoadError(null);
+      setAssessment(null);
+
+      try {
+        const res = await fetch(
+          `/api/assessments/${encodeURIComponent(assessmentId)}`,
+          { cache: 'no-store' }
+        );
+
+        const json = await res.json().catch(() => ({}));
+
+        if (!res.ok) {
+          throw new Error(
+            json.error || `Unable to load assessment (HTTP ${res.status}).`
+          );
+        }
+
+        if (!json.data) {
+          throw new Error('The assessment API returned an empty response.');
+        }
+
+        if (!cancelled) {
+          setAssessment(json.data as IAssessment);
         }
       } catch (error) {
         console.error('Error fetching assessment:', error);
+        if (!cancelled) {
+          setLoadError(
+            error instanceof Error ? error.message : 'Unable to load assessment.'
+          );
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     }
 
     if (assessmentId) {
       loadAssessment();
+    } else {
+      setLoading(false);
+      setLoadError('Assessment ID is missing from the URL.');
     }
-  }, [assessmentId]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [assessmentId, retryCount]);
 
   if (loading) {
     return (
@@ -58,18 +94,34 @@ export default function AssessmentDetailPage() {
   }
 
   if (!assessment) {
+    const isNotFound = loadError?.toLowerCase().includes('not found');
+
     return (
       <div className="max-w-7xl mx-auto px-4 py-16 text-center">
         <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-          Assessment Not Found
+          {isNotFound ? 'Assessment Not Found' : 'Unable to Load Assessment'}
         </h2>
 
-        <Link
-          href="/facilities/TRIDENT_PAPER"
-          className="mt-4 inline-block text-emerald-600 dark:text-emerald-400 hover:underline text-xs"
-        >
-          Return to Facility Matrix
-        </Link>
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+          {loadError || 'No assessment data was returned.'}
+        </p>
+
+        <div className="mt-5 flex items-center justify-center gap-4">
+          <button
+            type="button"
+            onClick={() => setRetryCount((count) => count + 1)}
+            className="rounded-md bg-emerald-700 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-800"
+          >
+            Try Again
+          </button>
+
+          <Link
+            href="/facilities/TRIDENT_PAPER"
+            className="text-emerald-600 dark:text-emerald-400 hover:underline text-xs"
+          >
+            Return to Facility Matrix
+          </Link>
+        </div>
       </div>
     );
   }
@@ -232,7 +284,7 @@ export default function AssessmentDetailPage() {
             </thead>
 
             <tbody className="divide-y divide-slate-800/70 text-xs">
-              {assessment.metrics.map((metric, idx) => (
+              {(assessment.metrics || []).map((metric, idx) => (
                 <tr
                   key={idx}
                   className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
@@ -301,7 +353,7 @@ export default function AssessmentDetailPage() {
             </div>
 
             <DriveLinkBadge
-              url={assessment.documentLinks.finalReportUrl}
+              url={assessment.documentLinks?.finalReportUrl}
               label="Final Report"
             />
           </div>
@@ -318,7 +370,7 @@ export default function AssessmentDetailPage() {
             </div>
 
             <DriveLinkBadge
-              url={assessment.documentLinks.submissionAckUrl}
+              url={assessment.documentLinks?.submissionAckUrl}
               label="Submission Ack"
             />
           </div>
@@ -335,7 +387,7 @@ export default function AssessmentDetailPage() {
             </div>
 
             <DriveLinkBadge
-              url={assessment.documentLinks.calculationWorkbookUrl}
+              url={assessment.documentLinks?.calculationWorkbookUrl}
               label="Model Excel"
             />
           </div>
@@ -352,7 +404,7 @@ export default function AssessmentDetailPage() {
             </div>
 
             <DriveLinkBadge
-              url={assessment.documentLinks.evidenceFolderUrl}
+              url={assessment.documentLinks?.evidenceFolderUrl}
               label="Evidence Drive"
               isFolder
             />

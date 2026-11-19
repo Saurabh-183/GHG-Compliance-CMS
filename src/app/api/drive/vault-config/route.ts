@@ -1,9 +1,19 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { GOOGLE_DRIVE_FOLDER_ID, GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
 import { COMPLIANCE_VAULT_SHARED_URL } from '@/lib/driveVaultShared';
 import { isDriveVaultSyncConfigured } from '@/lib/driveVaultServer';
+import { getSessionFromRequest } from '@/lib/auth';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const session = getSessionFromRequest(request);
+
+  if (!session) {
+    return NextResponse.json(
+      { success: false, error: 'Authentication required.' },
+      { status: 401 }
+    );
+  }
+
   return NextResponse.json({
     success: true,
     data: {
