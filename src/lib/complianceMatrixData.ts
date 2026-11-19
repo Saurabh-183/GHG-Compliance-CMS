@@ -3,6 +3,7 @@ import {
   IComplianceMatrixCell,
   IComplianceApplicability,
   IAssessment,
+  WorkflowStatus,
 } from '@/types';
 import { GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
 
@@ -36,9 +37,13 @@ function periodsAlign(a: string, b: string): boolean {
   return matrixA !== undefined && matrixA === matrixB;
 }
 
-function preferWorkflowStatus(current: string, next: string): string {
+function preferWorkflowStatus(
+  current: WorkflowStatus,
+  next: WorkflowStatus
+): WorkflowStatus {
   const rankCurrent = WORKFLOW_STATUS_RANK[current] ?? 0;
   const rankNext = WORKFLOW_STATUS_RANK[next] ?? 0;
+
   return rankNext >= rankCurrent ? next : current;
 }
 

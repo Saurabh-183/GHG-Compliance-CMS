@@ -12,7 +12,7 @@ import {
   Square,
   Trash2,
 } from 'lucide-react';
-import type { DataChecklistItemStatus, IFacilityDataChecklist, IFacilityDataChecklistItem } from '@/types';
+import type { ComplianceType, DataChecklistItemStatus, IFacilityDataChecklist, IFacilityDataChecklistItem } from '@/types';
 import { DEFAULT_CHECKLIST_PERIOD } from '@/lib/facilityDataChecklistTemplate';
 import { notify } from '@/lib/notify';
 
@@ -61,6 +61,7 @@ export function FacilityDataChecklistPanel({
   const [checklist, setChecklist] = useState<IFacilityDataChecklist | null>(null);
   const [items, setItems] = useState<IFacilityDataChecklistItem[]>([]);
   const [consultantNotes, setConsultantNotes] = useState('');
+  const [linkedCompliances, setLinkedCompliances] = useState<ComplianceType[]>(['RCO']);
   const [dirty, setDirty] = useState(false);
   const [notShared, setNotShared] = useState(false);
   const [serverStaleHint, setServerStaleHint] = useState(false);
@@ -239,12 +240,12 @@ export function FacilityDataChecklistPanel({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ period, facilityName }),
+        body: JSON.stringify({ period, facilityName, linkedCompliances }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'Send failed');
       setChecklist(json.data);
-      notify.success('Checklist sent to client portal');
+      notify.success(`Checklist published. ${json.requirementsCreated ?? 0} data request(s) are now visible to the client.`);
     } catch (e) {
       console.error(e);
       notify.error('Failed to send checklist to client');
@@ -352,6 +353,21 @@ export function FacilityDataChecklistPanel({
                 {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
                 Save
               </button>
+              <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-600 dark:text-slate-300">
+                <span className="font-semibold">Link requests to:</span>
+                {(['RCO', 'PAT', 'CCTS', 'CEA'] as ComplianceType[]).map((code) => (
+                  <label key={code} className="inline-flex items-center gap-1 rounded-md border border-slate-300 dark:border-slate-700 px-2 py-1">
+                    <input
+                      type="checkbox"
+                      checked={linkedCompliances.includes(code)}
+                      onChange={(event) => setLinkedCompliances((current) => event.target.checked
+                        ? [...current, code]
+                        : current.filter((item) => item !== code))}
+                    />
+                    {code}
+                  </label>
+                ))}
+              </div>
               <button
                 type="button"
                 onClick={sendToClient}

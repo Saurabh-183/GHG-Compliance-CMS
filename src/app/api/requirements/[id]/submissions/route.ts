@@ -21,12 +21,16 @@ export async function POST(
       return NextResponse.json({ error: 'Requirement not found' }, { status: 404 });
     }
 
+    if (!session || session.role !== 'CLIENT') {
+      return NextResponse.json({ error: 'Only authorized client users can submit requested data.' }, { status: 403 });
+    }
+
     if (!isAuthorizedForFacility(session, requirement.facilityId)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const body = (await request.json()) as {
-      url: string; description?: string;
+      url: string; description?: string; reportingMonth?: string;
       utilityConnection?: { providerName: string; connectionType: string; subDivision: string; circle: string; consumerAccountNumber: string; consumerName: string; meterNumber: string; contractDemand: string };
       billDetails?: { invoiceNumber: string; billingFrom: string; billingTo: string; consumptionKwh: number; billAmount: number };
     };
@@ -34,6 +38,12 @@ export async function POST(
     if (!body.url || !/^https:\/\/(drive\.google\.com|docs\.google\.com)\//i.test(body.url.trim())) {
       return NextResponse.json({ error: 'A valid Google Drive URL is required' }, { status: 400 });
     }
+    if (requirement.monthlyFrequency) {
+      if (!body.reportingMonth || !(requirement.reportingMonths || []).includes(body.reportingMonth)) {
+        return NextResponse.json({ error: 'Select a valid reporting month requested by the consultant.' }, { status: 400 });
+      }
+    }
+
     const connection = body.utilityConnection;
     const bill = body.billDetails;
     const isElectricityRequest = /electricity|grid|discom|power bill/i.test(`${requirement.title} ${requirement.description}`);
@@ -91,6 +101,7 @@ export async function POST(
 
     const storedLink = {
       ...vaultEntry,
+      ...(body.reportingMonth ? { mappedMonth: body.reportingMonth } : {}),
       ...(isElectricityRequest && bill && connection
         ? {
             billDetails: {
@@ -105,7 +116,9 @@ export async function POST(
     };
     requirement.submittedDriveLinks.push(storedLink);
 
-    requirement.submissionStatus = 'RECEIVED';
+    const submittedMonths = new Set(requirement.submittedDriveLinks.map((entry) => entry.mappedMonth).filter(Boolean));
+    const allMonthsReceived = !requirement.monthlyFrequency || (requirement.reportingMonths || []).every((month) => submittedMonths.has(month));
+    requirement.submissionStatus = allMonthsReceived ? 'RECEIVED' : 'PARTIALLY_RECEIVED';
     requirement.verificationStatus = 'UNDER_REVIEW';
 
     await requirement.save();
