@@ -4,6 +4,11 @@ import { ComplianceType, SubmissionStatus, VerificationStatus } from '@/types';
 export interface IDataRequirementDocument extends Document {
   facilityId: string;
   period: string;
+  sourceChecklistItemKey?: string;
+  requestedBy?: string;
+  requestedByName?: string;
+  monthlyFrequency?: boolean;
+  reportingMonths?: string[];
   title: string;
   category: 'COMMON_ENERGY' | 'COMPLIANCE_SPECIFIC';
   linkedCompliances: ComplianceType[];
@@ -62,6 +67,11 @@ const DataRequirementSchema = new Schema<IDataRequirementDocument>(
   {
     facilityId: { type: String, required: true, uppercase: true, trim: true, index: true },
     period: { type: String, required: true, trim: true },
+    sourceChecklistItemKey: { type: String, trim: true },
+    requestedBy: { type: String },
+    requestedByName: { type: String },
+    monthlyFrequency: { type: Boolean, default: false },
+    reportingMonths: [{ type: String }],
     title: { type: String, required: true },
     category: {
       type: String,
@@ -146,6 +156,11 @@ const DataRequirementSchema = new Schema<IDataRequirementDocument>(
     datasetId: { type: Schema.Types.ObjectId, ref: 'Dataset' },
   },
   { timestamps: true }
+);
+
+DataRequirementSchema.index(
+  { facilityId: 1, period: 1, sourceChecklistItemKey: 1 },
+  { unique: true, sparse: true }
 );
 
 export const DataRequirementModel: Model<IDataRequirementDocument> =

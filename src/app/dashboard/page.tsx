@@ -127,11 +127,6 @@ export default function DashboardPage() {
     return <CarbonCrunchLoader message="Loading consultant compliance workspace..." />;
   }
 
-  // Primary facility for the header Matrix link
-  const primaryFacilityId =
-    selectedGroup?.facilities?.[0]?.facilityId ||
-    (selectedGroup ? 'UTC_KOTPUTLI' : 'TRIDENT_PAPER');
-
   // Filter calendar deadlines for selected company if applicable
   const filteredCalendarItems = selectedGroup
     ? calendarItems.filter((item) =>
@@ -236,7 +231,6 @@ export default function DashboardPage() {
             <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
               Active Compliances
             </span>
-            <span className="text-xs font-medium text-slate-500 dark:text-slate-400 ">Active Compliances</span>
             <TrendingUp className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
           </div>
 
@@ -265,8 +259,6 @@ export default function DashboardPage() {
                   : 'text-emerald-600 dark:text-emerald-400'
               }`}
             />
-            <span className="text-xs font-medium text-slate-500 dark:text-slate-400 ">Open Clarifications</span>
-            <AlertTriangle className={`w-4 h-4 ${isTridentSelected ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`} />
           </div>
 
           <div
@@ -300,7 +292,6 @@ export default function DashboardPage() {
             <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
               Upcoming Filings
             </span>
-            <span className="text-xs font-medium text-slate-500 dark:text-slate-400 ">Upcoming Filings</span>
             <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
           </div>
 
@@ -535,7 +526,7 @@ export default function DashboardPage() {
                     href={`/facilities/${facility.facilityId}`}
                     className="px-2.5 py-1 text-xs rounded bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20 font-semibold transition-colors shrink-0"
                   >
-                    Open Matrix
+                    Open Facility
                   </Link>
                 </div>
 

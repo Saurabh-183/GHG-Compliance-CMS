@@ -227,6 +227,8 @@ export interface IDataRequirement {
   datasetId?: string;
   createdAt: string;
   updatedAt: string;
+  monthlyFrequency?: boolean;
+reportingMonths?: string[];
 }
 
 export interface IMonthlyRecord {
