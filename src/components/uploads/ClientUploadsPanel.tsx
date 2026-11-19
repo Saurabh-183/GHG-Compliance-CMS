@@ -2,6 +2,8 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { Select, MenuItem, FormControl } from '@mui/material';
+import { useAuth } from '@/context/AuthContext';
 import { DriveLinkBadge } from '@/components/common/DriveLinkBadge';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import { formatDate } from '@/lib/utils';
@@ -33,6 +35,8 @@ export const ClientUploadsPanel: React.FC<ClientUploadsPanelProps> = ({
   compact = false,
   title = 'Client Document Uploads (Google Drive Vault)',
 }) => {
+  const { theme } = useAuth();
+  const isDark = theme === 'dark';
   const [uploads, setUploads] = useState<ClientUploadListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
@@ -193,17 +197,52 @@ export const ClientUploadsPanel: React.FC<ClientUploadsPanelProps> = ({
         </div>
         <div className="flex items-center gap-2">
           <Filter className="w-3.5 h-3.5 text-slate-400" />
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-2 py-1.5"
-          >
-            <option value="ALL">All statuses</option>
-            <option value="PENDING">Pending mapping</option>
-            <option value="MAPPED">Mapped</option>
-            <option value="VERIFIED">Verified</option>
-            <option value="REJECTED">Rejected</option>
-          </select>
+          <FormControl size="small" sx={{ minWidth: 140 }}>
+            <Select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              sx={{
+                height: 32,
+                fontSize: '11px',
+                borderRadius: '8px',
+                backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                color: isDark ? '#FFFFFF' : '#1E293B',
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
+                },
+                '&:hover .MuiOutlinedInput-notchedOutline': {
+                  borderColor: isDark ? '#34D399' : '#059669',
+                },
+                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                  borderColor: isDark ? '#34D399' : '#059669',
+                  borderWidth: '1.5px',
+                },
+                '& .MuiSelect-select': {
+                  py: '4px',
+                  px: '10px',
+                },
+              }}
+              MenuProps={{
+                slotProps: {
+                  paper: {
+                    sx: {
+                      backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                      color: isDark ? '#FFFFFF' : '#1E293B',
+                      borderRadius: '8px',
+                      border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0'}`,
+                      '& .MuiList-root': { py: '4px' },
+                    },
+                  },
+                },
+              }}
+            >
+              <MenuItem value="ALL" sx={{ fontSize: '11px' }}>All statuses</MenuItem>
+              <MenuItem value="PENDING" sx={{ fontSize: '11px' }}>Pending mapping</MenuItem>
+              <MenuItem value="MAPPED" sx={{ fontSize: '11px' }}>Mapped</MenuItem>
+              <MenuItem value="VERIFIED" sx={{ fontSize: '11px' }}>Verified</MenuItem>
+              <MenuItem value="REJECTED" sx={{ fontSize: '11px' }}>Rejected</MenuItem>
+            </Select>
+          </FormControl>
           {!compact && (
             <a
               href={vaultRootUrl}
@@ -339,31 +378,31 @@ export const ClientUploadsPanel: React.FC<ClientUploadsPanelProps> = ({
       )}
 
       {mappingItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
-          <div className="w-full max-w-lg rounded-xl border border-slate-700 bg-slate-900 p-5 shadow-2xl space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
+          <div className="w-full max-w-lg rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 shadow-2xl space-y-4">
             <div className="flex items-start justify-between gap-2">
               <div>
-                <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Link2 className="w-4 h-4 text-emerald-400" />
+                <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Link2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   Map client document to verification
                 </h4>
-                <p className="text-[11px] text-slate-400 mt-1">{mappingItem.requirementTitle}</p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">{mappingItem.requirementTitle}</p>
               </div>
               <button
                 type="button"
                 onClick={() => setMappingItem(null)}
-                className="text-slate-400 hover:text-white text-lg leading-none"
+                className="text-slate-400 hover:text-slate-700 dark:hover:text-white text-lg leading-none"
               >
                 ×
               </button>
             </div>
 
-            <div className="text-[10px] font-mono text-emerald-300 bg-slate-950 p-2 rounded border border-slate-800">
+            <div className="text-[10px] font-mono text-emerald-700 dark:text-emerald-300 bg-slate-50 dark:bg-slate-950 p-2 rounded border border-slate-200 dark:border-slate-800">
               {mappingItem.vaultFolderPath}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <label className="text-[11px] text-slate-300 space-y-1">
+              <label className="text-[11px] text-slate-700 dark:text-slate-300 space-y-1">
                 Dataset
                 <select
                   value={selectedDatasetId}
@@ -371,7 +410,7 @@ export const ClientUploadsPanel: React.FC<ClientUploadsPanelProps> = ({
                     setSelectedDatasetId(e.target.value);
                     setSelectedMonth('');
                   }}
-                  className="w-full text-xs rounded-lg border border-slate-700 bg-slate-950 px-2 py-2 text-white"
+                  className="w-full text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-2 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
                 >
                   <option value="">— Select dataset —</option>
                   {datasets.map((d) => (
@@ -381,12 +420,12 @@ export const ClientUploadsPanel: React.FC<ClientUploadsPanelProps> = ({
                   ))}
                 </select>
               </label>
-              <label className="text-[11px] text-slate-300 space-y-1">
+              <label className="text-[11px] text-slate-700 dark:text-slate-300 space-y-1">
                 Billing month
                 <select
                   value={selectedMonth}
                   onChange={(e) => setSelectedMonth(e.target.value)}
-                  className="w-full text-xs rounded-lg border border-slate-700 bg-slate-950 px-2 py-2 text-white"
+                  className="w-full text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-2 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
                   disabled={!selectedDatasetId}
                 >
                   <option value="">— Month —</option>
@@ -399,13 +438,13 @@ export const ClientUploadsPanel: React.FC<ClientUploadsPanelProps> = ({
               </label>
             </div>
 
-            <label className="text-[11px] text-slate-300 space-y-1 block">
+            <label className="text-[11px] text-slate-700 dark:text-slate-300 space-y-1 block">
               Verification notes
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows={2}
-                className="w-full text-xs rounded-lg border border-slate-700 bg-slate-950 px-2 py-2 text-white"
+                className="w-full text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-2 py-2 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:border-emerald-500"
                 placeholder="Optional notes for audit trail…"
               />
             </label>
@@ -413,9 +452,16 @@ export const ClientUploadsPanel: React.FC<ClientUploadsPanelProps> = ({
             <div className="flex flex-wrap gap-2 justify-end pt-2">
               <button
                 type="button"
+                onClick={() => setMappingItem(null)}
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
                 disabled={saving}
                 onClick={() => submitMapping('reject')}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-rose-500/50 text-rose-300 text-xs font-semibold hover:bg-rose-950/40"
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-rose-300 dark:border-rose-500/50 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 text-xs font-semibold hover:bg-rose-100 dark:hover:bg-rose-900/50 transition-colors"
               >
                 <XCircle className="w-3.5 h-3.5" /> Reject
               </button>
@@ -423,7 +469,7 @@ export const ClientUploadsPanel: React.FC<ClientUploadsPanelProps> = ({
                 type="button"
                 disabled={saving}
                 onClick={() => submitMapping('map')}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-700 text-white text-xs font-semibold hover:bg-slate-600"
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-800 dark:bg-slate-700 text-white text-xs font-semibold hover:bg-slate-700 dark:hover:bg-slate-600 transition-colors"
               >
                 <MapPin className="w-3.5 h-3.5" /> Map only
               </button>
@@ -431,7 +477,7 @@ export const ClientUploadsPanel: React.FC<ClientUploadsPanelProps> = ({
                 type="button"
                 disabled={saving}
                 onClick={() => submitMapping('verify')}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-500"
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition-colors shadow-sm"
               >
                 <CheckCircle2 className="w-3.5 h-3.5" /> Verify & map
               </button>

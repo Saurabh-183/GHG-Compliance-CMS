@@ -29,7 +29,7 @@ export const CompanySelectMui: React.FC<CompanySelectMuiProps> = ({
     (sum, g) => sum + (g.totalFacilitiesCount || g.facilities?.length || 0),
     0
   );
-
+ 
   return (
     <FormControl size="small" sx={{ minWidth: 260, maxWidth: 360 }}>
       <Select
@@ -40,7 +40,7 @@ export const CompanySelectMui: React.FC<CompanySelectMuiProps> = ({
           <ChevronDown
             className="w-4 h-4 pointer-events-none"
             style={{
-              color: isDark ? '#D99B7F' : '#596579',
+              color: isDark ? '#34D399' : '#596579',
               marginRight: 10,
             }}
           />
@@ -51,7 +51,7 @@ export const CompanySelectMui: React.FC<CompanySelectMuiProps> = ({
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
                 <Building2
                   className="w-4 h-4 shrink-0"
-                  style={{ color: isDark ? '#D99B7F' : '#17365D' }}
+                  style={{ color: isDark ? '#34D399' : '#17365D' }}
                 />
                 <Box sx={{ display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
                   <Typography
@@ -60,7 +60,7 @@ export const CompanySelectMui: React.FC<CompanySelectMuiProps> = ({
                       textTransform: 'uppercase',
                       fontWeight: 800,
                       letterSpacing: '0.06em',
-                      color: isDark ? '#D99B7F' : '#697586',
+                      color: isDark ? '#34D399' : '#697586',
                       lineHeight: 1,
                     }}
                   >
@@ -85,7 +85,7 @@ export const CompanySelectMui: React.FC<CompanySelectMuiProps> = ({
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
               <Building2
                 className="w-4 h-4 shrink-0"
-                style={{ color: isDark ? '#D99B7F' : '#17365D' }}
+                style={{ color: isDark ? '#34D399' : '#17365D' }}
               />
               <Box sx={{ display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
                 <Typography
@@ -94,7 +94,7 @@ export const CompanySelectMui: React.FC<CompanySelectMuiProps> = ({
                     textTransform: 'uppercase',
                     fontWeight: 800,
                     letterSpacing: '0.06em',
-                    color: isDark ? '#D99B7F' : '#697586',
+                    color: isDark ? '#34D399' : '#697586',
                     lineHeight: 1,
                   }}
                 >
@@ -118,17 +118,17 @@ export const CompanySelectMui: React.FC<CompanySelectMuiProps> = ({
         sx={{
           height: 42,
           borderRadius: '10px',
-          backgroundColor: isDark ? '#464858' : '#FFFFFF',
+          backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
           color: isDark ? '#FFFFFF' : '#1E293B',
           transition: 'all 0.2s ease',
           '& .MuiOutlinedInput-notchedOutline': {
             borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#D5DCE5',
           },
           '&:hover .MuiOutlinedInput-notchedOutline': {
-            borderColor: isDark ? '#D99B7F' : '#17365D',
+            borderColor: isDark ? '#34D399' : '#17365D',
           },
           '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-            borderColor: isDark ? '#D99B7F' : '#17365D',
+            borderColor: isDark ? '#34D399' : '#17365D',
             borderWidth: '1.5px',
           },
           '& .MuiSelect-select': {
@@ -145,7 +145,7 @@ export const CompanySelectMui: React.FC<CompanySelectMuiProps> = ({
                 mt: 1,
                 maxHeight: 380,
                 borderRadius: '12px',
-                backgroundColor: isDark ? '#464858' : '#FFFFFF',
+                backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
                 border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0'}`,
                 boxShadow: isDark
                   ? '0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5)'
@@ -169,7 +169,7 @@ export const CompanySelectMui: React.FC<CompanySelectMuiProps> = ({
             alignItems: 'center',
             justifyContent: 'space-between',
             backgroundColor: selectedCompanyId === 'ALL'
-              ? isDark ? '#0F3040' : '#EAF1F8'
+              ? isDark ? '#064E3B' : '#EAF1F8'
               : 'transparent',
             color: selectedCompanyId === 'ALL'
               ? isDark ? '#FFFFFF' : '#17365D'
@@ -194,14 +194,14 @@ export const CompanySelectMui: React.FC<CompanySelectMuiProps> = ({
                 px: 1,
                 py: 0.25,
                 borderRadius: '6px',
-                backgroundColor: isDark ? 'rgba(217, 155, 127, 0.2)' : '#E5EAF0',
-                color: isDark ? '#D99B7F' : '#17365D',
+                backgroundColor: isDark ? 'rgba(52, 211, 153, 0.15)' : '#E5EAF0',
+                color: isDark ? '#34D399' : '#17365D',
               }}
             >
               {totalUnits || 109} Units
             </Box>
             {selectedCompanyId === 'ALL' && (
-              <Check className="w-3.5 h-3.5 shrink-0" style={{ color: isDark ? '#D99B7F' : '#17365D' }} />
+              <Check className="w-3.5 h-3.5 shrink-0" style={{ color: isDark ? '#34D399' : '#17365D' }} />
             )}
           </Box>
         </MenuItem>
@@ -223,7 +223,7 @@ export const CompanySelectMui: React.FC<CompanySelectMuiProps> = ({
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 backgroundColor: isSelected
-                  ? isDark ? '#0F3040' : '#EAF1F8'
+                  ? isDark ? '#064E3B' : '#EAF1F8'
                   : 'transparent',
                 color: isSelected
                   ? isDark ? '#FFFFFF' : '#17365D'
@@ -247,14 +247,14 @@ export const CompanySelectMui: React.FC<CompanySelectMuiProps> = ({
                     px: 1,
                     py: 0.25,
                     borderRadius: '6px',
-                    backgroundColor: isDark ? 'rgba(217, 155, 127, 0.15)' : '#E5EAF0',
-                    color: isDark ? '#D99B7F' : '#596579',
+                    backgroundColor: isDark ? 'rgba(52, 211, 153, 0.12)' : '#E5EAF0',
+                    color: isDark ? '#34D399' : '#596579',
                   }}
                 >
                   {count} {count === 1 ? 'Unit' : 'Units'}
                 </Box>
                 {isSelected && (
-                  <Check className="w-3.5 h-3.5 shrink-0" style={{ color: isDark ? '#D99B7F' : '#17365D' }} />
+                  <Check className="w-3.5 h-3.5 shrink-0" style={{ color: isDark ? '#34D399' : '#17365D' }} />
                 )}
               </Box>
             </MenuItem>

@@ -443,8 +443,17 @@ html.light .text-slate-200:not(button *):not([class*="bg-[#17365D]"] *):not([cla
 html:not(.dark) div[class*="bg-slate-"] > div.text-white:not(button *):not(a *):not(.user-avatar):not(.user-avatar *),
 html:not(.dark) div[class*="bg-slate-"] > .text-white:not(button *):not(a *):not(.user-avatar):not(.user-avatar *),
 html.light div[class*="bg-slate-"] > div.text-white:not(button *):not(a *):not(.user-avatar):not(.user-avatar *),
-html.light div[class*="bg-slate-"] > .text-white:not(button *):not(a *):not(.user-avatar):not(.user-avatar *) {
-  color: #343A40 !important;
+html.light div[class*="bg-slate-"] > .text-white:not(button *):not(a *):not(.user-avatar):not(.user-avatar *),
+html:not(.dark) .text-white:not(button.bg-emerald-700):not(button.bg-emerald-700 *):not(button.bg-emerald-600):not(button.bg-emerald-600 *):not(button.bg-emerald-800):not(button.bg-emerald-800 *):not(a.bg-emerald-700):not(a.bg-emerald-700 *):not(a.bg-emerald-600):not(a.bg-emerald-600 *):not(button.bg-rose-600):not(button.bg-rose-600 *):not(button.bg-rose-700):not(button.bg-rose-700 *):not(a.bg-rose-600):not(a.bg-rose-600 *):not([class*="bg-[#17365D]"]):not([class*="bg-[#17365D]"] *):not([class*="bg-[#102947]"]):not([class*="bg-[#102947]"] *):not([class*="bg-[#A56F63]"]):not([class*="bg-[#A56F63]"] *):not([class*="bg-[#8C594E]"]):not([class*="bg-[#8C594E]"] *):not(.user-avatar):not(.user-avatar *):not(.notification-badge):not(.notification-badge *):not(.\!text-white):not(.\!text-white *):not(.text-white\!),
+html.light .text-white:not(button.bg-emerald-700):not(button.bg-emerald-700 *):not(button.bg-emerald-600):not(button.bg-emerald-600 *):not(button.bg-emerald-800):not(button.bg-emerald-800 *):not(a.bg-emerald-700):not(a.bg-emerald-700 *):not(a.bg-emerald-600):not(a.bg-emerald-600 *):not(button.bg-rose-600):not(button.bg-rose-600 *):not(button.bg-rose-700):not(button.bg-rose-700 *):not(a.bg-rose-600):not(a.bg-rose-600 *):not([class*="bg-[#17365D]"]):not([class*="bg-[#17365D]"] *):not([class*="bg-[#102947]"]):not([class*="bg-[#102947]"] *):not([class*="bg-[#A56F63]"]):not([class*="bg-[#A56F63]"] *):not([class*="bg-[#8C594E]"]):not([class*="bg-[#8C594E]"] *):not(.user-avatar):not(.user-avatar *):not(.notification-badge):not(.notification-badge *):not(.\!text-white):not(.\!text-white *):not(.text-white\!) {
+  color: #1E293B !important;
+}
+
+html:not(.dark) .text-slate-100:not(button.bg-emerald-700):not(button.bg-emerald-700 *):not(button.bg-emerald-600):not(button.bg-emerald-600 *):not([class*="bg-[#17365D]"] *):not([class*="bg-[#102947]"] *),
+html:not(.dark) .text-slate-200:not(button.bg-emerald-700):not(button.bg-emerald-700 *):not(button.bg-emerald-600):not(button.bg-emerald-600 *):not([class*="bg-[#17365D]"] *):not([class*="bg-[#102947]"] *),
+html.light .text-slate-100:not(button.bg-emerald-700):not(button.bg-emerald-700 *):not(button.bg-emerald-600):not(button.bg-emerald-600 *):not([class*="bg-[#17365D]"] *):not([class*="bg-[#102947]"] *),
+html.light .text-slate-200:not(button.bg-emerald-700):not(button.bg-emerald-700 *):not(button.bg-emerald-600):not(button.bg-emerald-600 *):not([class*="bg-[#17365D]"] *):not([class*="bg-[#102947]"] *) {
+  color: #334155 !important;
 }
 
 html:not(.dark) .text-slate-400,

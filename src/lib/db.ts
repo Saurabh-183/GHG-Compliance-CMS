@@ -1,6 +1,16 @@
 import mongoose, { Connection } from 'mongoose';
+import dns from 'dns';
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/carbon_crunch_compliance';
+
+// On Windows, Node.js dns.resolveSrv can fail with querySrv ECONNREFUSED when querying local DNS
+if (MONGODB_URI.startsWith('mongodb+srv://')) {
+  try {
+    dns.setServers(['8.8.8.8', '1.1.1.1']);
+  } catch {
+    // Fallback if environment restricts setting custom DNS servers
+  }
+}
 
 function isPlaceholderUri(uri: string): boolean {
   return (

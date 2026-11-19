@@ -56,9 +56,9 @@ export default function AssessmentDetailPage() {
 
   if (!assessment) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-16 text-center  ">
-        <h2 className="text-lg font-bold text-black dark:text-white">Assessment Not Found</h2>
-        <Link href="/facilities/TRIDENT_PAPER" className="mt-4 inline-block text-emerald-400 hover:underline text-xs">
+      <div className="max-w-7xl mx-auto px-4 py-16 text-center">
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white">Assessment Not Found</h2>
+        <Link href="/facilities/TRIDENT_PAPER" className="mt-4 inline-block text-emerald-600 dark:text-emerald-400 hover:underline text-xs">
           Return to Facility Matrix
         </Link>
       </div>
@@ -76,7 +76,7 @@ export default function AssessmentDetailPage() {
           {assessment.facilityName || assessment.facilityId || 'Facility'}
         </Link>
         <ChevronRight className="w-3 h-3   " />
-        <span className="   dark:text-black dark:text-white font-semibold">
+        <span className="text-slate-900 dark:text-white font-semibold">
           {assessment.complianceType} — {assessment.period}
         </span>
       </div>
@@ -89,7 +89,7 @@ export default function AssessmentDetailPage() {
               <span className="px-2.5 py-0.5 rounded font-mono font-bold text-xs bg-slate-800 text-emerald-400 border border-slate-700">
                 {assessment.facilityId}
               </span>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-black dark:text-white">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
                 {assessment.complianceType} Assessment ({assessment.period})
               </h1>
               {assessment.isHistorical && (
@@ -141,11 +141,15 @@ export default function AssessmentDetailPage() {
               className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-xs font-medium text-slate-600 hover:text-emerald-700 underline-offset-2 hover:underline dark:text-slate-400"
             >
               Client submissions table
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-md hover:bg-slate-100 text-slate-700 dark:text-white text-xs font-semibold border border-slate-300 dark:border-slate-700 transition-colors"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span>Data Checklist</span>
             </Link>
 
             <Link
               href={`/assessments/${assessment._id}/comparison`}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-emerald-700 hover:bg-white text-xs font-semibold transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold transition-colors"
             >
               <TrendingUp className="w-3.5 h-3.5" />
               <span>YoY Comparison & Trajectory</span>
@@ -169,11 +173,11 @@ export default function AssessmentDetailPage() {
       <div className="rounded-md border border-slate-800 bg-slate-900/60 p-6 shadow-xl space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-base font-bold text-black dark:text-white flex items-center gap-2">
+            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <ShieldCheck className="w-5 h-5 text-emerald-400" />
               Structured Regulatory Compliance Metrics
             </h3>
-            <p className="text-xs    dark:text-black dark:text-white mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Approved and verified parameters, accounting basis, and calculation outcomes.
             </p>
           </div>
@@ -192,23 +196,23 @@ export default function AssessmentDetailPage() {
             </thead>
             <tbody className="divide-y divide-slate-800/70 text-xs">
               {assessment.metrics.map((metric, idx) => (
-                <tr key={idx} className="hover:bg-gray-100 transition-colors">
-                  <td className="py-3.5 px-4 font-semibold dark:text-black dark:text-white">
+                <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                  <td className="py-3.5 px-4 font-semibold text-slate-900 dark:text-white">
                     {metric.name}
                   </td>
-                  <td className="py-3.5 px-4 font-mono font-bold text-blue-400 text-sm">
-                    {metric.value} <span className="text-xs font-normal  ">{metric.unit}</span>
+                  <td className="py-3.5 px-4 font-mono font-bold text-blue-600 dark:text-blue-400 text-sm">
+                    {metric.value} <span className="text-xs font-normal text-slate-500 dark:text-slate-400">{metric.unit}</span>
                   </td>
-                  <td className="py-3.5 px-4">
+                  <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300">
                     {metric.source}
                   </td>
                   <td className="py-3.5 px-4 text-center">
                     {metric.isProvisional ? (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700">
                         Provisional
                       </span>
                     ) : (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-950/60 text-emerald-300 border border-emerald-800/60">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 dark:bg-blue-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/60">
                         Approved Final
                       </span>
                     )}
@@ -226,44 +230,44 @@ export default function AssessmentDetailPage() {
       {/* Linked Primary Google Drive Evidence & Reports (PRD Section 5.3) */}
       <div className="rounded-md border border-slate-800 bg-slate-900/60 p-6 shadow-xl space-y-4">
         <div>
-          <h3 className="text-base font-bold text-black dark:text-white flex items-center gap-2">
-            <Folder className="w-5 h-5 text-emerald-400" />
+          <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <Folder className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
             Verified Source Documents (Google Drive)
           </h3>
-          <p className="text-xs   mt-0.5">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
             Primary calculation workbooks, official regulator submission acknowledgements, and final published reports.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="p-4 rounded-lg bg-slate-950/60 border border-slate-800 flex items-center justify-between">
+          <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
             <div>
-              <div className="text-xs font-semibold    dark:text-black dark:text-white">Final Assessment Report</div>
-              <div className="text-[11px]   mt-0.5">Signed executive compliance report PDF</div>
+              <div className="text-xs font-semibold text-slate-900 dark:text-white">Final Assessment Report</div>
+              <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Signed executive compliance report PDF</div>
             </div>
             <DriveLinkBadge url={assessment.documentLinks.finalReportUrl} label="Final Report" />
           </div>
 
-          <div className="p-4 rounded-lg bg-slate-950/60 border border-slate-800 flex items-center justify-between">
+          <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
             <div>
-              <div className="text-xs font-semibold    dark:text-black dark:text-white">Regulatory Submission Acknowledgement</div>
-              <div className="text-[11px]   mt-0.5">Official PSERC/BEE portal acknowledgment receipt</div>
+              <div className="text-xs font-semibold text-slate-900 dark:text-white">Regulatory Submission Acknowledgement</div>
+              <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Official PSERC/BEE portal acknowledgment receipt</div>
             </div>
             <DriveLinkBadge url={assessment.documentLinks.submissionAckUrl} label="Submission Ack" />
           </div>
 
-          <div className="p-4 rounded-lg bg-slate-950/60 border border-slate-800 flex items-center justify-between">
+          <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
             <div>
-              <div className="text-xs font-semibold    dark:text-black dark:text-white">Calculation Workbook Model</div>
-              <div className="text-[11px]   mt-0.5">Versioned audit-ready Excel formula model</div>
+              <div className="text-xs font-semibold text-slate-900 dark:text-white">Calculation Workbook Model</div>
+              <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Versioned audit-ready Excel formula model</div>
             </div>
             <DriveLinkBadge url={assessment.documentLinks.calculationWorkbookUrl} label="Model Excel" />
           </div>
 
-          <div className="p-4 rounded-lg bg-slate-950/60 border border-slate-800 flex items-center justify-between">
+          <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
             <div>
-              <div className="text-xs font-semibold    dark:text-black dark:text-white">Supporting Evidence Folder</div>
-              <div className="text-[11px]   mt-0.5">All underlying utility bills & wheeling vouchers</div>
+              <div className="text-xs font-semibold text-slate-900 dark:text-white">Supporting Evidence Folder</div>
+              <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">All underlying utility bills & wheeling vouchers</div>
             </div>
             <DriveLinkBadge url={assessment.documentLinks.evidenceFolderUrl} label="Evidence Drive" isFolder />
           </div>

@@ -227,14 +227,14 @@ export const ExcelImportModal: React.FC<ExcelImportModalProps> = ({
               <h3 className="text-base font-bold text-slate-900 dark:text-white">
                 Standardized Excel Import & Compliance Templates
               </h3>
-              <p className="text-xs text-slate-500 dark: ">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Facility: <strong className="text-slate-700 dark:text-slate-300">{facilityId}</strong> · Category-based Evidence & Excel Processing
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg   hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-lg text-slate-500 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -247,7 +247,7 @@ export const ExcelImportModal: React.FC<ExcelImportModalProps> = ({
             className={`py-3 px-4 font-semibold border-b-2 transition-colors flex items-center gap-2 ${
               activeTab === 'upload'
                 ? 'border-emerald-600 text-emerald-700 dark:text-emerald-400'
-                : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:   dark:text-white'
+                : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-white'
             }`}
           >
             <Upload className="w-3.5 h-3.5" />
@@ -259,7 +259,7 @@ export const ExcelImportModal: React.FC<ExcelImportModalProps> = ({
             className={`py-3 px-4 font-semibold border-b-2 transition-colors flex items-center gap-2 ${
               activeTab === 'templates'
                 ? 'border-emerald-600 text-emerald-700 dark:text-emerald-400'
-                : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:   dark:text-white'
+                : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-white'
             }`}
           >
             <Download className="w-3.5 h-3.5" />
@@ -290,7 +290,7 @@ export const ExcelImportModal: React.FC<ExcelImportModalProps> = ({
                       className={`p-2.5 rounded-lg border text-center font-medium transition-colors text-xs ${
                         selectedCategory === cat.id
                           ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-500 text-emerald-800 dark:text-emerald-300 font-bold'
-                          : 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-700 dark:  hover:bg-slate-50'
+                          : 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-900'
                       }`}
                     >
                       {cat.label}
@@ -311,7 +311,7 @@ export const ExcelImportModal: React.FC<ExcelImportModalProps> = ({
                     onChange={(e) => setDriveFolderUrl(e.target.value)}
                     className="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white text-xs pr-10 focus:outline-none focus:border-emerald-500"
                   />
-                  <Folder className="w-4 h-4   absolute right-3 top-2.5" />
+                  <Folder className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute right-3 top-2.5" />
                 </div>
                 <p className="text-[10px] text-slate-500 mt-1">
                   Evidence links in each row will be mapped to this Google Drive directory.
@@ -328,8 +328,8 @@ export const ExcelImportModal: React.FC<ExcelImportModalProps> = ({
                   className="hidden"
                 />
                 <label htmlFor="excelFileInput" className="cursor-pointer block">
-                  <Upload className="w-8 h-8   mx-auto mb-2" />
-                  <p className="text-xs text-slate-800 dark:   dark:text-white font-semibold">
+                  <Upload className="w-8 h-8 text-slate-400 dark:text-slate-500 mx-auto mb-2" />
+                  <p className="text-xs text-slate-800 dark:text-white font-semibold">
                     {selectedFileName ? selectedFileName : 'Choose CSV or Excel file to upload'}
                   </p>
                   <p className="text-[11px] text-slate-500 mt-1">
@@ -340,7 +340,7 @@ export const ExcelImportModal: React.FC<ExcelImportModalProps> = ({
 
               {/* Sample Data Quick Loader */}
               <div className="flex items-center justify-between p-3 rounded-lg bg-slate-100 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
-                <span className="   dark:  text-xs">
+                <span className="text-slate-700 dark:text-slate-300 text-xs">
                   Or load standard 12-month FY25-26 compliance dataset:
                 </span>
                 <button
@@ -355,7 +355,7 @@ export const ExcelImportModal: React.FC<ExcelImportModalProps> = ({
               {/* Parsed Rows Preview Table */}
               {parsedRows.length > 0 && (
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between text-xs font-semibold text-slate-800 dark:   dark:text-white">
+                  <div className="flex items-center justify-between text-xs font-semibold text-slate-800 dark:text-white">
                     <span>Parsed Preview ({parsedRows.length} months detected):</span>
                     <span className="text-emerald-700 dark:text-emerald-400">
                       ✓ Evidence mapped with Drive
@@ -364,7 +364,7 @@ export const ExcelImportModal: React.FC<ExcelImportModalProps> = ({
                   <div className="max-h-48 overflow-y-auto rounded-lg border border-slate-200 dark:border-slate-800">
                     <table className="w-full text-left border-collapse text-[11px]">
                       <thead>
-                        <tr className="bg-slate-100 dark:bg-slate-950 font-semibold    dark:  border-b border-slate-200 dark:border-slate-800">
+                        <tr className="bg-slate-100 dark:bg-slate-950 font-semibold text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800">
                           <th className="py-2 px-3">Month</th>
                           <th className="py-2 px-3">Declared</th>
                           <th className="py-2 px-3">Evidence</th>
@@ -393,7 +393,7 @@ export const ExcelImportModal: React.FC<ExcelImportModalProps> = ({
           ) : (
             /* Compliance Templates Tab */
             <div className="space-y-4">
-              <p className="text-xs    dark:  leading-relaxed">
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                 Download official, audit-ready CSV templates for each statutory framework. Clients can populate these sheets with declared figures and corresponding Google Drive URLs before re-uploading.
               </p>
 
@@ -454,7 +454,7 @@ export const ExcelImportModal: React.FC<ExcelImportModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-xs font-semibold    dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded-lg transition-colors"
+            className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded-lg transition-colors"
           >
             Cancel
           </button>

@@ -107,9 +107,9 @@ export const ClientDocumentPreviewPanel: React.FC<ClientDocumentPreviewPanelProp
   }, [item.requirementId, item.linkIndex]);
 
   return (
-    <div className="rounded-xl border border-slate-300 dark:border-slate-700 overflow-hidden bg-slate-950 space-y-0">
-      <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-2 border-b border-slate-800 bg-slate-900/90">
-        <div className="text-xs text-white font-semibold truncate">
+    <div className="rounded-xl border border-slate-300 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-950 space-y-0">
+      <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-2 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/90">
+        <div className="text-xs text-slate-900 dark:text-white font-semibold truncate">
           View in UI — {item.fileName || item.requirementTitle}
         </div>
         <div className="flex items-center gap-2">
@@ -120,7 +120,7 @@ export const ClientDocumentPreviewPanel: React.FC<ClientDocumentPreviewPanelProp
                 setSelectedMonth(e.target.value);
                 loadPreview(e.target.value);
               }}
-              className="text-[10px] rounded border border-slate-600 bg-slate-950 px-2 py-1 text-slate-200"
+              className="text-[10px] rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-950 px-2 py-1 text-slate-800 dark:text-slate-200"
             >
               <option value="">Latest row</option>
               {months.map((m) => (
@@ -135,19 +135,19 @@ export const ClientDocumentPreviewPanel: React.FC<ClientDocumentPreviewPanelProp
               href={openUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[10px] text-emerald-400 hover:underline"
+              className="text-[10px] text-emerald-700 dark:text-emerald-400 hover:underline"
             >
               Open file
             </a>
           )}
-          <button type="button" onClick={onClose} className="text-[10px] text-slate-400 hover:text-white">
+          <button type="button" onClick={onClose} className="text-[10px] text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
             Close
           </button>
         </div>
       </div>
 
       {resolveNote && (
-        <p className="text-[10px] text-emerald-300/90 px-4 py-1.5 bg-emerald-950/30 border-b border-slate-800">
+        <p className="text-[10px] text-emerald-800 dark:text-emerald-300/90 px-4 py-1.5 bg-emerald-50 dark:bg-emerald-950/30 border-b border-slate-200 dark:border-slate-800">
           {resolveNote}
         </p>
       )}

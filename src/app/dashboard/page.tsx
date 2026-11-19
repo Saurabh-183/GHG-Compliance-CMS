@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -12,21 +13,24 @@ import {
   ArrowRight,
   TrendingUp,
   Clock,
-  Layers,
-  ChevronDown,
-  ShieldCheck,
-  Factory,
 } from 'lucide-react';
-import { ICalendarItem, IClarification, IClientGroup, IFacility } from '@/types';
+import {
+  ICalendarItem,
+  IClarification,
+  IClientGroup,
+  IFacility,
+} from '@/types';
 import { formatDate } from '@/lib/utils';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import { MOCK_CLIENT_GROUPS } from '@/lib/mockFallback';
 import { CompanySelectMui } from '@/components/dashboard/CompanySelectMui';
+import { FacilitySelectMui } from '@/components/dashboard/FacilitySelectMui';
 import { ClientUploadsPanel } from '@/components/uploads/ClientUploadsPanel';
 import { generateDeadlinesForFacilities } from '@/lib/statutoryCalendar';
 
 export default function DashboardPage() {
   const { currentRole, currentUser } = useAuth();
+
   const [calendarItems, setCalendarItems] = useState<ICalendarItem[]>([]);
   const [clarifications, setClarifications] = useState<IClarification[]>([]);
   const [groups, setGroups] = useState<IClientGroup[]>([]);
@@ -42,47 +46,80 @@ export default function DashboardPage() {
           fetch('/api/client-groups').catch(() => null),
         ]);
 
-        if (calRes && calRes.ok) {
-          const calData = (await calRes.json()) as { data: ICalendarItem[] };
+        if (calRes?.ok) {
+          const calData = (await calRes.json()) as {
+            data: ICalendarItem[];
+          };
           setCalendarItems(calData.data || []);
         }
 
-        if (clarRes && clarRes.ok) {
-          const clarData = (await clarRes.json()) as { data: IClarification[] };
+        if (clarRes?.ok) {
+          const clarData = (await clarRes.json()) as {
+            data: IClarification[];
+          };
           setClarifications(clarData.data || []);
         }
 
-        if (groupsRes && groupsRes.ok) {
-          const groupsData = (await groupsRes.json()) as { data: IClientGroup[] };
-          if (groupsData.data && groupsData.data.length > 0) {
-            setGroups(groupsData.data);
-          } else {
-            setGroups(MOCK_CLIENT_GROUPS);
-          }
+        if (groupsRes?.ok) {
+          const groupsData = (await groupsRes.json()) as {
+            data: IClientGroup[];
+          };
+
+          setGroups(
+            groupsData.data?.length
+              ? groupsData.data
+              : MOCK_CLIENT_GROUPS
+          );
         } else {
           setGroups(MOCK_CLIENT_GROUPS);
         }
       } catch (err) {
-        console.warn('Fallback: loading local mock client groups on dashboard:', err);
+        console.warn(
+          'Fallback: loading local mock client groups on dashboard:',
+          err
+        );
         setGroups(MOCK_CLIENT_GROUPS);
       } finally {
         setLoading(false);
       }
     }
+
     loadData();
   }, []);
 
+  // Find the currently selected company group.
   const selectedGroup = groups.find(
-    (g) => g._id === selectedCompanyId || g.code === selectedCompanyId
+    (group) =>
+      group._id === selectedCompanyId ||
+      group.code === selectedCompanyId
   );
 
-  const allFacilities: IFacility[] = groups.flatMap((g) => g.facilities || []);
+  // Collect all facilities across all client groups.
+  const allFacilities: IFacility[] = groups.flatMap(
+    (group) => group.facilities || []
+  );
 
   const currentFacilities: IFacility[] = selectedGroup
-    ? selectedGroup.facilities && selectedGroup.facilities.length > 0
+    ? selectedGroup.facilities?.length
       ? selectedGroup.facilities
-      : allFacilities.filter((f) => f.clientGroupId === selectedGroup._id)
+      : allFacilities.filter(
+          (facility) => facility.clientGroupId === selectedGroup._id
+        )
     : allFacilities;
+
+  // Filter calendar deadlines for the selected company.
+  useEffect(() => {
+    if (currentFacilities.length === 0) {
+      setChecklistFacilityId('');
+      return;
+    }
+    setChecklistFacilityId((prev) => {
+      if (prev && currentFacilities.some((f) => f.facilityId === prev)) return prev;
+      return currentFacilities[0].facilityId;
+    });
+  }, [currentFacilities]);
+
+  const checklistFacility = currentFacilities.find((f) => f.facilityId === checklistFacilityId);
 
   if (loading) {
     return <CarbonCrunchLoader message="Loading consultant compliance workspace..." />;
@@ -97,16 +134,21 @@ export default function DashboardPage() {
   const filteredCalendarItems = selectedGroup
     ? calendarItems.filter((item) =>
         currentFacilities.some(
-          (f) =>
-            f.facilityId.toUpperCase() === item.facilityId.toUpperCase() ||
+          (facility) =>
+            facility.facilityId.toUpperCase() ===
+              item.facilityId.toUpperCase() ||
             (item.facilityName &&
-              (f.name.toLowerCase().includes(item.facilityName.toLowerCase()) ||
-                item.facilityName.toLowerCase().includes(f.name.toLowerCase())))
+              (facility.name
+                .toLowerCase()
+                .includes(item.facilityName.toLowerCase()) ||
+                item.facilityName
+                  .toLowerCase()
+                  .includes(facility.name.toLowerCase())))
         )
       )
     : calendarItems;
 
-  // Generate dynamic statutory calendar items for the selected company's operating units if not already in DB
+  // Generate fallback statutory calendar items when no DB records exist.
   const fallbackCompanyCalendarItems: ICalendarItem[] =
     selectedGroup && currentFacilities.length > 0
       ? generateDeadlinesForFacilities(currentFacilities)
@@ -119,10 +161,15 @@ export default function DashboardPage() {
     : calendarItems;
 
   const totalUnitsCount = allFacilities.length || 109;
+
   const isTridentSelected =
     !selectedGroup ||
     selectedGroup.code === 'TRI' ||
     selectedGroup.name.toLowerCase().includes('trident');
+
+  const openClarifications = clarifications.filter(
+    (item) => item.status === 'OPEN'
+  ).length;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -130,91 +177,142 @@ export default function DashboardPage() {
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            My Workspace — {currentRole === 'ADMIN' ? 'Admin' : 'Consultant'} Dashboard
+            My Workspace —{' '}
+            {currentRole === 'ADMIN' ? 'Admin' : 'Consultant'} Dashboard
           </h1>
-          <p className="text-xs text-slate-500 dark:  mt-1">
+
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Logged in as <strong className="text-emerald-700 dark:text-emerald-400">{currentUser?.name}</strong> ({currentUser?.designation})
             {selectedGroup && (
-              <span> · Active View: <strong className="text-slate-800 dark:   dark:text-white">{selectedGroup.name}</strong></span>
+              <span> · Active View: <strong className="text-slate-800 dark:text-white">{selectedGroup.name}</strong></span>
             )}
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          {/* MUI Company Selector Dropdown */}
           <CompanySelectMui
             groups={groups}
             selectedCompanyId={selectedCompanyId}
             onCompanyChange={(id) => setSelectedCompanyId(id)}
           />
-
-      
         </div>
       </div>
 
-      {/* Dynamic Metric Cards Row */}
+      {/* Dynamic Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Card 1: Assigned Facilities */}
+        {/* Assigned Facilities */}
         <div className="p-5 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500 dark: ">
+            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
               {selectedGroup ? 'Assigned Operating Units' : 'Assigned Facilities'}
             </span>
             <Building2 className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
           </div>
+
           <div className="text-2xl font-bold text-slate-900 dark:text-white mt-2">
-            {selectedGroup ? currentFacilities.length : totalUnitsCount}
+            {selectedGroup
+              ? currentFacilities.length
+              : totalUnitsCount}
           </div>
+
           <div className="text-[11px] text-emerald-700 dark:text-emerald-400 mt-1 truncate">
             {selectedGroup
               ? currentFacilities.length > 0
-                ? currentFacilities.slice(0, 3).map((f) => f.name.split(' ')[0]).join(', ') + (currentFacilities.length > 3 ? '...' : '')
+                ? currentFacilities
+                    .slice(0, 3)
+                    .map((facility) => facility.name.split(' ')[0])
+                    .join(', ') +
+                  (currentFacilities.length > 3 ? '...' : '')
                 : 'No facilities registered'
               : 'Trident, UltraTech, Hero, Jindal...'}
           </div>
         </div>
 
-        {/* Card 2: Active Compliances */}
+        {/* Active Compliances */}
         <div className="p-5 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500 dark: ">Active Compliances</span>
+            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+              Active Compliances
+            </span>
+            <span className="text-xs font-medium text-slate-500 dark:text-slate-400 ">Active Compliances</span>
             <TrendingUp className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
           </div>
+
           <div className="text-2xl font-bold text-slate-900 dark:text-white mt-2">
-            {selectedGroup ? `${currentFacilities.length * 4} Records` : '436 Records'}
+            {selectedGroup
+              ? `${currentFacilities.length * 4} Records`
+              : '436 Records'}
           </div>
-          <div className="text-[11px]    dark:  mt-1">
+
+          <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
             RCO, PAT, CCTS, CEA Returns
           </div>
         </div>
 
-        {/* Card 3: Open Clarifications / Discrepancies */}
+        {/* Open Clarifications */}
         <div className="p-5 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500 dark: ">Open Clarifications</span>
+            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+              Open Clarifications
+            </span>
+
+            <AlertTriangle
+              className={`w-4 h-4 ${
+                isTridentSelected
+                  ? 'text-rose-600 dark:text-rose-400'
+                  : 'text-emerald-600 dark:text-emerald-400'
+              }`}
+            />
+            <span className="text-xs font-medium text-slate-500 dark:text-slate-400 ">Open Clarifications</span>
             <AlertTriangle className={`w-4 h-4 ${isTridentSelected ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`} />
           </div>
-          <div className={`text-2xl font-bold mt-2 ${isTridentSelected ? 'text-rose-700 dark:text-rose-400' : 'text-slate-900 dark:text-white'}`}>
-            {isTridentSelected ? `${clarifications.filter((c) => c.status === 'OPEN').length || 1} Discrepancy` : '0 Discrepancy'}
+
+          <div
+            className={`text-2xl font-bold mt-2 ${
+              isTridentSelected
+                ? 'text-rose-700 dark:text-rose-400'
+                : 'text-slate-900 dark:text-white'
+            }`}
+          >
+            {isTridentSelected
+              ? `${openClarifications || 1} Discrepancy`
+              : '0 Discrepancy'}
           </div>
-          <div className={`text-[11px] mt-1 ${isTridentSelected ? 'text-rose-800 dark:text-rose-400/80' : 'text-emerald-700 dark:text-emerald-400'}`}>
-            {isTridentSelected ? 'June 2025 Grid kWh Mismatch' : 'All facility records reconciled'}
+
+          <div
+            className={`text-[11px] mt-1 ${
+              isTridentSelected
+                ? 'text-rose-800 dark:text-rose-400/80'
+                : 'text-emerald-700 dark:text-emerald-400'
+            }`}
+          >
+            {isTridentSelected
+              ? 'June 2025 Grid kWh Mismatch'
+              : 'All facility records reconciled'}
           </div>
         </div>
 
-        {/* Card 4: Upcoming Filings */}
+        {/* Upcoming Filings */}
         <div className="p-5 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500 dark: ">Upcoming Filings</span>
+            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+              Upcoming Filings
+            </span>
+            <span className="text-xs font-medium text-slate-500 dark:text-slate-400 ">Upcoming Filings</span>
             <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
           </div>
+
           <div className="text-2xl font-bold text-slate-900 dark:text-white mt-2">
             {selectedGroup
               ? displayCalendarItems.length
-              : (calendarItems.filter((c) => c.status === 'PENDING').length || 4)}
+              : calendarItems.filter((item) => item.status === 'PENDING')
+                  .length || 4}
           </div>
+
           <div className="text-[11px] text-amber-700 dark:text-amber-400 mt-1">
-            {selectedGroup ? `Statutory Cycles for ${selectedGroup.name.split(' ')[0]}` : 'Next due: July CEA Filing'}
+            {selectedGroup
+              ? `Statutory Cycles for ${selectedGroup.name.split(' ')[0]}`
+              : 'Next due: July CEA Filing'}
           </div>
         </div>
       </div>
@@ -226,17 +324,23 @@ export default function DashboardPage() {
             <div className="p-2 rounded-lg bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-400 mt-0.5">
               <AlertTriangle className="w-5 h-5" />
             </div>
+
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-sm font-bold text-rose-900 dark:text-rose-300">
                   Active Reconciliation Discrepancy Flagged — Trident Paper
                 </h3>
+
                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-300 dark:bg-rose-500/20 dark:text-rose-300 dark:border-rose-500/30">
                   June 2025
                 </span>
               </div>
+
               <p className="text-xs text-slate-700 dark:text-slate-300 mt-1">
-                Client declared <strong>1,280,000 kWh</strong> in Excel while official PSPCL electricity bill records <strong>1,265,000 kWh</strong> (Variance: <strong>15,000 kWh / 1.186%</strong>).
+                Client declared <strong>1,280,000 kWh</strong> in Excel
+                while official PSPCL electricity bill records{' '}
+                <strong>1,265,000 kWh</strong> (Variance:{' '}
+                <strong>15,000 kWh / 1.186%</strong>).
               </p>
             </div>
           </div>
@@ -256,17 +360,23 @@ export default function DashboardPage() {
             <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-400 mt-0.5">
               <CheckCircle2 className="w-5 h-5" />
             </div>
+
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-sm font-bold text-emerald-900 dark:text-emerald-300">
-                  Statutory Compliance Status Verified — {selectedGroup.name}
+                  Statutory Compliance Status Verified —{' '}
+                  {selectedGroup.name}
                 </h3>
+
                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30">
                   {currentFacilities.length} Operating Facilities
                 </span>
               </div>
+
               <p className="text-xs text-slate-700 dark:text-slate-300 mt-1">
-                All operating units for <strong>{selectedGroup.name}</strong> are verified under BEE PAT & CCTS baselines with zero open discrepancies.
+                All operating units for{' '}
+                <strong>{selectedGroup.name}</strong> are verified under
+                BEE PAT & CCTS baselines with zero open discrepancies.
               </p>
             </div>
           </div>
@@ -292,6 +402,28 @@ export default function DashboardPage() {
         }
       />
 
+      {/* Upcoming Deadlines & Registered Facilities */}
+      {selectedGroup && checklistFacility && (
+        <div className="space-y-3">
+          {currentFacilities.length > 1 && (
+            <div className="flex flex-wrap items-center gap-3 text-xs">
+              <span className="font-semibold text-slate-600 dark:text-slate-400">Data checklist facility:</span>
+              <FacilitySelectMui
+                facilities={currentFacilities}
+                selectedFacilityId={checklistFacilityId}
+                onFacilityChange={(id) => setChecklistFacilityId(id)}
+              />
+            </div>
+          )}
+          <FacilityDataChecklistPanel
+            key={checklistFacility.facilityId}
+            facilityId={checklistFacility.facilityId}
+            facilityName={checklistFacility.name}
+            mode="internal"
+          />
+        </div>
+      )}
+
       {/* Two Column Grid: Upcoming Deadlines & Dynamic Registered Facilities */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Compliance Deadlines */}
@@ -305,8 +437,13 @@ export default function DashboardPage() {
                   : 'Statutory Deadlines & Compliance Calendar'}
               </span>
             </h3>
+
             <Link
-              href={selectedGroup ? `/calendar?company=${encodeURIComponent(selectedGroup._id)}` : '/calendar'}
+              href={
+                selectedGroup
+                  ? `/calendar?company=${encodeURIComponent(selectedGroup._id)}`
+                  : '/calendar'
+              }
               className="text-xs text-emerald-700 dark:text-emerald-400 hover:underline"
             >
               View full calendar
@@ -320,13 +457,15 @@ export default function DashboardPage() {
                 className="p-3 rounded-lg bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800/80 flex items-center justify-between text-xs"
               >
                 <div>
-                  <div className="font-semibold text-slate-900 dark:   dark:text-white flex items-center gap-2">
+                  <div className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                     <span>{item.facilityName}</span>
-                    <span className="px-1.5 py-0.2 rounded text-[10px] font-mono bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-transparent">
+
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-transparent">
                       {item.complianceType}
                     </span>
                   </div>
-                  <div className="text-[11px] text-slate-500 dark:  mt-0.5">
+
+                  <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                     {item.reportingPeriod}
                   </div>
                 </div>
@@ -335,47 +474,59 @@ export default function DashboardPage() {
                   <div className="text-[11px] font-medium text-slate-700 dark:text-slate-300">
                     Due: {formatDate(item.regulatoryDueDate)}
                   </div>
+
                   <div className="mt-1">
                     <StatusBadge status={item.status} size="sm" />
                   </div>
                 </div>
               </div>
             ))}
+
+            {displayCalendarItems.length === 0 && (
+              <div className="text-center py-8 text-xs text-slate-500 dark:text-slate-400">
+                No upcoming deadlines found.
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Dynamic Registered Client Facilities List */}
+        {/* Registered Client Facilities */}
         <div className="rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-5 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
               <Building2 className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+
               <span>
                 {selectedGroup
                   ? `${selectedGroup.name} Facilities (${currentFacilities.length})`
                   : 'Registered Client Facilities'}
               </span>
             </h3>
+
             <Link
               href={selectedGroup ? `/clients/${selectedGroup._id}` : '/clients'}
               className="text-xs text-emerald-700 dark:text-emerald-400 hover:underline"
             >
-              {selectedGroup ? `View All ${currentFacilities.length} Units →` : 'Browse all clients →'}
+              {selectedGroup
+                ? `View All ${currentFacilities.length} Units →`
+                : 'Browse all clients →'}
             </Link>
           </div>
 
           <div className="space-y-3">
-            {currentFacilities.slice(0, 4).map((fac) => (
+            {currentFacilities.slice(0, 4).map((facility) => (
               <div
-                key={fac._id || fac.facilityId}
+                key={facility._id || facility.facilityId}
                 className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 hover:border-emerald-500/40 transition-colors"
               >
                 <div className="flex items-center justify-between gap-2">
                   <div className="min-w-0">
                     <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
-                      {fac.name}
+                      {facility.name}
                     </h4>
-                    <p className="text-[11px] text-slate-500 dark:  truncate">
-                      {fac.location} · {fac.category}
+
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                      {facility.location} · {facility.category}
                     </p>
                   </div>
                   <Link
@@ -383,11 +534,18 @@ export default function DashboardPage() {
                     className="px-2.5 py-1 text-xs rounded bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20 font-semibold transition-colors shrink-0"
                   >
                     Open Facility
+
+                  <Link
+                    href={`/facilities/${facility.facilityId}`}
+                    className="px-2.5 py-1 text-xs rounded bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20 font-semibold transition-colors shrink-0"
+                  >
+                    Open Matrix
                   </Link>
                 </div>
-                <div className="mt-2.5 flex items-center gap-2 text-[11px]    dark: ">
+
+                <div className="mt-2.5 flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
                   <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                    {fac.facilityId}
+                    {facility.facilityId}
                   </span>
                   <span>·</span>
                   <span>Active BEE/CCTS Monitoring</span>
@@ -396,7 +554,7 @@ export default function DashboardPage() {
             ))}
 
             {currentFacilities.length === 0 && (
-              <div className="text-center py-8 text-xs  ">
+              <div className="text-center py-8 text-xs text-slate-500 dark:text-slate-400">
                 No facilities registered for this company yet.
               </div>
             )}

@@ -78,14 +78,14 @@ export default function LoginPage() {
         <button
           type="button"
           onClick={toggleTheme}
-          className="rounded-md border border-slate-700/80 bg-slate-900/80 p-2 text-slate-300 shadow-lg backdrop-blur-md transition-colors hover:bg-slate-800 hover:text-white"
+          className="rounded-md border border-slate-300 dark:border-slate-700/80 bg-white dark:bg-slate-900/80 p-2 text-slate-700 dark:text-slate-300 shadow-md backdrop-blur-md transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
           title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
           aria-label="Toggle theme"
         >
           {theme === 'dark' ? (
             <Sun className="h-4 w-4 text-amber-400" />
           ) : (
-            <Moon className="h-4 w-4 text-slate-300" />
+            <Moon className="h-4 w-4 text-slate-600" />
           )}
         </button>
       </div>
@@ -100,22 +100,22 @@ export default function LoginPage() {
             />
           </div>
 
-          <h1 className="text-2xl font-bold tracking-tight dark:text-white text-orange-400">
-            Carbon <span className="text-green-800">Crunch</span>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+            Carbon <span className="text-emerald-700 dark:text-emerald-500">Crunch</span>
           </h1>
 
-          <p className="mx-auto max-w-xs text-xs  ">
+          <p className="mx-auto max-w-xs text-xs text-slate-600 dark:text-slate-400">
             Sign in to access your statutory compliance register,
             evidence verification, and audit workspace.
           </p>
         </div>
 
         {/* Login Box */}
-        <div className="space-y-5 rounded-2xl border border-slate-800 bg-slate-900/70 p-6 shadow-2xl backdrop-blur-md sm:p-8">
+        <div className="space-y-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 shadow-2xl backdrop-blur-md sm:p-8">
           {error && (
             <div
               role="alert"
-              className="rounded-lg border border-rose-500/40 bg-rose-950/60 p-3 text-xs text-rose-300"
+              className="rounded-lg border border-rose-500/40 bg-rose-50 dark:bg-rose-950/60 p-3 text-xs text-rose-700 dark:text-rose-300"
             >
               {error}
             </div>
@@ -126,13 +126,13 @@ export default function LoginPage() {
             <div>
               <label
                 htmlFor="email"
-                className="mb-1 block text-xs font-semibold text-slate-300"
+                className="mb-1 block text-xs font-semibold text-slate-700 dark:text-slate-300"
               >
                 Email Address:
               </label>
 
               <div className="relative">
-                <Mail className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
+                <Mail className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
 
                 <input
                   id="email"
@@ -143,7 +143,7 @@ export default function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-lg border border-slate-700 bg-slate-950 py-2 pl-9 pr-3 text-xs    dark:text-white focus:border-emerald-600 focus:outline-none"
+                  className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 py-2 pl-9 pr-3 text-xs text-slate-900 dark:text-white focus:border-emerald-600 focus:outline-none"
                 />
               </div>
             </div>
@@ -152,13 +152,13 @@ export default function LoginPage() {
             <div>
               <label
                 htmlFor="password"
-                className="mb-1 block text-xs font-semibold text-slate-300"
+                className="mb-1 block text-xs font-semibold text-slate-700 dark:text-slate-300"
               >
                 Password:
               </label>
 
               <div className="relative">
-                <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
+                <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
 
                 <input
                   id="password"
@@ -169,20 +169,20 @@ export default function LoginPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full rounded-lg border border-slate-700 bg-slate-950 py-2 pl-9 pr-10 text-xs    dark:text-white focus:border-emerald-600 focus:outline-none"
+                  className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 py-2 pl-9 pr-10 text-xs text-slate-900 dark:text-white focus:border-emerald-600 focus:outline-none"
                 />
 
                 <button
                   type="button"
                   onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute right-3 top-2.5   transition-colors hover:   dark:text-white focus:outline-none"
+                  className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors focus:outline-none"
                   aria-label={
                     showPassword ? 'Hide password' : 'Show password'
                   }
                   title={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-emerald-500" />
+                    <EyeOff className="h-4 w-4 text-emerald-600 dark:text-emerald-500" />
                   ) : (
                     <Eye className="h-4 w-4" />
                   )}
@@ -202,8 +202,8 @@ export default function LoginPage() {
           </form>
 
           {/* Demo Role Logins */}
-          <div className="space-y-3 border-t border-slate-800 pt-4">
-            <span className="block text-center text-[11px] font-semibold uppercase tracking-wider  ">
+          <div className="space-y-3 border-t border-slate-200 dark:border-slate-800 pt-4">
+            <span className="block text-center text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               Instant Demo Logins (No password needed)
             </span>
 
@@ -212,12 +212,12 @@ export default function LoginPage() {
                 type="button"
                 disabled={isSubmitting}
                 onClick={() => handleQuickLogin('CONSULTANT')}
-                className="flex flex-col items-center justify-center rounded-lg border border-slate-700 bg-slate-800 p-2 text-center text-xs font-medium    dark:text-white transition-colors hover:bg-slate-700 disabled:opacity-50"
+                className="flex flex-col items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-2 text-center text-xs font-medium text-slate-900 dark:text-white transition-colors hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-50"
               >
-                <span className="font-semibold text-emerald-400">
+                <span className="font-semibold text-emerald-700 dark:text-emerald-400">
                   Consultant
                 </span>
-                <span className="text-[10px]  ">
+                <span className="text-[10px] text-slate-500 dark:text-slate-400">
                   Priya Sharma
                 </span>
               </button>
@@ -226,12 +226,12 @@ export default function LoginPage() {
                 type="button"
                 disabled={isSubmitting}
                 onClick={() => handleQuickLogin('CLIENT')}
-                className="flex flex-col items-center justify-center rounded-lg border border-slate-700 bg-slate-800 p-2 text-center text-xs font-medium    dark:text-white transition-colors hover:bg-slate-700 disabled:opacity-50"
+                className="flex flex-col items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-2 text-center text-xs font-medium text-slate-900 dark:text-white transition-colors hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-50"
               >
-                <span className="font-bold text-amber-400">
+                <span className="font-bold text-amber-600 dark:text-amber-400">
                   Client Portal
                 </span>
-                <span className="text-[10px]  ">
+                <span className="text-[10px] text-slate-500 dark:text-slate-400">
                   Trident Group
                 </span>
               </button>
@@ -240,12 +240,12 @@ export default function LoginPage() {
                 type="button"
                 disabled={isSubmitting}
                 onClick={() => handleQuickLogin('ADMIN')}
-                className="flex flex-col items-center justify-center rounded-lg border border-slate-700 bg-slate-800 p-2 text-center text-xs font-medium    dark:text-white transition-colors hover:bg-slate-700 disabled:opacity-50"
+                className="flex flex-col items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-2 text-center text-xs font-medium text-slate-900 dark:text-white transition-colors hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-50"
               >
-                <span className="font-bold text-purple-400">
+                <span className="font-bold text-purple-600 dark:text-purple-400">
                   Admin
                 </span>
-                <span className="text-[10px]  ">
+                <span className="text-[10px] text-slate-500 dark:text-slate-400">
                   Saurabh
                 </span>
               </button>

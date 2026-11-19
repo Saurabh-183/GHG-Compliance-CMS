@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import { Select, MenuItem, FormControl } from '@mui/material';
+import { useAuth } from '@/context/AuthContext';
 import { IAssessment, IComparisonRow } from '@/types';
 import { HistoricalComparisonChart } from '@/components/compliance/HistoricalComparisonChart';
 import {
@@ -15,6 +17,8 @@ import {
 } from 'lucide-react';
 
 export default function AssessmentComparisonPage() {
+  const { theme } = useAuth();
+  const isDark = theme === 'dark';
   const params = useParams();
   const assessmentId = params.assessmentId as string;
   const [assessment1, setAssessment1] = useState<IAssessment | null>(null);
@@ -68,9 +72,9 @@ export default function AssessmentComparisonPage() {
 
   if (!assessment1) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-16 text-center  ">
-        <h2 className="text-lg font-bold text-white">Comparison Data Unavailable</h2>
-        <Link href="/facilities/TRIDENT_PAPER" className="mt-4 inline-block text-emerald-400 text-xs">
+      <div className="max-w-7xl mx-auto px-4 py-16 text-center">
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white">Comparison Data Unavailable</h2>
+        <Link href="/facilities/TRIDENT_PAPER" className="mt-4 inline-block text-emerald-600 dark:text-emerald-400 text-xs">
           Return to Matrix
         </Link>
       </div>
@@ -93,75 +97,111 @@ export default function AssessmentComparisonPage() {
         <ChevronRight className="w-3 h-3   " />
         <Link href={`/assessments/${assessmentId}`} className="hover:text-emerald-400">Assessment</Link>
         <ChevronRight className="w-3 h-3   " />
-        <span className="   dark:text-white font-semibold">YoY Trajectory Comparison</span>
+        <span className="text-slate-900 dark:text-white font-semibold">YoY Trajectory Comparison</span>
       </div>
 
       {/* Header Card */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6 sm:p-8 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 sm:p-8 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
           <div className="flex items-center gap-2.5">
-            <span className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
+            <span className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
               <TrendingUp className="w-6 h-6" />
             </span>
             <div>
-              <h1 className="text-2xl font-bold text-white">
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
                 Year-on-Year Compliance Trajectory Comparison
               </h1>
-              <p className="text-xs   mt-1">
-                Facility: <strong className="   dark:text-white">{assessment1.facilityId}</strong> · Compliance: <strong className="   dark:text-white">{assessment1.complianceType}</strong>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                Facility: <strong className="text-slate-900 dark:text-white">{assessment1.facilityId}</strong> · Compliance: <strong className="text-slate-900 dark:text-white">{assessment1.complianceType}</strong>
               </p>
             </div>
           </div>
         </div>
 
         {/* Period Selector Controls */}
-        <div className="flex items-center gap-3 bg-slate-950/60 p-3 rounded-lg border border-slate-800">
-          <label className="text-xs   font-medium">Compare With Period:</label>
-          <select
-            value={selectedPeriod}
-            onChange={(e) => setSelectedPeriod(e.target.value)}
-            className="px-3 py-1 text-xs bg-slate-900 border border-slate-700 rounded    dark:text-white font-medium focus:outline-none focus:border-emerald-500"
-          >
-            {availablePeriods
-              .filter((p) => p !== period1Name)
-              .map((p) => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-          </select>
+        <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-950/60 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800">
+          <label className="text-xs text-slate-600 dark:text-slate-400 font-semibold">Compare With Period:</label>
+          <FormControl size="small" sx={{ minWidth: 160 }}>
+            <Select
+              value={selectedPeriod}
+              onChange={(e) => setSelectedPeriod(e.target.value)}
+              sx={{
+                height: 34,
+                fontSize: '12px',
+                fontWeight: 600,
+                borderRadius: '8px',
+                backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                color: isDark ? '#FFFFFF' : '#1E293B',
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
+                },
+                '&:hover .MuiOutlinedInput-notchedOutline': {
+                  borderColor: isDark ? '#34D399' : '#059669',
+                },
+                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                  borderColor: isDark ? '#34D399' : '#059669',
+                  borderWidth: '1.5px',
+                },
+                '& .MuiSelect-select': {
+                  py: '4px',
+                  px: '10px',
+                },
+              }}
+              MenuProps={{
+                slotProps: {
+                  paper: {
+                    sx: {
+                      backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                      color: isDark ? '#FFFFFF' : '#1E293B',
+                      borderRadius: '8px',
+                      border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0'}`,
+                      '& .MuiList-root': { py: '4px' },
+                    },
+                  },
+                },
+              }}
+            >
+              {availablePeriods
+                .filter((p) => p !== period1Name)
+                .map((p) => (
+                  <MenuItem key={p} value={p} sx={{ fontSize: '12px', fontWeight: 600 }}>
+                    {p}
+                  </MenuItem>
+                ))}
+            </Select>
+          </FormControl>
         </div>
       </div>
 
       {/* Side-by-Side Comparison Table (PRD Section 8) */}
-      <div className="rounded-md border border-slate-800 bg-slate-900/60 p-6 shadow-xl space-y-4">
+      <div className="rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-6 shadow-xl space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-emerald-400" />
+            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
               Side-by-Side Regulatory Metrics Comparison Table
             </h3>
-            <p className="text-xs   mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Approved historical performance vs current active assessment with provisional labels.
             </p>
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-lg border border-slate-800">
+        <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-slate-800 bg-slate-950/80 text-[11px] font-semibold   uppercase tracking-wider">
+              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/80 text-[11px] font-semibold text-slate-700 dark:text-slate-400 uppercase tracking-wider">
                 <th className="py-3 px-4">Compliance Parameter</th>
                 <th className="py-3 px-4 text-center">Unit</th>
                 <th className="py-3 px-4 text-right">
                   {period1Name} <br />
-                  <span className="text-[10px] text-emerald-400 font-normal">
+                  <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-normal">
                     ({assessment1.isHistorical ? 'Approved Baseline' : 'Current'})
                   </span>
                 </th>
                 <th className="py-3 px-4 text-right">
                   {period2Name} <br />
-                  <span className="text-[10px]    dark:text-white font-normal">
+                  <span className="text-[10px] text-slate-600 dark:text-slate-400 font-normal">
                     ({assessment2?.isHistorical ? 'Approved Baseline' : 'Provisional'})
                   </span>
                 </th>
@@ -169,41 +209,59 @@ export default function AssessmentComparisonPage() {
                 <th className="py-3 px-4 text-right">% Change</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/70 text-xs">
-              {rows.map((row, index) => (
-                <tr key={index} className="hover:bg-slate-800/30 transition-colors">
-                  <td className="py-3.5 px-4 font-semibold    dark:text-white">
-                    {row.parameter}
-                  </td>
-                  <td className="py-3.5 px-4 text-center font-mono   text-[11px]">
-                    {row.unit}
-                  </td>
-                  {/* Period 1 Value */}
-                  <td className="py-3.5 px-4 text-right font-mono font-bold text-emerald-400">
-                    {row.period1Value}
-                    <div className="text-[9px] text-slate-500 font-sans font-normal uppercase mt-0.5">
-                      {row.period1Status === 'HISTORICAL_APPROVED' ? 'Approved Final' : 'Provisional'}
-                    </div>
-                  </td>
-                  {/* Period 2 Value */}
-                  <td className="py-3.5 px-4 text-right font-mono font-bold    dark:text-white">
-                    {row.period2Value}
-                    <div className="text-[9px] text-slate-500 font-sans font-normal uppercase mt-0.5">
-                      {row.period2Status === 'PROVISIONAL' ? 'Provisional' : 'Approved Final'}
-                    </div>
-                  </td>
-                  {/* Delta */}
-                  <td className="py-3.5 px-4 text-right font-mono text-slate-300">
-                    {row.delta !== '—' && typeof row.delta === 'number' && row.delta > 0
-                      ? `+${row.delta}`
-                      : row.delta}
-                  </td>
-                  {/* Pct Change */}
-                  <td className="py-3.5 px-4 text-right font-mono text-slate-300">
-                    {row.percentageChange}
-                  </td>
-                </tr>
-              ))}
+            <tbody className="divide-y divide-slate-200 dark:divide-slate-800/70 text-xs">
+              {rows.map((row: any, index) => {
+                const paramName = row.parameter || row.name || row.metricKey || 'Metric';
+                const p1Val = row.period1Value ?? row.value1 ?? '—';
+                const p2Val = row.period2Value ?? row.value2 ?? '—';
+                const deltaVal = row.delta ?? row.absoluteDelta ?? '—';
+                const pctChangeVal =
+                  row.percentageChange ??
+                  (typeof row.percentageDelta === 'number'
+                    ? `${row.percentageDelta > 0 ? '+' : ''}${row.percentageDelta}%`
+                    : row.percentageDelta ?? '—');
+                const p1Status =
+                  row.period1Status ||
+                  (assessment1.isHistorical ? 'HISTORICAL_APPROVED' : 'PROVISIONAL');
+                const p2Status =
+                  row.period2Status ||
+                  (assessment2?.isHistorical ? 'HISTORICAL_APPROVED' : 'PROVISIONAL');
+
+                return (
+                  <tr key={index} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                    <td className="py-3.5 px-4 font-semibold text-slate-900 dark:text-white">
+                      {paramName}
+                    </td>
+                    <td className="py-3.5 px-4 text-center font-mono text-slate-600 dark:text-slate-400 text-[11px]">
+                      {row.unit}
+                    </td>
+                    {/* Period 1 Value */}
+                    <td className="py-3.5 px-4 text-right font-mono font-bold text-emerald-700 dark:text-emerald-400">
+                      {p1Val}
+                      <div className="text-[9px] text-slate-500 font-sans font-normal uppercase mt-0.5">
+                        {p1Status === 'HISTORICAL_APPROVED' ? 'Approved Final' : 'Provisional'}
+                      </div>
+                    </td>
+                    {/* Period 2 Value */}
+                    <td className="py-3.5 px-4 text-right font-mono font-bold text-slate-900 dark:text-white">
+                      {p2Val}
+                      <div className="text-[9px] text-slate-500 font-sans font-normal uppercase mt-0.5">
+                        {p2Status === 'PROVISIONAL' ? 'Provisional' : 'Approved Final'}
+                      </div>
+                    </td>
+                    {/* Delta */}
+                    <td className="py-3.5 px-4 text-right font-mono text-slate-700 dark:text-slate-300">
+                      {deltaVal !== '—' && typeof deltaVal === 'number' && deltaVal > 0
+                        ? `+${deltaVal}`
+                        : deltaVal}
+                    </td>
+                    {/* Pct Change */}
+                    <td className="py-3.5 px-4 text-right font-mono text-slate-700 dark:text-slate-300">
+                      {pctChangeVal}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

@@ -81,14 +81,14 @@ export default function HomePage() {
             <span>MVP v1.0 Presentation Ready</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
+          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white">
             Energy & Carbon <br />
-            <span className="text-emerald-500">
+            <span className="text-emerald-600 dark:text-emerald-500">
               Compliance Management Platform
             </span>
           </h1>
 
-          <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
+          <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed">
             Centralizing multi-facility compliance registers (RCO/RPO, PAT, CCTS, CEA),
             evidence-based reconciliation against Google Drive documents, reviewer audit approval queues, and restricted client visibility.
           </p>
@@ -104,16 +104,16 @@ export default function HomePage() {
 
             <Link
               href="/facilities/TRIDENT_PAPER"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-semibold text-sm border border-slate-700 transition-colors shadow-sm"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-white font-semibold text-sm border border-slate-300 dark:border-slate-700 transition-colors shadow-sm"
             >
-              <Building2 className="w-4 h-4 text-emerald-400" />
+              <Building2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               <span>Trident Paper Matrix</span>
             </Link>
 
             <Link
               href="/portal"
               onClick={() => switchRole('CLIENT')}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700    dark:text-white font-semibold text-sm border border-slate-700 transition-colors shadow-sm"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-white font-semibold text-sm border border-slate-300 dark:border-slate-700 transition-colors shadow-sm"
             >
               <span>Launch Client Portal</span>
               <ExternalLink className="w-3.5 h-3.5" />
@@ -126,11 +126,11 @@ export default function HomePage() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
               Initial End-to-End Acceptance Test Walkthrough
             </h2>
-            <p className="text-xs   mt-1">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               Click any milestone step below to jump directly into the live demonstrated module with pre-loaded Trident Group seed data.
             </p>
           </div>
@@ -142,26 +142,26 @@ export default function HomePage() {
               key={index}
               href={item.link}
               onClick={() => switchRole(item.role as any)}
-              className="group p-5 rounded-md border border-slate-800 bg-slate-900/60 hover:bg-slate-850 hover:border-emerald-500/40 transition-all flex flex-col justify-between shadow-md"
+              className="group p-5 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 hover:border-emerald-500/40 transition-all flex flex-col justify-between shadow-md"
             >
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <span className="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-slate-800 text-emerald-400 border border-slate-700">
+                  <span className="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-slate-100 text-emerald-800 border border-slate-200 dark:bg-slate-800 dark:text-emerald-400 dark:border-slate-700">
                     Steps {item.step}
                   </span>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/20">
                     {item.badge}
                   </span>
                 </div>
-                <h3 className="text-sm font-semibold text-slate-100 group-hover:text-emerald-300 transition-colors">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white group-hover:text-emerald-700 dark:group-hover:text-emerald-300 transition-colors">
                   {item.title}
                 </h3>
-                <p className="text-xs   leading-relaxed">
+                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                   {item.desc}
                 </p>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs   group-hover:text-emerald-400">
+              <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-800/80 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
                 <span>Switch to <strong>{item.role}</strong> & Test</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </div>
