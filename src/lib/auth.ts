@@ -40,23 +40,36 @@ export function getSessionFromRequest(request: NextRequest): IAuthUserSession | 
     if (session) return session;
   }
 
-  // For seamless demo switching without breaking API calls, support custom demo header
-  if (process.env.NODE_ENV === 'production' || process.env.ENABLE_DEMO_ROLE_HEADER !== 'true') return null;
-  const demoRole = request.headers.get('X-Demo-Role') as UserRole | null;
-  const demoUser = request.headers.get('X-Demo-User-Id');
-  if (demoRole && ['ADMIN', 'CONSULTANT', 'CLIENT'].includes(demoRole)) {
+  // Optional demo-role header for local role testing.
+  if (process.env.NODE_ENV !== 'production' && process.env.ENABLE_DEMO_ROLE_HEADER === 'true') {
+    const demoRole = request.headers.get('X-Demo-Role') as UserRole | null;
+    const demoUser = request.headers.get('X-Demo-User-Id');
+
+    if (demoRole && ['ADMIN', 'CONSULTANT', 'CLIENT'].includes(demoRole)) {
+      return {
+        userId: demoUser || 'USR_DEMO',
+        name:
+          demoRole === 'ADMIN'
+            ? 'Saurabh (Admin)'
+            : demoRole === 'CONSULTANT'
+            ? 'Priya Sharma (Consultant & Compliance Lead)'
+            : 'Vikram Singh (Trident Client)',
+        email: `${demoRole.toLowerCase()}@carboncrunch.com`,
+        role: demoRole,
+        clientGroupId: demoRole === 'CLIENT' ? '66f000000000000000000001' : undefined,
+        authorizedFacilityIds: demoRole === 'CLIENT' ? ['TRIDENT_PAPER', 'TRIDENT_YARN'] : undefined,
+      };
+    }
+  }
+
+  // Local development runs as an ADMIN by default so the application can be
+  // explored and tested without repeatedly logging in. This never applies in production.
+  if (process.env.NODE_ENV === 'development') {
     return {
-      userId: demoUser || 'USR_DEMO',
-      name:
-        demoRole === 'ADMIN'
-          ? 'Saurabh (Admin)'
-          : demoRole === 'CONSULTANT'
-          ? 'Priya Sharma (Consultant & Compliance Lead)'
-          : 'Vikram Singh (Trident Client)',
-      email: `${demoRole.toLowerCase()}@carboncrunch.com`,
-      role: demoRole,
-      clientGroupId: demoRole === 'CLIENT' ? '66f000000000000000000001' : undefined,
-      authorizedFacilityIds: demoRole === 'CLIENT' ? ['TRIDENT_PAPER', 'TRIDENT_YARN'] : undefined,
+      userId: 'local-development-admin',
+      name: 'Local Development Admin',
+      email: 'local-admin@localhost',
+      role: 'ADMIN',
     };
   }
 

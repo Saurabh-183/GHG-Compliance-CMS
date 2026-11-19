@@ -6,10 +6,23 @@ import { ComplianceApplicabilityModel } from '@/models/ComplianceApplicability';
 import { getSessionFromRequest, authorizeRole } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
+  const session = getSessionFromRequest(request);
+  if (!session) {
+    return NextResponse.json(
+      { success: false, error: 'Authentication required.' },
+      { status: 401 }
+    );
+  }
+
+  if (session.role === 'CLIENT' && !session.clientGroupId) {
+    return NextResponse.json(
+      { success: false, error: 'Your account is not assigned to a client group.' },
+      { status: 403 }
+    );
+  }
+
   try {
     await connectToDatabase();
-
-    const session = getSessionFromRequest(request);
 
     const query =
       session?.role === 'CLIENT' && session.clientGroupId
@@ -20,14 +33,7 @@ export async function GET(request: NextRequest) {
       .sort({ name: 1 })
       .lean();
 
-    if (groups.length === 0 && (!session || session.role !== 'CLIENT')) {
-      const totalCount = await ClientGroupModel.countDocuments();
-      if (totalCount === 0) {
-        const { seedDatabase } = await import('@/lib/seedData');
-        await seedDatabase();
-        groups = await ClientGroupModel.find(query).sort({ name: 1 }).lean();
-      }
-    }
+    // Do not seed/reset persistent data from a read or login request.
 
     if (groups.length === 0) {
       const { MOCK_CLIENT_GROUPS, MOCK_FACILITIES } = await import('@/lib/mockFallback');
@@ -89,7 +95,12 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.warn('Failed to fetch client groups from DB, returning fallback mock data:', error);
     const { MOCK_CLIENT_GROUPS, MOCK_FACILITIES } = await import('@/lib/mockFallback');
-    const fallbackData = MOCK_CLIENT_GROUPS.map((group) => {
+    const visibleGroups =
+      session.role === 'CLIENT'
+        ? MOCK_CLIENT_GROUPS.filter((group) => group._id === session.clientGroupId)
+        : MOCK_CLIENT_GROUPS;
+
+    const fallbackData = visibleGroups.map((group) => {
       const facilities = MOCK_FACILITIES.filter((f) => f.clientGroupId === group._id);
       return {
         ...group,

@@ -6,9 +6,23 @@ import { getSessionFromRequest, isAuthorizedForFacility, authorizeRole } from '@
 import { ComplianceType, ICalendarItem } from '@/types';
 
 export async function GET(request: NextRequest) {
+  const session = getSessionFromRequest(request);
+  if (!session) {
+    return NextResponse.json(
+      { success: false, error: 'Authentication required.' },
+      { status: 401 }
+    );
+  }
+
+  if (session.role === 'CLIENT' && !session.authorizedFacilityIds?.length) {
+    return NextResponse.json(
+      { success: false, error: 'No facilities are assigned to your account.' },
+      { status: 403 }
+    );
+  }
+
   try {
     await connectToDatabase();
-    const session = getSessionFromRequest(request);
     const searchParams = request.nextUrl.searchParams;
     const facilityId = searchParams.get('facilityId');
     const status = searchParams.get('status');
@@ -31,17 +45,7 @@ export async function GET(request: NextRequest) {
       .sort({ regulatoryDueDate: 1 })
       .lean();
 
-    if (rawItems.length === 0 && !facilityId) {
-      const totalCount = await CalendarItemModel.countDocuments();
-      if (totalCount === 0) {
-        const { seedDatabase } = await import('@/lib/seedData');
-        await seedDatabase();
-        rawItems = await CalendarItemModel.find(query)
-          .populate('assignedConsultantId', 'name email')
-          .sort({ regulatoryDueDate: 1 })
-          .lean();
-      }
-    }
+    // Do not seed/reset persistent data from a read or login request.
 
     const items = rawItems as unknown as (ICalendarItemDocument & { _id: { toString(): string } })[];
 
@@ -365,9 +369,17 @@ export async function GET(request: NextRequest) {
       },
     ];
 
+    const visibleCalendarItems =
+      session.role === 'CLIENT'
+        ? demoCalendarItems.filter((item) =>
+            session.authorizedFacilityIds?.includes(item.facilityId)
+          )
+        : demoCalendarItems;
+
     return NextResponse.json({
       success: true,
-      data: demoCalendarItems,
+      source: 'development-fallback',
+      data: visibleCalendarItems,
     });
   }
 }

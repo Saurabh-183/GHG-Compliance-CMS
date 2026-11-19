@@ -47,6 +47,7 @@ function preferWorkflowStatus(
   return rankNext >= rankCurrent ? next : current;
 }
 
+
 /**
  * Generates Statutory Compliance Applicability records for any facility.
  * Mapped to availability in the corporate Google Drive compliance repository:

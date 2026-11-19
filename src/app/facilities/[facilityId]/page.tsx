@@ -94,6 +94,7 @@ export default function FacilityDashboardPage() {
   const [rawApplicability, setRawApplicability] = useState<IComplianceApplicability[]>([]);
   const [driveFiles, setDriveFiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isDriveModalOpen, setIsDriveModalOpen] = useState(false);
 
@@ -107,24 +108,63 @@ export default function FacilityDashboardPage() {
   });
 
   const loadMatrix = async () => {
+    setLoading(true);
+    setLoadError(null);
+
     try {
       const [res, driveRes, datasetRes, filesRes] = await Promise.all([
-        fetch(`/api/facilities/${facilityId}/compliance-matrix`).catch(() => null),
-        fetch(`/api/drive/connect?facilityId=${facilityId}`).catch(() => null),
-        fetch(`/api/datasets?facilityId=${facilityId}`).catch(() => null),
-        fetch(`/api/drive/files?facilityId=${facilityId}`).catch(() => null),
+        fetch(`/api/facilities/${encodeURIComponent(facilityId)}/compliance-matrix`, {
+          cache: 'no-store',
+        }).catch(() => null),
+        fetch(`/api/drive/connect?facilityId=${encodeURIComponent(facilityId)}`, {
+          cache: 'no-store',
+        }).catch(() => null),
+        fetch(`/api/datasets?facilityId=${encodeURIComponent(facilityId)}`, {
+          cache: 'no-store',
+        }).catch(() => null),
+        fetch(`/api/drive/files?facilityId=${encodeURIComponent(facilityId)}`, {
+          cache: 'no-store',
+        }).catch(() => null),
       ]);
 
-      if (res && res.ok) {
-        const json = (await res.json()) as {
-          data: IFacilityComplianceMatrix & { rawApplicability: IComplianceApplicability[] };
-        };
-        setMatrixData(json.data);
-        setRawApplicability(json.data.rawApplicability || []);
+      if (!res) {
+        throw new Error('Could not reach the facility compliance API. Check that the development server is running.');
       }
 
-      // Check drive connection status
-      if (driveRes && driveRes.ok) {
+      if (!res.ok) {
+        let message = `Facility API request failed (${res.status}).`;
+
+        try {
+          const errorBody = await res.json();
+          if (typeof errorBody?.error === 'string') {
+            message = errorBody.error;
+          } else if (typeof errorBody?.message === 'string') {
+            message = errorBody.message;
+          }
+        } catch {
+          // Keep the HTTP status message when the response is not JSON.
+        }
+
+        throw new Error(message);
+      }
+
+      const json = (await res.json()) as {
+        success?: boolean;
+        error?: string;
+        data?: IFacilityComplianceMatrix & {
+          rawApplicability?: IComplianceApplicability[];
+        };
+      };
+
+      if (!json.data?.facility) {
+        throw new Error(json.error || 'The API response did not include facility data.');
+      }
+
+      setMatrixData(json.data);
+      setRawApplicability(json.data.rawApplicability || []);
+
+      // Check Drive connection status.
+      if (driveRes?.ok) {
         const driveJson = await driveRes.json();
         if (driveJson.data) {
           setStats((prev) => ({
@@ -136,16 +176,29 @@ export default function FacilityDashboardPage() {
         }
       }
 
-      // Dynamic calculation from synced Drive dataset
-      if (datasetRes && datasetRes.ok) {
+      // Calculate the data completion and matching percentages from the synced dataset.
+      if (datasetRes?.ok) {
         const dJson = await datasetRes.json();
         const ds = dJson.data?.[0];
-        if (ds && ds.months && ds.months.length > 0) {
-          const declared = ds.months.filter((m: any) => m.declaredValue > 0).length;
+
+        if (ds?.months?.length) {
+          const declared = ds.months.filter(
+            (month: any) => Number(month.declaredValue) > 0
+          ).length;
           const givenPct = Math.round((declared / 12) * 100);
-          const evaluated = ds.months.filter((m: any) => m.evidenceValue !== null && m.declaredValue > 0);
-          const matched = evaluated.filter((m: any) => m.result === 'MATCHED').length;
-          const matchedPct = evaluated.length > 0 ? Number(((matched / evaluated.length) * 100).toFixed(1)) : 100;
+
+          const evaluated = ds.months.filter(
+            (month: any) =>
+              month.evidenceValue !== null && Number(month.declaredValue) > 0
+          );
+          const matched = evaluated.filter(
+            (month: any) => month.result === 'MATCHED'
+          ).length;
+          const matchedPct =
+            evaluated.length > 0
+              ? Number(((matched / evaluated.length) * 100).toFixed(1))
+              : 100;
+
           setStats((prev) => ({
             ...prev,
             dataGivenPercentage: givenPct,
@@ -154,15 +207,21 @@ export default function FacilityDashboardPage() {
         }
       }
 
-      // Load Drive evidence files
-      if (filesRes && filesRes.ok) {
+      // Load Drive evidence files.
+      if (filesRes?.ok) {
         const fJson = await filesRes.json();
-        if (fJson.data?.files) {
+        if (Array.isArray(fJson.data?.files)) {
           setDriveFiles(fJson.data.files);
         }
       }
-    } catch (e) {
-      console.error('Error fetching compliance matrix and Drive files:', e);
+    } catch (error) {
+      console.error('Error loading facility dashboard:', error);
+      setMatrixData(null);
+      setLoadError(
+        error instanceof Error
+          ? error.message
+          : 'An unexpected error occurred while loading this facility.'
+      );
     } finally {
       setLoading(false);
     }
@@ -179,10 +238,32 @@ export default function FacilityDashboardPage() {
   if (!matrixData) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-16 text-center">
-        <h2 className="text-lg font-bold text-slate-900 dark:text-white">Facility Not Found</h2>
-        <Link href="/clients" className="mt-4 inline-block text-emerald-600 dark:text-emerald-400 hover:underline text-xs">
-          Return to Clients
-        </Link>
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+          {loadError?.toLowerCase().includes('not found')
+            ? 'Facility Not Found'
+            : 'Unable to Load Facility'}
+        </h2>
+
+        <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
+          {loadError || 'The facility data could not be loaded.'}
+        </p>
+
+        <div className="mt-5 flex items-center justify-center gap-4">
+          <button
+            type="button"
+            onClick={loadMatrix}
+            className="rounded-md bg-emerald-700 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-800"
+          >
+            Try Again
+          </button>
+
+          <Link
+            href="/clients"
+            className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline"
+          >
+            Return to Clients
+          </Link>
+        </div>
       </div>
     );
   }
