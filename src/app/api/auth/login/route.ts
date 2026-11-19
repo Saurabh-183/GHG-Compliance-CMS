@@ -113,7 +113,12 @@ export async function POST(request: NextRequest) {
       return response;
     }
 
-    // 3. Resilient Demo Fallback (enables instant preview and testing on Vercel even before MONGODB_URI is configured)
+    // Demo identities are strictly development-only. Production must authenticate a real MongoDB user.
+    if (process.env.NODE_ENV === 'production' && process.env.ENABLE_DEMO_AUTH !== 'true') {
+      return NextResponse.json({ error: 'Demo login is disabled. Configure MongoDB users and authenticate with email and password.' }, { status: 503 });
+    }
+
+    // 3. Resilient Demo Fallback (development only unless explicitly enabled)
     const targetEmail = email
       ? email.toLowerCase()
       : role === 'ADMIN'
@@ -171,7 +176,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
   } catch (error) {
-    console.warn('Login exception encountered, activating emergency fallback session:', error);
+    console.error('Login failed:', error);
+    if (process.env.NODE_ENV === 'production' && process.env.ENABLE_DEMO_AUTH !== 'true') {
+      return NextResponse.json({ error: 'Authentication service unavailable. Check database configuration.' }, { status: 503 });
+    }
     const fallback = DEMO_FALLBACK_ACCOUNTS['consultant@carboncrunch.com'];
     const payload = {
       userId: `USR_${fallback.role}_DEMO`,
