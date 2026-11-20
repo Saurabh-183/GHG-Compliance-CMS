@@ -8,9 +8,23 @@ import { getSessionFromRequest, isAuthorizedForFacility, authorizeRole } from '@
 import { generateClarificationEmailDraft } from '@/lib/utils';
 
 export async function GET(request: NextRequest) {
+  const session = getSessionFromRequest(request);
+  if (!session) {
+    return NextResponse.json(
+      { success: false, error: 'Authentication required.' },
+      { status: 401 }
+    );
+  }
+
+  if (session.role === 'CLIENT' && !session.authorizedFacilityIds?.length) {
+    return NextResponse.json(
+      { success: false, error: 'No facilities are assigned to your account.' },
+      { status: 403 }
+    );
+  }
+
   try {
     await connectToDatabase();
-    const session = getSessionFromRequest(request);
     const searchParams = request.nextUrl.searchParams;
     const facilityId = searchParams.get('facilityId');
     const status = searchParams.get('status');
@@ -33,17 +47,7 @@ export async function GET(request: NextRequest) {
       .sort({ createdAt: -1 })
       .lean();
 
-    if (rawClarifications.length === 0 && !facilityId) {
-      const totalCount = await ClarificationModel.countDocuments();
-      if (totalCount === 0) {
-        const { seedDatabase } = await import('@/lib/seedData');
-        await seedDatabase();
-        rawClarifications = await ClarificationModel.find(query)
-          .populate('raisedBy', 'name email designation')
-          .sort({ createdAt: -1 })
-          .lean();
-      }
-    }
+    // Do not seed/reset persistent data from a read or login request.
 
     const clarifications = rawClarifications as unknown as (IClarificationDocument & { _id: { toString(): string } })[];
 
@@ -83,9 +87,17 @@ export async function GET(request: NextRequest) {
       },
     ];
 
+    const visibleClarifications =
+      session.role === 'CLIENT'
+        ? demoClarifications.filter((item) =>
+            session.authorizedFacilityIds?.includes(item.facilityId)
+          )
+        : demoClarifications;
+
     return NextResponse.json({
       success: true,
-      data: demoClarifications,
+      source: 'development-fallback',
+      data: visibleClarifications,
     });
   }
 }

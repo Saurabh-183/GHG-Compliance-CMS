@@ -37,6 +37,7 @@ function periodsAlign(a: string, b: string): boolean {
   return matrixA !== undefined && matrixA === matrixB;
 }
 
+
 function preferWorkflowStatus(
   current: WorkflowStatus,
   next: WorkflowStatus
@@ -46,6 +47,7 @@ function preferWorkflowStatus(
 
   return rankNext >= rankCurrent ? next : current;
 }
+
 
 /**
  * Generates Statutory Compliance Applicability records for any facility.

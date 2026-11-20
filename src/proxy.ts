@@ -28,6 +28,12 @@ function decodeJwtPayload(token: string): JWTPayload | null {
 }
 
 export function proxy(request: NextRequest) {
+  // Local development is intentionally accessible without the login screen.
+  // API-level authorization receives a local ADMIN session from lib/auth.ts.
+  if (process.env.NODE_ENV === 'development') {
+    return NextResponse.next();
+  }
+
   const { pathname } = request.nextUrl;
 
   // Public paths that do not require authentication
