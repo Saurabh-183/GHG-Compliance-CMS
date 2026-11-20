@@ -165,10 +165,10 @@ Per the PRD specification, Carbon Crunch does not store raw files on internal di
    ```env
    MONGODB_URI=mongodb://127.0.0.1:27017/carbon_crunch_compliance
    JWT_SECRET=carbon_crunch_jwt_secret_token_mvp_2026_secure
-   PORT=3000
+   PORT=3001
    ```
 3. **Install Dependencies**: `npm install`
-4. **Run Development Server**: `npm run dev` (Access at `http://localhost:3000`)
+4. **Run Development Server**: `npm run dev` (Access at `http://localhost:3001`)
 5. **Run Production Build Validation**: `npm run build`
 6. **Reset / Re-Seed Database**: Click **"Reset Demo"** in top header or issue `POST /api/seed`.
 
