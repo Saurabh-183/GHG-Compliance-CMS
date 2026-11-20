@@ -51,12 +51,28 @@ export async function PATCH(
     const evidenceUrl = link.vaultUrl || link.url;
 
     if (body.action === 'reject') {
+      if (!body.verificationNotes?.trim()) {
+        return NextResponse.json({ error: 'Add a clear reason or missing-item note before returning this submission.' }, { status: 400 });
+      }
       link.mappingStatus = 'REJECTED';
-      link.verificationNotes = body.verificationNotes || 'Rejected by reviewer';
+      link.verificationNotes = body.verificationNotes.trim();
       link.mappedBy = verifierName;
       link.mappedAt = new Date();
       requirement.verificationStatus = 'CLARIFICATION_REQUIRED';
+      requirement.workflowStatus = 'CHANGES_REQUESTED';
+      requirement.reviewNote = link.verificationNotes;
+      requirement.reviewedByName = verifierName;
+      requirement.reviewedAt = new Date();
       await requirement.save();
+      try {
+        const { Notification } = await import('@/models/Notification');
+        await Notification.create({
+          recipientRole: 'CLIENT', senderRole: session!.role, senderName: verifierName,
+          type: 'DATA_CHECKLIST_SHARED', title: 'Action required on submitted evidence',
+          message: `${verifierName} returned “${requirement.title}”. Reason: ${link.verificationNotes}`,
+          facilityId: requirement.facilityId, linkUrl: '/portal/requests', isRead: false,
+        });
+      } catch (notificationError) { console.warn('Client review notification failed:', notificationError); }
       return NextResponse.json({ success: true, message: 'Document rejected', data: requirement });
     }
 
@@ -101,6 +117,10 @@ export async function PATCH(
       requirement.datasetId = dataset._id;
       requirement.verificationStatus =
         body.action === 'verify' ? 'AWAITING_APPROVAL' : 'UNDER_REVIEW';
+      requirement.workflowStatus = body.action === 'verify' ? 'UNDER_REVIEW' : 'UNDER_REVIEW';
+      requirement.reviewNote = body.verificationNotes?.trim() || (body.action === 'verify' ? 'Evidence verified and sent for approval.' : 'Evidence mapped to the verification record.');
+      requirement.reviewedByName = verifierName;
+      requirement.reviewedAt = new Date();
 
       await requirement.save();
 
@@ -120,6 +140,10 @@ export async function PATCH(
       link.mappedAt = new Date();
       link.verificationNotes = body.verificationNotes;
       requirement.verificationStatus = 'AWAITING_APPROVAL';
+      requirement.workflowStatus = 'UNDER_REVIEW';
+      requirement.reviewNote = body.verificationNotes?.trim() || 'Evidence verified and sent for approval.';
+      requirement.reviewedByName = verifierName;
+      requirement.reviewedAt = new Date();
       await requirement.save();
       return NextResponse.json({ success: true, message: 'Document marked verified', data: requirement });
     }

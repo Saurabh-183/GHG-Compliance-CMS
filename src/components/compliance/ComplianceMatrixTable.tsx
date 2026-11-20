@@ -53,7 +53,7 @@ const isBeforeFoundingYear = (period: string) => {
             Facility Compliance Matrix — Multi-Year Status
           </h3>
           <p className="text-xs    dark:text-white mt-0.5">
-            Click any matrix cell to open the detailed compliance assessment, evidence records, and calculation workbooks.
+            Click a matrix cell to open the assessment, evidence records, and calculation workbooks. Client data requests and review feedback are tracked separately against each facility.
           </p>
         </div>
         <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 ">

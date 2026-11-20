@@ -42,6 +42,79 @@ export type VerificationStatus =
   | 'APPROVED'
   | 'REJECTED';
 
+export type RequestWorkflowStatus =
+  | 'DRAFT'
+  | 'REQUESTED'
+  | 'IN_PROGRESS'
+  | 'SUBMITTED'
+  | 'UNDER_REVIEW'
+  | 'CHANGES_REQUESTED'
+  | 'RESUBMITTED'
+  | 'ACCEPTED'
+  | 'REJECTED'
+  | 'CLOSED';
+
+export type RequestFieldType =
+  | 'TEXT'
+  | 'NUMBER'
+  | 'DECIMAL'
+  | 'DATE'
+  | 'SELECT'
+  | 'RADIO'
+  | 'CHECKBOX'
+  | 'MONTHLY_TABLE'
+  | 'LONG_TEXT'
+  | 'URL'
+  | 'YES_NO'
+  | 'FILE_UPLOAD';
+
+export type ReportingFrequency =
+  | 'ONE_TIME'
+  | 'MONTHLY'
+  | 'QUARTERLY'
+  | 'HALF_YEARLY'
+  | 'ANNUAL'
+  | 'CUSTOM';
+
+export interface IRequestField {
+  key: string;
+  label: string;
+  type: RequestFieldType;
+  required: boolean;
+  options?: string[];
+  unit?: string;
+  helpText?: string;
+  placeholder?: string;
+  defaultValue?: string | number | boolean;
+  validationMin?: number;
+  validationMax?: number;
+}
+
+export interface IRequestDocumentSpec {
+  name: string;
+  description?: string;
+  required: boolean;
+  acceptedFileTypes?: string[];
+  sampleUrl?: string;
+}
+
+export type RequestFieldReviewStatus = 'PENDING' | 'VERIFIED' | 'MISSING' | 'INCORRECT' | 'CLARIFICATION_REQUIRED';
+
+export interface IRequestFieldReview {
+  fieldKey: string;
+  status: RequestFieldReviewStatus;
+  comment?: string;
+  reviewedBy?: string;
+  reviewedAt?: string | Date;
+}
+
+export interface IRequestHistoryEntry {
+  status: RequestWorkflowStatus;
+  changedAt: string | Date;
+  changedBy: string;
+  comment?: string;
+}
+
 export type ReconciliationResult = 'MATCHED' | 'MISMATCH' | 'EVIDENCE_MISSING';
 
 export interface IClientGroup {
@@ -211,12 +284,53 @@ export interface ISubmittedDriveLink {
 
 export interface IDataRequirement {
   _id: string;
+  requestId?: string;
   facilityId: string;
   period: string;
   title: string;
   category: 'COMMON_ENERGY' | 'COMPLIANCE_SPECIFIC';
   linkedCompliances: ComplianceType[];
   description: string;
+  purpose?: string;
+  dataCategory?: string;
+  brsrSection?: string;
+  brsrPrinciple?: string;
+  brsrPrinciples?: string[];
+  templateId?: string;
+  reportingFrequency?: ReportingFrequency;
+  reportingPeriodStart?: string;
+  reportingPeriodEnd?: string;
+  requiredDocumentSpecs?: IRequestDocumentSpec[];
+  submissionFormat?: string;
+  allowPartialSubmission?: boolean;
+  assignedClientContact?: string;
+  clientDraftData?: {
+    structuredData?: Record<string, unknown>;
+    comment?: string;
+    updatedAt?: string;
+    updatedBy?: string;
+  };
+  latestStructuredData?: Record<string, unknown>;
+  requestedByName?: string;
+  facilityName?: string;
+  facilityLocation?: string;
+  clientGroupName?: string;
+  priority?: 'LOW' | 'MEDIUM' | 'HIGH';
+  requiredFields?: IRequestField[];
+  requiredDocuments?: string[];
+  submissionInstructions?: string;
+  workflowStatus?: RequestWorkflowStatus;
+  fieldReviews?: IRequestFieldReview[];
+  history?: IRequestHistoryEntry[];
+  submissionVersion?: number;
+  submissionHistory?: Array<{
+    version: number;
+    submittedAt: string;
+    submittedBy: string;
+    comment?: string;
+    driveLinkIndexes: number[];
+    structuredData?: Record<string, unknown>;
+  }>;
   isApplicable: boolean;
   submissionStatus: SubmissionStatus;
   verificationStatus: VerificationStatus;
@@ -225,6 +339,9 @@ export interface IDataRequirement {
   submittedDriveLinks: ISubmittedDriveLink[];
   utilityConnection?: { providerName: string; connectionType: string; subDivision: string; circle: string; consumerAccountNumber: string; consumerName: string; meterNumber: string; contractDemand: string };
   datasetId?: string;
+  reviewNote?: string;
+  reviewedByName?: string;
+  reviewedAt?: string;
   createdAt: string;
   updatedAt: string;
   monthlyFrequency?: boolean;

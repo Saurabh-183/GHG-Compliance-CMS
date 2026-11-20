@@ -101,6 +101,16 @@ export const Navbar: React.FC = () => {
       currentRole === 'CONSULTANT'
     ) {
       items.push({
+        label: 'Data Requests',
+        href: '/data-requests',
+        icon: FileSpreadsheet,
+      });
+      items.push({
+        label: 'Data Review',
+        href: '/data-review',
+        icon: CheckCircle2,
+      });
+      items.push({
         label: 'Client Uploads',
         href: '/client-uploads',
         icon: FolderInput,

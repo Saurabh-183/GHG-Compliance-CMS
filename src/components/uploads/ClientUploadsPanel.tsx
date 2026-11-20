@@ -45,6 +45,7 @@ export const ClientUploadsPanel: React.FC<ClientUploadsPanelProps> = ({
   const [selectedDatasetId, setSelectedDatasetId] = useState('');
   const [selectedMonth, setSelectedMonth] = useState('');
   const [notes, setNotes] = useState('');
+  const [fieldReviews, setFieldReviews] = useState<Array<{ fieldKey: string; status: string; comment?: string }>>([]);
   const [saving, setSaving] = useState(false);
   const [previewDoc, setPreviewDoc] = useState<ClientUploadListItem | null>(null);
   const [vaultRootUrl, setVaultRootUrl] = useState('https://drive.google.com/drive/shared-with-me');
@@ -89,6 +90,11 @@ export const ClientUploadsPanel: React.FC<ClientUploadsPanelProps> = ({
     setSelectedDatasetId(item.mappedDatasetId || '');
     setSelectedMonth(item.mappedMonth || '');
     setNotes(item.verificationNotes || '');
+    setFieldReviews((item.requiredFields || []).map((field) => ({
+      fieldKey: field.key,
+      status: item.fieldReviews?.find((review) => review.fieldKey === field.key)?.status || 'PENDING',
+      comment: item.fieldReviews?.find((review) => review.fieldKey === field.key)?.comment || '',
+    })));
     try {
       const res = await fetch(`/api/datasets?facilityId=${encodeURIComponent(item.facilityId)}`);
       if (res.ok) {
@@ -101,6 +107,22 @@ export const ClientUploadsPanel: React.FC<ClientUploadsPanelProps> = ({
     } catch {
       setDatasets([]);
     }
+  };
+
+  const saveFieldReview = async () => {
+    if (!mappingItem || fieldReviews.length === 0) return;
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/requirements/${mappingItem.requirementId}/review`, {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fieldReviews, comment: notes, action: fieldReviews.some((review) => ['MISSING', 'INCORRECT', 'CLARIFICATION_REQUIRED'].includes(review.status)) ? 'REQUEST_CHANGES' : 'START_REVIEW' }),
+      });
+      if (!res.ok) throw new Error('Could not save field review');
+      notify.success('Field-level review saved and client status updated.');
+      setMappingItem(null);
+      await loadUploads();
+    } catch (error) { notify.error(error instanceof Error ? error.message : 'Could not save field review'); }
+    finally { setSaving(false); }
   };
 
   const selectedDataset = datasets.find((d) => d._id === selectedDatasetId);
@@ -449,6 +471,21 @@ export const ClientUploadsPanel: React.FC<ClientUploadsPanelProps> = ({
               />
             </label>
 
+            {fieldReviews.length > 0 && (
+              <div className="rounded-lg border border-slate-200 dark:border-slate-700 p-3 space-y-2">
+                <div className="text-[11px] font-bold text-slate-800 dark:text-slate-200">Field-level review</div>
+                {fieldReviews.map((review) => {
+                  const field = mappingItem.requiredFields?.find((item) => item.key === review.fieldKey);
+                  return <div key={review.fieldKey} className="grid grid-cols-1 sm:grid-cols-[1fr_150px] gap-2 items-center">
+                    <span className="text-[11px] text-slate-700 dark:text-slate-300">{field?.label || review.fieldKey}</span>
+                    <select value={review.status} onChange={(event) => setFieldReviews((current) => current.map((item) => item.fieldKey === review.fieldKey ? { ...item, status: event.target.value } : item))} className="text-xs rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-2 py-1.5 text-slate-900 dark:text-white">
+                      <option value="PENDING">Pending</option><option value="VERIFIED">Verified</option><option value="MISSING">Missing</option><option value="INCORRECT">Incorrect</option><option value="CLARIFICATION_REQUIRED">Clarification</option>
+                    </select>
+                  </div>;
+                })}
+              </div>
+            )}
+
             <div className="flex flex-wrap gap-2 justify-end pt-2">
               <button
                 type="button"
@@ -457,6 +494,7 @@ export const ClientUploadsPanel: React.FC<ClientUploadsPanelProps> = ({
               >
                 Cancel
               </button>
+              {fieldReviews.length > 0 && <button type="button" disabled={saving} onClick={() => void saveFieldReview()} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-indigo-700 text-white text-xs font-bold hover:bg-indigo-800"><CheckCircle2 className="w-3.5 h-3.5" /> Save field review</button>}
               <button
                 type="button"
                 disabled={saving}
