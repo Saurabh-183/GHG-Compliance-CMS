@@ -345,7 +345,7 @@ export default function AssessmentDataPage() {
         >
           {error}
         </div>
-      </section>
+      )}
 
       {success && (
         <div
