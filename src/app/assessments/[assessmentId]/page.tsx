@@ -19,6 +19,7 @@ import { formatDate } from '@/lib/utils';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import { FacilityDataChecklistPanel } from '@/components/checklist/FacilityDataChecklistPanel';
 import { DEFAULT_CHECKLIST_PERIOD } from '@/lib/facilityDataChecklistTemplate';
+import { RegulatoryMetricsPanel } from '@/components/regulatory/RegulatoryMetricsPanel';
 
 export default function AssessmentDetailPage() {
   const params = useParams();
@@ -325,6 +326,16 @@ export default function AssessmentDetailPage() {
           </table>
         </div>
       </div>
+
+      {/* Framework-specific regulatory data collection and approval */}
+      {(['RCO', 'PAT', 'CCTS'] as string[]).includes(assessment.complianceType) && (
+        <RegulatoryMetricsPanel
+          assessmentId={assessment._id}
+          framework={assessment.complianceType as 'RCO' | 'PAT' | 'CCTS'}
+          period={assessment.period}
+          facilityId={assessment.facilityId}
+        />
+      )}
 
       {/* Linked Primary Google Drive Evidence & Reports */}
       <div className="rounded-md border border-slate-800 bg-slate-900/60 p-6 shadow-xl space-y-4">

@@ -68,6 +68,7 @@ export const Navbar: React.FC = () => {
     if (isClientPortal) {
       return [
         { label: 'Client Overview', href: '/portal', icon: Layers },
+        { label: 'Regulatory Forms', href: '/portal/regulatory', icon: FileSpreadsheet },
         {
           label: 'Trident Paper',
           href: '/portal/facilities/TRIDENT_PAPER',
