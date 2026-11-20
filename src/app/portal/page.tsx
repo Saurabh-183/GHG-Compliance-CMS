@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { StatusBadge } from '@/components/common/StatusBadge';
@@ -23,6 +23,7 @@ import { formatDate } from '@/lib/utils';
 import { GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
 import { IFacility, IDataRequirement, IClarification } from '@/types';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
+import { ClientRequirementSubmissionModal } from '@/components/portal/ClientRequirementSubmissionModal';
 
 export default function ClientPortalDashboard() {
   const { currentUser, currentRole } = useAuth();
@@ -43,33 +44,35 @@ export default function ClientPortalDashboard() {
   const [loading, setLoading] = useState(true);
   const [isExcelModalOpen, setIsExcelModalOpen] = useState(false);
   const [isDriveModalOpen, setIsDriveModalOpen] = useState(false);
+  const [submissionReq, setSubmissionReq] = useState<IDataRequirement | null>(null);
+
+  const loadPortal = useCallback(async () => {
+    try {
+      const [res, filesRes] = await Promise.all([
+        fetch('/api/portal/dashboard').catch(() => null),
+        fetch('/api/drive/files').catch(() => null),
+      ]);
+
+      if (res && res.ok) {
+        const json = (await res.json()) as { data: typeof data };
+        setData(json.data);
+      }
+      if (filesRes && filesRes.ok) {
+        const fJson = await filesRes.json();
+        if (fJson.data?.files) {
+          setDriveFiles(fJson.data.files);
+        }
+      }
+    } catch (e) {
+      console.error('Error fetching portal dashboard:', e);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    async function loadPortal() {
-      try {
-        const [res, filesRes] = await Promise.all([
-          fetch('/api/portal/dashboard').catch(() => null),
-          fetch('/api/drive/files').catch(() => null),
-        ]);
-
-        if (res && res.ok) {
-          const json = (await res.json()) as { data: typeof data };
-          setData(json.data);
-        }
-        if (filesRes && filesRes.ok) {
-          const fJson = await filesRes.json();
-          if (fJson.data?.files) {
-            setDriveFiles(fJson.data.files);
-          }
-        }
-      } catch (e) {
-        console.error('Error fetching portal dashboard:', e);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadPortal();
-  }, []);
+    void loadPortal();
+  }, [loadPortal]);
 
   if (loading) {
     return <CarbonCrunchLoader message="Loading Client Compliance Portal..." />;
@@ -276,7 +279,7 @@ export default function ClientPortalDashboard() {
             href="/portal/requests"
             className="text-xs text-emerald-700 dark:text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-300 font-semibold flex items-center gap-1"
           >
-            <span>View All ({pendingRequests.length})</span>
+            <span>View All</span>
             <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
@@ -315,13 +318,14 @@ export default function ClientPortalDashboard() {
                     <StatusBadge status={req.submissionStatus} type="submission" size="sm" />
                   </td>
                   <td className="py-3 px-4 text-center">
-                    <Link
-                      href="/portal/requests"
+                    <button
+                      type="button"
+                      onClick={() => setSubmissionReq(req)}
                       className="inline-flex items-center gap-1 px-3 py-1 rounded bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-[11px] transition-colors"
                     >
                       <Folder className="w-3 h-3" />
                       <span>Attach Drive URL</span>
-                    </Link>
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -466,6 +470,12 @@ export default function ClientPortalDashboard() {
         isOpen={isExcelModalOpen}
         onClose={() => setIsExcelModalOpen(false)}
         facilityId={primaryFacilityId}
+      />
+
+      <ClientRequirementSubmissionModal
+        requirement={submissionReq}
+        onClose={() => setSubmissionReq(null)}
+        onSubmitted={loadPortal}
       />
     </div>
   );

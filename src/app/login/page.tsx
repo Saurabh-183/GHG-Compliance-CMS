@@ -229,10 +229,10 @@ export default function LoginPage() {
                 className="flex flex-col items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-2 text-center text-xs font-medium text-slate-900 dark:text-white transition-colors hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-50"
               >
                 <span className="font-bold text-amber-600 dark:text-amber-400">
-                  Client Portal
+                  Client A
                 </span>
                 <span className="text-[10px] text-slate-500 dark:text-slate-400">
-                  Trident Group
+                  Vikram · Trident Group
                 </span>
               </button>
 

@@ -55,6 +55,10 @@ export async function POST(
     if (dataset.dataRequirementId) {
       await DataRequirementModel.findByIdAndUpdate(dataset.dataRequirementId, {
         verificationStatus: 'APPROVED',
+        workflowStatus: 'ACCEPTED',
+        reviewedByName: reviewerName,
+        reviewedAt: new Date(),
+        $push: { history: { status: 'ACCEPTED', changedAt: new Date(), changedBy: reviewerName, comment: 'Dataset accepted by reviewer.' } },
       });
     }
 

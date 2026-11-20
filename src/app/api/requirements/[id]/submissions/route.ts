@@ -30,10 +30,26 @@ export async function POST(
     }
 
     const body = (await request.json()) as {
-      url: string; description?: string; reportingMonth?: string;
+      url?: string; description?: string; reportingMonth?: string; draft?: boolean;
       utilityConnection?: { providerName: string; connectionType: string; subDivision: string; circle: string; consumerAccountNumber: string; consumerName: string; meterNumber: string; contractDemand: string };
       billDetails?: { invoiceNumber: string; billingFrom: string; billingTo: string; consumptionKwh: number; billAmount: number };
+      structuredData?: Record<string, unknown>;
+      comment?: string;
     };
+
+    if (body.draft) {
+      requirement.clientDraftData = {
+        structuredData: body.structuredData || {},
+        comment: body.comment?.trim(),
+        updatedAt: new Date(),
+        updatedBy: session?.name || 'Client User',
+      };
+      if (['REQUESTED', 'CHANGES_REQUESTED', 'IN_PROGRESS'].includes(requirement.workflowStatus || 'REQUESTED')) {
+        requirement.workflowStatus = 'IN_PROGRESS';
+      }
+      await requirement.save();
+      return NextResponse.json({ success: true, message: 'Draft saved. You can submit when ready.', data: requirement });
+    }
 
     if (!body.url || !/^https:\/\/(drive\.google\.com|docs\.google\.com)\//i.test(body.url.trim())) {
       return NextResponse.json({ error: 'A valid Google Drive URL is required' }, { status: 400 });
@@ -115,11 +131,28 @@ export async function POST(
         : {}),
     };
     requirement.submittedDriveLinks.push(storedLink);
+    const submissionVersion = (requirement.submissionVersion || 0) + 1;
+    requirement.submissionVersion = submissionVersion;
+    requirement.submissionHistory = requirement.submissionHistory || [];
+    requirement.submissionHistory.push({
+      version: submissionVersion,
+      submittedAt: new Date(),
+      submittedBy: submitterName,
+      comment: body.comment?.trim(),
+      driveLinkIndexes: [requirement.submittedDriveLinks.length - 1],
+      structuredData: body.structuredData,
+    });
 
     const submittedMonths = new Set(requirement.submittedDriveLinks.map((entry) => entry.mappedMonth).filter(Boolean));
     const allMonthsReceived = !requirement.monthlyFrequency || (requirement.reportingMonths || []).every((month) => submittedMonths.has(month));
     requirement.submissionStatus = allMonthsReceived ? 'RECEIVED' : 'PARTIALLY_RECEIVED';
     requirement.verificationStatus = 'UNDER_REVIEW';
+    requirement.workflowStatus = submissionVersion > 1 ? 'RESUBMITTED' : 'SUBMITTED';
+    requirement.history = requirement.history || [];
+    requirement.history.push({ status: requirement.workflowStatus, changedAt: new Date(), changedBy: submitterName, comment: body.comment?.trim() });
+    requirement.reviewNote = undefined;
+    requirement.reviewedByName = undefined;
+    requirement.reviewedAt = undefined;
 
     await requirement.save();
 

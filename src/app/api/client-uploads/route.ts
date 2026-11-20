@@ -30,6 +30,9 @@ export interface ClientUploadListItem {
   verificationNotes?: string;
   verificationStatus: string;
   submissionStatus: string;
+  requestId?: string;
+  requiredFields?: Array<{ key: string; label: string; type: string; required: boolean }>;
+  fieldReviews?: Array<{ fieldKey: string; status: string; comment?: string }>;
 }
 
 export async function GET(request: NextRequest) {
@@ -86,6 +89,9 @@ export async function GET(request: NextRequest) {
           verificationNotes: link.verificationNotes,
           verificationStatus: req.verificationStatus,
           submissionStatus: req.submissionStatus,
+          requestId: req.requestId,
+          requiredFields: req.requiredFields,
+          fieldReviews: req.fieldReviews,
         });
       });
     }
@@ -125,6 +131,9 @@ export async function GET(request: NextRequest) {
           verificationNotes: link.verificationNotes,
           verificationStatus: req.verificationStatus,
           submissionStatus: req.submissionStatus,
+          requestId: req.requestId,
+          requiredFields: req.requiredFields,
+          fieldReviews: req.fieldReviews,
         });
       });
     }
