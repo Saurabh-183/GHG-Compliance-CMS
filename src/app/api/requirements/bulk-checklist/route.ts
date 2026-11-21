@@ -70,7 +70,14 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  if (blocked.length > 0 && !body.saveAsDraft) {
+    if (!body.saveAsDraft && !body.dueDate?.trim()) {
+      return NextResponse.json({ error: 'Client submission due date is required when sending data requests.' }, { status: 400 });
+    }
+    if (body.dueDate && Number.isNaN(Date.parse(body.dueDate))) {
+      return NextResponse.json({ error: 'Invalid due date.' }, { status: 400 });
+    }
+
+    if (blocked.length > 0 && !body.saveAsDraft) {
     return NextResponse.json(
       {
         error:

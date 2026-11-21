@@ -19,6 +19,8 @@ export interface ICalendarItemDocument extends Document {
     revisedAt: Date;
   }>;
   isRecurringCEA: boolean;
+  /** Links extension log to a specific consultant data request (one row per request). */
+  dataRequirementId?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -55,6 +57,7 @@ const CalendarItemSchema = new Schema<ICalendarItemDocument>(
     actualSubmissionDate: { type: Date, default: null },
     extensionHistory: [ExtensionHistorySchema],
     isRecurringCEA: { type: Boolean, default: false },
+    dataRequirementId: { type: Schema.Types.ObjectId, ref: 'DataRequirement', index: true },
   },
   { timestamps: true }
 );

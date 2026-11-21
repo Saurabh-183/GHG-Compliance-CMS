@@ -1,8 +1,14 @@
 import type { IDataRequirement, ISubmittedDriveLink } from '@/types';
+import { isDataRequestPastDue } from '@/lib/dataRequestDueDate';
 
 export type ClientPortalPrimaryAction = 'view' | 'resubmit' | 'submit';
 
 export function clientPortalPrimaryAction(req: IDataRequirement): ClientPortalPrimaryAction {
+  if (isDataRequestPastDue(req.dueDate)) {
+    const status = req.workflowStatus || 'REQUESTED';
+    if (['ACCEPTED', 'CLOSED', 'APPROVED'].includes(status)) return 'view';
+    return 'view';
+  }
   const status = req.workflowStatus || 'REQUESTED';
   if (['CHANGES_REQUESTED', 'REJECTED', 'CLARIFICATION_REQUIRED'].includes(status)) {
     return 'resubmit';
@@ -26,6 +32,12 @@ export function clientPortalPrimaryAction(req: IDataRequirement): ClientPortalPr
 }
 
 export function clientPortalPrimaryLabel(req: IDataRequirement): string {
+  if (isDataRequestPastDue(req.dueDate)) {
+    const status = req.workflowStatus || 'REQUESTED';
+    if (['ACCEPTED', 'CLOSED', 'APPROVED'].includes(status)) return 'View';
+    if ((req.submittedDriveLinks?.length ?? 0) > 0) return 'View';
+    return 'Due passed';
+  }
   const action = clientPortalPrimaryAction(req);
   if (action === 'view') return 'View';
   if (action === 'resubmit') return 'Resubmit';
@@ -33,6 +45,7 @@ export function clientPortalPrimaryLabel(req: IDataRequirement): string {
 }
 
 export function isClientSubmissionReadOnly(req: IDataRequirement): boolean {
+  if (isDataRequestPastDue(req.dueDate)) return true;
   return clientPortalPrimaryAction(req) === 'view';
 }
 

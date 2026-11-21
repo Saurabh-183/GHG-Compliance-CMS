@@ -119,6 +119,10 @@ export function ChecklistDrivenRequestWizard({
       notify.error('Select at least one applicable requirement.');
       return;
     }
+    if (!saveAsDraft && !dueDate.trim()) {
+      notify.error('Client submission due date is required.');
+      return;
+    }
     setSubmitting(true);
     try {
       const res = await fetch('/api/requirements/bulk-checklist', {
@@ -198,8 +202,16 @@ export function ChecklistDrivenRequestWizard({
           />
         </label>
         <label className="text-xs">
-          <span className="mb-1 block font-semibold text-slate-600">Due date</span>
-          <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="w-full rounded-lg border px-2 py-1.5" />
+          <span className="mb-1 block font-semibold text-slate-600">
+            Client due date <span className="text-rose-600">*</span>
+          </span>
+          <input
+            type="date"
+            required
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+            className="w-full rounded-lg border px-2 py-1.5"
+          />
         </label>
       </div>
 

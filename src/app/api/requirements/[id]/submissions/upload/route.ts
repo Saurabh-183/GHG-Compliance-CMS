@@ -10,6 +10,7 @@ import {
   VaultPlacementError,
 } from '@/lib/driveVaultServer';
 import { upsertClientSubmissionLink } from '@/lib/clientSubmissionLinkUpsert';
+import { assertClientCanSubmitRequirement } from '@/lib/dataRequestDueDate';
 
 const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
 
@@ -33,6 +34,15 @@ export async function POST(
 
     if (!isAuthorizedForFacility(session, requirement.facilityId)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    try {
+      assertClientCanSubmitRequirement(requirement.dueDate);
+    } catch (err) {
+      return NextResponse.json(
+        { error: err instanceof Error ? err.message : 'Submission window closed.' },
+        { status: 403 }
+      );
     }
 
     const form = await request.formData();

@@ -43,6 +43,10 @@ export function validateRequirementCreatePayload(body: RequirementCreatePayload)
     }
   }
 
+  if (!body.saveAsDraft && !body.dueDate?.trim()) {
+    return 'Client submission due date is required when sending a data request.';
+  }
+
   if (body.dueDate) {
     const due = new Date(body.dueDate);
     if (Number.isNaN(due.getTime())) return 'Invalid due date.';

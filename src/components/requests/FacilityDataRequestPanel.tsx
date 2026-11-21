@@ -315,6 +315,10 @@ export function FacilityDataRequestPanel({
       notify.error('Select at least one linked framework.');
       return false;
     }
+    if (!dueDate.trim()) {
+      notify.error('Client submission due date is required.');
+      return false;
+    }
     return true;
   };
 
@@ -410,7 +414,7 @@ export function FacilityDataRequestPanel({
         <FormSection
           step={1}
           title="Request details"
-          subtitle="Pick organization → facility → checklist requirement"
+          subtitle="Organization, facility, FY, checklist — and client submission due date"
           open={!!openSections[1]}
           onToggle={() => toggleSection(1)}
         >
@@ -545,6 +549,21 @@ export function FacilityDataRequestPanel({
                 <option value="HIGH">High</option>
               </select>
             </label>
+            <label className="space-y-1">
+              <span className="font-bold text-slate-600 dark:text-slate-400 uppercase text-[10px]">
+                Client submission due date <span className="text-rose-600">*</span>
+              </span>
+              <input
+                type="date"
+                required
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                className="w-full rounded-lg border border-emerald-200 px-3 py-2.5 dark:border-emerald-900 dark:bg-slate-950"
+              />
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                Appears on client Data Requests and the compliance calendar. Extend from the calendar if the client needs more time.
+              </p>
+            </label>
           </div>
         </FormSection>
 
@@ -654,7 +673,7 @@ export function FacilityDataRequestPanel({
           </div>
         </FormSection>
 
-        <FormSection step={5} title="Assignment & delivery" subtitle="Due date, partial submission, preview" open={!!openSections[5]} onToggle={() => toggleSection(5)}>
+        <FormSection step={5} title="Assignment & delivery" subtitle="Consultant assignment, client contact, notifications" open={!!openSections[5]} onToggle={() => toggleSection(5)}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
             <label className="space-y-1">
               <span className="font-bold uppercase text-[10px] text-slate-500">Assigned consultant</span>
@@ -664,10 +683,19 @@ export function FacilityDataRequestPanel({
               <span className="font-bold uppercase text-[10px] text-slate-500">Client contact (optional)</span>
               <input value={clientContact} onChange={(e) => setClientContact(e.target.value)} placeholder="Name or email" className="w-full rounded-lg border px-3 py-2 dark:bg-slate-950" />
             </label>
-            <label className="space-y-1">
-              <span className="font-bold uppercase text-[10px] text-slate-500">Submission due date</span>
-              <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="w-full rounded-lg border px-3 py-2 dark:bg-slate-950" />
-            </label>
+            {dueDate ? (
+              <p className="md:col-span-2 text-[11px] text-emerald-800 dark:text-emerald-300 rounded-lg border border-emerald-200 dark:border-emerald-900 bg-emerald-50/60 dark:bg-emerald-950/30 px-3 py-2">
+                Client due date:{' '}
+                <strong className="font-mono">
+                  {new Date(`${dueDate}T12:00:00`).toLocaleDateString('en-IN', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                  })}
+                </strong>{' '}
+                (edit in Request details above)
+              </p>
+            ) : null}
             <label className="flex items-center gap-2 pt-6">
               <input type="checkbox" checked={allowPartialSubmission} onChange={(e) => setAllowPartialSubmission(e.target.checked)} className="accent-emerald-700" />
               Allow partial submission (e.g. month-by-month)

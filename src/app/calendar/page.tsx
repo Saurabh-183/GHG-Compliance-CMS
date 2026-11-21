@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect, useState, useMemo } from 'react';
-import { ICalendarItem, IClientGroup, IFacility } from '@/types';
+import { ComplianceType, ICalendarItem, IClientGroup, IFacility } from '@/types';
+import type { CalendarViewRow } from '@/lib/complianceCalendarView';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import {
   Calendar as CalendarIcon,
@@ -20,11 +21,6 @@ import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import { notify } from '@/lib/notify';
 import { MOCK_CLIENT_GROUPS } from '@/lib/mockFallback';
 import { CompanySelectMui } from '@/components/dashboard/CompanySelectMui';
-import {
-  generateDeadlinesForFacilities,
-  generateAllClientDeadlines,
-} from '@/lib/statutoryCalendar';
-
 export default function ComplianceCalendarPage() {
   const [items, setItems] = useState<ICalendarItem[]>([]);
   const [groups, setGroups] = useState<IClientGroup[]>([]);
@@ -41,13 +37,21 @@ export default function ComplianceCalendarPage() {
   const loadData = async () => {
     try {
       const [calRes, groupsRes] = await Promise.all([
-        fetch('/api/calendar').catch(() => null),
-        fetch('/api/client-groups').catch(() => null),
+        fetch('/api/calendar', { credentials: 'include', cache: 'no-store' }).catch(() => null),
+        fetch('/api/client-groups', { credentials: 'include', cache: 'no-store' }).catch(() => null),
       ]);
 
       if (calRes && calRes.ok) {
-        const json = (await calRes.json()) as { data: ICalendarItem[] };
-        setItems(json.data || []);
+        const json = (await calRes.json()) as { success?: boolean; data?: ICalendarItem[] };
+        if (json.success !== false) {
+          setItems(json.data || []);
+        } else {
+          notify.error('Could not load calendar from server');
+          setItems([]);
+        }
+      } else if (calRes) {
+        notify.error('Could not load compliance calendar');
+        setItems([]);
       }
 
       if (groupsRes && groupsRes.ok) {
@@ -94,6 +98,7 @@ export default function ComplianceCalendarPage() {
       const res = await fetch('/api/calendar', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           itemId: extendingItem._id,
           newDate: newDueDate,
@@ -102,7 +107,7 @@ export default function ComplianceCalendarPage() {
         }),
       });
       if (res.ok) {
-        notify.success(`Statutory deadline extended to ${newDueDate}`);
+        notify.success(`Due date updated — synced to data requests and client portal`);
         setExtendingItem(null);
         setNewDueDate('');
         setExtensionReason('');
@@ -139,48 +144,27 @@ export default function ComplianceCalendarPage() {
     return allFacilities.filter((f) => f.clientGroupId === selectedGroup._id);
   }, [selectedGroup, allFacilities]);
 
-  // Derive calendar items for the selected company or across all client groups
   const companyItems: ICalendarItem[] = useMemo(() => {
-    if (selectedGroup) {
-      // 1. Try finding DB items matching current facilities
-      const matchingDb = items.filter((item) =>
-        currentFacilities.some(
-          (f) =>
-            f.facilityId.toUpperCase() === item.facilityId.toUpperCase() ||
-            (item.facilityName &&
-              (f.name.toLowerCase().includes(item.facilityName.toLowerCase()) ||
-                item.facilityName.toLowerCase().includes(f.name.toLowerCase())))
-        )
-      );
-
-      if (matchingDb.length > 0) {
-        return matchingDb;
-      }
-
-      // 2. Generate comprehensive statutory deadlines for this company's facilities
-      return generateDeadlinesForFacilities(currentFacilities, { fullCoverage: true });
-    }
-
-    // When "ALL" is selected:
-    // If DB has items covering multiple facilities, use them
-    const uniqueFacilitiesInDb = new Set(items.map((i) => i.facilityId.toUpperCase()));
-    if (uniqueFacilitiesInDb.size > 2) {
-      return items;
-    }
-
-    // Otherwise, generate master multi-company statutory calendar
-    return generateAllClientDeadlines(activeGroups);
-  }, [selectedGroup, currentFacilities, items, activeGroups]);
+    if (!selectedGroup) return items;
+    const facilityIds = new Set(currentFacilities.map((f) => f.facilityId.toUpperCase()));
+    return items.filter((item) => facilityIds.has(item.facilityId.toUpperCase()));
+  }, [selectedGroup, currentFacilities, items]);
 
   // Apply compliance framework filter ('ALL', 'RCO', 'PAT', 'CCTS', 'CEA') and text search
   const filteredItems = useMemo(() => {
     return companyItems.filter((item) => {
-      const matchesFilter = filter === 'ALL' || item.complianceType === filter;
+      const row = item as CalendarViewRow;
+      const frameworks =
+        row.linkedFrameworks?.length ? row.linkedFrameworks : ([item.complianceType] as ComplianceType[]);
+      const matchesFilter = filter === 'ALL' || frameworks.includes(filter as ComplianceType);
+      const titleNeedle = row.requestTitle?.toLowerCase() || '';
       const matchesSearch =
         !searchQuery ||
         (item.facilityName && item.facilityName.toLowerCase().includes(searchQuery.toLowerCase())) ||
         (item.facilityId && item.facilityId.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (item.reportingPeriod && item.reportingPeriod.toLowerCase().includes(searchQuery.toLowerCase()));
+        (item.reportingPeriod && item.reportingPeriod.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        titleNeedle.includes(searchQuery.toLowerCase()) ||
+        (row.requestCode && row.requestCode.toLowerCase().includes(searchQuery.toLowerCase()));
       return matchesFilter && matchesSearch;
     });
   }, [companyItems, filter, searchQuery]);
@@ -199,7 +183,7 @@ export default function ComplianceCalendarPage() {
             Centralized Statutory Compliance Calendar
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Tracking statutory due dates, internal review milestones, client submission cut-offs, and CEA recurring returns.
+            One row per consultant data request with a due date (financial year = reporting period). Extend updates the same request for clients.
             {selectedGroup && (
               <span className="ml-2 inline-flex items-center gap-1 font-semibold text-emerald-700 dark:text-emerald-400">
                 · Company View: <strong>{selectedGroup.name}</strong> ({currentFacilities.length} Operating Units)
@@ -296,7 +280,10 @@ export default function ComplianceCalendarPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-800/70 text-xs">
-              {filteredItems.map((item) => (
+              {filteredItems.map((item) => {
+                const row = item as CalendarViewRow;
+                const extraFrameworks = (row.linkedFrameworks || []).filter((c) => c !== item.complianceType);
+                return (
                 <tr key={item._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                   <td className="py-3.5 px-4">
                     <div className="font-semibold text-slate-900 dark:text-white">{item.facilityName}</div>
@@ -306,23 +293,39 @@ export default function ComplianceCalendarPage() {
                     <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-slate-100 text-emerald-800 border border-slate-300 dark:bg-slate-800 dark:text-emerald-400 dark:border-slate-700">
                       {item.complianceType}
                     </span>
+                    {extraFrameworks.map((c) => (
+                      <span
+                        key={c}
+                        className="ml-1 px-1.5 py-0.5 rounded text-[10px] bg-slate-50 text-slate-600 border border-slate-200 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-700"
+                      >
+                        {c}
+                      </span>
+                    ))}
                     {item.isRecurringCEA && (
                       <span className="ml-2 px-1.5 py-0.5 rounded text-[10px] bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700">
                         Monthly Recurring
                       </span>
                     )}
                   </td>
-                  <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300 font-mono">
-                    {item.reportingPeriod}
+                  <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300">
+                    <div className="font-mono text-xs">{item.reportingPeriod}</div>
+                    {row.requestTitle && (
+                      <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2" title={row.requestTitle}>
+                        {row.requestCode ? `${row.requestCode} · ` : ''}
+                        {row.requestTitle}
+                      </div>
+                    )}
                   </td>
                   <td className="py-3.5 px-4 text-slate-500 dark:text-slate-400 font-mono">
-                    {formatDate(item.clientDataSubmissionDeadline)}
+                    {row.hasDueDate ? formatDate(item.clientDataSubmissionDeadline) : '—'}
                   </td>
                   <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300 font-mono">
-                    {formatDate(item.internalDeadline)}
+                    {row.hasDueDate ? formatDate(item.internalDeadline) : '—'}
                   </td>
                   <td className="py-3.5 px-4 text-emerald-700 dark:text-emerald-400 font-mono font-semibold">
-                    {formatDate(item.regulatoryDueDate)}
+                    {row.hasDueDate ? formatDate(item.regulatoryDueDate) : (
+                      <span className="text-rose-600 dark:text-rose-400 text-[11px] font-sans">Set due date</span>
+                    )}
                     {item.extensionHistory && item.extensionHistory.length > 0 && (
                       <div className="text-[10px] text-amber-600 dark:text-amber-400 flex items-center gap-1 mt-0.5">
                         <History className="w-3 h-3" />
@@ -331,21 +334,31 @@ export default function ComplianceCalendarPage() {
                     )}
                   </td>
                   <td className="py-3.5 px-4 text-center">
-                    <StatusBadge status={item.status} size="sm" />
+                    <StatusBadge
+                      status={row.requestWorkflowStatus || row.requestSubmissionStatus || 'REQUESTED'}
+                      type="verification"
+                      size="sm"
+                    />
                   </td>
                   <td className="py-3.5 px-4 text-center">
                     <button
+                      type="button"
                       onClick={() => {
                         setExtendingItem(item);
-                        setNewDueDate(item.regulatoryDueDate.split('T')[0]);
+                        setNewDueDate(
+                          row.hasDueDate && item.regulatoryDueDate
+                            ? item.regulatoryDueDate.split('T')[0]
+                            : ''
+                        );
                       }}
                       className="px-2.5 py-1 text-[11px] rounded bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 dark:border-transparent transition-colors shadow-2xs font-medium"
                     >
-                      Extend
+                      {row.hasDueDate ? 'Extend due date' : 'Set due date'}
                     </button>
                   </td>
                 </tr>
-              ))}
+              );
+              })}
               {filteredItems.length === 0 && (
                 <tr>
                   <td colSpan={8} className="py-12 text-center text-xs text-slate-500 dark:text-slate-400 ">
