@@ -10,17 +10,9 @@ import {
   RefreshCw,
   Send,
 } from 'lucide-react';
+import type { RequestStats } from '@/lib/requestStats';
 
-export type RequestStats = {
-  total?: number;
-  pendingSubmission?: number;
-  inProgress?: number;
-  submitted?: number;
-  underReview?: number;
-  changesRequested?: number;
-  accepted?: number;
-  overdue?: number;
-};
+export type { RequestStats } from '@/lib/requestStats';
 
 type StatKey = 'all' | 'pendingSubmission' | 'submitted' | 'underReview' | 'changesRequested' | 'accepted' | 'overdue';
 

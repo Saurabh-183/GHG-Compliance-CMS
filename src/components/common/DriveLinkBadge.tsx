@@ -13,6 +13,8 @@ interface DriveLinkBadgeProps {
   billDetails?: { invoiceNumber: string; billingFrom: string; billingTo: string; consumptionKwh: number; billAmount: number };
   utilityConnectionSnapshot?: { providerName: string; connectionType: string; subDivision: string; circle: string; consumerAccountNumber: string; consumerName: string; meterNumber: string; contractDemand: string };
   facilityId?: string;
+  /** When set, opens parent-provided preview instead of the legacy electricity bill modal */
+  onOpenPreview?: () => void;
 }
 
 export const DriveLinkBadge: React.FC<DriveLinkBadgeProps> = ({
@@ -24,8 +26,10 @@ export const DriveLinkBadge: React.FC<DriveLinkBadgeProps> = ({
   billDetails,
   utilityConnectionSnapshot,
   facilityId,
+  onOpenPreview,
 }) => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const useLegacyBillModal = !onOpenPreview;
 
   if (!url) {
     return (
@@ -39,7 +43,7 @@ export const DriveLinkBadge: React.FC<DriveLinkBadgeProps> = ({
     <>
       <button
         type="button"
-        onClick={() => setIsPreviewOpen(true)}
+        onClick={() => (onOpenPreview ? onOpenPreview() : setIsPreviewOpen(true))}
         className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 hover:text-emerald-900 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/60 dark:hover:bg-emerald-900/60 dark:hover:text-emerald-200 transition-colors shadow-2xs group text-left cursor-pointer ${className}`}
         title={`Preview evidence document: ${label}`}
       >
@@ -52,17 +56,19 @@ export const DriveLinkBadge: React.FC<DriveLinkBadgeProps> = ({
         <Eye className="w-3 h-3 text-emerald-700/70 group-hover:text-emerald-800 dark:text-emerald-400/70 dark:group-hover:text-emerald-300 transition-transform group-hover:scale-110" />
       </button>
 
-      {/* In-app Document Preview Modal */}
-      <EvidenceDocumentModal
-        isOpen={isPreviewOpen}
-        onClose={() => setIsPreviewOpen(false)}
-        url={url}
-        label={label}
-        month={month}
-        billDetails={billDetails}
-        utilityConnectionSnapshot={utilityConnectionSnapshot}
-        facilityId={facilityId}
-      />
+      {useLegacyBillModal && (
+        <EvidenceDocumentModal
+          isOpen={isPreviewOpen}
+          onClose={() => setIsPreviewOpen(false)}
+          url={url}
+          label={label}
+          month={month}
+          billDetails={billDetails}
+          utilityConnectionSnapshot={utilityConnectionSnapshot}
+          facilityId={facilityId}
+          useIndustrialPreview={!billDetails && !utilityConnectionSnapshot}
+        />
+      )}
     </>
   );
 };

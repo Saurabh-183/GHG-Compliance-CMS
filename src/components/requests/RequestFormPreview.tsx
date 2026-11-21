@@ -58,7 +58,7 @@ export function RequestFormPreview({
           {documents.map((d) => (
             <li key={d.name}>
               {d.name}
-              {d.required ? ' (mandatory)' : ' (optional)'} — {d.acceptedFileTypes?.join(', ') || 'Any'}
+              {d.required ? ' (mandatory)' : ' (optional)'} — Google Drive · .xlsx
             </li>
           ))}
         </ul>

@@ -13,16 +13,23 @@ import { Factory, ChevronDown, Check } from 'lucide-react';
 import { IFacility } from '@/types';
 import { useAuth } from '@/context/AuthContext';
 
+const ALL_FACILITIES_VALUE = '__ALL_FACILITIES__';
+
 interface FacilitySelectMuiProps {
   facilities: IFacility[];
   selectedFacilityId: string;
   onFacilityChange: (facilityId: string) => void;
+  /** When true, adds “All operating units” for org-scoped lists */
+  allowAll?: boolean;
+  allValue?: string;
 }
 
 export const FacilitySelectMui: React.FC<FacilitySelectMuiProps> = ({
   facilities,
   selectedFacilityId,
   onFacilityChange,
+  allowAll = false,
+  allValue = ALL_FACILITIES_VALUE,
 }) => {
   const { theme } = useAuth();
   const isDark = theme === 'dark';
@@ -49,6 +56,34 @@ export const FacilitySelectMui: React.FC<FacilitySelectMuiProps> = ({
           />
         )}
         renderValue={() => {
+          if (allowAll && selectedFacilityId === allValue) {
+            return (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, minWidth: 0 }}>
+                <Factory
+                  className="w-4 h-4 shrink-0"
+                  style={{ color: isDark ? '#34D399' : '#059669' }}
+                />
+                <Box sx={{ display: 'flex', flexDirection: 'column', textAlign: 'left', minWidth: 0 }}>
+                  <Typography
+                    sx={{
+                      fontSize: '9px',
+                      textTransform: 'uppercase',
+                      fontWeight: 800,
+                      letterSpacing: '0.06em',
+                      color: isDark ? '#34D399' : '#059669',
+                      lineHeight: 1,
+                    }}
+                  >
+                    Facility scope
+                  </Typography>
+                  <Typography sx={{ fontSize: '12px', fontWeight: 700, lineHeight: 1.3 }}>
+                    All operating units ({facilities.length})
+                  </Typography>
+                </Box>
+              </Box>
+            );
+          }
+
           if (!selectedFacility) {
             return (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -137,6 +172,26 @@ export const FacilitySelectMui: React.FC<FacilitySelectMuiProps> = ({
           },
         }}
       >
+        {allowAll && (
+          <MenuItem
+            value={allValue}
+            sx={{
+              borderRadius: '6px',
+              my: 0.25,
+              py: 0.75,
+              px: 1.25,
+              fontWeight: selectedFacilityId === allValue ? 700 : 500,
+              backgroundColor:
+                selectedFacilityId === allValue
+                  ? isDark
+                    ? '#064E3B'
+                    : '#ECFDF5'
+                  : 'transparent',
+            }}
+          >
+            <Typography sx={{ fontSize: '12px' }}>All operating units ({facilities.length})</Typography>
+          </MenuItem>
+        )}
         {facilities.map((f) => {
           const isSelected = selectedFacilityId === f.facilityId;
           return (

@@ -5,7 +5,12 @@ import { FacilityModel } from '@/models/Facility';
 import { ClientGroupModel } from '@/models/ClientGroup';
 import { getSessionFromRequest, isAuthorizedForFacility } from '@/lib/auth';
 import { parseGoogleDriveUrl } from '@/lib/driveVaultShared';
-import { ingestClientDriveLink, isDriveVaultSyncConfigured } from '@/lib/driveVaultServer';
+import {
+  ingestClientDriveLink,
+  isDriveVaultSyncConfigured,
+  VaultPlacementError,
+} from '@/lib/driveVaultServer';
+import { upsertClientSubmissionLink } from '@/lib/clientSubmissionLinkUpsert';
 
 export async function POST(
   request: NextRequest,
@@ -94,15 +99,23 @@ export async function POST(
       clientGroupName = group?.name;
     }
 
-    const vaultEntry = await ingestClientDriveLink({
-      sourceUrl: body.url.trim(),
-      description: body.description || 'Supporting documentation via Client Portal',
-      submittedBy: submitterName,
-      requirement,
-      clientGroupCode,
-      clientGroupName,
-      facilityName: facility?.name,
-    });
+    let vaultEntry;
+    try {
+      vaultEntry = await ingestClientDriveLink({
+        sourceUrl: body.url.trim(),
+        description: body.description || 'Supporting documentation via Client Portal',
+        submittedBy: submitterName,
+        requirement,
+        clientGroupCode,
+        clientGroupName,
+        facilityName: facility?.name,
+      });
+    } catch (err) {
+      if (err instanceof VaultPlacementError) {
+        return NextResponse.json({ error: err.message }, { status: 502 });
+      }
+      throw err;
+    }
 
     if (parsed.resourceType === 'folder' && parsed.resourceId) {
       const { pickPrimarySpreadsheetInFolder } = await import('@/lib/spreadsheetFetchServer');
@@ -130,7 +143,13 @@ export async function POST(
           }
         : {}),
     };
-    requirement.submittedDriveLinks.push(storedLink);
+
+    const { linkIndex, replaced } = upsertClientSubmissionLink(
+      requirement,
+      storedLink,
+      body.reportingMonth
+    );
+
     const submissionVersion = (requirement.submissionVersion || 0) + 1;
     requirement.submissionVersion = submissionVersion;
     requirement.submissionHistory = requirement.submissionHistory || [];
@@ -139,9 +158,23 @@ export async function POST(
       submittedAt: new Date(),
       submittedBy: submitterName,
       comment: body.comment?.trim(),
-      driveLinkIndexes: [requirement.submittedDriveLinks.length - 1],
+      driveLinkIndexes: [linkIndex],
       structuredData: body.structuredData,
     });
+
+    if (replaced) {
+      requirement.fieldReviews = (requirement.fieldReviews || []).map((review) => ({
+        ...review,
+        status: 'PENDING' as const,
+        comment: undefined,
+        reviewedAt: undefined,
+        reviewedBy: undefined,
+      }));
+    }
+
+    if (body.structuredData && typeof body.structuredData === 'object') {
+      requirement.latestStructuredData = body.structuredData;
+    }
 
     const submittedMonths = new Set(requirement.submittedDriveLinks.map((entry) => entry.mappedMonth).filter(Boolean));
     const allMonthsReceived = !requirement.monthlyFrequency || (requirement.reportingMonths || []).every((month) => submittedMonths.has(month));
@@ -190,11 +223,15 @@ export async function POST(
 
     return NextResponse.json({
       success: true,
-      message: uploadedToVault
-        ? 'Document copied into the shared compliance Drive vault with folder structure.'
-        : isDriveVaultSyncConfigured()
-          ? 'Vault sync attempted; link indexed. Check Drive API permissions if the file is missing.'
-          : 'Document indexed in vault path (enable service account in .env for automatic Drive upload).',
+      message: replaced
+        ? uploadedToVault
+          ? 'Previous evidence replaced with your new document in the compliance vault.'
+          : 'Previous evidence link replaced with your new submission.'
+        : uploadedToVault
+          ? 'Document copied into the shared compliance Drive vault with folder structure.'
+          : isDriveVaultSyncConfigured()
+            ? 'Vault sync attempted; link indexed. Check Drive API permissions if the file is missing.'
+            : 'Document indexed in vault path (enable service account in .env for automatic Drive upload).',
       data: requirement,
       vault: {
         folderPath: vaultEntry.vaultFolderPath,

@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { connectToDatabase } from '@/lib/db';
 import { UserModel, IUserDocument } from '@/models/User';
 import { signToken, getSessionFromRequest } from '@/lib/auth';
+import { findUserForSession } from '@/lib/resolveSessionUser';
 import { UserRole } from '@/types';
 
 // Fallback demo accounts for instant access when MONGODB_URI is not yet configured in Vercel
@@ -217,7 +218,7 @@ export async function GET(request: NextRequest) {
 
   try {
     await connectToDatabase();
-    const user = (await UserModel.findById(session.userId)) as IUserDocument | null;
+    const user = (await findUserForSession(session)) as IUserDocument | null;
 
     if (user) {
       return NextResponse.json({

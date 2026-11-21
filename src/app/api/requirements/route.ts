@@ -150,15 +150,12 @@ export async function POST(request: NextRequest) {
       purpose?: string;
       dataCategory?: string;
       templateId?: string;
-      brsrSection?: string;
-      brsrPrinciple?: string;
       priority?: 'LOW' | 'MEDIUM' | 'HIGH';
       requiredFields?: Array<{ key: string; label: string; type: RequestFieldType; required?: boolean; options?: string[]; unit?: string; helpText?: string }>;
       requiredDocuments?: string[];
       submissionInstructions?: string;
       saveAsDraft?: boolean;
       templateIds?: string[];
-      brsrPrinciples?: string[];
       reportingFrequency?: ReportingFrequency;
       reportingPeriodStart?: string;
       reportingPeriodEnd?: string;
@@ -272,8 +269,6 @@ export async function POST(request: NextRequest) {
         submissionInstructions: body.submissionInstructions || body.description.trim(),
         requiredDocuments: [...new Set(docNames)],
         requiredDocumentSpecs: body.requiredDocumentSpecs,
-        brsrPrinciples: body.brsrPrinciples,
-        brsrPrinciple: body.brsrPrinciples?.join(', ') || body.brsrPrinciple,
         reportingFrequency,
         monthlyFrequency,
         requestedBy: session!.userId,

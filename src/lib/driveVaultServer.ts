@@ -1,21 +1,33 @@
 import 'server-only';
 
-import { GOOGLE_DRIVE_FOLDER_ID } from '@/lib/gdrive';
+import { GOOGLE_DRIVE_FOLDER_ID, GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
 import {
   buildVaultIngestResult,
+  inferVaultCategory,
+  buildVaultFolderPath,
   parseGoogleDriveUrl,
   type VaultIngestInput,
   type VaultIngestResult,
 } from '@/lib/driveVaultShared';
+import { createDriveWriteClient, isDriveServiceAccountConfigured } from '@/lib/driveVaultAuth';
+import { saveLocalVaultUpload } from '@/lib/localVaultUpload';
+
+export { isDriveServiceAccountConfigured as isDriveVaultSyncConfigured };
+
+export class VaultPlacementError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'VaultPlacementError';
+  }
+}
 
 type DriveV3 = import('googleapis').drive_v3.Drive;
 
-export function isDriveVaultSyncConfigured(): boolean {
-  if (process.env.GDRIVE_ENABLE_API_COPY === 'false') return false;
-  return Boolean(
-    process.env.GDRIVE_SERVICE_ACCOUNT_CLIENT_EMAIL &&
-      process.env.GDRIVE_SERVICE_ACCOUNT_PRIVATE_KEY
-  );
+export interface VaultPlacementResult {
+  vaultUrl: string;
+  vaultFolderUrl: string;
+  vaultTargetFolderId: string;
+  vaultFileId: string;
 }
 
 export async function ingestClientDriveLink(input: VaultIngestInput): Promise<VaultIngestResult> {
@@ -37,22 +49,108 @@ export async function ingestClientDriveLink(input: VaultIngestInput): Promise<Va
     });
   }
 
-  return buildVaultIngestResult(input);
+  if (isDriveServiceAccountConfigured()) {
+    throw new VaultPlacementError(
+      'Could not save this document into the compliance vault folder. Share the vault folder ' +
+        `( ${GOOGLE_DRIVE_FOLDER_URL} ) and the client's file with the service account email from .env, ` +
+        'or use direct file upload in the portal.'
+    );
+  }
+
+  return buildVaultIngestResult(input, {
+    vaultFolderUrl: GOOGLE_DRIVE_FOLDER_URL,
+    vaultTargetFolderId: GOOGLE_DRIVE_FOLDER_ID,
+    ingestionMode: 'VAULT_INDEXED',
+  });
 }
 
-interface VaultSyncResult {
-  vaultUrl: string;
-  vaultFolderUrl: string;
-  vaultTargetFolderId: string;
-  vaultFileId: string;
+/** Upload bytes from the client portal into the vault folder tree. */
+export async function uploadBytesToComplianceVault(args: {
+  vaultFolderPath: string;
+  fileName: string;
+  mimeType: string;
+  buffer: Buffer;
+}): Promise<VaultPlacementResult> {
+  const drive = await createDriveWriteClient();
+  if (!drive) {
+    const allowLocal =
+      process.env.NODE_ENV !== 'production' ||
+      process.env.GDRIVE_ENABLE_LOCAL_VAULT_FALLBACK === 'true';
+    if (allowLocal && !isDriveServiceAccountConfigured()) {
+      return saveLocalVaultUpload(args);
+    }
+    throw new VaultPlacementError(
+      'Automatic vault upload is not configured. Add GDRIVE_SERVICE_ACCOUNT_* to .env and share the vault folder with that account, or paste a Google Drive link instead of using direct upload.'
+    );
+  }
+
+  const rootFolderId = process.env.GDRIVE_FOLDER_ID || GOOGLE_DRIVE_FOLDER_ID;
+  const sharedDriveId = process.env.GDRIVE_SHARED_DRIVE_ID;
+  const targetFolderId = await ensureFolderPath(drive, rootFolderId, args.vaultFolderPath, sharedDriveId);
+  const targetFolderUrl = `https://drive.google.com/drive/folders/${targetFolderId}`;
+
+  const { Readable } = await import('stream');
+  const createRes = await drive.files.create({
+    requestBody: {
+      name: args.fileName,
+      parents: [targetFolderId],
+    },
+    media: {
+      mimeType: args.mimeType || 'application/octet-stream',
+      body: Readable.from(args.buffer),
+    },
+    fields: 'id',
+    supportsAllDrives: true,
+  });
+
+  const vaultFileId = createRes.data.id;
+  if (!vaultFileId) {
+    throw new VaultPlacementError('Drive API did not return a file id after upload.');
+  }
+
+  return {
+    vaultUrl: `https://drive.google.com/file/d/${vaultFileId}/view`,
+    vaultFolderUrl: targetFolderUrl,
+    vaultTargetFolderId: targetFolderId,
+    vaultFileId,
+  };
+}
+
+export function buildVaultContextFromRequirement(
+  requirement: VaultIngestInput['requirement'],
+  clientGroupCode?: string,
+  clientGroupName?: string,
+  facilityName?: string,
+  description?: string
+): { vaultFolderPath: string; fileName: string; vaultCategory: ReturnType<typeof inferVaultCategory> } {
+  const vaultCategory = inferVaultCategory(requirement, description || '');
+  const vaultFolderPath = buildVaultFolderPath(
+    {
+      sourceUrl: '',
+      description: description || '',
+      submittedBy: '',
+      requirement,
+      clientGroupCode,
+      clientGroupName,
+      facilityName,
+    },
+    vaultCategory
+  );
+  const stamp = new Date().toISOString().slice(0, 10);
+  const slug = requirement.title
+    .replace(/[^a-zA-Z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .slice(0, 48);
+  const fileName = `${stamp}_${slug}_upload`;
+  return { vaultFolderPath, fileName, vaultCategory };
 }
 
 async function syncToComplianceVault(args: {
   sourceUrl: string;
   vaultFolderPath: string;
   fileName: string;
-}): Promise<VaultSyncResult | null> {
-  if (!isDriveVaultSyncConfigured()) {
+}): Promise<VaultPlacementResult | null> {
+  if (!isDriveServiceAccountConfigured()) {
     return null;
   }
 
@@ -61,20 +159,13 @@ async function syncToComplianceVault(args: {
     return null;
   }
 
-  const clientEmail = process.env.GDRIVE_SERVICE_ACCOUNT_CLIENT_EMAIL!;
-  const privateKey = process.env.GDRIVE_SERVICE_ACCOUNT_PRIVATE_KEY!.replace(/\\n/g, '\n');
+  const drive = await createDriveWriteClient();
+  if (!drive) return null;
+
   const rootFolderId = process.env.GDRIVE_FOLDER_ID || GOOGLE_DRIVE_FOLDER_ID;
   const sharedDriveId = process.env.GDRIVE_SHARED_DRIVE_ID;
 
   try {
-    const { google } = await import('googleapis');
-    const auth = new google.auth.JWT({
-      email: clientEmail,
-      key: privateKey,
-      scopes: ['https://www.googleapis.com/auth/drive'],
-    });
-    const drive = google.drive({ version: 'v3', auth });
-
     const targetFolderId = await ensureFolderPath(drive, rootFolderId, args.vaultFolderPath, sharedDriveId);
     const targetFolderUrl = `https://drive.google.com/drive/folders/${targetFolderId}`;
 
@@ -150,8 +241,7 @@ async function findOrCreateFolder(
     pageSize: 1,
     supportsAllDrives: true,
     includeItemsFromAllDrives: true,
-    corpora: sharedDriveId ? 'drive' : 'allDrives',
-    driveId: sharedDriveId,
+    ...(sharedDriveId ? { corpora: 'drive' as const, driveId: sharedDriveId } : {}),
   });
 
   const existing = listRes.data.files?.[0];
@@ -194,7 +284,45 @@ async function copyOrShortcutFile(
       return copyRes.data.id;
     }
   } catch (copyErr) {
-    console.warn('Drive copy failed, trying shortcut:', copyErr);
+    console.warn('Drive copy failed, trying export or shortcut:', copyErr);
+  }
+
+  try {
+    const meta = await drive.files.get({
+      fileId: args.sourceFileId,
+      fields: 'mimeType, name',
+      supportsAllDrives: true,
+    });
+    const mime = meta.data.mimeType || '';
+
+    if (mime.startsWith('application/vnd.google-apps.')) {
+      const exportMime =
+        mime === 'application/vnd.google-apps.spreadsheet'
+          ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+          : mime === 'application/vnd.google-apps.document'
+            ? 'application/pdf'
+            : 'application/pdf';
+      const exportRes = await drive.files.export(
+        { fileId: args.sourceFileId, mimeType: exportMime },
+        { responseType: 'arraybuffer' }
+      );
+      const buffer = Buffer.from(exportRes.data as ArrayBuffer);
+      const ext =
+        exportMime === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ? '.xlsx' : '.pdf';
+      const { Readable } = await import('stream');
+      const uploadRes = await drive.files.create({
+        requestBody: {
+          name: `${args.fileName}${ext}`,
+          parents: [args.parentFolderId],
+        },
+        media: { mimeType: exportMime, body: Readable.from(buffer) },
+        fields: 'id',
+        supportsAllDrives: true,
+      });
+      if (uploadRes.data.id) return uploadRes.data.id;
+    }
+  } catch (exportErr) {
+    console.warn('Drive export upload failed:', exportErr);
   }
 
   const meta = await drive.files.get({

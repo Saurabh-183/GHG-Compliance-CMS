@@ -29,7 +29,47 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
       ? 'px-2 py-0.5 text-xs whitespace-nowrap shrink-0'
       : 'px-2.5 py-1 text-xs font-medium whitespace-nowrap shrink-0';
 
-  // Workflow Status styling
+  // Client submission status (data request collection)
+  if (type === 'submission') {
+    switch (status) {
+      case 'RECEIVED':
+        return (
+          <span className={`inline-flex items-center rounded-full border cc-badge-success ${sizeClasses}`}>
+            <span className="w-1.5 h-1.5 rounded-full mr-1.5 cc-dot"></span>
+            Received
+          </span>
+        );
+      case 'PARTIALLY_RECEIVED':
+        return (
+          <span className={`inline-flex items-center rounded-full border cc-badge-warning ${sizeClasses}`}>
+            <span className="w-1.5 h-1.5 rounded-full mr-1.5 cc-dot"></span>
+            Partially Received
+          </span>
+        );
+      case 'REQUESTED':
+        return (
+          <span className={`inline-flex items-center rounded-full border cc-badge-info ${sizeClasses}`}>
+            <span className="w-1.5 h-1.5 rounded-full mr-1.5 cc-dot"></span>
+            Awaiting Client
+          </span>
+        );
+      case 'NOT_REQUESTED':
+        return (
+          <span className={`inline-flex items-center rounded-full border cc-badge-neutral ${sizeClasses}`}>
+            <span className="w-1.5 h-1.5 rounded-full mr-1.5 cc-dot"></span>
+            Not Requested
+          </span>
+        );
+      default:
+        return (
+          <span className={`inline-flex items-center rounded-full border cc-badge-neutral ${sizeClasses}`}>
+            {String(status).replaceAll('_', ' ')}
+          </span>
+        );
+    }
+  }
+
+  // Workflow Status styling (assessment lifecycle)
   if (type === 'workflow' || ['NOT_STARTED', 'DATA_COLLECTION', 'UNDER_REVIEW', 'APPROVED', 'SUBMITTED'].includes(status)) {
     switch (status) {
       case 'APPROVED':

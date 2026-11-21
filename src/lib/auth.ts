@@ -33,11 +33,12 @@ export function getSessionFromRequest(request: NextRequest): IAuthUserSession | 
     if (session) return session;
   }
 
-  // Check cookie next
   const cookie = request.cookies.get('cc_auth_token');
-  if (cookie && cookie.value) {
+  if (cookie?.value) {
     const session = verifyToken(cookie.value);
     if (session) return session;
+    // Do not impersonate dev ADMIN when a stale/invalid cookie is present
+    return null;
   }
 
   // Optional demo-role header for local role testing.

@@ -2,8 +2,10 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { COMPLIANCE_PERIODS } from '@/lib/complianceMatrixData';
+import { buildAssessmentId } from '@/lib/assessmentIds';
 import { IAssessment } from '@/types';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { DriveLinkBadge } from '@/components/common/DriveLinkBadge';
@@ -22,6 +24,7 @@ import { DEFAULT_CHECKLIST_PERIOD } from '@/lib/facilityDataChecklistTemplate';
 
 export default function AssessmentDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const assessmentId = params.assessmentId as string;
 
   const [assessment, setAssessment] = useState<IAssessment | null>(null);
@@ -148,7 +151,7 @@ export default function AssessmentDetailPage() {
       <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6 sm:p-8 shadow-xl">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-3">
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <span className="px-2.5 py-0.5 rounded font-mono font-bold text-xs bg-slate-800 text-emerald-400 border border-slate-700">
                 {assessment.facilityId}
               </span>
@@ -163,6 +166,30 @@ export default function AssessmentDetailPage() {
                 </span>
               )}
             </div>
+
+            <label className="flex flex-wrap items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+              <span className="font-semibold shrink-0">Data collection year</span>
+              <select
+                value={assessment.period}
+                onChange={(e) => {
+                  const nextId = buildAssessmentId(
+                    assessment.facilityId,
+                    assessment.complianceType,
+                    e.target.value
+                  );
+                  if (nextId !== assessmentId) {
+                    router.push(`/assessments/${encodeURIComponent(nextId)}`);
+                  }
+                }}
+                className="rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-950 px-2 py-1 font-mono"
+              >
+                {COMPLIANCE_PERIODS.map((fy) => (
+                  <option key={fy} value={fy}>
+                    {fy}
+                  </option>
+                ))}
+              </select>
+            </label>
 
             <div className="flex flex-wrap items-center gap-3">
               <StatusBadge

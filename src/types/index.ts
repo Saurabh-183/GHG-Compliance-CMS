@@ -6,6 +6,7 @@ export interface IUser {
   email: string;
   role: UserRole;
   clientGroupId?: string;
+  clientGroupName?: string;
   authorizedFacilityIds?: string[];
   designation?: string;
   avatarUrl?: string;
@@ -46,8 +47,10 @@ export type RequestWorkflowStatus =
   | 'DRAFT'
   | 'REQUESTED'
   | 'IN_PROGRESS'
+  | 'PARTIALLY_SUBMITTED'
   | 'SUBMITTED'
   | 'UNDER_REVIEW'
+  | 'PARTIALLY_ACCEPTED'
   | 'CHANGES_REQUESTED'
   | 'RESUBMITTED'
   | 'ACCEPTED'
@@ -285,6 +288,11 @@ export interface ISubmittedDriveLink {
 export interface IDataRequirement {
   _id: string;
   requestId?: string;
+  bundleId?: string;
+  bundleTitle?: string;
+  sourceChecklistItemKey?: string;
+  masterRequirementId?: string;
+  requirementItemStatus?: RequirementItemWorkflowStatus;
   facilityId: string;
   period: string;
   title: string;
@@ -293,9 +301,6 @@ export interface IDataRequirement {
   description: string;
   purpose?: string;
   dataCategory?: string;
-  brsrSection?: string;
-  brsrPrinciple?: string;
-  brsrPrinciples?: string[];
   templateId?: string;
   reportingFrequency?: ReportingFrequency;
   reportingPeriodStart?: string;
@@ -493,15 +498,69 @@ export interface IAuthUserSession {
   authorizedFacilityIds?: string[];
 }
 
-export type DataChecklistItemStatus = 'DUE' | 'RECEIVED' | 'NOT_APPLICABLE' | 'NOT_REQUIRED';
+export type DataChecklistItemStatus =
+  | 'DUE'
+  | 'RECEIVED'
+  | 'NOT_APPLICABLE'
+  | 'NOT_REQUIRED'
+  | 'NEEDS_VERIFICATION';
+
+export type ChecklistApplicabilityStatus =
+  | 'APPLICABLE'
+  | 'NOT_APPLICABLE'
+  | 'NOT_REQUIRED'
+  | 'NEEDS_VERIFICATION'
+  | 'UNSELECTED';
 
 export interface IFacilityDataChecklistItem {
   itemKey: string;
   label: string;
   status: DataChecklistItemStatus;
+  applicability?: ChecklistApplicabilityStatus;
+  importedApplicability?: ChecklistApplicabilityStatus;
+  masterRequirementId?: string;
+  sourceColumnLabel?: string;
+  categoryKey?: string;
+  specialInstruction?: string;
   notes?: string;
   sortOrder: number;
 }
+
+export interface IMasterRequirementRowPublic {
+  requirementId: string;
+  itemKey: string;
+  name: string;
+  sourceColumnLabel: string;
+  category: string;
+  categoryLabel: string;
+  description: string;
+  requiredEvidence: string;
+  inputType: string;
+  reportingFrequency: ReportingFrequency;
+  unit?: string;
+  mandatory: boolean;
+  specialInstructions?: string;
+}
+
+export interface IFacilityApplicableRequirement {
+  master: IMasterRequirementRowPublic;
+  applicability: ChecklistApplicabilityStatus;
+  checklistStatus: DataChecklistItemStatus;
+  notes?: string;
+  requestable: boolean;
+  needsVerification: boolean;
+}
+
+export type RequirementItemWorkflowStatus =
+  | 'PENDING'
+  | 'IN_PROGRESS'
+  | 'SUBMITTED'
+  | 'UNDER_REVIEW'
+  | 'CHANGES_REQUESTED'
+  | 'RESUBMITTED'
+  | 'ACCEPTED'
+  | 'REJECTED'
+  | 'NOT_APPLICABLE';
 
 export interface IFacilityDataChecklist {
   _id: string;

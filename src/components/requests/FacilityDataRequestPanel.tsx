@@ -3,8 +3,18 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Eye, Loader2, Save, Send } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import type { ComplianceType, IDataRequirement, IFacility, IRequestDocumentSpec, IRequestField, ReportingFrequency } from '@/types';
+import type {
+  ComplianceType,
+  IDataRequirement,
+  IFacility,
+  IFacilityApplicableRequirement,
+  IClientGroup,
+  IRequestDocumentSpec,
+  IRequestField,
+  ReportingFrequency,
+} from '@/types';
 import { DEFAULT_CHECKLIST_PERIOD } from '@/lib/facilityDataChecklistTemplate';
+import { getMasterRequirement } from '@/lib/dataRequirementMaster';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { notify } from '@/lib/notify';
 import { FormSection } from '@/components/requests/FormSection';
@@ -12,17 +22,16 @@ import { DynamicFieldBuilder } from '@/components/requests/DynamicFieldBuilder';
 import { DocumentRequirementsBuilder } from '@/components/requests/DocumentRequirementsBuilder';
 import { RequestFormPreview } from '@/components/requests/RequestFormPreview';
 import {
-  BRSR_PRINCIPLES,
-  BRSR_SECTIONS,
-  CONSULTANT_REQUEST_TEMPLATES,
-  DATA_CATEGORIES,
   REPORTING_FREQUENCIES,
-  SUBMISSION_FORMATS,
   financialYearOptions,
   generateMonthRange,
   suggestRequestTitle,
 } from '@/lib/dataRequestCategories';
 import { validateFields } from '@/lib/requestFieldUtils';
+import {
+  DEFAULT_SUBMISSION_FORMAT,
+  normalizeDocumentSpecsForDriveXlsx,
+} from '@/lib/submissionPolicy';
 
 const COMPLIANCE_OPTIONS: ComplianceType[] = ['RCO', 'PAT', 'CCTS', 'CEA'];
 
@@ -44,16 +53,19 @@ export function FacilityDataRequestPanel({
   const [submitting, setSubmitting] = useState(false);
   const [requirements, setRequirements] = useState<IDataRequirement[]>([]);
   const [facilities, setFacilities] = useState<IFacility[]>([]);
+  const [organizations, setOrganizations] = useState<IClientGroup[]>([]);
+  const [organizationId, setOrganizationId] = useState('');
+  const [checklistRows, setChecklistRows] = useState<IFacilityApplicableRequirement[]>([]);
+  const [checklistLoading, setChecklistLoading] = useState(false);
+  const [selectedChecklistKey, setSelectedChecklistKey] = useState('');
   const [facilityId, setFacilityId] = useState(initialFacilityId);
   const [openSections, setOpenSections] = useState<Record<number, boolean>>({ 1: true, 2: true, 3: false, 4: false, 5: false });
   const [showPreview, setShowPreview] = useState(false);
 
   const [title, setTitle] = useState('');
   const [dataCategory, setDataCategory] = useState('');
-  const [categorySearch, setCategorySearch] = useState('');
+  const [customCategory, setCustomCategory] = useState('');
   const [period, setPeriod] = useState(defaultPeriod);
-  const [brsrSection, setBrsrSection] = useState<string>(BRSR_SECTIONS[2]);
-  const [brsrPrinciples, setBrsrPrinciples] = useState<string[]>(['P6']);
   const [priority, setPriority] = useState<'LOW' | 'MEDIUM' | 'HIGH'>('MEDIUM');
   const [linkedCompliances, setLinkedCompliances] = useState<ComplianceType[]>(['PAT', 'RCO']);
 
@@ -64,7 +76,7 @@ export function FacilityDataRequestPanel({
   const [reportingPeriodStart, setReportingPeriodStart] = useState('');
   const [reportingPeriodEnd, setReportingPeriodEnd] = useState('');
   const [selectedMonths, setSelectedMonths] = useState<string[]>([]);
-  const [submissionFormat, setSubmissionFormat] = useState<string>(SUBMISSION_FORMATS[0]);
+  const submissionFormat = DEFAULT_SUBMISSION_FORMAT;
 
   const [purpose, setPurpose] = useState('');
   const [instructions, setInstructions] = useState('');
@@ -74,7 +86,13 @@ export function FacilityDataRequestPanel({
   const [clientContact, setClientContact] = useState('');
 
   const selectedFacility = facilities.find((f) => f.facilityId === facilityId);
-  const orgName = selectedFacility?.clientGroupName || 'Organization';
+  const selectedOrganization = organizations.find((o) => o._id === organizationId);
+  const orgName = selectedOrganization?.name || selectedFacility?.clientGroupName || 'Organization';
+
+  const facilitiesInOrg = useMemo(() => {
+    if (!organizationId) return facilities;
+    return facilities.filter((f) => f.clientGroupId === organizationId);
+  }, [facilities, organizationId]);
 
   const fyOptions = useMemo(() => financialYearOptions(), []);
 
@@ -85,25 +103,48 @@ export function FacilityDataRequestPanel({
     return [];
   }, [reportingPeriodStart, reportingPeriodEnd]);
 
-  const filteredCategories = useMemo(() => {
-    const q = categorySearch.trim().toLowerCase();
-    if (!q) return [...DATA_CATEGORIES];
-    return DATA_CATEGORIES.filter((c) => c.toLowerCase().includes(q));
-  }, [categorySearch]);
+  const checklistByCategory = useMemo(() => {
+    const map = new Map<string, IFacilityApplicableRequirement[]>();
+    for (const row of checklistRows) {
+      const label = row.master.categoryLabel;
+      if (!map.has(label)) map.set(label, []);
+      map.get(label)!.push(row);
+    }
+    return [...map.entries()].sort(([a], [b]) => a.localeCompare(b));
+  }, [checklistRows]);
+
+  const existingCustomCategories = useMemo(() => {
+    const fromReqs = new Set(
+      requirements.map((r) => r.dataCategory?.trim()).filter(Boolean) as string[]
+    );
+    return [...fromReqs].filter(
+      (c) => !checklistRows.some((row) => row.master.categoryLabel === c || row.master.name === c)
+    );
+  }, [requirements, checklistRows]);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [facRes, reqRes] = await Promise.all([
+      const [orgRes, facRes, reqRes] = await Promise.all([
+        fetch('/api/client-groups', { credentials: 'include' }),
         fetch('/api/facilities', { credentials: 'include' }),
         fetch(`/api/requirements?facilityId=${facilityId}&period=${encodeURIComponent(period)}`, {
           cache: 'no-store',
           credentials: 'include',
         }),
       ]);
+      const orgJson = await orgRes.json();
       const facJson = await facRes.json();
       const reqJson = await reqRes.json();
-      if (facRes.ok) setFacilities(facJson.data || []);
+      if (orgRes.ok) setOrganizations(orgJson.data || []);
+      if (facRes.ok) {
+        const list: IFacility[] = facJson.data || [];
+        setFacilities(list);
+        const current = list.find((f) => f.facilityId === facilityId);
+        if (current?.clientGroupId) {
+          setOrganizationId((prev) => prev || current.clientGroupId);
+        }
+      }
       if (reqRes.ok) setRequirements(Array.isArray(reqJson.data) ? reqJson.data : []);
     } catch (e) {
       console.error(e);
@@ -113,19 +154,45 @@ export function FacilityDataRequestPanel({
     }
   }, [facilityId, period]);
 
+  const loadChecklist = useCallback(async () => {
+    if (!facilityId) return;
+    setChecklistLoading(true);
+    try {
+      const q = new URLSearchParams({ period });
+      if (selectedFacility?.name) q.set('facilityName', selectedFacility.name);
+      const res = await fetch(`/api/facilities/${facilityId}/applicable-requirements?${q}`, {
+        credentials: 'include',
+        cache: 'no-store',
+      });
+      const json = await res.json();
+      if (res.ok) {
+        setChecklistRows(Array.isArray(json.data?.requirements) ? json.data.requirements : []);
+      }
+    } catch {
+      setChecklistRows([]);
+    } finally {
+      setChecklistLoading(false);
+    }
+  }, [facilityId, period, selectedFacility?.name]);
+
   useEffect(() => {
     void load();
   }, [load]);
+
+  useEffect(() => {
+    void loadChecklist();
+  }, [loadChecklist]);
 
   useEffect(() => {
     setFacilityId(initialFacilityId);
   }, [initialFacilityId]);
 
   useEffect(() => {
-    if (dataCategory && !title.trim()) {
+    if (selectedChecklistKey === '__OTHER__') return;
+    if (dataCategory && !title.trim() && selectedChecklistKey) {
       setTitle(suggestRequestTitle(dataCategory, selectedFacility?.name || initialFacilityName, period));
     }
-  }, [dataCategory, selectedFacility?.name, initialFacilityName, period, title]);
+  }, [dataCategory, selectedFacility?.name, initialFacilityName, period, title, selectedChecklistKey]);
 
   useEffect(() => {
     if (reportingFrequency === 'MONTHLY' && monthOptions.length) {
@@ -143,32 +210,88 @@ export function FacilityDataRequestPanel({
     );
   };
 
-  const togglePrinciple = (p: string) => {
-    setBrsrPrinciples((prev) => (prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]));
+  const applyChecklistSelection = (itemKey: string) => {
+    setSelectedChecklistKey(itemKey);
+    if (itemKey === '__OTHER__') {
+      setDataCategory(customCategory);
+      setTitle('');
+      setPurpose('');
+      setInstructions('');
+      setFields([]);
+      setDocuments([]);
+      setOpenSections({ 1: true, 2: true, 3: false, 4: true, 5: false });
+      return;
+    }
+    if (itemKey.startsWith('__EXISTING__::')) {
+    const label = itemKey.replace('__EXISTING__::', '');
+    setDataCategory(label);
+    setTitle(suggestRequestTitle(label, selectedFacility?.name || initialFacilityName, period));
+    const prior = requirements.find((r) => r.dataCategory === label || r.title === label);
+    if (prior) {
+      setPurpose(prior.purpose || '');
+      setInstructions(prior.submissionInstructions || prior.description || '');
+      setFields((prior.requiredFields || []).map((f) => ({ ...f })));
+      setDocuments(normalizeDocumentSpecsForDriveXlsx(prior.requiredDocumentSpecs || []));
+      setReportingFrequency((prior.reportingFrequency as ReportingFrequency) || 'ANNUAL');
+    }
+    setOpenSections({ 1: true, 2: true, 3: true, 4: true, 5: false });
+      return;
+    }
+
+    const master = getMasterRequirement(itemKey);
+    const row = checklistRows.find((r) => r.master.itemKey === itemKey);
+    if (!master) return;
+
+    if (row && (row.needsVerification || !row.requestable)) {
+      notify.error('This requirement needs admin applicability verification before sending.');
+      setSelectedChecklistKey('');
+      return;
+    }
+
+    setDataCategory(row?.master.categoryLabel || master.category);
+    setTitle(master.name);
+    setPurpose(master.description);
+    setInstructions(
+      [master.description, master.specialInstructions ? `Note: ${master.specialInstructions}` : '']
+        .filter(Boolean)
+        .join('\n\n')
+    );
+    setFields((master.structuredFields || []).map((f) => ({ ...f })));
+    setDocuments(normalizeDocumentSpecsForDriveXlsx(master.documentSpecs || []));
+    setReportingFrequency((master.reportingFrequency as ReportingFrequency) || 'ANNUAL');
+    setLinkedCompliances(master.defaultCompliances);
+    setOpenSections({ 1: true, 2: Boolean(master.structuredFields?.length), 3: true, 4: true, 5: false });
+    notify.success(`Loaded checklist fields for “${master.name}”.`);
   };
 
-  const applyTemplate = (templateId: string) => {
-    const t = CONSULTANT_REQUEST_TEMPLATES.find((x) => x.id === templateId);
-    if (!t) return;
-    setDataCategory(t.dataCategory);
-    setTitle(suggestRequestTitle(t.dataCategory, selectedFacility?.name || initialFacilityName, period));
-    setBrsrSection(t.brsrSection);
-    setBrsrPrinciples(t.brsrPrinciples);
-    setPurpose(t.purpose);
-    setInstructions(t.instructions);
-    setFields(t.fields.map((f) => ({ ...f })));
-    setDocuments(t.documents.map((d) => ({ ...d })));
-    setOpenSections({ 1: true, 2: true, 3: true, 4: true, 5: false });
-    notify.success(`Template "${t.label}" loaded — adjust before sending.`);
+  const handleOrganizationChange = (orgId: string) => {
+    setOrganizationId(orgId);
+    const inOrg = facilities.filter((f) => f.clientGroupId === orgId);
+    if (inOrg.length > 0 && !inOrg.some((f) => f.facilityId === facilityId)) {
+      setFacilityId(inOrg[0].facilityId);
+    }
+    setSelectedChecklistKey('');
   };
 
   const validateClient = (): boolean => {
+    if (!organizationId || !facilityId) {
+      notify.error('Select organization and facility.');
+      return false;
+    }
     if (!title.trim()) {
       notify.error('Request title is required.');
       return false;
     }
-    if (!dataCategory.trim()) {
-      notify.error('Select a data category.');
+    if (!selectedChecklistKey) {
+      notify.error('Select a data requirement from the checklist.');
+      return false;
+    }
+    if (selectedChecklistKey === '__OTHER__' && !customCategory.trim() && !dataCategory.trim()) {
+      notify.error('Enter a name for the Other category.');
+      return false;
+    }
+    if (!dataCategory.trim() && selectedChecklistKey !== '__OTHER__') {
+      notify.error('Data category is missing — re-select a checklist requirement.');
       return false;
     }
     if (!instructions.trim()) {
@@ -210,9 +333,10 @@ export function FacilityDataRequestPanel({
     monthlyFrequency: reportingFrequency === 'MONTHLY',
     reportingMonths: reportingFrequency === 'MONTHLY' ? selectedMonths : undefined,
     purpose: purpose.trim() || undefined,
-    dataCategory,
-    brsrSection,
-    brsrPrinciples,
+    dataCategory: selectedChecklistKey === '__OTHER__' ? customCategory.trim() || dataCategory : dataCategory,
+    sourceChecklistItemKey:
+      selectedChecklistKey && !selectedChecklistKey.startsWith('__') ? selectedChecklistKey : undefined,
+    masterRequirementId: getMasterRequirement(selectedChecklistKey)?.requirementId,
     priority,
     requiredFields: fields,
     requiredDocumentSpecs: documents,
@@ -248,6 +372,8 @@ export function FacilityDataRequestPanel({
 
       setTitle('');
       setDataCategory('');
+      setCustomCategory('');
+      setSelectedChecklistKey('');
       setPurpose('');
       setInstructions('');
       setFields([]);
@@ -274,8 +400,6 @@ export function FacilityDataRequestPanel({
     <div className={`space-y-5 ${className}`}>
       <PanelHeader facilityLabel={facilityLabel} orgName={orgName} period={period} openCount={openCount} />
 
-      <QuickTemplateBar onApply={applyTemplate} />
-
       <form
         className="space-y-4"
         onSubmit={(e) => {
@@ -283,84 +407,119 @@ export function FacilityDataRequestPanel({
           void submit(false);
         }}
       >
-        <FormSection step={1} title="Request details" subtitle="Organization, facility, BRSR mapping" open={!!openSections[1]} onToggle={() => toggleSection(1)}>
+        <FormSection
+          step={1}
+          title="Request details"
+          subtitle="Pick organization → facility → checklist requirement"
+          open={!!openSections[1]}
+          onToggle={() => toggleSection(1)}
+        >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
             <label className="space-y-1">
               <span className="font-bold text-slate-600 dark:text-slate-400 uppercase text-[10px]">Organization</span>
-              <input readOnly value={orgName} className="w-full rounded-lg border px-3 py-2 bg-slate-100 dark:bg-slate-800" />
-            </label>
-            <label className="space-y-1">
-              <span className="font-bold text-slate-600 dark:text-slate-400 uppercase text-[10px]">Facility</span>
               <select
-                value={facilityId}
-                onChange={(e) => setFacilityId(e.target.value)}
-                className="w-full rounded-lg border px-3 py-2 dark:bg-slate-950"
+                value={organizationId}
+                onChange={(e) => handleOrganizationChange(e.target.value)}
+                className="w-full rounded-lg border border-slate-300 px-3 py-2.5 dark:border-slate-700 dark:bg-slate-950"
               >
-                {facilities.map((f) => (
-                  <option key={f.facilityId} value={f.facilityId}>
-                    {f.name} ({f.facilityId})
+                <option value="">Select organization</option>
+                {organizations.map((org) => (
+                  <option key={org._id} value={org._id}>
+                    {org.name} {org.code ? `(${org.code})` : ''}
                   </option>
                 ))}
               </select>
             </label>
-            <label className="space-y-1 md:col-span-2">
-              <span className="font-bold text-slate-600 dark:text-slate-400 uppercase text-[10px]">Request title</span>
-              <input value={title} onChange={(e) => setTitle(e.target.value)} className="w-full rounded-lg border px-3 py-2 dark:bg-slate-950" />
+            <label className="space-y-1">
+              <span className="font-bold text-slate-600 dark:text-slate-400 uppercase text-[10px]">Facility / unit</span>
+              <select
+                value={facilityId}
+                disabled={!organizationId}
+                onChange={(e) => {
+                  setFacilityId(e.target.value);
+                  setSelectedChecklistKey('');
+                }}
+                className="w-full rounded-lg border border-slate-300 px-3 py-2.5 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950"
+              >
+                {facilitiesInOrg.length === 0 && <option value="">No facilities in this organization</option>}
+                {facilitiesInOrg.map((f) => (
+                  <option key={f.facilityId} value={f.facilityId}>
+                    {f.name} · {f.facilityId}
+                  </option>
+                ))}
+              </select>
+              <p className="text-[10px] text-slate-500">{facilitiesInOrg.length} unit(s) under {orgName}</p>
             </label>
             <label className="space-y-1">
               <span className="font-bold text-slate-600 dark:text-slate-400 uppercase text-[10px]">Reporting financial year</span>
-              <select value={period} onChange={(e) => setPeriod(e.target.value)} className="w-full rounded-lg border px-3 py-2 dark:bg-slate-950">
+              <select value={period} onChange={(e) => setPeriod(e.target.value)} className="w-full rounded-lg border px-3 py-2.5 dark:bg-slate-950">
                 {fyOptions.map((fy) => (
-                  <option key={fy} value={fy}>
+                  <option key={fy} value={`FY${fy}`}>
                     FY {fy}
                   </option>
                 ))}
               </select>
             </label>
-            <label className="space-y-1">
-              <span className="font-bold text-slate-600 dark:text-slate-400 uppercase text-[10px]">Data category</span>
-              <input
-                value={categorySearch}
-                onChange={(e) => setCategorySearch(e.target.value)}
-                placeholder="Search category…"
-                className="w-full rounded-lg border px-3 py-2 mb-1 dark:bg-slate-950"
-              />
-              <select value={dataCategory} onChange={(e) => setDataCategory(e.target.value)} className="w-full rounded-lg border px-3 py-2 dark:bg-slate-950">
-                <option value="">Select category</option>
-                {filteredCategories.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
+            <label className="space-y-1 md:col-span-2">
+              <span className="font-bold text-slate-600 dark:text-slate-400 uppercase text-[10px]">
+                Data requirement (checklist)
+              </span>
+              <select
+                value={selectedChecklistKey}
+                disabled={checklistLoading || !facilityId}
+                onChange={(e) => applyChecklistSelection(e.target.value)}
+                className="w-full rounded-lg border border-emerald-200 bg-emerald-50/40 px-3 py-2.5 dark:border-emerald-900 dark:bg-emerald-950/20"
+              >
+                <option value="">
+                  {checklistLoading ? 'Loading checklist…' : 'Select requirement for this facility'}
+                </option>
+                {checklistByCategory.map(([cat, rows]) => (
+                  <optgroup key={cat} label={cat}>
+                    {rows.map((row) => (
+                      <option
+                        key={row.master.itemKey}
+                        value={row.master.itemKey}
+                        disabled={row.needsVerification || (!row.requestable && row.applicability !== 'APPLICABLE')}
+                      >
+                        {row.master.name}
+                        {row.needsVerification ? ' — needs verification' : ''}
+                        {row.applicability === 'NOT_REQUIRED' || row.applicability === 'NOT_APPLICABLE'
+                          ? ' — N/A'
+                          : ''}
+                      </option>
+                    ))}
+                  </optgroup>
                 ))}
+                {existingCustomCategories.length > 0 && (
+                  <optgroup label="Existing custom requests">
+                    {existingCustomCategories.map((c) => (
+                      <option key={c} value={`__EXISTING__::${c}`}>
+                        {c} (reuse fields)
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
+                <option value="__OTHER__">Other — custom requirement (manual fields)</option>
               </select>
             </label>
-            <label className="space-y-1">
-              <span className="font-bold text-slate-600 dark:text-slate-400 uppercase text-[10px]">BRSR section</span>
-              <select value={brsrSection} onChange={(e) => setBrsrSection(e.target.value)} className="w-full rounded-lg border px-3 py-2 dark:bg-slate-950">
-                {BRSR_SECTIONS.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
+            {selectedChecklistKey === '__OTHER__' && (
+              <label className="space-y-1 md:col-span-2">
+                <span className="font-bold text-slate-600 dark:text-slate-400 uppercase text-[10px]">Other category name</span>
+                <input
+                  value={customCategory}
+                  onChange={(e) => {
+                    setCustomCategory(e.target.value);
+                    setDataCategory(e.target.value);
+                  }}
+                  placeholder="e.g. Special audit dataset"
+                  className="w-full rounded-lg border px-3 py-2 dark:bg-slate-950"
+                />
+              </label>
+            )}
+            <label className="space-y-1 md:col-span-2">
+              <span className="font-bold text-slate-600 dark:text-slate-400 uppercase text-[10px]">Request title</span>
+              <input value={title} onChange={(e) => setTitle(e.target.value)} className="w-full rounded-lg border px-3 py-2 dark:bg-slate-950" />
             </label>
-            <div className="space-y-1">
-              <span className="font-bold text-slate-600 dark:text-slate-400 uppercase text-[10px]">BRSR principles (P1–P9)</span>
-              <div className="flex flex-wrap gap-1.5">
-                {BRSR_PRINCIPLES.map((p) => (
-                  <button
-                    key={p}
-                    type="button"
-                    onClick={() => togglePrinciple(p)}
-                    className={`px-2 py-1 rounded-md text-[10px] font-bold border ${
-                      brsrPrinciples.includes(p) ? 'bg-emerald-700 text-white' : 'border-slate-300'
-                    }`}
-                  >
-                    {p}
-                  </button>
-                ))}
-              </div>
-            </div>
             <div className="space-y-1">
               <span className="font-bold text-slate-600 dark:text-slate-400 uppercase text-[10px]">Linked frameworks</span>
               <div className="flex flex-wrap gap-2">
@@ -389,18 +548,40 @@ export function FacilityDataRequestPanel({
           </div>
         </FormSection>
 
-        <FormSection step={2} title="Required information" subtitle="Visual field builder — no pipe syntax" open={!!openSections[2]} onToggle={() => toggleSection(2)}>
-          <DynamicFieldBuilder fields={fields} onChange={setFields} />
+        <FormSection
+          step={2}
+          title="Required information"
+          subtitle={
+            selectedChecklistKey && selectedChecklistKey !== '__OTHER__'
+              ? 'Pre-filled from checklist — adjust if needed'
+              : 'Build fields for your custom requirement'
+          }
+          open={!!openSections[2]}
+          onToggle={() => toggleSection(2)}
+        >
+          {!selectedChecklistKey ? (
+            <p className="text-xs text-slate-500 rounded-lg border border-dashed p-4">
+              Select a checklist requirement above to load structured fields, or choose Other to add fields manually.
+            </p>
+          ) : (
+            <DynamicFieldBuilder fields={fields} onChange={setFields} />
+          )}
         </FormSection>
 
-        <FormSection step={3} title="Reporting period & documents" subtitle="Frequency, months, submission format" open={!!openSections[3]} onToggle={() => toggleSection(3)}>
+        <FormSection
+          step={3}
+          title="Reporting period & documents"
+          subtitle="Google Drive link · .xlsx workbooks only"
+          open={!!openSections[3]}
+          onToggle={() => toggleSection(3)}
+        >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs mb-4">
             <label className="space-y-1">
               <span className="font-bold uppercase text-[10px] text-slate-500">Reporting frequency</span>
               <select
                 value={reportingFrequency}
                 onChange={(e) => setReportingFrequency(e.target.value as ReportingFrequency)}
-                className="w-full rounded-lg border px-3 py-2 dark:bg-slate-950"
+                className="w-full rounded-lg border px-3 py-2.5 dark:bg-slate-950"
               >
                 {REPORTING_FREQUENCIES.map((f) => (
                   <option key={f.value} value={f.value}>
@@ -409,16 +590,13 @@ export function FacilityDataRequestPanel({
                 ))}
               </select>
             </label>
-            <label className="space-y-1">
+            <div className="space-y-1">
               <span className="font-bold uppercase text-[10px] text-slate-500">Submission format</span>
-              <select value={submissionFormat} onChange={(e) => setSubmissionFormat(e.target.value)} className="w-full rounded-lg border px-3 py-2 dark:bg-slate-950">
-                {SUBMISSION_FORMATS.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
-            </label>
+              <div className="w-full rounded-lg border border-slate-200 bg-slate-100 px-3 py-2.5 text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+                {submissionFormat}
+              </div>
+              <p className="text-[10px] text-slate-500">Client uploads <strong>.xlsx</strong> to Drive and pastes the share link.</p>
+            </div>
             <label className="space-y-1">
               <span className="font-bold uppercase text-[10px] text-slate-500">Reporting start (YYYY-MM)</span>
               <input type="month" value={reportingPeriodStart} onChange={(e) => setReportingPeriodStart(e.target.value)} className="w-full rounded-lg border px-3 py-2 dark:bg-slate-950" />
@@ -461,11 +639,17 @@ export function FacilityDataRequestPanel({
           <div className="space-y-3 text-xs">
             <label className="block space-y-1">
               <span className="font-bold uppercase text-[10px] text-slate-500">Purpose of collection</span>
-              <textarea rows={3} value={purpose} onChange={(e) => setPurpose(e.target.value)} className="w-full rounded-lg border px-3 py-2 dark:bg-slate-950" placeholder="Why this data is required for BRSR / compliance…" />
+              <textarea rows={3} value={purpose} onChange={(e) => setPurpose(e.target.value)} className="w-full rounded-lg border px-3 py-2 dark:bg-slate-950" placeholder="Why this data is required for compliance…" />
             </label>
             <label className="block space-y-1">
               <span className="font-bold uppercase text-[10px] text-slate-500">Instructions for client</span>
-              <textarea rows={4} value={instructions} onChange={(e) => setInstructions(e.target.value)} className="w-full rounded-lg border px-3 py-2 dark:bg-slate-950" placeholder="What to upload, Drive link access, missing data notes…" />
+              <textarea
+                rows={4}
+                value={instructions}
+                onChange={(e) => setInstructions(e.target.value)}
+                className="w-full rounded-lg border px-3 py-2 dark:bg-slate-950"
+                placeholder="Upload .xlsx to Google Drive, grant consultant view access, paste the share link. Note any missing months…"
+              />
             </label>
           </div>
         </FormSection>
@@ -564,24 +748,6 @@ function PanelHeader({
         {orgName} · <strong>{facilityLabel}</strong> · FY {period}
       </p>
       <p className="text-[11px] text-slate-500 mt-1">{openCount} open request(s) for this facility.</p>
-    </div>
-  );
-}
-
-function QuickTemplateBar({ onApply }: { onApply: (id: string) => void }) {
-  return (
-    <div className="flex flex-wrap gap-2">
-      <span className="text-[10px] font-bold uppercase text-slate-500 self-center w-full sm:w-auto">Quick templates:</span>
-      {CONSULTANT_REQUEST_TEMPLATES.map((t) => (
-        <button
-          key={t.id}
-          type="button"
-          onClick={() => onApply(t.id)}
-          className="px-3 py-1.5 rounded-full border border-slate-300 dark:border-slate-600 text-[10px] font-bold hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
-        >
-          {t.label}
-        </button>
-      ))}
     </div>
   );
 }

@@ -32,9 +32,21 @@ const FacilityDataChecklistSchema = new Schema<IFacilityDataChecklistDocument>(
         label: { type: String, required: true },
         status: {
           type: String,
-          enum: ['DUE', 'RECEIVED', 'NOT_APPLICABLE', 'NOT_REQUIRED'],
+          enum: ['DUE', 'RECEIVED', 'NOT_APPLICABLE', 'NOT_REQUIRED', 'NEEDS_VERIFICATION'],
           default: 'DUE',
         },
+        applicability: {
+          type: String,
+          enum: ['APPLICABLE', 'NOT_APPLICABLE', 'NOT_REQUIRED', 'NEEDS_VERIFICATION', 'UNSELECTED'],
+        },
+        importedApplicability: {
+          type: String,
+          enum: ['APPLICABLE', 'NOT_APPLICABLE', 'NOT_REQUIRED', 'NEEDS_VERIFICATION', 'UNSELECTED'],
+        },
+        masterRequirementId: { type: String },
+        sourceColumnLabel: { type: String },
+        categoryKey: { type: String },
+        specialInstruction: { type: String },
         notes: { type: String, default: '' },
         sortOrder: { type: Number, default: 0 },
       },

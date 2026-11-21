@@ -11,6 +11,18 @@ import { notify } from '@/lib/notify';
 import type { ClientUploadListItem } from '@/app/api/client-uploads/route';
 import type { IDataset } from '@/types';
 import { ClientDocumentPreviewPanel } from '@/components/previews/ClientDocumentPreviewPanel';
+import { StatusBadge } from '@/components/common/StatusBadge';
+import { RequestReviewPanel } from '@/components/requests/RequestReviewPanel';
+import type { IDataRequirement } from '@/types';
+import {
+  MAPPING_STATUS_LABELS,
+  mappingStatusClass,
+  resolveClientUploadWorkflowDisplay,
+  resolveEffectiveMappingStatus,
+  resolveClientEvidenceLabel,
+  resolveClientEvidenceUrl,
+} from '@/lib/clientUploadStatus';
+import { resolveClientSubmissionStatus } from '@/lib/dataRequestDisplay';
 import {
   FolderTree,
   Link2,
@@ -19,19 +31,20 @@ import {
   XCircle,
   Filter,
   ExternalLink,
-  Eye,
   CloudUpload,
   AlertCircle,
 } from 'lucide-react';
 
 interface ClientUploadsPanelProps {
   facilityId?: string;
+  clientGroupId?: string;
   compact?: boolean;
   title?: string;
 }
 
 export const ClientUploadsPanel: React.FC<ClientUploadsPanelProps> = ({
   facilityId,
+  clientGroupId,
   compact = false,
   title = 'Client Document Uploads (Google Drive Vault)',
 }) => {
@@ -48,8 +61,12 @@ export const ClientUploadsPanel: React.FC<ClientUploadsPanelProps> = ({
   const [fieldReviews, setFieldReviews] = useState<Array<{ fieldKey: string; status: string; comment?: string }>>([]);
   const [saving, setSaving] = useState(false);
   const [previewDoc, setPreviewDoc] = useState<ClientUploadListItem | null>(null);
+  const [reviewRequirement, setReviewRequirement] = useState<IDataRequirement | null>(null);
+  const [reviewLoading, setReviewLoading] = useState(false);
   const [vaultRootUrl, setVaultRootUrl] = useState('https://drive.google.com/drive/shared-with-me');
   const [autoUploadEnabled, setAutoUploadEnabled] = useState(false);
+  const [loadError, setLoadError] = useState('');
+  const [stats, setStats] = useState<{ pending: number; verified: number; rejected: number } | null>(null);
 
   useEffect(() => {
     fetch('/api/drive/vault-config')
@@ -66,20 +83,36 @@ export const ClientUploadsPanel: React.FC<ClientUploadsPanelProps> = ({
   const loadUploads = useCallback(async () => {
     setLoading(true);
     try {
+      setLoadError('');
       const params = new URLSearchParams();
       if (facilityId) params.set('facilityId', facilityId);
+      if (clientGroupId) params.set('clientGroupId', clientGroupId);
       if (statusFilter !== 'ALL') params.set('mappingStatus', statusFilter);
-      const res = await fetch(`/api/client-uploads?${params.toString()}`);
-      if (res.ok) {
-        const json = (await res.json()) as { data: ClientUploadListItem[] };
-        setUploads(json.data || []);
+      const res = await fetch(`/api/client-uploads?${params.toString()}`, {
+        credentials: 'include',
+        cache: 'no-store',
+      });
+      const json = (await res.json()) as {
+        data?: ClientUploadListItem[];
+        stats?: { pending: number; verified: number; rejected: number };
+        error?: string;
+      };
+      if (!res.ok) {
+        setUploads([]);
+        setStats(null);
+        setLoadError(json.error || 'Could not load uploads');
+        return;
       }
+      setUploads(json.data || []);
+      setStats(json.stats || null);
     } catch (e) {
       console.error(e);
+      setLoadError('Network error while loading uploads');
+      setUploads([]);
     } finally {
       setLoading(false);
     }
-  }, [facilityId, statusFilter]);
+  }, [facilityId, clientGroupId, statusFilter]);
 
   useEffect(() => {
     loadUploads();
@@ -166,6 +199,23 @@ export const ClientUploadsPanel: React.FC<ClientUploadsPanelProps> = ({
       notify.error('Network error');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const openRequirementReview = async (row: ClientUploadListItem) => {
+    setReviewLoading(true);
+    try {
+      const res = await fetch(`/api/requirements/${encodeURIComponent(row.requirementId)}`, {
+        credentials: 'include',
+        cache: 'no-store',
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || 'Failed to load request');
+      setReviewRequirement(json.data as IDataRequirement);
+    } catch (err) {
+      notify.error(err instanceof Error ? err.message : 'Unable to open request review');
+    } finally {
+      setReviewLoading(false);
     }
   };
 
@@ -278,8 +328,31 @@ export const ClientUploadsPanel: React.FC<ClientUploadsPanelProps> = ({
         </div>
       </div>
 
+      {stats && (
+        <div className="flex flex-wrap gap-2 text-[10px]">
+          <span className="rounded-md border bg-slate-50 px-2 py-1 dark:bg-slate-900">
+            Pending map: <strong>{stats.pending}</strong>
+          </span>
+          <span className="rounded-md border bg-emerald-50 px-2 py-1 text-emerald-900 dark:bg-emerald-950/40">
+            Verified: <strong>{stats.verified}</strong>
+          </span>
+          <span className="rounded-md border bg-rose-50 px-2 py-1 text-rose-900 dark:bg-rose-950/40">
+            Rejected: <strong>{stats.rejected}</strong>
+          </span>
+        </div>
+      )}
+
+      {loadError && (
+        <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-800">{loadError}</p>
+      )}
+
       {previewDoc && (
-        <ClientDocumentPreviewPanel item={previewDoc} onClose={() => setPreviewDoc(null)} />
+        <ClientDocumentPreviewPanel
+          modal
+          variant="fileOnly"
+          item={previewDoc}
+          onClose={() => setPreviewDoc(null)}
+        />
       )}
 
       {displayRows.length === 0 ? (
@@ -289,26 +362,59 @@ export const ClientUploadsPanel: React.FC<ClientUploadsPanelProps> = ({
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/80 text-[10px] uppercase tracking-wider text-slate-500">
-                <th className="py-2.5 px-3">Facility / Request</th>
+                <th className="py-2.5 px-3">Organization / Request</th>
+                <th className="py-2.5 px-3">Category</th>
                 <th className="py-2.5 px-3">Vault path</th>
                 <th className="py-2.5 px-3">Submitted</th>
-                <th className="py-2.5 px-3 text-center">Mapping</th>
-                <th className="py-2.5 px-3 text-center">Preview</th>
+                <th className="py-2.5 px-3 text-center">Vault mapping</th>
+                <th className="py-2.5 px-3 text-center">Request review</th>
+                <th className="py-2.5 px-3 text-center">Client data</th>
+                <th className="py-2.5 px-3 text-center">Client evidence</th>
                 <th className="py-2.5 px-3 text-center">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200/70 dark:divide-slate-800/70">
-              {displayRows.map((row) => (
+              {displayRows.map((row) => {
+                const effectiveMapping =
+                  row.effectiveMappingStatus ||
+                  resolveEffectiveMappingStatus({
+                    linkMappingStatus: row.mappingStatus,
+                    workflowStatus: row.workflowStatus,
+                    verificationStatus: row.verificationStatus,
+                  });
+                const workflowDisplay =
+                  row.displayWorkflowStatus ||
+                  resolveClientUploadWorkflowDisplay({
+                    workflowStatus: row.workflowStatus,
+                    verificationStatus: row.verificationStatus,
+                    submissionStatus: row.submissionStatus,
+                  });
+                const clientSubmission = resolveClientSubmissionStatus({
+                  submissionStatus: row.submissionStatus as import('@/types').SubmissionStatus,
+                  workflowStatus: workflowDisplay as import('@/types').RequestWorkflowStatus,
+                  submittedDriveLinks: [{ url: row.url, submittedAt: row.submittedAt, submittedBy: row.submittedBy, description: row.description }],
+                });
+                return (
                 <tr
                   key={`${row.requirementId}-${row.linkIndex}`}
                   className="hover:bg-slate-50 dark:hover:bg-slate-800/30"
                 >
-                  <td className="py-3 px-3">
-                    <div className="font-semibold text-slate-900 dark:text-white">{row.requirementTitle}</div>
-                    <div className="text-[10px] text-slate-500 mt-0.5 font-mono">
-                      {row.facilityId} · {row.period}
+                  <td className="py-3 px-3 min-w-[180px]">
+                    <div className="text-[10px] font-semibold text-emerald-800 dark:text-emerald-300">
+                      {row.clientGroupName || 'Client organization'}
                     </div>
-                    <div className="text-[10px] text-slate-400 mt-0.5">{row.submittedBy}</div>
+                    <div className="font-semibold text-slate-900 dark:text-white mt-0.5">{row.requirementTitle}</div>
+                    <div className="font-mono text-[10px] text-emerald-700">{row.requestId || row.requirementId.slice(-8)}</div>
+                    <div className="text-[10px] text-slate-500 mt-0.5">
+                      {row.facilityName || row.facilityId} · {row.period}
+                    </div>
+                    <div className="text-[10px] text-slate-400 mt-0.5">By {row.submittedBy}</div>
+                  </td>
+                  <td className="py-3 px-3 text-slate-600 dark:text-slate-300 max-w-[120px]">
+                    {row.dataCategory || '—'}
+                    {row.sourceChecklistItemKey && (
+                      <div className="text-[9px] font-mono text-slate-400 mt-0.5">{row.sourceChecklistItemKey}</div>
+                    )}
                   </td>
                   <td className="py-3 px-3 max-w-[200px]">
                     <div className="text-[10px] font-mono text-emerald-800 dark:text-emerald-300 line-clamp-2">
@@ -340,39 +446,65 @@ export const ClientUploadsPanel: React.FC<ClientUploadsPanelProps> = ({
                   </td>
                   <td className="py-3 px-3 text-center">
                     <span
-                      className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
-                        row.mappingStatus === 'VERIFIED'
-                          ? 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950/50 dark:text-emerald-300'
-                          : row.mappingStatus === 'REJECTED'
-                            ? 'bg-rose-50 text-rose-800 border-rose-300'
-                            : row.mappingStatus === 'MAPPED'
-                              ? 'bg-amber-50 text-amber-800 border-amber-300'
-                              : 'bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-300'
-                      }`}
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold border ${mappingStatusClass(effectiveMapping)}`}
+                      title={
+                        row.mappingStatus && row.mappingStatus !== effectiveMapping
+                          ? `Stored link status: ${row.mappingStatus}`
+                          : undefined
+                      }
                     >
-                      {row.mappingStatus || 'PENDING'}
+                      {MAPPING_STATUS_LABELS[effectiveMapping]}
                     </span>
-                    {row.mappedMonth && (
-                      <div className="text-[9px] text-slate-500 mt-1">→ {row.mappedMonth}</div>
+                    {row.mappedMonth && effectiveMapping !== 'PENDING' && (
+                      <div className="text-[9px] text-slate-500 mt-1">Month: {row.mappedMonth}</div>
                     )}
                   </td>
                   <td className="py-3 px-3 text-center">
-                    <DriveLinkBadge url={row.vaultUrl || row.url} label={row.fileName || 'Client doc'} />
-                    {row.sourceUrl && row.sourceUrl !== row.vaultUrl && (
-                      <span className="block mt-1">
-                        <DriveLinkBadge url={row.sourceUrl} label="Original" className="opacity-80" />
-                      </span>
+                    <StatusBadge status={workflowDisplay} type="verification" size="sm" />
+                    {row.verificationNotes && effectiveMapping === 'REJECTED' && (
+                      <div className="text-[9px] text-rose-600 mt-1 max-w-[120px] mx-auto line-clamp-2" title={row.verificationNotes}>
+                        {row.verificationNotes}
+                      </div>
                     )}
+                  </td>
+                  <td className="py-3 px-3 text-center">
+                    <StatusBadge status={clientSubmission} type="submission" size="sm" />
+                  </td>
+                  <td className="py-3 px-3 text-center min-w-[140px]">
+                    {(() => {
+                      const clientEvidenceUrl = resolveClientEvidenceUrl({
+                        sourceUrl: row.sourceUrl,
+                        url: row.url,
+                        vaultUrl: row.vaultUrl,
+                      });
+                      const clientEvidenceLabel = resolveClientEvidenceLabel({
+                        description: row.description,
+                        requirementTitle: row.requirementTitle,
+                      });
+                      if (!clientEvidenceUrl) {
+                        return (
+                          <span className="text-[10px] text-slate-400 italic">No client link</span>
+                        );
+                      }
+                      return (
+                        <DriveLinkBadge
+                          url={clientEvidenceUrl}
+                          label={clientEvidenceLabel}
+                          facilityId={row.facilityName || row.facilityId}
+                          onOpenPreview={() => setPreviewDoc(row)}
+                        />
+                      );
+                    })()}
                   </td>
                   <td className="py-3 px-3 text-center">
                     <div className="flex flex-col gap-1 items-center">
                       <button
                         type="button"
-                        onClick={() => setPreviewDoc(row)}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200 text-[10px] font-semibold hover:bg-slate-100 dark:hover:bg-slate-800"
+                        disabled={reviewLoading}
+                        onClick={() => void openRequirementReview(row)}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-emerald-300 text-emerald-800 text-[10px] font-semibold hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-300"
                       >
-                        <Eye className="w-3 h-3" />
-                        View in UI
+                        Review request
                       </button>
                       <button
                         type="button"
@@ -385,7 +517,8 @@ export const ClientUploadsPanel: React.FC<ClientUploadsPanelProps> = ({
                     </div>
                   </td>
                 </tr>
-              ))}
+              );
+              })}
             </tbody>
           </table>
         </div>
@@ -396,6 +529,29 @@ export const ClientUploadsPanel: React.FC<ClientUploadsPanelProps> = ({
           <Link href="/client-uploads" className="text-xs text-emerald-700 dark:text-emerald-400 hover:underline">
             View all {uploads.length} uploads →
           </Link>
+        </div>
+      )}
+
+      {reviewRequirement && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-slate-800 dark:bg-slate-900">
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-sm font-bold">{reviewRequirement.title}</h2>
+                <p className="text-[11px] font-mono text-emerald-700">{reviewRequirement.requestId}</p>
+              </div>
+              <button type="button" onClick={() => setReviewRequirement(null)} className="text-slate-400 hover:text-slate-800 text-lg">
+                ×
+              </button>
+            </div>
+            <RequestReviewPanel
+              requirement={reviewRequirement}
+              onReviewed={async () => {
+                setReviewRequirement(null);
+                await loadUploads();
+              }}
+            />
+          </div>
         </div>
       )}
 

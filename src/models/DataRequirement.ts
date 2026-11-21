@@ -4,6 +4,10 @@ import { ComplianceType, SubmissionStatus, VerificationStatus, RequestWorkflowSt
 export interface IDataRequirementDocument extends Document {
   facilityId: string;
   requestId?: string;
+  bundleId?: string;
+  bundleTitle?: string;
+  masterRequirementId?: string;
+  requirementItemStatus?: string;
   period: string;
   sourceChecklistItemKey?: string;
   requestedBy?: string;
@@ -16,9 +20,6 @@ export interface IDataRequirementDocument extends Document {
   description: string;
   purpose?: string;
   dataCategory?: string;
-  brsrSection?: string;
-  brsrPrinciple?: string;
-  brsrPrinciples?: string[];
   templateId?: string;
   reportingFrequency?: string;
   reportingPeriodStart?: string;
@@ -113,6 +114,24 @@ const DataRequirementSchema = new Schema<IDataRequirementDocument>(
   {
     facilityId: { type: String, required: true, uppercase: true, trim: true, index: true },
     requestId: { type: String, unique: true, sparse: true, index: true },
+    bundleId: { type: String, trim: true, index: true },
+    bundleTitle: { type: String, trim: true },
+    masterRequirementId: { type: String, trim: true, index: true },
+    requirementItemStatus: {
+      type: String,
+      enum: [
+        'PENDING',
+        'IN_PROGRESS',
+        'SUBMITTED',
+        'UNDER_REVIEW',
+        'CHANGES_REQUESTED',
+        'RESUBMITTED',
+        'ACCEPTED',
+        'REJECTED',
+        'NOT_APPLICABLE',
+      ],
+      default: 'PENDING',
+    },
     period: { type: String, required: true, trim: true },
     sourceChecklistItemKey: { type: String, trim: true },
     requestedBy: { type: String },
@@ -135,9 +154,6 @@ const DataRequirementSchema = new Schema<IDataRequirementDocument>(
     description: { type: String, required: true },
     purpose: { type: String, trim: true },
     dataCategory: { type: String, trim: true, index: true },
-    brsrSection: { type: String, trim: true },
-    brsrPrinciple: { type: String, trim: true },
-    brsrPrinciples: [{ type: String, trim: true }],
     templateId: { type: String, trim: true },
     reportingFrequency: {
       type: String,
@@ -181,12 +197,50 @@ const DataRequirementSchema = new Schema<IDataRequirementDocument>(
     }],
     requiredDocuments: [{ type: String, trim: true }],
     submissionInstructions: { type: String, trim: true },
-    workflowStatus: { type: String, enum: ['DRAFT', 'REQUESTED', 'IN_PROGRESS', 'SUBMITTED', 'UNDER_REVIEW', 'CHANGES_REQUESTED', 'RESUBMITTED', 'ACCEPTED', 'REJECTED', 'CLOSED'], default: 'REQUESTED' },
+    workflowStatus: {
+      type: String,
+      enum: [
+        'DRAFT',
+        'REQUESTED',
+        'IN_PROGRESS',
+        'PARTIALLY_SUBMITTED',
+        'SUBMITTED',
+        'UNDER_REVIEW',
+        'PARTIALLY_ACCEPTED',
+        'CHANGES_REQUESTED',
+        'RESUBMITTED',
+        'ACCEPTED',
+        'REJECTED',
+        'CLOSED',
+      ],
+      default: 'REQUESTED',
+    },
     fieldReviews: [{
       fieldKey: { type: String, required: true }, status: { type: String, enum: ['PENDING', 'VERIFIED', 'MISSING', 'INCORRECT', 'CLARIFICATION_REQUIRED'], default: 'PENDING' },
       comment: String, reviewedBy: String, reviewedAt: Date,
     }],
-    history: [{ status: { type: String, enum: ['DRAFT', 'REQUESTED', 'IN_PROGRESS', 'SUBMITTED', 'UNDER_REVIEW', 'CHANGES_REQUESTED', 'RESUBMITTED', 'ACCEPTED', 'REJECTED', 'CLOSED'] }, changedAt: Date, changedBy: String, comment: String }],
+    history: [{
+      status: {
+        type: String,
+        enum: [
+          'DRAFT',
+          'REQUESTED',
+          'IN_PROGRESS',
+          'PARTIALLY_SUBMITTED',
+          'SUBMITTED',
+          'UNDER_REVIEW',
+          'PARTIALLY_ACCEPTED',
+          'CHANGES_REQUESTED',
+          'RESUBMITTED',
+          'ACCEPTED',
+          'REJECTED',
+          'CLOSED',
+        ],
+      },
+      changedAt: Date,
+      changedBy: String,
+      comment: String,
+    }],
     submissionVersion: { type: Number, default: 0 },
     submissionHistory: [{
       version: { type: Number, required: true }, submittedAt: { type: Date, default: Date.now }, submittedBy: String,

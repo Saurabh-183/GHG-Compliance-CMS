@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { FacilityModel } from '@/models/Facility';
 import { getSessionFromRequest } from '@/lib/auth';
-import { GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
+import { GOOGLE_DRIVE_FOLDER_URL, resolveComplianceVaultFolderUrl } from '@/lib/gdrive';
 
 export async function GET(request: NextRequest) {
   try {
@@ -34,9 +34,22 @@ export async function GET(request: NextRequest) {
       syncedMonthsCount: 0,
     };
 
+    const normalizedFolderUrl = resolveComplianceVaultFolderUrl(driveConnection.folderUrl);
+    const data =
+      normalizedFolderUrl === driveConnection.folderUrl
+        ? driveConnection
+        : { ...driveConnection, folderUrl: normalizedFolderUrl };
+
+    if (normalizedFolderUrl !== driveConnection.folderUrl && facility.driveConnection?.folderUrl) {
+      void FacilityModel.updateOne(
+        { facilityId },
+        { $set: { 'driveConnection.folderUrl': normalizedFolderUrl } }
+      );
+    }
+
     return NextResponse.json({
       success: true,
-      data: driveConnection,
+      data,
     });
   } catch (error) {
     console.warn('Error fetching Drive connection from DB, returning fallback demo connection:', error);

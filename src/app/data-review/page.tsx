@@ -1,136 +1,167 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
-import type { IDataRequirement } from '@/types';
-import { StatusBadge } from '@/components/common/StatusBadge';
-import { RequestReviewPanel } from '@/components/requests/RequestReviewPanel';
+import React, { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
+import { Calendar, ClipboardCheck, ExternalLink } from 'lucide-react';
+import { ClientSubmissionsReviewTable } from '@/components/uploads/ClientSubmissionsReviewTable';
+import { CompanySelectMui } from '@/components/dashboard/CompanySelectMui';
+import { FacilitySelectMui } from '@/components/dashboard/FacilitySelectMui';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
-import { ClipboardCheck, X } from 'lucide-react';
-import { formatDate } from '@/lib/utils';
+import { MOCK_CLIENT_GROUPS } from '@/lib/mockFallback';
+import { COMPLIANCE_PERIODS } from '@/lib/complianceMatrixData';
+import { DEFAULT_CHECKLIST_PERIOD } from '@/lib/facilityDataChecklistTemplate';
+import type { IClientGroup, IFacility } from '@/types';
+
+const ALL_FACILITIES_VALUE = '__ALL_FACILITIES__';
 
 export default function DataReviewPage() {
-  const [requirements, setRequirements] = useState<IDataRequirement[]>([]);
+  const [groups, setGroups] = useState<IClientGroup[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selected, setSelected] = useState<IDataRequirement | null>(null);
-  const [statusFilter, setStatusFilter] = useState('ALL');
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await fetch('/api/requirements', { cache: 'no-store' });
-      const json = await res.json();
-      const rows = Array.isArray(json.data) ? json.data : [];
-      setRequirements(
-        rows.filter((r: IDataRequirement) =>
-          ['SUBMITTED', 'RESUBMITTED', 'UNDER_REVIEW', 'CHANGES_REQUESTED'].includes(
-            r.workflowStatus || ''
-          ) || (r.submittedDriveLinks?.length ?? 0) > 0
-        )
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const [selectedCompanyId, setSelectedCompanyId] = useState('ALL');
+  const [selectedFacilityId, setSelectedFacilityId] = useState(ALL_FACILITIES_VALUE);
+  const [selectedPeriod, setSelectedPeriod] = useState(DEFAULT_CHECKLIST_PERIOD);
 
   useEffect(() => {
-    void load();
-  }, [load]);
+    void (async () => {
+      try {
+        const res = await fetch('/api/client-groups', { credentials: 'include' });
+        if (res.ok) {
+          const json = (await res.json()) as { data?: IClientGroup[] };
+          setGroups(json.data?.length ? json.data : MOCK_CLIENT_GROUPS);
+        } else {
+          setGroups(MOCK_CLIENT_GROUPS);
+        }
+      } catch {
+        setGroups(MOCK_CLIENT_GROUPS);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
 
-  const visible = requirements.filter(
-    (r) => statusFilter === 'ALL' || (r.workflowStatus || '') === statusFilter
+  const selectedGroup = groups.find(
+    (group) => group._id === selectedCompanyId || group.code === selectedCompanyId
   );
 
-  if (loading) return <CarbonCrunchLoader message="Loading submissions for review…" />;
+  const allFacilities: IFacility[] = useMemo(
+    () => groups.flatMap((group) => group.facilities || []),
+    [groups]
+  );
+
+  const currentFacilities: IFacility[] = useMemo(() => {
+    if (!selectedGroup) return allFacilities;
+    if (selectedGroup.facilities?.length) return selectedGroup.facilities;
+    return allFacilities.filter((f) => f.clientGroupId === selectedGroup._id);
+  }, [selectedGroup, allFacilities]);
+
+  useEffect(() => {
+    if (currentFacilities.length === 0) {
+      setSelectedFacilityId(ALL_FACILITIES_VALUE);
+      return;
+    }
+    if (currentFacilities.length === 1) {
+      setSelectedFacilityId(currentFacilities[0].facilityId);
+      return;
+    }
+    setSelectedFacilityId((prev) => {
+      if (prev === ALL_FACILITIES_VALUE) return prev;
+      if (currentFacilities.some((f) => f.facilityId === prev)) return prev;
+      return ALL_FACILITIES_VALUE;
+    });
+  }, [selectedCompanyId, currentFacilities]);
+
+  const facilityIdForApi =
+    selectedFacilityId && selectedFacilityId !== ALL_FACILITIES_VALUE
+      ? selectedFacilityId
+      : undefined;
+
+  const clientGroupIdForApi =
+    selectedGroup?._id?.toString() && selectedCompanyId !== 'ALL'
+      ? selectedGroup._id.toString()
+      : undefined;
+
+  const activeFacilityName = currentFacilities.find((f) => f.facilityId === selectedFacilityId)?.name;
+
+  if (loading) {
+    return <CarbonCrunchLoader message="Loading data review workspace…" />;
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-      <header className="pb-4 border-b border-slate-200 dark:border-slate-800">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-          <ClipboardCheck className="w-6 h-6 text-emerald-600" />
-          Data Review
-        </h1>
-        <p className="text-xs text-slate-500 mt-1">
-          Review client submissions, run field-level checks, request changes, or accept approved data.
-        </p>
+      <header className="pb-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <ClipboardCheck className="w-6 h-6 text-emerald-600" />
+            Data Review
+          </h1>
+          <p className="text-xs text-slate-500 mt-1">
+            Review client submissions, run field-level checks, request changes, or accept approved data.
+            Same records as the dashboard — one row per request (latest client evidence).
+          </p>
+        </div>
+        <Link
+          href="/client-uploads"
+          className="text-xs text-emerald-700 dark:text-emerald-400 hover:underline inline-flex items-center gap-1 shrink-0"
+        >
+          Drive vault mapping <ExternalLink className="w-3 h-3" />
+        </Link>
       </header>
 
-      <select
-        value={statusFilter}
-        onChange={(e) => setStatusFilter(e.target.value)}
-        className="rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-xs"
-      >
-        <option value="ALL">All review states</option>
-        <option value="SUBMITTED">Submitted</option>
-        <option value="RESUBMITTED">Resubmitted</option>
-        <option value="UNDER_REVIEW">Under review</option>
-        <option value="CHANGES_REQUESTED">Changes requested</option>
-        <option value="ACCEPTED">Accepted</option>
-      </select>
-
-      <div className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-x-auto">
-        <table className="w-full text-xs text-left">
-          <thead>
-            <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-[10px] uppercase text-slate-500">
-              <th className="p-3">Request ID</th>
-              <th className="p-3">Title</th>
-              <th className="p-3">Facility</th>
-              <th className="p-3">Category</th>
-              <th className="p-3">Submitted</th>
-              <th className="p-3">Status</th>
-              <th className="p-3 text-center">Action</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-            {visible.map((req) => {
-              const last = req.submissionHistory?.[req.submissionHistory.length - 1];
-              return (
-                <tr key={req._id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40">
-                  <td className="p-3 font-mono text-emerald-700">{req.requestId}</td>
-                  <td className="p-3 font-semibold">{req.title}</td>
-                  <td className="p-3 font-mono">{req.facilityId}</td>
-                  <td className="p-3">{req.dataCategory || req.brsrSection || '—'}</td>
-                  <td className="p-3">{last?.submittedAt ? formatDate(last.submittedAt) : '—'}</td>
-                  <td className="p-3">
-                    <StatusBadge status={req.workflowStatus || 'SUBMITTED'} type="verification" size="sm" />
-                  </td>
-                  <td className="p-3 text-center">
-                    <button
-                      type="button"
-                      onClick={() => setSelected(req)}
-                      className="px-3 py-1.5 rounded-lg bg-[#17365D] dark:bg-[#A56F63] text-white font-bold"
-                    >
-                      Review
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-4 shadow-sm space-y-3">
+        <p className="text-[11px] text-slate-600 dark:text-slate-400">
+          Filter by organization, facility, and financial year — same scope as the consultant dashboard and client
+          portal.
+        </p>
+        <div className="flex flex-col lg:flex-row lg:flex-wrap lg:items-center gap-3">
+          <CompanySelectMui
+            groups={groups}
+            selectedCompanyId={selectedCompanyId}
+            onCompanyChange={(id) => setSelectedCompanyId(id)}
+          />
+          {currentFacilities.length > 0 && (
+            <FacilitySelectMui
+              facilities={currentFacilities}
+              selectedFacilityId={selectedFacilityId}
+              onFacilityChange={setSelectedFacilityId}
+              allowAll={currentFacilities.length > 1}
+            />
+          )}
+          <label className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+            <Calendar className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span className="font-semibold whitespace-nowrap">Financial year</span>
+            <select
+              value={selectedPeriod}
+              onChange={(e) => setSelectedPeriod(e.target.value)}
+              className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-2.5 py-1.5 font-mono text-xs min-w-[7.5rem]"
+            >
+              {COMPLIANCE_PERIODS.map((fy) => (
+                <option key={fy} value={fy}>
+                  {fy}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+        <p className="text-[10px] text-slate-500 dark:text-slate-400">
+          Showing{' '}
+          <strong className="text-slate-700 dark:text-slate-200">
+            {selectedGroup?.name ?? 'All client companies'}
+          </strong>
+          {' · '}
+          <strong className="text-slate-700 dark:text-slate-200">
+            {facilityIdForApi ? activeFacilityName || facilityIdForApi : 'All units in scope'}
+          </strong>
+          {' · '}
+          <strong className="text-slate-700 dark:text-slate-200 font-mono">{selectedPeriod}</strong>
+        </p>
       </div>
 
-      {selected && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-2xl">
-            <div className="flex items-start justify-between gap-3 mb-4">
-              <div>
-                <h2 className="text-sm font-bold">{selected.title}</h2>
-                <p className="text-[11px] font-mono text-emerald-700">{selected.requestId}</p>
-              </div>
-              <button type="button" onClick={() => setSelected(null)} className="p-2 text-slate-400 hover:text-slate-800">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <RequestReviewPanel
-              requirement={selected}
-              onReviewed={async () => {
-                setSelected(null);
-                await load();
-              }}
-            />
-          </div>
-        </div>
-      )}
+      <ClientSubmissionsReviewTable
+        showWorkflowFilter
+        clientGroupId={clientGroupIdForApi}
+        facilityId={facilityIdForApi}
+        period={selectedPeriod}
+      />
     </div>
   );
 }

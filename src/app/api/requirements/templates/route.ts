@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { BRSR_REQUEST_TEMPLATES, BRSR_CATEGORY_LABELS } from '@/lib/brsrRequestTemplates';
 import { getSessionFromRequest } from '@/lib/auth';
+import { CONSULTANT_REQUEST_TEMPLATES, DATA_CATEGORIES } from '@/lib/dataRequestCategories';
 
 export async function GET(request: NextRequest) {
   const session = getSessionFromRequest(request);
@@ -11,8 +11,8 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({
     success: true,
     data: {
-      templates: BRSR_REQUEST_TEMPLATES,
-      categoryLabels: BRSR_CATEGORY_LABELS,
+      templates: CONSULTANT_REQUEST_TEMPLATES,
+      categoryLabels: Object.fromEntries(DATA_CATEGORIES.map((c) => [c, c])),
     },
   });
 }

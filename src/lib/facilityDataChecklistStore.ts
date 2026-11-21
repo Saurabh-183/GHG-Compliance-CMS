@@ -1,5 +1,6 @@
 import type { IFacilityDataChecklist, IFacilityDataChecklistItem } from '@/types';
 import { buildDefaultChecklistItems, DEFAULT_CHECKLIST_PERIOD } from '@/lib/facilityDataChecklistTemplate';
+import { mergeChecklistItemsWithMaster } from '@/lib/applicableRequirements';
 import { connectToDatabase } from '@/lib/db';
 import { FacilityDataChecklistModel } from '@/models/FacilityDataChecklist';
 import { readChecklistFile, writeChecklistFile } from '@/lib/facilityDataChecklistFiles';
@@ -155,6 +156,11 @@ export async function getFacilityDataChecklist(
   } else if (facilityName && !checklist.facilityName) {
     checklist = { ...checklist, facilityName };
   }
+
+  checklist = {
+    ...checklist,
+    items: mergeChecklistItemsWithMaster(checklist.items),
+  };
 
   memoryStore.set(key, cloneChecklist(checklist));
   return cloneChecklist(checklist);
