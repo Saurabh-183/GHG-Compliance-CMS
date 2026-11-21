@@ -20,10 +20,11 @@ import { ChecklistStatusSelectMui } from './ChecklistStatusSelectMui';
 type Mode = 'internal' | 'client';
 
 const STATUS_OPTIONS: { value: DataChecklistItemStatus; label: string }[] = [
-  { value: 'DUE', label: 'Due' },
+  { value: 'DUE', label: 'Applicable / Due' },
   { value: 'RECEIVED', label: 'Received' },
   { value: 'NOT_APPLICABLE', label: 'Not Applicable' },
   { value: 'NOT_REQUIRED', label: 'Not Required' },
+  { value: 'NEEDS_VERIFICATION', label: 'Needs Verification' },
 ];
 
 function statusPill(status: DataChecklistItemStatus) {
@@ -35,6 +36,8 @@ function statusPill(status: DataChecklistItemStatus) {
     case 'NOT_APPLICABLE':
     case 'NOT_REQUIRED':
       return 'bg-slate-100 text-slate-600 border-slate-300 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700';
+    case 'NEEDS_VERIFICATION':
+      return 'bg-violet-100 text-violet-900 border-violet-300 dark:bg-violet-950/40 dark:text-violet-200';
     default:
       return 'bg-slate-100 text-slate-600';
   }

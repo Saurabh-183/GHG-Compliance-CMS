@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { FacilityModel } from '@/models/Facility';
 import { getSessionFromRequest, authorizeRole } from '@/lib/auth';
+import {
+  authorizedFacilityIdsForPortal,
+  dedupeFacilitiesById,
+  filterFacilitiesToPortalScope,
+} from '@/lib/portalScope';
 
 export async function GET(request: NextRequest) {
   const session = getSessionFromRequest(request);
@@ -16,18 +21,21 @@ export async function GET(request: NextRequest) {
   try {
     await connectToDatabase();
 
+    const searchParams = request.nextUrl.searchParams;
+    const portalScope = searchParams.get('portalScope') === 'authorized';
+
     let query: Record<string, unknown> = {};
-    if (session.role !== 'ADMIN') {
-      const assigned = session.authorizedFacilityIds || [];
-      if (!assigned.length) return NextResponse.json({ success: true, data: [] });
-      query.facilityId = { $in: assigned.map((id) => id.toUpperCase()) };
-      if (session.role === 'CLIENT') {
-        if (!session.clientGroupId) return NextResponse.json({ success: true, data: [] });
-        query.clientGroupId = session.clientGroupId;
+    if (portalScope) {
+      const ids = authorizedFacilityIdsForPortal(session);
+      query = ids.length ? { facilityId: { $in: ids } } : { facilityId: '__NONE__' };
+    } else if (session && session.role === 'CLIENT') {
+      const ids = authorizedFacilityIdsForPortal(session);
+      if (!ids.length) {
+        return NextResponse.json({ success: true, data: [] });
       }
+      query = { facilityId: { $in: ids } };
     }
 
-    const searchParams = request.nextUrl.searchParams;
     const clientGroupIdParam = searchParams.get('clientGroupId');
     if (clientGroupIdParam) {
       query.clientGroupId = clientGroupIdParam;
@@ -64,9 +72,8 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    return NextResponse.json({
-      success: true,
-      data: facilities.map((f) => {
+    let data = dedupeFacilitiesById(
+      facilities.map((f) => {
         const clientGroup = f.clientGroupId as unknown as { _id?: { toString(): string }; name?: string };
         return {
           ...f,
@@ -74,13 +81,21 @@ export async function GET(request: NextRequest) {
           clientGroupId: clientGroup?._id ? clientGroup._id.toString() : String(f.clientGroupId),
           clientGroupName: clientGroup?.name || '',
         };
-      }),
+      })
+    );
+
+    if (portalScope || session.role === 'CLIENT') {
+      data = filterFacilitiesToPortalScope(session, data);
+    }
+
+    return NextResponse.json({
+      success: true,
+      data,
     });
   } catch (error) {
     console.warn('Error fetching facilities from DB:', error);
 
-    if (session.role === 'CLIENT') {
-      // Never expose the full demo directory to a client if the database is unavailable.
+    if (session.role === 'CLIENT' && process.env.NODE_ENV === 'production') {
       return NextResponse.json(
         { success: false, error: 'Facility directory is temporarily unavailable.' },
         { status: 503 }
@@ -95,10 +110,15 @@ export async function GET(request: NextRequest) {
     }
 
     const { MOCK_FACILITIES } = await import('@/lib/mockFallback');
+    let fallbackList = MOCK_FACILITIES;
+    const portalScope = request.nextUrl.searchParams.get('portalScope') === 'authorized';
+    if (portalScope || session?.role === 'CLIENT') {
+      fallbackList = filterFacilitiesToPortalScope(session, MOCK_FACILITIES);
+    }
     return NextResponse.json({
       success: true,
       source: 'development-fallback',
-      data: MOCK_FACILITIES,
+      data: fallbackList,
     });
   }
 }

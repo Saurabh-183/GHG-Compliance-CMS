@@ -31,6 +31,16 @@ interface EvidenceDocumentModalProps {
   };
   facilityId?: string;
   isDraftPreview?: boolean;
+  /** Skip HT electricity mock when this is a generic industrial / checklist file */
+  useIndustrialPreview?: boolean;
+}
+
+function spreadsheetEmbedUrl(url: string): string | null {
+  const sheetMatch = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+  if (sheetMatch) return `https://docs.google.com/spreadsheets/d/${sheetMatch[1]}/preview?rm=minimal`;
+  const fileMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (fileMatch) return `https://drive.google.com/file/d/${fileMatch[1]}/preview`;
+  return null;
 }
 
 const display = (value?: string | number | null) =>
@@ -48,10 +58,14 @@ export const EvidenceDocumentModal: React.FC<EvidenceDocumentModalProps> = ({
   utilityConnectionSnapshot,
   facilityId = 'Facility',
   isDraftPreview = false,
+  useIndustrialPreview = false,
 }) => {
   if (!isOpen) return null;
 
   const driveUrl = url.trim() || process.env.NEXT_PUBLIC_GDRIVE_FOLDER_URL || GOOGLE_DRIVE_FOLDER_URL;
+  const showIndustrialOnly =
+    useIndustrialPreview || (!billDetails && !utilityConnectionSnapshot);
+  const embedUrl = spreadsheetEmbedUrl(driveUrl);
   const billingPeriod =
     billDetails?.billingFrom && billDetails?.billingTo
       ? `${billDetails.billingFrom} to ${billDetails.billingTo}`
@@ -95,7 +109,40 @@ export const EvidenceDocumentModal: React.FC<EvidenceDocumentModalProps> = ({
 
         {/* Body */}
         <div className="p-6 overflow-y-auto space-y-6 text-xs flex-1">
-          {/* Simulated Official Bill Document */}
+          {showIndustrialOnly ? (
+            <div className="space-y-4">
+              <p className="text-[11px] text-slate-600 dark:text-slate-400">
+                Client submission file for <strong>{label}</strong>. Review the live spreadsheet below or open in
+                Google Drive.
+              </p>
+              {embedUrl ? (
+                <iframe
+                  title="Evidence spreadsheet"
+                  src={embedUrl}
+                  className="w-full h-[50vh] min-h-[280px] rounded-lg border border-slate-200 dark:border-slate-700 bg-white"
+                  allow="fullscreen"
+                />
+              ) : (
+                <p className="text-amber-800 bg-amber-50 border border-amber-200 rounded-lg p-3 text-[11px]">
+                  Use a direct Google Sheet or Drive file link to preview inside the app.
+                </p>
+              )}
+              <div className="p-3 rounded-lg bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                <span className="font-mono text-[11px] text-emerald-700 truncate pr-3">{driveUrl}</span>
+                {driveUrl && (
+                  <a
+                    href={driveUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs shrink-0"
+                  >
+                    <span>Open in Drive</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                )}
+              </div>
+            </div>
+          ) : (
           <div className="p-6 rounded-md border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-950 shadow-inner space-y-5">
             {/* Top Official Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800 gap-3">
@@ -209,6 +256,7 @@ export const EvidenceDocumentModal: React.FC<EvidenceDocumentModalProps> = ({
               )}
             </div>
           </div>
+          )}
         </div>
 
         {/* Footer */}

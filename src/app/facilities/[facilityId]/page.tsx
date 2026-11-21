@@ -3,7 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { IFacilityComplianceMatrix, IComplianceApplicability } from '@/types';
+import { IDataRequirement, IFacilityComplianceMatrix, IComplianceApplicability } from '@/types';
+import { computePortalDataRequestPercentages } from '@/lib/requestStats';
+import { PORTAL_PERIOD_OPTIONS, readPortalPeriod, writePortalScope } from '@/lib/portalScope';
 import { ComplianceMatrixTable } from '@/components/compliance/ComplianceMatrixTable';
 import { ExcelImportModal } from '@/components/compliance/ExcelImportModal';
 import { DriveConnectionModal } from '@/components/common/DriveConnectionModal';
@@ -97,11 +99,12 @@ export default function FacilityDashboardPage() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isDriveModalOpen, setIsDriveModalOpen] = useState(false);
+  const [selectedPeriod, setSelectedPeriod] = useState(() => readPortalPeriod());
+  const [requestProgress, setRequestProgress] = useState(
+    computePortalDataRequestPercentages([])
+  );
 
-  // Stats
   const [stats, setStats] = useState({
-    dataGivenPercentage: 100,
-    dataMatchedPercentage: 91.7,
     driveFolderUrl: process.env.NEXT_PUBLIC_GDRIVE_FOLDER_URL || GOOGLE_DRIVE_FOLDER_URL,
     driveFolderName: 'Carbon Crunch · Compliance Documents & Evidence Vault',
     isDriveConnected: true,
@@ -112,14 +115,19 @@ export default function FacilityDashboardPage() {
     setLoadError(null);
 
     try {
-      const [res, driveRes, datasetRes, filesRes] = await Promise.all([
+      const reqParams = new URLSearchParams({
+        facilityId: facilityId.toUpperCase(),
+        period: selectedPeriod,
+      });
+      const [res, driveRes, reqRes, filesRes] = await Promise.all([
         fetch(`/api/facilities/${encodeURIComponent(facilityId)}/compliance-matrix`, {
           cache: 'no-store',
         }).catch(() => null),
         fetch(`/api/drive/connect?facilityId=${encodeURIComponent(facilityId)}`, {
           cache: 'no-store',
         }).catch(() => null),
-        fetch(`/api/datasets?facilityId=${encodeURIComponent(facilityId)}`, {
+        fetch(`/api/requirements?${reqParams.toString()}`, {
+          credentials: 'include',
           cache: 'no-store',
         }).catch(() => null),
         fetch(`/api/drive/files?facilityId=${encodeURIComponent(facilityId)}`, {
@@ -176,35 +184,17 @@ export default function FacilityDashboardPage() {
         }
       }
 
-      // Calculate the data completion and matching percentages from the synced dataset.
-      if (datasetRes?.ok) {
-        const dJson = await datasetRes.json();
-        const ds = dJson.data?.[0];
-
-        if (ds?.months?.length) {
-          const declared = ds.months.filter(
-            (month: any) => Number(month.declaredValue) > 0
-          ).length;
-          const givenPct = Math.round((declared / 12) * 100);
-
-          const evaluated = ds.months.filter(
-            (month: any) =>
-              month.evidenceValue !== null && Number(month.declaredValue) > 0
-          );
-          const matched = evaluated.filter(
-            (month: any) => month.result === 'MATCHED'
-          ).length;
-          const matchedPct =
-            evaluated.length > 0
-              ? Number(((matched / evaluated.length) * 100).toFixed(1))
-              : 100;
-
-          setStats((prev) => ({
-            ...prev,
-            dataGivenPercentage: givenPct,
-            dataMatchedPercentage: matchedPct,
-          }));
-        }
+      if (reqRes?.ok) {
+        const reqJson = (await reqRes.json()) as { data?: IDataRequirement[] };
+        const scoped = (reqJson.data || []).filter(
+          (r) =>
+            r.facilityId?.toUpperCase() === facilityId.toUpperCase() &&
+            r.period === selectedPeriod &&
+            r.isApplicable !== false
+        );
+        setRequestProgress(computePortalDataRequestPercentages(scoped));
+      } else {
+        setRequestProgress(computePortalDataRequestPercentages([]));
       }
 
       // Load Drive evidence files.
@@ -228,8 +218,12 @@ export default function FacilityDashboardPage() {
   };
 
   useEffect(() => {
+    writePortalScope(facilityId, selectedPeriod);
+  }, [facilityId, selectedPeriod]);
+
+  useEffect(() => {
     loadMatrix();
-  }, [facilityId]);
+  }, [facilityId, selectedPeriod]);
 
   if (loading) {
     return <CarbonCrunchLoader message={`Loading Facility Compliance Matrix (${facilityId})...`} />;
@@ -270,6 +264,14 @@ export default function FacilityDashboardPage() {
 
   const { facility } = matrixData;
   const resolvedGroup = resolveClientGroup(facility);
+  const {
+    dataGivenPercentage,
+    dataMatchedPercentage,
+    givenCount,
+    matchedCount,
+    auditedCount,
+    total: requestTotal,
+  } = requestProgress;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -322,6 +324,20 @@ export default function FacilityDashboardPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
+            <label className="flex items-center gap-2 text-[11px] text-slate-600 dark:text-slate-300">
+              <span className="font-semibold">FY</span>
+              <select
+                value={selectedPeriod}
+                onChange={(e) => setSelectedPeriod(e.target.value)}
+                className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-2 py-1.5 font-mono text-xs"
+              >
+                {PORTAL_PERIOD_OPTIONS.map((fy) => (
+                  <option key={fy} value={fy}>
+                    {fy}
+                  </option>
+                ))}
+              </select>
+            </label>
             <button
               onClick={() => setIsDriveModalOpen(true)}
               className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#17365D] hover:bg-[#102947] dark:bg-[#A56F63] dark:hover:bg-[#8C594E] text-white! text-xs font-semibold shadow-sm transition-colors"
@@ -358,9 +374,13 @@ export default function FacilityDashboardPage() {
               <TrendingUp className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
             </div>
             <div className="text-xl font-extrabold text-slate-900 dark:text-white">
-              {stats.dataGivenPercentage}%
+              {dataGivenPercentage}%
             </div>
-            <p className="text-[11px] text-slate-500">12 of 12 financial year months client-declared</p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              {requestTotal > 0
+                ? `${givenCount} of ${requestTotal} data requests submitted for ${selectedPeriod}`
+                : `No applicable data requests for ${selectedPeriod}`}
+            </p>
           </div>
 
           <div className="p-3.5 rounded-md bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 space-y-1">
@@ -369,9 +389,15 @@ export default function FacilityDashboardPage() {
               <CheckCheck className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
             </div>
             <div className="text-xl font-extrabold text-slate-900 dark:text-white">
-              {stats.dataMatchedPercentage}%
+              {dataMatchedPercentage}%
             </div>
-            <p className="text-[11px] text-slate-500">3 of 4 evaluated months match within 0 kWh tolerance</p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              {auditedCount > 0
+                ? `${matchedCount} of ${auditedCount} submitted requests accepted (${selectedPeriod})`
+                : requestTotal > 0
+                  ? 'No submitted requests under review yet'
+                  : '—'}
+            </p>
           </div>
 
           <div className="p-3.5 rounded-md bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 space-y-1">
@@ -532,13 +558,8 @@ export default function FacilityDashboardPage() {
         isOpen={isDriveModalOpen}
         onClose={() => setIsDriveModalOpen(false)}
         facilityId={facilityId}
-        onSyncSuccess={(res) => {
-          setStats((prev) => ({
-            ...prev,
-            dataGivenPercentage: res.dataGivenPercentage,
-            dataMatchedPercentage: res.dataMatchedPercentage,
-          }));
-          loadMatrix();
+        onSyncSuccess={() => {
+          void loadMatrix();
         }}
       />
 

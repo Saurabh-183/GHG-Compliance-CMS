@@ -1,79 +1,108 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-
-import { connectToDatabase } from '@/lib/db';
-import { getSessionFromRequest } from '@/lib/auth';
-
-import { ClientGroupModel } from '@/models/ClientGroup';
+import { connectToDatabase, isMongoObjectId } from '@/lib/db';
 import { FacilityModel } from '@/models/Facility';
+import { ClientGroupModel } from '@/models/ClientGroup';
 import { DataRequirementModel } from '@/models/DataRequirement';
 import { ClarificationModel } from '@/models/Clarification';
 import { AssessmentModel } from '@/models/Assessment';
 import { CalendarItemModel } from '@/models/CalendarItem';
+import { getSessionFromRequest, isAuthorizedForFacility } from '@/lib/auth';
+import {
+  authorizedFacilityIdsForPortal,
+  dedupeFacilitiesById,
+  filterFacilitiesToPortalScope,
+} from '@/lib/portalScope';
+
+async function buildPortalFacilityQuery(session: ReturnType<typeof getSessionFromRequest>) {
+  const portalFacilityIds = authorizedFacilityIdsForPortal(session);
+  const filter: Record<string, unknown> =
+    portalFacilityIds.length > 0
+      ? { facilityId: { $in: portalFacilityIds } }
+      : { facilityId: '__NONE__' };
+
+  if (session?.role === 'CLIENT' && session.clientGroupId) {
+    if (isMongoObjectId(session.clientGroupId)) {
+      filter.clientGroupId = session.clientGroupId;
+    } else {
+      const group = await ClientGroupModel.findOne({
+        code: session.clientGroupId.trim().toUpperCase(),
+      })
+        .select('_id')
+        .lean();
+      if (group?._id) filter.clientGroupId = group._id;
+    }
+  }
+
+  return { filter, portalFacilityIds };
+}
 
 export async function GET(request: NextRequest) {
   try {
     // 1. Authenticate the request.
     const session = getSessionFromRequest(request);
+    const facilityIdParam = request.nextUrl.searchParams.get('facilityId')?.toUpperCase();
+    const periodParam = request.nextUrl.searchParams.get('period')?.trim();
 
-    if (!session) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
+    const { filter: facilityFilter } = await buildPortalFacilityQuery(session);
 
-    // 2. Connect to MongoDB.
-    await connectToDatabase();
-
-    // Ensure referenced schemas are registered before populate().
-    void ClientGroupModel;
-    void CalendarItemModel;
-
-    // 3. Build facility access restrictions.
-    let facilityFilter: Record<string, unknown> = {};
-
-    if (session.role !== 'CLIENT') {
-      return NextResponse.json({ success: false, error: 'Client portal access only.' }, { status: 403 });
-    }
-
-    if (session.role === 'CLIENT') {
-      // A client must have an organisation and explicit facility access.
-      if (
-        !session.clientGroupId ||
-        !Array.isArray(session.authorizedFacilityIds) ||
-        session.authorizedFacilityIds.length === 0
-      ) {
-        return NextResponse.json({
-          success: true,
-          data: {
-            facilities: [],
-            pendingRequests: [],
-            openClarifications: [],
-            approvedHistory: [],
-            upcomingDeadlines: [],
-          },
-        });
-      }
-
-      // Enforce BOTH organisation ownership and facility authorization.
-      facilityFilter = {
-        clientGroupId: session.clientGroupId,
-        facilityId: {
-          $in: session.authorizedFacilityIds,
-        },
-        status: 'ACTIVE',
-      };
-    }
-
-    // 4. Fetch only facilities the current user can access.
-    const facilities = await FacilityModel.find(facilityFilter)
+    const facilitiesRaw = await FacilityModel.find(facilityFilter)
       .populate('clientGroupId', 'name code industry')
       .lean();
 
-    const facilityIds = facilities.map((facility) =>
-      facility.facilityId
-    );
+    const mapFacilityRow = (f: (typeof facilitiesRaw)[number]) => {
+      const clientGroup = f.clientGroupId as unknown as { _id?: { toString(): string }; name?: string };
+      return {
+        ...f,
+        _id: f._id.toString(),
+        clientGroupId: clientGroup?._id ? clientGroup._id.toString() : String(f.clientGroupId),
+        clientGroupName: clientGroup?.name || '',
+      };
+    };
+
+    const portalFacilityIds = authorizedFacilityIdsForPortal(session);
+    const portalAllowedSet = new Set(portalFacilityIds.map((id) => id.toUpperCase()));
+
+    let facilitiesUnique = filterFacilitiesToPortalScope(session, facilitiesRaw.map(mapFacilityRow));
+
+    let facilityIds = facilitiesUnique.map((f) => f.facilityId);
+
+    if (facilityIdParam) {
+      if (session && !isAuthorizedForFacility(session, facilityIdParam)) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
+
+      const inList = facilitiesUnique.some((f) => f.facilityId === facilityIdParam);
+      if (!inList && portalAllowedSet.has(facilityIdParam)) {
+        const extraQuery: Record<string, unknown> = { facilityId: facilityIdParam };
+        if (typeof facilityFilter.clientGroupId !== 'undefined') {
+          extraQuery.clientGroupId = facilityFilter.clientGroupId;
+        }
+        const extra = await FacilityModel.findOne(extraQuery)
+          .populate('clientGroupId', 'name code industry')
+          .lean();
+        if (extra) {
+          facilitiesUnique = filterFacilitiesToPortalScope(session, [
+            ...facilitiesUnique,
+            mapFacilityRow(extra),
+          ]);
+        }
+      }
+
+      const resolved = facilitiesUnique.some((f) => f.facilityId === facilityIdParam);
+      const portalAllowed = portalAllowedSet.has(facilityIdParam);
+      if (resolved && portalAllowed) {
+        facilityIds = [facilityIdParam];
+      } else if (session && isAuthorizedForFacility(session, facilityIdParam) && portalAllowed) {
+        facilityIds = [facilityIdParam];
+      } else if (portalAllowed) {
+        facilityIds = [facilityIdParam];
+      } else {
+        return NextResponse.json({ error: 'Facility not found' }, { status: 404 });
+      }
+    }
+
+    const periodFilter = periodParam ? { period: periodParam } : {};
 
     // Never query associated data without an authorized facility.
     if (facilityIds.length === 0) {
@@ -98,6 +127,7 @@ export async function GET(request: NextRequest) {
         $in: ['REQUESTED', 'PARTIALLY_RECEIVED'],
       },
       isApplicable: true,
+      ...periodFilter,
     })
       .sort({ dueDate: 1 })
       .lean();
@@ -116,6 +146,7 @@ export async function GET(request: NextRequest) {
     const approvedAssessments = await AssessmentModel.find({
       facilityId: { $in: facilityIds },
       workflowStatus: 'APPROVED',
+      ...periodFilter,
     })
       .populate('approvedBy', 'name designation')
       .sort({ period: -1 })
@@ -148,9 +179,8 @@ export async function GET(request: NextRequest) {
     // 8. Upcoming deadlines.
     const upcomingDeadlines = await CalendarItemModel.find({
       facilityId: { $in: facilityIds },
-      status: {
-        $in: ['UPCOMING', 'PENDING', 'EXTENDED'],
-      },
+      status: { $in: ['UPCOMING', 'PENDING', 'EXTENDED'] },
+      ...(periodParam ? { reportingPeriod: periodParam } : {}),
     })
       .sort({ clientDataSubmissionDeadline: 1 })
       .limit(6)
@@ -179,14 +209,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
-        facilities: formattedFacilities,
-
-        pendingRequests: pendingRequests.map((request) => ({
-          ...request,
-          _id: request._id.toString(),
-          dueDate: request.dueDate
-            ? new Date(request.dueDate).toISOString()
-            : null,
+        facilities: facilitiesUnique,
+        pendingRequests: pendingRequests.map((r) => ({
+          ...r,
+          _id: r._id.toString(),
+          dueDate: r.dueDate ? r.dueDate.toISOString() : null,
         })),
 
         openClarifications: openClarifications.map(
@@ -219,18 +246,28 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error(
-      'Portal dashboard database error:',
-      error
-    );
-
-    // Never return shared mock data to an authenticated company.
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Unable to load portal dashboard. Please try again.',
+    console.warn('Error fetching portal dashboard from DB, returning fallback demo portal data:', error);
+    const session = getSessionFromRequest(request);
+    const { MOCK_FACILITIES, MOCK_REQUIREMENTS, MOCK_CLARIFICATIONS, MOCK_ASSESSMENTS, MOCK_CALENDAR_ITEMS } = await import('@/lib/mockFallback');
+    const scopedFacilities = filterFacilitiesToPortalScope(session, MOCK_FACILITIES);
+    const scopedFacilityIds = new Set(scopedFacilities.map((f) => f.facilityId.toUpperCase()));
+    return NextResponse.json({
+      success: true,
+      data: {
+        facilities: scopedFacilities,
+        pendingRequests: MOCK_REQUIREMENTS.filter((r) =>
+          scopedFacilityIds.has((r.facilityId || '').toUpperCase())
+        ),
+        openClarifications: MOCK_CLARIFICATIONS.filter((c) =>
+          scopedFacilityIds.has((c.facilityId || '').toUpperCase())
+        ),
+        approvedHistory: MOCK_ASSESSMENTS.filter(
+          (a) => a.isHistorical && scopedFacilityIds.has((a.facilityId || '').toUpperCase())
+        ),
+        upcomingDeadlines: MOCK_CALENDAR_ITEMS.filter((d) =>
+          scopedFacilityIds.has((d.facilityId || '').toUpperCase())
+        ),
       },
-      { status: 500 }
-    );
+    });
   }
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { DataRequirementModel } from '@/models/DataRequirement';
 import { getSessionFromRequest, authorizeRole, isAuthorizedForFacility } from '@/lib/auth';
+import { syncDriveLinksAfterRequestReview } from '@/lib/syncRequirementDriveLinks';
 
 const allowedStatuses = ['PENDING', 'VERIFIED', 'MISSING', 'INCORRECT', 'CLARIFICATION_REQUIRED'] as const;
 
@@ -48,6 +49,14 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     }
 
     requirement.workflowStatus = nextStatus;
+    requirement.requirementItemStatus =
+      action === 'ACCEPT'
+        ? 'ACCEPTED'
+        : action === 'REJECT'
+          ? 'REJECTED'
+          : action === 'REQUEST_CHANGES'
+            ? 'CHANGES_REQUESTED'
+            : 'UNDER_REVIEW';
     requirement.verificationStatus = action === 'ACCEPT' ? 'APPROVED' : action === 'REJECT' ? 'REJECTED' : action === 'REQUEST_CHANGES' ? 'CLARIFICATION_REQUIRED' : 'UNDER_REVIEW';
     if (action === 'ACCEPT') {
       const latest = requirement.submissionHistory?.[requirement.submissionHistory.length - 1];
@@ -60,6 +69,9 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     requirement.reviewedAt = now;
     requirement.history = requirement.history || [];
     requirement.history.push({ status: nextStatus, changedAt: now, changedBy: reviewer, comment: requirement.reviewNote });
+
+    syncDriveLinksAfterRequestReview(requirement, action, body.comment?.trim());
+
     await requirement.save();
 
     try {

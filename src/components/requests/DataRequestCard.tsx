@@ -98,11 +98,6 @@ export function DataRequestCard({
               {c}
             </span>
           ))}
-          {requirement.brsrPrinciple && (
-            <span className="px-1.5 py-0.5 rounded text-[9px] bg-violet-100 dark:bg-violet-950/40 text-violet-800 dark:text-violet-300">
-              {requirement.brsrPrinciple}
-            </span>
-          )}
         </div>
 
         <div className="mt-auto pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">

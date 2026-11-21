@@ -1,23 +1,16 @@
 import { DataRequirementModel } from '@/models/DataRequirement';
 import type { ComplianceType, IFacilityDataChecklistItem } from '@/types';
-
-const ENERGY_ITEM_KEYS = new Set([
-  'GRID_BILLS',
-  'OA_PURCHASE',
-  'DG_SET',
-  'POWER_PER_MACHINE',
-  'AUX_POWER',
-  'TURBINE_POWER',
-]);
-
-function categoryForItem(itemKey: string): 'COMMON_ENERGY' | 'COMPLIANCE_SPECIFIC' {
-  return ENERGY_ITEM_KEYS.has(itemKey) ? 'COMMON_ENERGY' : 'COMPLIANCE_SPECIFIC';
-}
+import {
+  getMasterRequirement,
+  energyCategoryForItem,
+  isRequestableApplicability,
+  legacyChecklistStatusToApplicability,
+} from '@/lib/dataRequirementMaster';
 
 const DEFAULT_COMPLIANCES: ComplianceType[] = ['RCO', 'PAT', 'CCTS', 'CEA'];
 
 /**
- * Creates or refreshes portal data requests for each checklist row still marked Due,
+ * Creates or refreshes portal data requests for each checklist row marked applicable (Due),
  * scoped to a single facility and reporting period.
  */
 export async function syncDueChecklistItemsToRequirements(
@@ -30,14 +23,20 @@ export async function syncDueChecklistItemsToRequirements(
   let created = 0;
   let refreshed = 0;
 
-  const dueItems = items.filter((row) => row.status === 'DUE');
+  const dueItems = items.filter((row) => {
+    const applicability =
+      row.applicability || legacyChecklistStatusToApplicability(row.status, row.notes);
+    return row.status === 'DUE' && isRequestableApplicability(applicability);
+  });
 
   for (const row of dueItems) {
-    const title = row.label.trim();
+    const master = getMasterRequirement(row.itemKey);
+    const title = (master?.name || row.label).trim();
     if (!title) continue;
 
     const description =
       row.notes?.trim() ||
+      master?.description ||
       (consultantNotes?.trim()
         ? `${consultantNotes.trim()} — Please submit via the client portal with a Google Drive link.`
         : 'Please submit this report or dataset for your facility via the client portal with a Google Drive link.');
@@ -45,15 +44,18 @@ export async function syncDueChecklistItemsToRequirements(
     const existing = await DataRequirementModel.findOne({
       facilityId: cleanFacility,
       period,
-      title,
+      sourceChecklistItemKey: row.itemKey,
     });
 
     if (existing) {
       if (existing.submissionStatus === 'REQUESTED' || existing.submissionStatus === 'NOT_REQUESTED') {
         existing.submissionStatus = 'REQUESTED';
         existing.verificationStatus = 'NOT_STARTED';
+        existing.workflowStatus = existing.workflowStatus === 'DRAFT' ? 'REQUESTED' : existing.workflowStatus;
         existing.requestedAt = new Date();
         existing.description = description;
+        existing.masterRequirementId = master?.requirementId;
+        existing.title = title;
         await existing.save();
         refreshed += 1;
       }
@@ -64,12 +66,21 @@ export async function syncDueChecklistItemsToRequirements(
       facilityId: cleanFacility,
       period,
       title,
-      category: categoryForItem(row.itemKey),
-      linkedCompliances: DEFAULT_COMPLIANCES,
+      sourceChecklistItemKey: row.itemKey,
+      masterRequirementId: master?.requirementId,
+      category: energyCategoryForItem(row.itemKey),
+      linkedCompliances: master?.defaultCompliances || DEFAULT_COMPLIANCES,
       description,
+      dataCategory: master?.category,
+      reportingFrequency: master?.reportingFrequency,
+      requiredFields: master?.structuredFields,
+      requiredDocumentSpecs: master?.documentSpecs,
+      requiredDocuments: master?.documentSpecs?.map((d) => d.name),
       isApplicable: true,
       submissionStatus: 'REQUESTED',
       verificationStatus: 'NOT_STARTED',
+      workflowStatus: 'REQUESTED',
+      requirementItemStatus: 'PENDING',
       requestedAt: new Date(),
     });
     created += 1;

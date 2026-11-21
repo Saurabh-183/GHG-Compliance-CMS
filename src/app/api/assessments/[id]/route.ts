@@ -27,14 +27,8 @@ export async function GET(
     }
 
     if (!assessment) {
-      const { generateFacilityAssessments } = await import('@/lib/complianceMatrixData');
-      const parts = id.replace(/^asm_/, '').split('_');
-      let facilityId = 'TRIDENT_PAPER';
-      if (parts.length >= 3) {
-        facilityId = parts.slice(0, parts.length - 2).join('_').toUpperCase();
-      }
-      const generated = generateFacilityAssessments(facilityId);
-      assessment = generated.find((a) => a._id.toLowerCase() === id.toLowerCase()) || generated[0];
+      const { resolveAssessmentById } = await import('@/lib/complianceMatrixData');
+      assessment = resolveAssessmentById(id) as typeof assessment;
     }
 
     if (!assessment) {
@@ -78,14 +72,11 @@ export async function GET(
   } catch (error) {
     console.warn('Error fetching assessment from DB, returning fallback assessment:', error);
     const { id } = await params;
-    const { generateFacilityAssessments } = await import('@/lib/complianceMatrixData');
-    const parts = id.replace(/^asm_/, '').split('_');
-    let facilityId = 'TRIDENT_PAPER';
-    if (parts.length >= 3) {
-      facilityId = parts.slice(0, parts.length - 2).join('_').toUpperCase();
+    const { resolveAssessmentById } = await import('@/lib/complianceMatrixData');
+    const fallback = resolveAssessmentById(id);
+    if (!fallback) {
+      return NextResponse.json({ error: 'Assessment not found' }, { status: 404 });
     }
-    const generated = generateFacilityAssessments(facilityId);
-    const fallback = generated.find((a) => a._id.toLowerCase() === id.toLowerCase()) || generated[0];
     return NextResponse.json({ success: true, data: fallback });
   }
 }

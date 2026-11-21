@@ -2,19 +2,46 @@ import { IDataset, IMonthlyRecord, ReconciliationResult } from '@/types';
 
 /**
  * Google Drive Client & Integration SDK
- * Connects directly to the corporate Google Drive compliance repository:
- * https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7
+ * Corporate compliance vault (client submissions root):
+ * https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn
  */
+
+/** Previous demo vault — migrated responses still pointing here are normalized. */
+export const LEGACY_GOOGLE_DRIVE_FOLDER_ID = '1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7';
+
+export const DEFAULT_GOOGLE_DRIVE_FOLDER_ID = '1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn';
+
+export const DEFAULT_GOOGLE_DRIVE_FOLDER_URL = `https://drive.google.com/drive/folders/${DEFAULT_GOOGLE_DRIVE_FOLDER_ID}`;
 
 export const GOOGLE_DRIVE_FOLDER_URL =
   process.env.NEXT_PUBLIC_GDRIVE_FOLDER_URL ||
   process.env.GDRIVE_FOLDER_URL ||
-  'https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7';
+  DEFAULT_GOOGLE_DRIVE_FOLDER_URL;
 
 export const GOOGLE_DRIVE_FOLDER_ID =
   process.env.NEXT_PUBLIC_GDRIVE_FOLDER_ID ||
   process.env.GDRIVE_FOLDER_ID ||
-  (GOOGLE_DRIVE_FOLDER_URL.match(/\/folders\/([a-zA-Z0-9_-]+)/)?.[1] || '1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7');
+  (GOOGLE_DRIVE_FOLDER_URL.match(/\/folders\/([a-zA-Z0-9_-]+)/)?.[1] || DEFAULT_GOOGLE_DRIVE_FOLDER_ID);
+
+/** Use stored facility folder URL unless it still references the retired demo vault. */
+export function resolveComplianceVaultFolderUrl(storedUrl?: string | null): string {
+  const trimmed = storedUrl?.trim();
+  if (!trimmed) return GOOGLE_DRIVE_FOLDER_URL;
+  if (
+    trimmed.includes(LEGACY_GOOGLE_DRIVE_FOLDER_ID) ||
+    /\/folders\/1oIObLXY/i.test(trimmed)
+  ) {
+    return GOOGLE_DRIVE_FOLDER_URL;
+  }
+  return trimmed;
+}
+
+/** Rewrites any stored link that still embeds the retired vault folder id. */
+export function rewriteLegacyVaultUrlsInText(url?: string | null): string {
+  const text = url?.trim() ?? '';
+  if (!text || !text.includes(LEGACY_GOOGLE_DRIVE_FOLDER_ID)) return text;
+  return text.split(LEGACY_GOOGLE_DRIVE_FOLDER_ID).join(GOOGLE_DRIVE_FOLDER_ID);
+}
 
 export interface IDriveFileMetadata {
   id: string;
@@ -28,7 +55,7 @@ export interface IDriveFileMetadata {
   lastModified?: string;
 }
 
-// Pre-indexed Drive repository assets available in folder 1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7
+// Pre-indexed Drive repository assets (compliance vault folder)
 export const DRIVE_REPOSITORY_FILES: IDriveFileMetadata[] = [
   {
     id: 'DRV_PSPCL_2025_04',

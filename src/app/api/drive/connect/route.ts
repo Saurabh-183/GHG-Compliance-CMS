@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { FacilityModel } from '@/models/Facility';
-import { getSessionFromRequest, isAuthorizedForFacility, authorizeRole } from '@/lib/auth';
-import { GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
+import { getSessionFromRequest } from '@/lib/auth';
+import { GOOGLE_DRIVE_FOLDER_URL, resolveComplianceVaultFolderUrl } from '@/lib/gdrive';
 
 export async function GET(request: NextRequest) {
   const session = getSessionFromRequest(request);
@@ -38,9 +38,22 @@ export async function GET(request: NextRequest) {
       syncedMonthsCount: 0,
     };
 
+    const normalizedFolderUrl = resolveComplianceVaultFolderUrl(driveConnection.folderUrl);
+    const data =
+      normalizedFolderUrl === driveConnection.folderUrl
+        ? driveConnection
+        : { ...driveConnection, folderUrl: normalizedFolderUrl };
+
+    if (normalizedFolderUrl !== driveConnection.folderUrl && facility.driveConnection?.folderUrl) {
+      void FacilityModel.updateOne(
+        { facilityId },
+        { $set: { 'driveConnection.folderUrl': normalizedFolderUrl } }
+      );
+    }
+
     return NextResponse.json({
       success: true,
-      data: driveConnection,
+      data,
     });
   } catch (error) {
     console.error('Google Drive connection lookup failed:', error);

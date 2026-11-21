@@ -1,12 +1,57 @@
-import { BRSR_CATEGORY_LABELS, type BrsrDataCategory } from '@/lib/brsrRequestTemplates';
-import type { IDataRequirement, RequestWorkflowStatus } from '@/types';
+import { getMasterRequirement, MASTER_REQUIREMENT_CATEGORIES } from '@/lib/dataRequirementMaster';
+import type { IDataRequirement, RequestWorkflowStatus, SubmissionStatus } from '@/types';
 
-export function resolveDataCategoryLabel(req: Pick<IDataRequirement, 'dataCategory' | 'brsrSection' | 'category' | 'title'>): string {
-  if (req.dataCategory && req.dataCategory in BRSR_CATEGORY_LABELS) {
-    return BRSR_CATEGORY_LABELS[req.dataCategory as BrsrDataCategory];
+/** Display-ready client submission state (syncs legacy rows where drive links exist but status was not updated). */
+export function resolveClientSubmissionStatus(
+  req: Pick<
+    IDataRequirement,
+    | 'submissionStatus'
+    | 'workflowStatus'
+    | 'submittedDriveLinks'
+    | 'clientDraftData'
+    | 'latestStructuredData'
+    | 'monthlyFrequency'
+    | 'reportingMonths'
+  >
+): SubmissionStatus {
+  const linkCount = req.submittedDriveLinks?.length ?? 0;
+  const structured =
+    (req.latestStructuredData && Object.keys(req.latestStructuredData).length > 0) ||
+    (req.clientDraftData?.structuredData && Object.keys(req.clientDraftData.structuredData).length > 0);
+
+  if (req.submissionStatus === 'NOT_REQUESTED') return 'NOT_REQUESTED';
+
+  if (req.workflowStatus === 'ACCEPTED' || req.workflowStatus === 'CLOSED') {
+    return 'RECEIVED';
   }
-  if (req.brsrSection) return req.brsrSection;
-  return req.category === 'COMMON_ENERGY' ? 'Energy data' : 'Compliance report';
+
+  if (linkCount > 0 || structured) {
+    if (req.monthlyFrequency && (req.reportingMonths?.length ?? 0) > 0) {
+      const submittedMonths = new Set(
+        (req.submittedDriveLinks || []).map((l) => l.mappedMonth).filter(Boolean)
+      );
+      const allMonths = req.reportingMonths!.every((m) => submittedMonths.has(m));
+      return allMonths ? 'RECEIVED' : 'PARTIALLY_RECEIVED';
+    }
+    if (req.submissionStatus === 'RECEIVED' || req.submissionStatus === 'PARTIALLY_RECEIVED') {
+      return req.submissionStatus;
+    }
+    return 'PARTIALLY_RECEIVED';
+  }
+
+  return req.submissionStatus || 'REQUESTED';
+}
+
+export function resolveDataCategoryLabel(
+  req: Pick<IDataRequirement, 'dataCategory' | 'category' | 'title' | 'sourceChecklistItemKey'>
+): string {
+  if (req.sourceChecklistItemKey) {
+    const master = getMasterRequirement(req.sourceChecklistItemKey);
+    if (master) return MASTER_REQUIREMENT_CATEGORIES[master.category];
+  }
+  if (req.dataCategory?.trim()) return req.dataCategory.trim();
+  if (req.category === 'COMMON_ENERGY') return 'Electricity and Power Data';
+  return req.title || '—';
 }
 
 export type DueUrgency = 'none' | 'ok' | 'soon' | 'overdue';
@@ -47,24 +92,26 @@ export function requestCompletionPercent(req: IDataRequirement): number {
   return Math.min(100, fieldPct + docPct + acceptedPct);
 }
 
-export const WORKFLOW_STATUS_FILTER_MAP: Record<string, RequestWorkflowStatus | 'pendingSubmission'> = {
-  pendingSubmission: 'REQUESTED',
-};
-
-export function matchesQuickFilter(
-  req: IDataRequirement,
-  quick: string
-): boolean {
+export function matchesQuickFilter(req: IDataRequirement, quick: string): boolean {
   const status = (req.workflowStatus || req.verificationStatus) as string;
   switch (quick) {
     case 'pendingSubmission':
-      return ['REQUESTED', 'IN_PROGRESS', 'CHANGES_REQUESTED'].includes(status);
+    case 'awaiting':
+      return ['REQUESTED', 'IN_PROGRESS', 'CHANGES_REQUESTED', 'NOT_STARTED'].includes(status) ||
+        req.submissionStatus === 'REQUESTED';
     case 'submitted':
-      return ['SUBMITTED', 'RESUBMITTED', 'UNDER_REVIEW'].includes(status);
+    case 'review':
+      return ['SUBMITTED', 'RESUBMITTED', 'UNDER_REVIEW', 'EVIDENCE_PENDING'].includes(status);
     case 'accepted':
       return ['ACCEPTED', 'APPROVED'].includes(status);
+    case 'changes':
+    case 'changesRequested':
+      return status === 'CHANGES_REQUESTED' || req.verificationStatus === 'CLARIFICATION_REQUIRED';
+    case 'underReview':
+      return status === 'UNDER_REVIEW';
     case 'overdue':
       return getDueUrgency(req.dueDate, status) === 'overdue';
+    case 'all':
     default:
       return true;
   }

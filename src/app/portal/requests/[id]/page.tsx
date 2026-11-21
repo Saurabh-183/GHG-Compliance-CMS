@@ -15,6 +15,11 @@ import {
   requestCompletionPercent,
   resolveDataCategoryLabel,
 } from '@/lib/dataRequestDisplay';
+import {
+  formatSubmittedFieldValue,
+  getLatestSubmissionStructuredData,
+  isClientSubmissionReadOnly,
+} from '@/lib/clientPortalSubmission';
 import { formatDate } from '@/lib/utils';
 import { ArrowLeft, Building2, Calendar, FileSpreadsheet, UserCircle } from 'lucide-react';
 
@@ -56,6 +61,8 @@ export default function ClientRequestDetailPage() {
   const progress = requestCompletionPercent(requirement);
   const urgency = getDueUrgency(requirement.dueDate, requirement.workflowStatus);
   const status = requirement.workflowStatus || 'REQUESTED';
+  const submittedValues = getLatestSubmissionStructuredData(requirement);
+  const canViewSubmission = isClientSubmissionReadOnly(requirement);
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
@@ -139,11 +146,6 @@ export default function ClientRequestDetailPage() {
                 {c}
               </span>
             ))}
-            {requirement.brsrPrinciple && (
-              <span className="px-2 py-0.5 rounded-md text-[10px] bg-violet-100 dark:bg-violet-950/50 text-violet-800 dark:text-violet-300">
-                {requirement.brsrPrinciple}
-              </span>
-            )}
           </div>
 
           {requirement.submissionInstructions && (
@@ -159,15 +161,17 @@ export default function ClientRequestDetailPage() {
           )}
 
           <div className="flex flex-wrap gap-3 pt-2">
-            {!['ACCEPTED', 'CLOSED'].includes(status) && (
-              <button
-                type="button"
-                onClick={() => setSubmitOpen(true)}
-                className="px-5 py-2.5 rounded-xl bg-emerald-700 text-white text-sm font-bold hover:bg-emerald-800 shadow-sm"
-              >
-                {['CHANGES_REQUESTED', 'REJECTED'].includes(status) ? 'Resubmit corrected data' : 'Submit response'}
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => setSubmitOpen(true)}
+              className="px-5 py-2.5 rounded-xl bg-emerald-700 text-white text-sm font-bold hover:bg-emerald-800 shadow-sm"
+            >
+              {canViewSubmission
+                ? 'View submitted data'
+                : ['CHANGES_REQUESTED', 'REJECTED'].includes(status)
+                  ? 'Resubmit corrected data'
+                  : 'Submit response'}
+            </button>
             <span className="text-xs text-slate-500 self-center">Completion estimate: {progress}%</span>
           </div>
         </div>
@@ -176,22 +180,33 @@ export default function ClientRequestDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {(requirement.requiredFields?.length ?? 0) > 0 && (
           <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 text-xs">
-            <h2 className="font-bold text-sm mb-3">Information to provide</h2>
+            <h2 className="font-bold text-sm mb-3">
+              {Object.keys(submittedValues).length ? 'Your submitted information' : 'Information to provide'}
+            </h2>
             <ul className="space-y-2">
               {requirement.requiredFields?.map((f) => {
                 const review = requirement.fieldReviews?.find((r) => r.fieldKey === f.key);
                 const flagged = review && !['PENDING', 'VERIFIED'].includes(review.status);
+                const value = submittedValues[f.key];
+                const hasValue = value !== undefined && value !== null && value !== '';
                 return (
                   <li
                     key={f.key}
-                    className={`flex justify-between gap-2 p-2 rounded-lg ${flagged ? 'bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900' : 'bg-slate-50 dark:bg-slate-950/50'}`}
+                    className={`p-2 rounded-lg ${flagged ? 'bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900' : 'bg-slate-50 dark:bg-slate-950/50'}`}
                   >
-                    <span>
-                      {f.label}
-                      {f.required && <span className="text-rose-500"> *</span>}
-                    </span>
-                    {review && review.status !== 'PENDING' && (
-                      <span className="font-bold text-[10px] uppercase text-rose-600">{review.status.replaceAll('_', ' ')}</span>
+                    <div className="flex justify-between gap-2">
+                      <span>
+                        {f.label}
+                        {f.required && <span className="text-rose-500"> *</span>}
+                      </span>
+                      {review && review.status !== 'PENDING' && (
+                        <span className="font-bold text-[10px] uppercase text-rose-600">{review.status.replaceAll('_', ' ')}</span>
+                      )}
+                    </div>
+                    {hasValue && (
+                      <p className="mt-1 text-[11px] font-medium text-slate-900 dark:text-white break-all">
+                        {formatSubmittedFieldValue(value)}
+                      </p>
                     )}
                   </li>
                 );
@@ -230,7 +245,12 @@ export default function ClientRequestDetailPage() {
           <h2 className="font-bold text-sm mb-3">Your submitted files</h2>
           <div className="flex flex-col gap-2">
             {requirement.submittedDriveLinks.map((link, i) => (
-              <DriveLinkBadge key={i} url={link.vaultUrl || link.url} label={link.description || 'Document'} facilityId={requirement.facilityId} />
+              <DriveLinkBadge
+                key={i}
+                url={link.vaultUrl || link.sourceUrl || link.url}
+                label={link.fileName || link.description || 'Document'}
+                facilityId={requirement.facilityName || requirement.facilityId}
+              />
             ))}
           </div>
         </section>

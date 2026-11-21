@@ -1,6 +1,44 @@
 import mongoose, { Connection } from 'mongoose';
 import dns from 'dns';
-import '@/models';
+
+function normalizeMongoUri(uri: string): string {
+  return uri.replace(/mongodb(\+srv)?:\/\/localhost/gi, (_m, srv) => `mongodb${srv || ''}://127.0.0.1`);
+}
+
+const MONGODB_URI = normalizeMongoUri(
+  process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/carbon_crunch_compliance'
+);
+
+export function isMongoUnavailableError(error: unknown): boolean {
+  const name = (error as { name?: string })?.name ?? '';
+  const code = (error as { code?: string })?.code ?? '';
+  const message = String((error as { message?: string })?.message ?? '');
+  return (
+    name === 'MongooseServerSelectionError' ||
+    name === 'MongoServerSelectionError' ||
+    (code === 'ECONNREFUSED' && message.includes('querySrv'))
+  );
+}
+
+const ATLAS_DNS_SERVERS = ['8.8.8.8', '1.1.1.1', '8.8.4.4'] as const;
+
+/** Atlas SRV URIs need working DNS; many Windows networks refuse SRV on the default resolver. */
+export function ensureMongoSrvDns(): void {
+  if (!MONGODB_URI.startsWith('mongodb+srv://')) return;
+  try {
+    dns.setServers([...ATLAS_DNS_SERVERS]);
+  } catch {
+    // Fallback if environment restricts setting custom DNS servers
+  }
+}
+
+ensureMongoSrvDns();
+
+/** True for 24-char hex MongoDB ObjectId strings (not arbitrary demo JWT user ids). */
+export function isMongoObjectId(value: string | undefined | null): boolean {
+  if (!value?.trim()) return false;
+  return mongoose.Types.ObjectId.isValid(value) && /^[a-f0-9]{24}$/i.test(value.trim());
+}
 
 function isPlaceholderUri(uri: string): boolean {
   return (
@@ -93,7 +131,9 @@ if (!global.mongooseCache) {
 }
 
 export async function connectToDatabase(): Promise<Connection> {
-  if (cached.conn && cached.conn.readyState === 1) {
+  ensureMongoSrvDns();
+
+  if (cached.conn) {
     return cached.conn;
   }
 
@@ -115,7 +155,10 @@ export async function connectToDatabase(): Promise<Connection> {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
-      serverSelectionTimeoutMS: 5000,
+      serverSelectionTimeoutMS:
+        process.env.NODE_ENV === 'production' ? 10_000 : 2_000,
+      /** Avoid ::1 ECONNREFUSED on Windows when only IPv4 mongod is listening */
+      family: 4 as const,
     };
 
     cached.promise = (async () => {

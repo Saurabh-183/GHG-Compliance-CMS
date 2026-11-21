@@ -1,28 +1,13 @@
 import type { IRequestField, IRequestDocumentSpec } from '@/types';
 import { slugifyFieldKey } from '@/lib/requestFieldUtils';
-
-export const BRSR_SECTIONS = [
-  'Section A — General Disclosures',
-  'Section B — Management & Process Disclosures',
-  'Section C — Principle-wise Performance',
-] as const;
-
-export const BRSR_PRINCIPLES = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8', 'P9'] as const;
+import { MASTER_REQUIREMENT_CATEGORIES } from '@/lib/dataRequirementMaster';
 
 export const DATA_CATEGORIES = [
-  'General Disclosures',
+  ...Object.values(MASTER_REQUIREMENT_CATEGORIES),
   'Energy Consumption',
-  'Renewable Energy',
   'Water Consumption',
   'Waste Management',
   'Greenhouse Gas Emissions',
-  'Air Emissions',
-  'Environmental Compliance',
-  'Employee Information',
-  'Health and Safety',
-  'Human Rights',
-  'CSR',
-  'Governance',
   'Other Compliance Data',
 ] as const;
 
@@ -39,7 +24,9 @@ export const REPORTING_FREQUENCIES = [
 
 export type ReportingFrequency = (typeof REPORTING_FREQUENCIES)[number]['value'];
 
-export const SUBMISSION_FORMATS = ['Google Drive link', 'Excel workbook', 'PDF upload via Drive', 'Mixed formats'] as const;
+export { DEFAULT_SUBMISSION_FORMAT, DEFAULT_ACCEPTED_FILE_TYPES } from '@/lib/submissionPolicy';
+
+export const SUBMISSION_FORMATS = ['Google Drive link'] as const;
 
 export const FIELD_UNITS = ['kWh', 'INR', 'litres', 'kilolitres', 'metric tonnes', 'tCO₂e', '%', '—'] as const;
 
@@ -81,8 +68,6 @@ export interface ConsultantRequestTemplate {
   id: ConsultantRequestTemplateId;
   label: string;
   dataCategory: DataCategoryLabel;
-  brsrSection: (typeof BRSR_SECTIONS)[number];
-  brsrPrinciples: string[];
   purpose: string;
   instructions: string;
   fields: IRequestField[];
@@ -107,10 +92,8 @@ export const CONSULTANT_REQUEST_TEMPLATES: ConsultantRequestTemplate[] = [
     id: 'ELECTRICITY',
     label: 'Electricity consumption',
     dataCategory: 'Energy Consumption',
-    brsrSection: 'Section C — Principle-wise Performance',
-    brsrPrinciples: ['P6'],
     purpose:
-      "Required to calculate the facility's annual grid electricity consumption and Scope 2 GHG emissions for BRSR and energy compliance.",
+      "Required to calculate the facility's annual grid electricity consumption and Scope 2 GHG emissions for energy compliance (PAT, RCO).",
     instructions:
       'Upload electricity bills for each reporting month. Enter consumption in kWh. Ensure invoice number and billing cycle are visible. Share Excel or Google Drive links with view access.',
     fields: [
@@ -126,18 +109,16 @@ export const CONSULTANT_REQUEST_TEMPLATES: ConsultantRequestTemplate[] = [
       f('Renewable Electricity Consumption', 'NUMBER', false, { unit: 'kWh' }),
     ],
     documents: [
-      { name: 'Electricity Bill', description: 'Official DISCOM bill PDF', required: true, acceptedFileTypes: ['PDF'] },
-      { name: 'Monthly Consumption Excel', description: 'Month-wise kWh summary', required: true, acceptedFileTypes: ['XLSX', 'XLS'] },
-      { name: 'Renewable Energy Certificate', description: 'If applicable', required: false, acceptedFileTypes: ['PDF'] },
+      { name: 'Monthly Consumption Excel', description: 'Month-wise kWh summary (.xlsx on Drive)', required: true, acceptedFileTypes: ['XLSX'] },
+      { name: 'Electricity Bill Workbook', description: 'Bill details in .xlsx on Drive', required: true, acceptedFileTypes: ['XLSX'] },
+      { name: 'Renewable Energy Certificate', description: 'If applicable — .xlsx log on Drive', required: false, acceptedFileTypes: ['XLSX'] },
     ],
   },
   {
     id: 'WATER',
     label: 'Water consumption',
     dataCategory: 'Water Consumption',
-    brsrSection: 'Section C — Principle-wise Performance',
-    brsrPrinciples: ['P6'],
-    purpose: 'Supports BRSR water withdrawal, consumption and discharge disclosures.',
+    purpose: 'Supports statutory water withdrawal, consumption and discharge tracking.',
     instructions: 'Provide meter readings or utility bills for the reporting period. Enter values in kilolitres where applicable.',
     fields: [
       f('Water Source', 'SELECT', true, { options: ['Groundwater', 'Surface water', 'Municipal', 'Third party', 'Mixed'] }),
@@ -150,16 +131,14 @@ export const CONSULTANT_REQUEST_TEMPLATES: ConsultantRequestTemplate[] = [
       f('Water Recycled and Reused', 'NUMBER', false, { unit: 'kilolitres' }),
     ],
     documents: [
-      { name: 'Water bills / meter records', description: 'Supporting evidence', required: true, acceptedFileTypes: ['PDF', 'XLSX'] },
+      { name: 'Water bills / meter records', description: 'Supporting .xlsx on Drive', required: true, acceptedFileTypes: ['XLSX'] },
     ],
   },
   {
     id: 'WASTE',
     label: 'Waste management',
     dataCategory: 'Waste Management',
-    brsrSection: 'Section C — Principle-wise Performance',
-    brsrPrinciples: ['P6'],
-    purpose: 'Documents waste generation, recycling and authorized disposal for BRSR.',
+    purpose: 'Documents waste generation, recycling and authorized disposal for environmental compliance.',
     instructions: 'Share manifests, recycler certificates and month-wise waste logs via Google Drive.',
     fields: [
       f('Waste Category', 'SELECT', true, { options: ['Plastic', 'Hazardous', 'Non-hazardous', 'E-waste', 'Mixed'] }),
@@ -171,16 +150,14 @@ export const CONSULTANT_REQUEST_TEMPLATES: ConsultantRequestTemplate[] = [
       f('Disposal Vendor', 'TEXT', false),
     ],
     documents: [
-      { name: 'Waste manifests', description: 'Authorized transporter/disposal records', required: true, acceptedFileTypes: ['PDF'] },
+      { name: 'Waste manifests', description: 'Authorized records — .xlsx on Drive', required: true, acceptedFileTypes: ['XLSX'] },
     ],
   },
   {
     id: 'GHG',
     label: 'GHG emissions',
     dataCategory: 'Greenhouse Gas Emissions',
-    brsrSection: 'Section C — Principle-wise Performance',
-    brsrPrinciples: ['P6'],
-    purpose: 'Scope-wise emissions inventory for climate-related BRSR metrics.',
+    purpose: 'Scope-wise emissions inventory for climate and energy compliance.',
     instructions: 'Upload calculation workbook and emission factor references. State methodology clearly.',
     fields: [
       f('Emission Scope', 'SELECT', true, { options: ['Scope 1', 'Scope 2', 'Scope 3'] }),
@@ -193,7 +170,7 @@ export const CONSULTANT_REQUEST_TEMPLATES: ConsultantRequestTemplate[] = [
       f('Calculation Methodology', 'LONG_TEXT', true),
     ],
     documents: [
-      { name: 'GHG inventory workbook', description: 'Excel or sheet link', required: true, acceptedFileTypes: ['XLSX', 'PDF'] },
+      { name: 'GHG inventory workbook', description: '.xlsx on Google Drive', required: true, acceptedFileTypes: ['XLSX'] },
     ],
   },
 ];

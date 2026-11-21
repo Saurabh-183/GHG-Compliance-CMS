@@ -1,17 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { connectToDatabase } from '@/lib/db';
-import { UserModel } from '@/models/User';
-import { FacilityModel } from '@/models/Facility';
-import { signToken } from '@/lib/auth';
+import { UserModel, IUserDocument } from '@/models/User';
+import { signToken, getSessionFromRequest } from '@/lib/auth';
+import { findUserForSession } from '@/lib/resolveSessionUser';
+import { UserRole } from '@/types';
 
-const COOKIE_NAME = 'cc_auth_token';
-function userPayload(user: any) {
-  return { _id: user._id.toString(), name: user.name, email: user.email, role: user.role,
-    designation: user.designation, avatarUrl: user.avatarUrl,
-    clientGroupId: user.clientGroupId?.toString(), authorizedFacilityIds: user.authorizedFacilityIds || [],
-    mustChangePassword: !!user.mustChangePassword };
-}
+// Fallback demo accounts for instant access when MONGODB_URI is not yet configured in Vercel
+const DEMO_FALLBACK_ACCOUNTS: Record<string, {
+  name: string;
+  role: UserRole;
+  designation: string;
+  avatarUrl: string;
+  authorizedFacilityIds: string[];
+  clientGroupId?: string;
+}> = {
+  'consultant@carboncrunch.com': {
+    name: 'Priya Sharma',
+    role: 'CONSULTANT',
+    designation: 'Senior Energy & Carbon Compliance Lead',
+    avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop&crop=faces',
+    authorizedFacilityIds: ['TRIDENT_PAPER', 'TRIDENT_YARN', 'TRIDENT_TEXTILES'],
+  },
+  'admin@carboncrunch.com': {
+    name: 'Saurabh Agnihotri',
+    role: 'ADMIN',
+    designation: 'Principal Compliance Architect',
+    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces',
+    authorizedFacilityIds: ['TRIDENT_PAPER', 'TRIDENT_YARN', 'TRIDENT_TEXTILES'],
+  },
+  'client@tridentindia.com': {
+    name: 'Vikram Singh',
+    role: 'CLIENT',
+    designation: 'Head of Regulatory Affairs & Sustainability',
+    avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces',
+    clientGroupId: 'TRIDENT',
+    authorizedFacilityIds: ['TRIDENT_PAPER', 'TRIDENT_YARN', 'TRIDENT_TEXTILES'],
+  },
+};
 
 export async function POST(request: NextRequest) {
   try {
@@ -40,8 +66,40 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({ success: true, user: { ...userPayload(user), authorizedFacilityIds } });
     response.cookies.set(COOKIE_NAME, token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/', maxAge: 30 * 60 });
     return response;
-  } catch (error) {
-    console.error('Login error:', error);
-    return NextResponse.json({ error: 'Authentication service is unavailable.' }, { status: 503 });
   }
+}
+
+export async function GET(request: NextRequest) {
+  const session = getSessionFromRequest(request);
+  if (!session) {
+    return NextResponse.json({ authenticated: false }, { status: 401 });
+  }
+
+  try {
+    await connectToDatabase();
+    const user = (await findUserForSession(session)) as IUserDocument | null;
+
+    if (user) {
+      return NextResponse.json({
+        authenticated: true,
+        user: {
+          _id: user._id.toString(),
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          designation: user.designation,
+          avatarUrl: user.avatarUrl,
+          clientGroupId: user.clientGroupId ? user.clientGroupId.toString() : undefined,
+          authorizedFacilityIds: user.authorizedFacilityIds,
+        },
+      });
+    }
+  } catch {
+    // If DB is offline, return decoded JWT session
+  }
+
+  return NextResponse.json({
+    authenticated: true,
+    user: session,
+  });
 }

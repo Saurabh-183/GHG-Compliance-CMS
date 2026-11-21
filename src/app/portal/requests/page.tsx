@@ -1,11 +1,16 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { IDataRequirement } from '@/types';
+import { useSearchParams } from 'next/navigation';
+import { IDataRequirement, IFacility } from '@/types';
+import { PortalScopeSelectors } from '@/components/portal/PortalScopeSelectors';
+import { dedupeFacilitiesById, readPortalPeriod, writePortalScope } from '@/lib/portalScope';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { DataRequestCard } from '@/components/requests/DataRequestCard';
-import { DataRequestStatsBar, type RequestStats } from '@/components/requests/DataRequestStatsBar';
+import { DataRequestStatsBar } from '@/components/requests/DataRequestStatsBar';
 import { resolveDataCategoryLabel, matchesQuickFilter } from '@/lib/dataRequestDisplay';
+import { computeRequestStats } from '@/lib/requestStats';
+import { clientPortalPrimaryLabel } from '@/lib/clientPortalSubmission';
 import { formatDate } from '@/lib/utils';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import { notify } from '@/lib/notify';
@@ -13,6 +18,8 @@ import { ClientRequirementSubmissionModal } from '@/components/portal/ClientRequ
 import { LayoutGrid, List, RefreshCw, Search } from 'lucide-react';
 
 export default function ClientRequestsPage() {
+  const searchParams = useSearchParams();
+  const [facilities, setFacilities] = useState<IFacility[]>([]);
   const [requirements, setRequirements] = useState<IDataRequirement[]>([]);
   const [selectedReq, setSelectedReq] = useState<IDataRequirement | null>(null);
   const [loading, setLoading] = useState(true);
@@ -20,25 +27,71 @@ export default function ClientRequestsPage() {
   const [loadError, setLoadError] = useState('');
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
-  const [facilityFilter, setFacilityFilter] = useState('ALL');
-  const [periodFilter, setPeriodFilter] = useState('ALL');
+  const [facilityFilter, setFacilityFilter] = useState(() => {
+    const fromUrl = searchParams.get('facilityId')?.toUpperCase();
+    if (fromUrl) return fromUrl;
+    if (typeof window !== 'undefined') {
+      const stored = sessionStorage.getItem('portalSelectedFacilityId');
+      if (stored) return stored;
+    }
+    return '';
+  });
+  const [periodFilter, setPeriodFilter] = useState(() => {
+    const fromUrl = searchParams.get('period')?.trim();
+    if (fromUrl) return fromUrl;
+    return readPortalPeriod();
+  });
   const [categoryFilter, setCategoryFilter] = useState('ALL');
-  const [stats, setStats] = useState<RequestStats | null>(null);
   const [quickFilter, setQuickFilter] = useState('all');
   const [view, setView] = useState<'cards' | 'table'>('cards');
 
+  useEffect(() => {
+    void (async () => {
+      try {
+        const res = await fetch('/api/facilities?portalScope=authorized', {
+          credentials: 'include',
+          cache: 'no-store',
+        });
+        const json = await res.json();
+        if (res.ok && Array.isArray(json.data)) {
+          setFacilities(dedupeFacilitiesById(json.data));
+        }
+      } catch {
+        /* optional */
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (!facilities.length) return;
+    const known = facilities.some((f) => f.facilityId === facilityFilter);
+    if (!facilityFilter || !known) {
+      setFacilityFilter(facilities[0].facilityId);
+    }
+  }, [facilities, facilityFilter]);
+
   const loadRequests = useCallback(async () => {
+    if (!facilityFilter || !periodFilter) return;
+    setLoading(true);
     setLoadError('');
     try {
-      const [response, statsRes] = await Promise.all([
-        fetch('/api/requirements', { cache: 'no-store' }),
-        fetch('/api/requirements/stats', { cache: 'no-store' }),
-      ]);
+      const params = new URLSearchParams({
+        facilityId: facilityFilter,
+        period: periodFilter,
+      });
+      const response = await fetch(`/api/requirements?${params.toString()}`, {
+        cache: 'no-store',
+        credentials: 'include',
+      });
       const payload = await response.json().catch(() => null);
       if (!response.ok) throw new Error(payload?.error || 'Failed to load compliance requests.');
-      setRequirements(Array.isArray(payload?.data) ? payload.data : []);
-      const statsJson = await statsRes.json().catch(() => null);
-      if (statsRes.ok) setStats(statsJson.data);
+      const rows = Array.isArray(payload?.data) ? payload.data : [];
+      const scoped = rows.filter(
+        (r) =>
+          r.facilityId?.toUpperCase() === facilityFilter.toUpperCase() &&
+          r.period === periodFilter
+      );
+      setRequirements(scoped);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to load compliance requests.';
       setLoadError(message);
@@ -46,62 +99,66 @@ export default function ClientRequestsPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [facilityFilter, periodFilter]);
 
   useEffect(() => {
+    if (!facilityFilter || !periodFilter) return;
+    writePortalScope(facilityFilter, periodFilter);
     void loadRequests();
-  }, [loadRequests]);
-
-  const facilityOptions = useMemo(
-    () => [...new Set(requirements.map((item) => item.facilityId))].sort(),
-    [requirements]
-  );
-
-  const periodOptions = useMemo(
-    () => [...new Set(requirements.map((item) => item.period))].sort(),
-    [requirements]
-  );
+  }, [facilityFilter, periodFilter, loadRequests]);
 
   const categoryOptions = useMemo(
     () => [...new Set(requirements.map((item) => resolveDataCategoryLabel(item)))].sort(),
     [requirements]
   );
 
-  const visibleRequirements = useMemo(
+  const filteredForStats = useMemo(
     () =>
       requirements.filter((item) => {
         const category = resolveDataCategoryLabel(item);
         const haystack =
-          `${item.requestId || ''} ${item.title} ${item.facilityId} ${item.facilityName || ''} ${category} ${item.brsrSection || ''}`.toLowerCase();
+          `${item.requestId || ''} ${item.title} ${item.facilityId} ${item.facilityName || ''} ${category}`.toLowerCase();
         const workflow = item.workflowStatus || item.verificationStatus;
         return (
           (!search.trim() || haystack.includes(search.trim().toLowerCase())) &&
           (statusFilter === 'ALL' || workflow === statusFilter) &&
-          (facilityFilter === 'ALL' || item.facilityId === facilityFilter) &&
-          (periodFilter === 'ALL' || item.period === periodFilter) &&
-          (categoryFilter === 'ALL' || category === categoryFilter) &&
-          (quickFilter === 'all' || matchesQuickFilter(item, quickFilter))
+          (categoryFilter === 'ALL' || category === categoryFilter)
         );
       }),
-    [requirements, search, statusFilter, facilityFilter, periodFilter, categoryFilter, quickFilter]
+    [requirements, search, statusFilter, categoryFilter]
   );
 
-  const primaryLabel = (req: IDataRequirement) => {
-    const s = req.workflowStatus || req.verificationStatus;
-    if (['CHANGES_REQUESTED', 'REJECTED', 'CLARIFICATION_REQUIRED'].includes(s)) return 'Resubmit';
-    if (['ACCEPTED', 'CLOSED', 'APPROVED'].includes(s)) return 'View';
-    return 'Submit';
-  };
+  const stats = useMemo(() => computeRequestStats(filteredForStats), [filteredForStats]);
 
-  if (loading) return <CarbonCrunchLoader message="Loading your data requests…" />;
+  const visibleRequirements = useMemo(
+    () =>
+      filteredForStats.filter(
+        (item) => quickFilter === 'all' || matchesQuickFilter(item, quickFilter)
+      ),
+    [filteredForStats, quickFilter]
+  );
+
+  if (loading && !requirements.length) return <CarbonCrunchLoader message="Loading your data requests…" />;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       <PageHeader onRefresh={() => void loadRequests()} count={visibleRequirements.length} />
 
+      <PortalScopeSelectors
+        facilities={dedupeFacilitiesById(
+          facilities.length
+            ? facilities
+            : requirements.map((r) => ({ facilityId: r.facilityId, name: r.facilityName || r.facilityId }))
+        )}
+        facilityId={facilityFilter}
+        period={periodFilter}
+        onFacilityChange={setFacilityFilter}
+        onPeriodChange={setPeriodFilter}
+      />
+
       <DataRequestStatsBar
         stats={stats}
-        totalFallback={requirements.length}
+        totalFallback={filteredForStats.length}
         activeQuickFilter={quickFilter}
         onQuickFilter={(key) => setQuickFilter(key)}
       />
@@ -118,33 +175,6 @@ export default function ClientRequestsPage() {
             />
           </div>
           <div className="flex flex-wrap gap-2">
-            <select
-              value={facilityFilter}
-              onChange={(event) => setFacilityFilter(event.target.value)}
-              className="rounded-xl border border-slate-300 dark:border-slate-700 px-3 py-2.5 text-xs min-w-[130px] dark:bg-slate-950"
-            >
-              <option value="ALL">All facilities</option>
-              {facilityOptions.map((facilityId) => {
-                const name = requirements.find((r) => r.facilityId === facilityId)?.facilityName;
-                return (
-                  <option key={facilityId} value={facilityId}>
-                    {name ? `${name}` : facilityId}
-                  </option>
-                );
-              })}
-            </select>
-            <select
-              value={periodFilter}
-              onChange={(event) => setPeriodFilter(event.target.value)}
-              className="rounded-xl border px-3 py-2.5 text-xs dark:bg-slate-950"
-            >
-              <option value="ALL">All years</option>
-              {periodOptions.map((p) => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-            </select>
             <select
               value={categoryFilter}
               onChange={(event) => setCategoryFilter(event.target.value)}
@@ -190,7 +220,7 @@ export default function ClientRequestsPage() {
               key={requirement._id}
               requirement={requirement}
               href={`/portal/requests/${requirement._id}`}
-              primaryActionLabel={primaryLabel(requirement)}
+              primaryActionLabel={clientPortalPrimaryLabel(requirement)}
               onPrimaryAction={() => setSelectedReq(requirement)}
             />
           ))}
@@ -245,7 +275,7 @@ export default function ClientRequestsPage() {
                       onClick={() => setSelectedReq(requirement)}
                       className="px-3 py-1.5 rounded-lg bg-emerald-700 text-white font-bold text-[10px]"
                     >
-                      {primaryLabel(requirement)}
+                      {clientPortalPrimaryLabel(requirement)}
                     </button>
                   </td>
                 </tr>
@@ -257,6 +287,11 @@ export default function ClientRequestsPage() {
 
       <ClientRequirementSubmissionModal
         requirement={selectedReq}
+        scopeFacilityId={facilityFilter}
+        scopeFacilityName={
+          facilities.find((f) => f.facilityId.toUpperCase() === facilityFilter.toUpperCase())?.name
+        }
+        scopePeriod={periodFilter}
         onClose={() => setSelectedReq(null)}
         onSubmitted={loadRequests}
       />

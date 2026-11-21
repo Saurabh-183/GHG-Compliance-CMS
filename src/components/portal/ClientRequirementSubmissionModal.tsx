@@ -17,6 +17,15 @@ import { EvidenceDocumentModal } from '@/components/common/EvidenceDocumentModal
 import { formatNumber } from '@/lib/utils';
 import { notify } from '@/lib/notify';
 import { ClientDynamicFieldInput } from '@/components/requests/ClientDynamicFieldInput';
+import { StatusBadge } from '@/components/common/StatusBadge';
+import { formatDate } from '@/lib/utils';
+import {
+  hydrateClientSubmissionForm,
+  isClientSubmissionReadOnly,
+  getLatestDriveLink,
+} from '@/lib/clientPortalSubmission';
+import { DriveLinkBadge } from '@/components/common/DriveLinkBadge';
+import { GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
 
 type ConnectionForm = {
   providerName: string;
@@ -63,14 +72,22 @@ export type ClientRequirementSubmissionModalProps = {
   requirement: IDataRequirement | null;
   onClose: () => void;
   onSubmitted?: () => void | Promise<void>;
+  /** Portal scope selectors — shown in header when requirement metadata differs */
+  scopeFacilityId?: string;
+  scopeFacilityName?: string;
+  scopePeriod?: string;
 };
 
 export function ClientRequirementSubmissionModal({
   requirement,
   onClose,
   onSubmitted,
+  scopeFacilityId,
+  scopeFacilityName,
+  scopePeriod,
 }: ClientRequirementSubmissionModalProps) {
   const [driveUrl, setDriveUrl] = useState('');
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [fileDescription, setFileDescription] = useState('');
   const [reportingMonth, setReportingMonth] = useState('');
   const [connection, setConnection] = useState<ConnectionForm>(EMPTY_CONNECTION);
@@ -79,6 +96,9 @@ export function ClientRequirementSubmissionModal({
   const [clientComment, setClientComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [activeRequirement, setActiveRequirement] = useState<IDataRequirement | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [readOnly, setReadOnly] = useState(false);
 
   const setConnectionField = (key: keyof ConnectionForm, value: string) =>
     setConnection((current) => ({ ...current, [key]: value }));
@@ -94,23 +114,78 @@ export function ClientRequirementSubmissionModal({
   );
 
   useEffect(() => {
-    if (!requirement) return;
-    setDriveUrl('');
-    setFileDescription('');
-    setReportingMonth('');
-    setConnection({
-      ...EMPTY_CONNECTION,
-      ...(requirement.utilityConnection || {}),
-    });
-    setBill(EMPTY_BILL);
-    setStructuredData(requirement.clientDraftData?.structuredData || {});
-    setClientComment(requirement.clientDraftData?.comment || '');
-    setIsPreviewOpen(false);
+    if (!requirement) {
+      setActiveRequirement(null);
+      setReadOnly(false);
+      return;
+    }
+
+    let cancelled = false;
+    const loadDetail = async () => {
+      setDetailLoading(true);
+      setIsPreviewOpen(false);
+      try {
+        const res = await fetch(`/api/requirements/${requirement._id}`, {
+          cache: 'no-store',
+          credentials: 'include',
+        });
+        const json = await res.json().catch(() => null);
+        const full = (res.ok && json?.data ? json.data : requirement) as IDataRequirement;
+        if (cancelled) return;
+
+        setActiveRequirement(full);
+        setReadOnly(isClientSubmissionReadOnly(full));
+        const hydrated = hydrateClientSubmissionForm(full);
+        setDriveUrl(hydrated.driveUrl);
+        setFileDescription(hydrated.fileDescription);
+        setReportingMonth(hydrated.reportingMonth);
+        setConnection(hydrated.connection);
+        setBill(hydrated.bill);
+        setStructuredData(hydrated.structuredData);
+        setClientComment(hydrated.clientComment);
+      } catch {
+        if (cancelled) return;
+        setActiveRequirement(requirement);
+        setReadOnly(isClientSubmissionReadOnly(requirement));
+        const hydrated = hydrateClientSubmissionForm(requirement);
+        setDriveUrl(hydrated.driveUrl);
+        setFileDescription(hydrated.fileDescription);
+        setReportingMonth(hydrated.reportingMonth);
+        setConnection(hydrated.connection);
+        setBill(hydrated.bill);
+        setStructuredData(hydrated.structuredData);
+        setClientComment(hydrated.clientComment);
+      } finally {
+        if (!cancelled) setDetailLoading(false);
+      }
+    };
+
+    void loadDetail();
+    return () => {
+      cancelled = true;
+    };
   }, [requirement]);
 
   const validateForm = (): boolean => {
     if (!requirement) {
       notify.error('Select a data requirement first.');
+      return false;
+    }
+
+    if (
+      scopeFacilityId &&
+      requirement.facilityId.toUpperCase() !== scopeFacilityId.toUpperCase()
+    ) {
+      notify.warning(
+        'This request is not for the currently selected facility. Change facility in the filter bar or pick another request.'
+      );
+      return false;
+    }
+
+    if (scopePeriod && requirement.period !== scopePeriod) {
+      notify.warning(
+        'This request is not for the selected financial year. Change the year filter or pick another request.'
+      );
       return false;
     }
 
@@ -122,8 +197,17 @@ export function ClientRequirementSubmissionModal({
       return false;
     }
 
-    if (!isGoogleDriveUrl(driveUrl)) {
-      notify.warning('Enter a valid HTTPS Google Drive or Google Docs URL.');
+    if (uploadFile) {
+      if (uploadFile.size > 25 * 1024 * 1024) {
+        notify.warning('File must be 25 MB or smaller.');
+        return false;
+      }
+      if (isElectricityRequest) {
+        notify.warning('Electricity bill requests require a Google Drive link with connection details. Use the link option below.');
+        return false;
+      }
+    } else if (!isGoogleDriveUrl(driveUrl)) {
+      notify.warning('Enter a valid Google Drive link, or choose a file to upload into the compliance vault.');
       return false;
     }
 
@@ -188,32 +272,50 @@ export function ClientRequirementSubmissionModal({
 
     setIsSubmitting(true);
     try {
-      const requestBody = {
-        url: driveUrl.trim(),
-        description: fileDescription.trim() || 'Client submission via portal',
-        ...(requirement.monthlyFrequency ? { reportingMonth } : {}),
-        ...(isElectricityRequest
-          ? {
-              utilityConnection: connection,
-              billDetails: {
-                invoiceNumber: bill.invoiceNumber.trim(),
-                billingFrom: bill.billingFrom,
-                billingTo: bill.billingTo,
-                consumptionKwh: Number(bill.consumptionKwh),
-                billAmount: Number(bill.billAmount),
-              },
-            }
-          : {}),
-        structuredData,
-        comment: clientComment.trim() || undefined,
-      };
+      let response: Response;
+      let payload: { message?: string; error?: string } | null;
 
-      const response = await fetch(`/api/requirements/${requirement._id}/submissions`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody),
-      });
-      const payload = await response.json().catch(() => null);
+      if (uploadFile && !isElectricityRequest) {
+        const formData = new FormData();
+        formData.append('file', uploadFile);
+        formData.append('description', fileDescription.trim() || 'Client file upload via portal');
+        if (requirement.monthlyFrequency && reportingMonth) {
+          formData.append('reportingMonth', reportingMonth);
+        }
+        response = await fetch(`/api/requirements/${requirement._id}/submissions/upload`, {
+          method: 'POST',
+          credentials: 'include',
+          body: formData,
+        });
+        payload = await response.json().catch(() => null);
+      } else {
+        const requestBody = {
+          url: driveUrl.trim(),
+          description: fileDescription.trim() || 'Client submission via portal',
+          ...(requirement.monthlyFrequency ? { reportingMonth } : {}),
+          ...(isElectricityRequest
+            ? {
+                utilityConnection: connection,
+                billDetails: {
+                  invoiceNumber: bill.invoiceNumber.trim(),
+                  billingFrom: bill.billingFrom,
+                  billingTo: bill.billingTo,
+                  consumptionKwh: Number(bill.consumptionKwh),
+                  billAmount: Number(bill.billAmount),
+                },
+              }
+            : {}),
+          structuredData,
+          comment: clientComment.trim() || undefined,
+        };
+
+        response = await fetch(`/api/requirements/${requirement._id}/submissions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestBody),
+        });
+        payload = await response.json().catch(() => null);
+      }
 
       if (!response.ok) {
         throw new Error(payload?.error || `Submission failed (${response.status}).`);
@@ -232,6 +334,15 @@ export function ClientRequirementSubmissionModal({
 
   if (!requirement) return null;
 
+  const displayReq = activeRequirement || requirement;
+  const latestLink = getLatestDriveLink(displayReq);
+  const inputDisabled = readOnly || detailLoading;
+  const headerFacilityId = (scopeFacilityId || displayReq.facilityId || '').toUpperCase();
+  const headerPeriod = scopePeriod || displayReq.period;
+  const headerFacilityLabel =
+    scopeFacilityName || displayReq.facilityName || headerFacilityId || displayReq.facilityId;
+  const vaultFacilityId = displayReq.facilityId || headerFacilityId;
+
   return (
     <>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm animate-fade-in">
@@ -246,7 +357,7 @@ export function ClientRequirementSubmissionModal({
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
-                      Submit Supporting Evidence & Records
+                      {readOnly ? 'Your submitted data' : 'Submit Supporting Evidence & Records'}
                     </h3>
                     <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/60">
                       Audit Vault
@@ -254,16 +365,28 @@ export function ClientRequirementSubmissionModal({
                   </div>
                   <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 flex-wrap">
                     <span>
-                      Requirement: <strong className="font-semibold text-slate-800 dark:text-slate-200">{requirement.title}</strong>
+                      Requirement: <strong className="font-semibold text-slate-800 dark:text-slate-200">{displayReq.title}</strong>
                     </span>
                     <span>·</span>
                     <span>
-                      Facility: <span className="font-mono font-medium text-emerald-700 dark:text-emerald-400">{requirement.facilityId}</span>
+                      Facility:{' '}
+                      <span className="font-mono font-medium text-emerald-700 dark:text-emerald-400">
+                        {headerFacilityLabel}
+                      </span>
+                      {headerFacilityId && headerFacilityId !== headerFacilityLabel ? (
+                        <span className="font-mono text-[10px] text-slate-500 ml-1">({headerFacilityId})</span>
+                      ) : null}
                     </span>
                     <span>·</span>
                     <span>
-                      Period: <span className="font-mono text-slate-700 dark:text-slate-300">{requirement.period}</span>
+                      Period: <span className="font-mono text-slate-700 dark:text-slate-300">{headerPeriod}</span>
                     </span>
+                    {readOnly && (
+                      <>
+                        <span>·</span>
+                        <StatusBadge status={displayReq.workflowStatus || 'SUBMITTED'} type="verification" size="sm" />
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -304,9 +427,36 @@ export function ClientRequirementSubmissionModal({
             </div>
 
             {/* Modal Form */}
-            <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+            <form onSubmit={readOnly ? (e) => e.preventDefault() : handleSubmit} className="flex flex-col flex-1 overflow-hidden">
               <div className="p-6 overflow-y-auto space-y-6 text-xs flex-1">
+                {detailLoading && (
+                  <p className="text-center text-slate-500 animate-pulse py-2">Loading your submission…</p>
+                )}
 
+                {readOnly && latestLink && (
+                  <div className="rounded-xl border border-emerald-200 bg-emerald-50/80 dark:border-emerald-900 dark:bg-emerald-950/30 p-4 space-y-2">
+                    <p className="text-[11px] font-bold text-emerald-900 dark:text-emerald-200">
+                      Submission on file
+                      {latestLink.submittedAt ? ` · ${formatDate(latestLink.submittedAt)}` : ''}
+                      {latestLink.submittedBy ? ` · ${latestLink.submittedBy}` : ''}
+                    </p>
+                    <p className="text-[11px] text-emerald-800 dark:text-emerald-300">
+                      Below is what you submitted. Your consultant uses this for verification.
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {(displayReq.submittedDriveLinks || []).map((link, i) => (
+                        <DriveLinkBadge
+                          key={`${link.url}-${i}`}
+                          url={link.vaultUrl || link.sourceUrl || link.url}
+                          label={link.fileName || link.description || `File ${i + 1}`}
+                          facilityId={displayReq.facilityName || displayReq.facilityId}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <fieldset disabled={inputDisabled} className="space-y-6 min-w-0 border-0 p-0 m-0 disabled:opacity-100">
                 {/* ---------------- SECTION 1: GOOGLE DRIVE EVIDENCE ---------------- */}
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-xs">
                   {/* Section 1 Header */}
@@ -334,32 +484,78 @@ export function ClientRequirementSubmissionModal({
                   <div className="p-5 space-y-4">
                     <div>
                       <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
-                        Google Drive / Google Docs URL <span className="text-rose-500">*</span>
+                        Google Drive / Google Docs URL{' '}
+                        {!uploadFile && <span className="text-rose-500">*</span>}
                       </label>
                       <div className="relative">
                         <input
                           type="url"
-                          required
+                          required={!uploadFile}
                           placeholder="https://drive.google.com/file/d/... or folders/..."
                           value={driveUrl}
+                          readOnly={readOnly}
+                          disabled={inputDisabled || Boolean(uploadFile)}
                           onChange={(e) => setDriveUrl(e.target.value)}
                           className="w-full px-3.5 py-2.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-950/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 dark:focus:border-emerald-400 transition-all font-mono font-medium shadow-2xs"
                         />
                       </div>
                       <div className="mt-2 p-2.5 rounded-lg bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/80 dark:border-blue-900/60 flex items-start gap-2 text-[11px] text-blue-900 dark:text-blue-300 leading-relaxed">
                         <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
-                        <span>
-                          Ensure link access is set to <strong>&quot;Anyone with the link can view&quot;</strong> or shared with your compliance auditor. It will be cataloged directly in the regulatory vault at <code className="text-blue-800 dark:text-blue-300 font-mono text-[10px] font-bold">Client_Submissions/{requirement.facilityId}/</code>.
-                        </span>
+                        <div className="space-y-1">
+                          <p>
+                            Paste a shared link, or upload a file below. Submissions are copied into the Carbon Crunch
+                            vault:{' '}
+                            <a
+                              href={GOOGLE_DRIVE_FOLDER_URL}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="underline font-semibold"
+                            >
+                              Open vault folder
+                            </a>{' '}
+                            (path{' '}
+                            <code className="font-mono text-[10px]">Client_Submissions/…/{vaultFacilityId}/…</code>).
+                          </p>
+                          <p className="text-[10px] text-slate-600 dark:text-slate-400">
+                            Without GDRIVE service account credentials in .env, direct uploads are stored in a local dev
+                            vault and linked to this request. For Google Drive sync, add GDRIVE_SERVICE_ACCOUNT_* or paste
+                            a shared Drive link.
+                          </p>
+                        </div>
                       </div>
                     </div>
 
-                    {requirement.monthlyFrequency && (
+                    <div className="rounded-lg border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-950/50 p-4 space-y-2">
+                      <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200">
+                        Or upload file directly to vault (max 25 MB)
+                      </label>
+                      <input
+                        type="file"
+                        disabled={inputDisabled || readOnly || isElectricityRequest}
+                        accept=".pdf,.xlsx,.xls,.csv,.png,.jpg,.jpeg,.doc,.docx"
+                        onChange={(e) => {
+                          const f = e.target.files?.[0] ?? null;
+                          setUploadFile(f);
+                          if (f) setDriveUrl('');
+                        }}
+                        className="block w-full text-xs text-slate-600 file:mr-3 file:rounded-md file:border-0 file:bg-emerald-700 file:px-3 file:py-1.5 file:text-white file:text-xs file:font-semibold"
+                      />
+                      {uploadFile && (
+                        <p className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium">
+                          Selected: {uploadFile.name} — will be saved in the vault folder on submit.
+                        </p>
+                      )}
+                      {isElectricityRequest && (
+                        <p className="text-[10px] text-slate-500">Electricity requests need a Drive link plus bill fields.</p>
+                      )}
+                    </div>
+
+                    {displayReq.monthlyFrequency && (
                       <div className="mt-4">
                         <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1.5">Reporting month <span className="text-rose-500">*</span></label>
-                        <select required value={reportingMonth} onChange={(event) => setReportingMonth(event.target.value)} className="w-full px-3.5 py-2.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white">
+                        <select required={!readOnly} disabled={inputDisabled} value={reportingMonth} onChange={(event) => setReportingMonth(event.target.value)} className="w-full px-3.5 py-2.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white">
                           <option value="">Select month</option>
-                          {(requirement.reportingMonths || []).map((month) => <option key={month} value={month}>{month}</option>)}
+                          {(displayReq.reportingMonths || []).map((month) => <option key={month} value={month}>{month}</option>)}
                         </select>
                       </div>
                     )}
@@ -371,6 +567,8 @@ export function ClientRequirementSubmissionModal({
                         type="text"
                         placeholder="e.g. Q1 Monthly Grid Consumption Excel & Official DISCOM Invoices (Apr-Jun 2025)"
                         value={fileDescription}
+                        readOnly={readOnly}
+                        disabled={inputDisabled}
                         onChange={(e) => setFileDescription(e.target.value)}
                         className="w-full px-3.5 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-950/80 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 dark:focus:border-emerald-400 transition-all shadow-2xs"
                       />
@@ -378,15 +576,15 @@ export function ClientRequirementSubmissionModal({
                   </div>
                 </div>
 
-                {(requirement.requiredFields || []).length > 0 && (
+                {(displayReq.requiredFields || []).length > 0 && (
                   <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-xs">
                     <div className="px-5 py-3.5 bg-slate-50 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-800">
                       <h4 className="text-xs font-bold text-slate-900 dark:text-white">Information requested by consultant</h4>
                       <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Complete the fields below. Fields marked required must be filled before submission.</p>
                     </div>
                     <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {(requirement.requiredFields || []).map((field) => {
-                        const review = requirement.fieldReviews?.find((item) => item.fieldKey === field.key);
+                      {(displayReq.requiredFields || []).map((field) => {
+                        const review = displayReq.fieldReviews?.find((item) => item.fieldKey === field.key);
                         const needsFix = review && ['MISSING', 'INCORRECT', 'CLARIFICATION_REQUIRED'].includes(review.status);
                         return (
                           <ClientDynamicFieldInput
@@ -394,6 +592,7 @@ export function ClientRequirementSubmissionModal({
                             field={field}
                             value={structuredData[field.key]}
                             onChange={(next) => setStructuredData((current) => ({ ...current, [field.key]: next }))}
+                            readOnly={readOnly}
                             highlightError={needsFix}
                             errorHint={
                               needsFix
@@ -693,8 +892,9 @@ export function ClientRequirementSubmissionModal({
                 )}
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 space-y-2">
                   <label className="text-xs font-semibold text-slate-800 dark:text-slate-200">Additional comments (optional)</label>
-                  <textarea value={clientComment} onChange={(event) => setClientComment(event.target.value)} rows={3} placeholder="Add context for the consultant, such as a document limitation or correction note." className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-3 py-2 text-xs text-slate-900 dark:text-white" />
+                  <textarea value={clientComment} readOnly={readOnly} disabled={inputDisabled} onChange={(event) => setClientComment(event.target.value)} rows={3} placeholder="Add context for the consultant, such as a document limitation or correction note." className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-3 py-2 text-xs text-slate-900 dark:text-white" />
                 </div>
+                </fieldset>
               </div>
 
               {/* Modal Sticky Footer */}
@@ -706,7 +906,7 @@ export function ClientRequirementSubmissionModal({
                 </div>
 
                 <div className="flex items-center gap-3">
-                  {isElectricityRequest && (
+                  {isElectricityRequest && !readOnly && (
                     <button
                       type="button"
                       onClick={() => setIsPreviewOpen(true)}
@@ -722,26 +922,30 @@ export function ClientRequirementSubmissionModal({
                     onClick={onClose}
                     className="px-4 py-2 text-xs font-semibold rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-white border border-slate-300 dark:border-slate-700 shadow-2xs transition-colors"
                   >
-                    Cancel
+                    {readOnly ? 'Close' : 'Cancel'}
                   </button>
 
-                  <button
-                    type="button"
-                    disabled={isSubmitting}
-                    onClick={() => void saveDraft()}
-                    className="px-4 py-2 text-xs font-semibold rounded-lg border border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200"
-                  >
-                    Save draft
-                  </button>
+                  {!readOnly && (
+                    <>
+                      <button
+                        type="button"
+                        disabled={isSubmitting}
+                        onClick={() => void saveDraft()}
+                        className="px-4 py-2 text-xs font-semibold rounded-lg border border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200"
+                      >
+                        Save draft
+                      </button>
 
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="inline-flex items-center gap-2 px-5 py-2 text-xs font-bold rounded-lg bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 !text-white shadow-md transition-all disabled:opacity-50"
-                  >
-                    <UploadCloud className="w-4 h-4" />
-                    <span>{isSubmitting ? 'Uploading & Indexing...' : 'Submit Evidence Link'}</span>
-                  </button>
+                      <button
+                        type="submit"
+                        disabled={isSubmitting || detailLoading}
+                        className="inline-flex items-center gap-2 px-5 py-2 text-xs font-bold rounded-lg bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 !text-white shadow-md transition-all disabled:opacity-50"
+                      >
+                        <UploadCloud className="w-4 h-4" />
+                        <span>{isSubmitting ? 'Uploading & Indexing...' : 'Submit Evidence Link'}</span>
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             </form>
@@ -753,8 +957,8 @@ export function ClientRequirementSubmissionModal({
           isOpen={isPreviewOpen}
           onClose={() => setIsPreviewOpen(false)}
           url={driveUrl}
-          label={`Client-entered electricity bill · ${requirement.title}`}
-          facilityId={requirement.facilityId}
+          label={`Client-entered electricity bill · ${displayReq.title}`}
+          facilityId={displayReq.facilityName || displayReq.facilityId}
           utilityConnectionSnapshot={connection}
           billDetails={{
             invoiceNumber: bill.invoiceNumber,

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -10,7 +10,7 @@ import {
   Calendar,
   CheckCircle2,
   FileSpreadsheet,
-  FolderInput,
+  RotateCcw,
   LogOut,
   Sun,
   Moon,
@@ -19,6 +19,8 @@ import {
   Layers,
 } from 'lucide-react';
 import { NotificationBell } from '@/components/common/NotificationBell';
+import { PortalFacilityNavDropdown } from '@/components/portal/PortalFacilityNavDropdown';
+import { buildPortalScopeQuery, readPortalFacilityId, readPortalPeriod } from '@/lib/portalScope';
 
 export const Navbar: React.FC = () => {
   const pathname = usePathname();
@@ -32,14 +34,20 @@ export const Navbar: React.FC = () => {
   } = useAuth();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [portalScopeQs, setPortalScopeQs] = useState('');
+
+  const isClientPortal =
+    currentRole === 'CLIENT' || pathname.startsWith('/portal');
+
+  useEffect(() => {
+    if (!isClientPortal) return;
+    setPortalScopeQs(buildPortalScopeQuery(readPortalFacilityId(), readPortalPeriod()));
+  }, [isClientPortal, pathname]);
 
   // Do not show the header on the login page.
   if (pathname === '/login') {
     return null;
   }
-
-  const isClientPortal =
-    currentRole === 'CLIENT' || pathname.startsWith('/portal');
 
   const isLight = theme === 'light';
 
@@ -49,27 +57,8 @@ export const Navbar: React.FC = () => {
     if (isClientPortal) {
       return [
         { label: 'Client Overview', href: '/portal', icon: Layers },
-        { label: 'Regulatory Forms', href: '/portal/regulatory', icon: FileSpreadsheet },
-        {
-          label: 'My Facility',
-          href: `/portal/facilities/${currentUser?.authorizedFacilityIds?.[0] || 'TRIDENT_PAPER'}`,
-          icon: Building2,
-        },
-        {
-          label: 'Data Requests',
-          href: '/portal/requests',
-          icon: FileSpreadsheet,
-        },
-        {
-          label: 'Clarifications',
-          href: '/portal/submissions',
-          icon: CheckCircle2,
-        },
-        {
-          label: 'Approved History',
-          href: '/portal/history',
-          icon: CheckCircle2,
-        },
+        { label: 'Data Requests', href: `/portal/requests${portalScopeQs}`, icon: FileSpreadsheet },
+        { label: 'Approved History', href: '/portal/history', icon: CheckCircle2 },
       ];
     }
 
@@ -79,7 +68,11 @@ export const Navbar: React.FC = () => {
     ];
 
     if (currentRole === 'ADMIN') {
-      items.push({ label: 'User Management', href: '/admin/users', icon: Building2 });
+      items.push({
+        label: 'Checklist Config',
+        href: '/admin/data-requirements',
+        icon: FileSpreadsheet,
+      });
     }
 
     if (
@@ -94,16 +87,6 @@ export const Navbar: React.FC = () => {
       items.push({
         label: 'Data Review',
         href: '/data-review',
-        icon: CheckCircle2,
-      });
-      items.push({
-        label: 'Client Uploads',
-        href: '/client-uploads',
-        icon: FolderInput,
-      });
-      items.push({
-        label: 'Approvals Queue',
-        href: '/approvals',
         icon: CheckCircle2,
       });
     }
@@ -279,14 +262,47 @@ export const Navbar: React.FC = () => {
 
           {/* Desktop navigation */}
           <nav className="hidden items-center gap-1 lg:flex">
-            {navItems.map((item) => {
+            {isClientPortal && (
+              <>
+                {navItems
+                  .filter((item) => item.href === '/portal')
+                  .map((item) => {
+                    const Icon = item.icon;
+                    const isActive = pathname === '/portal';
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={`inline-flex items-center gap-1.5 rounded-md border border-transparent px-2.5 py-1.5 text-xs font-medium whitespace-nowrap transition-all ${getNavLinkClass(
+                          isActive
+                        )}`}
+                      >
+                        <Icon
+                          className={`h-3.5 w-3.5 shrink-0 ${
+                            isActive
+                              ? isLight
+                                ? 'text-emerald-700'
+                                : 'text-emerald-400'
+                              : isLight
+                                ? 'text-slate-500'
+                                : ' '
+                          }`}
+                        />
+                        <span>{item.label}</span>
+                      </Link>
+                    );
+                  })}
+                <PortalFacilityNavDropdown isLight={isLight} getNavLinkClass={getNavLinkClass} />
+              </>
+            )}
+            {(isClientPortal ? navItems.filter((item) => item.href !== '/portal') : navItems).map((item) => {
               const Icon = item.icon;
 
               const isActive =
                 pathname === item.href ||
                 (item.href !== '/dashboard' &&
                   item.href !== '/portal' &&
-                  pathname.startsWith(item.href));
+                  pathname.startsWith(item.href.split('?')[0] || item.href));
 
               return (
                 <Link
@@ -419,41 +435,102 @@ export const Navbar: React.FC = () => {
             Navigation Menu
           </div>
 
-          {navItems.map((item) => {
-            const Icon = item.icon;
+          {isClientPortal ? (
+            <>
+              {navItems
+                .filter((item) => item.href === '/portal')
+                .map((item) => {
+                  const Icon = item.icon;
+                  const isActive = pathname === '/portal';
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors ${
+                        isActive
+                          ? isLight
+                            ? 'border border-emerald-300 bg-emerald-50 font-semibold text-emerald-800'
+                            : 'border border-emerald-800/60 bg-emerald-950/60 text-emerald-300'
+                          : isLight
+                            ? 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+                            : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                      }`}
+                    >
+                      <Icon className={`h-4 w-4 ${isLight ? 'text-emerald-700' : 'text-emerald-500'}`} />
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              <PortalFacilityNavDropdown
+                isLight={isLight}
+                getNavLinkClass={getNavLinkClass}
+                variant="mobile"
+                onNavigate={() => setMobileMenuOpen(false)}
+              />
+              {navItems
+                .filter((item) => item.href !== '/portal')
+                .map((item) => {
+                  const Icon = item.icon;
+                  const isActive =
+                    pathname === item.href ||
+                    pathname.startsWith(item.href.split('?')[0] || item.href);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors ${
+                        isActive
+                          ? isLight
+                            ? 'border border-emerald-300 bg-emerald-50 font-semibold text-emerald-800'
+                            : 'border border-emerald-800/60 bg-emerald-950/60 text-emerald-300'
+                          : isLight
+                            ? 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+                            : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                      }`}
+                    >
+                      <Icon
+                        className={`h-4 w-4 ${isLight ? 'text-emerald-700' : 'text-emerald-500'}`}
+                      />
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+            </>
+          ) : (
+            navItems.map((item) => {
+              const Icon = item.icon;
 
-            const isActive =
-              pathname === item.href ||
-              (item.href !== '/dashboard' &&
-                item.href !== '/portal' &&
-                pathname.startsWith(item.href));
+              const isActive =
+                pathname === item.href ||
+                (item.href !== '/dashboard' &&
+                  item.href !== '/portal' &&
+                  pathname.startsWith(item.href));
 
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors ${
-                  isActive
-                    ? isLight
-                      ? 'border border-emerald-300 bg-emerald-50 font-semibold text-emerald-800'
-                      : 'border border-emerald-800/60 bg-emerald-950/60 text-emerald-300'
-                    : isLight
-                      ? 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
-                      : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-                }`}
-              >
-                <Icon
-                  className={`h-4 w-4 ${
-                    isLight
-                      ? 'text-emerald-700'
-                      : 'text-emerald-500'
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors ${
+                    isActive
+                      ? isLight
+                        ? 'border border-emerald-300 bg-emerald-50 font-semibold text-emerald-800'
+                        : 'border border-emerald-800/60 bg-emerald-950/60 text-emerald-300'
+                      : isLight
+                        ? 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+                        : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                   }`}
-                />
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
+                >
+                  <Icon
+                    className={`h-4 w-4 ${isLight ? 'text-emerald-700' : 'text-emerald-500'}`}
+                  />
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })
+          )}
         </div>
       )}
     </header>
