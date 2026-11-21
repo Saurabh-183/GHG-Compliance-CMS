@@ -9,10 +9,10 @@ import {
   type VaultIngestInput,
   type VaultIngestResult,
 } from '@/lib/driveVaultShared';
-import { createDriveWriteClient, isDriveServiceAccountConfigured } from '@/lib/driveVaultAuth';
+import { createDriveWriteClient, isDriveVaultSyncConfigured } from '@/lib/driveVaultAuth';
 import { saveLocalVaultUpload } from '@/lib/localVaultUpload';
 
-export { isDriveServiceAccountConfigured as isDriveVaultSyncConfigured };
+export { isDriveVaultSyncConfigured };
 
 export class VaultPlacementError extends Error {
   constructor(message: string) {
@@ -49,11 +49,10 @@ export async function ingestClientDriveLink(input: VaultIngestInput): Promise<Va
     });
   }
 
-  if (isDriveServiceAccountConfigured()) {
+  if (isDriveVaultSyncConfigured()) {
     throw new VaultPlacementError(
-      'Could not save this document into the compliance vault folder. Share the vault folder ' +
-        `( ${GOOGLE_DRIVE_FOLDER_URL} ) and the client's file with the service account email from .env, ` +
-        'or use direct file upload in the portal.'
+      'Could not save this document into the compliance vault folder. Ensure the vault Google account can open the client link ' +
+        `(or share the file with your vault account). Vault root: ${GOOGLE_DRIVE_FOLDER_URL}`
     );
   }
 
@@ -76,7 +75,7 @@ export async function uploadBytesToComplianceVault(args: {
     const allowLocal =
       process.env.NODE_ENV !== 'production' ||
       process.env.GDRIVE_ENABLE_LOCAL_VAULT_FALLBACK === 'true';
-    if (allowLocal && !isDriveServiceAccountConfigured()) {
+    if (allowLocal && !isDriveVaultSyncConfigured()) {
       return saveLocalVaultUpload(args);
     }
     throw new VaultPlacementError(
@@ -150,7 +149,7 @@ async function syncToComplianceVault(args: {
   vaultFolderPath: string;
   fileName: string;
 }): Promise<VaultPlacementResult | null> {
-  if (!isDriveServiceAccountConfigured()) {
+  if (!isDriveVaultSyncConfigured()) {
     return null;
   }
 

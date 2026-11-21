@@ -25,6 +25,7 @@ import {
   isClientSubmissionReadOnly,
   getLatestDriveLink,
 } from '@/lib/clientPortalSubmission';
+import { clientSubmissionDueBlockedMessage, isDataRequestPastDue } from '@/lib/dataRequestDueDate';
 import { DriveLinkBadge } from '@/components/common/DriveLinkBadge';
 import { GOOGLE_DRIVE_FOLDER_URL, resolveComplianceVaultFolderUrl, rewriteLegacyVaultUrlsInText } from '@/lib/gdrive';
 
@@ -187,6 +188,12 @@ export function ClientRequirementSubmissionModal({
       notify.warning(
         'This request is not for the selected financial year. Change the year filter or pick another request.'
       );
+      return false;
+    }
+
+    const dueBlocked = clientSubmissionDueBlockedMessage(requirement.dueDate);
+    if (dueBlocked) {
+      notify.error(dueBlocked);
       return false;
     }
 
@@ -434,6 +441,12 @@ export function ClientRequirementSubmissionModal({
                   <p className="text-center text-slate-500 animate-pulse py-2">Loading your submission…</p>
                 )}
 
+                {displayReq.dueDate && isDataRequestPastDue(displayReq.dueDate) && (
+                  <div className="rounded-xl border border-rose-200 bg-rose-50 dark:border-rose-900 dark:bg-rose-950/40 p-4 text-[11px] text-rose-900 dark:text-rose-200">
+                    {clientSubmissionDueBlockedMessage(displayReq.dueDate)}
+                  </div>
+                )}
+
                 {readOnly && latestLink && (
                   <div className="rounded-xl border border-emerald-200 bg-emerald-50/80 dark:border-emerald-900 dark:bg-emerald-950/30 p-4 space-y-2">
                     <p className="text-[11px] font-bold text-emerald-900 dark:text-emerald-200">
@@ -518,8 +531,8 @@ export function ClientRequirementSubmissionModal({
                             <code className="font-mono text-[10px]">Client_Submissions/…/{vaultFacilityId}/…</code>).
                           </p>
                           <p className="text-[10px] text-slate-600 dark:text-slate-400">
-                            Without GDRIVE service account credentials in .env, direct uploads are stored in a local dev
-                            vault and linked to this request. For Google Drive sync, add GDRIVE_SERVICE_ACCOUNT_* or paste
+                            Without Google Drive API credentials in .env, uploads stay in a local dev vault. For auto-copy into
+                            your vault folder, add GDRIVE_SERVICE_ACCOUNT_* or GDRIVE_OAUTH_* (see .env.example) or paste
                             a shared Drive link.
                           </p>
                         </div>

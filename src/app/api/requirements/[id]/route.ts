@@ -197,6 +197,15 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     }
 
     if (action === 'SEND_TO_CLIENT') {
+      if (!requirement.dueDate && !body.dueDate?.trim()) {
+        return NextResponse.json(
+          { error: 'Set a client submission due date before sending this request.' },
+          { status: 400 }
+        );
+      }
+      if (body.dueDate?.trim()) {
+        requirement.dueDate = new Date(body.dueDate);
+      }
       const from = (requirement.workflowStatus || 'DRAFT') as RequestWorkflowStatus;
       assertTransition(from, 'REQUESTED');
       requirement.workflowStatus = 'REQUESTED';

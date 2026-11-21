@@ -386,6 +386,10 @@ export function FacilityDataRequestPanel({
       notify.error('Select at least one linked framework.');
       return false;
     }
+    if (!dueDate.trim()) {
+      notify.error('Client submission due date is required.');
+      return false;
+    }
     return true;
   };
 
@@ -481,7 +485,7 @@ export function FacilityDataRequestPanel({
         <FormSection
           step={1}
           title="Request details"
-          subtitle="Pick organization → facility → checklist requirement"
+          subtitle="Organization, facility, FY, checklist — and client submission due date"
           open={!!openSections[1]}
           onToggle={() => toggleSection(1)}
         >
@@ -778,7 +782,7 @@ export function FacilityDataRequestPanel({
           </div>
         </FormSection>
 
-        <FormSection step={5} title="Assignment & delivery" subtitle="Due date, partial submission, preview" open={!!openSections[5]} onToggle={() => toggleSection(5)}>
+        <FormSection step={5} title="Assignment & delivery" subtitle="Consultant assignment, client contact, notifications" open={!!openSections[5]} onToggle={() => toggleSection(5)}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
             <label className="space-y-1">
               <span className="font-bold uppercase text-[10px] text-slate-500">Assigned consultant</span>

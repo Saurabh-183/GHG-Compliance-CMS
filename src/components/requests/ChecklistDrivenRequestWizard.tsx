@@ -124,6 +124,10 @@ export function ChecklistDrivenRequestWizard({
       notify.error('Select at least one applicable requirement.');
       return;
     }
+    if (!saveAsDraft && !dueDate.trim()) {
+      notify.error('Client submission due date is required.');
+      return;
+    }
     setSubmitting(true);
     try {
       const res = await fetch('/api/requirements/bulk-checklist', {

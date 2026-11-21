@@ -11,7 +11,7 @@ import {
   VaultPlacementError,
 } from '@/lib/driveVaultServer';
 import { upsertClientSubmissionLink } from '@/lib/clientSubmissionLinkUpsert';
-import { GOOGLE_DRIVE_FOLDER_URL, GOOGLE_DRIVE_FOLDER_ID, resolveComplianceVaultFolderUrl } from '@/lib/gdrive';
+import { assertClientCanSubmitRequirement } from '@/lib/dataRequestDueDate';
 
 export async function POST(
   request: NextRequest,
@@ -42,6 +42,17 @@ export async function POST(
       structuredData?: Record<string, unknown>;
       comment?: string;
     };
+
+    if (!body.draft) {
+      try {
+        assertClientCanSubmitRequirement(requirement.dueDate);
+      } catch (err) {
+        return NextResponse.json(
+          { error: err instanceof Error ? err.message : 'Submission window closed.' },
+          { status: 403 }
+        );
+      }
+    }
 
     if (body.draft) {
       requirement.clientDraftData = {
