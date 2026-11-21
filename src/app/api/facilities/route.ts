@@ -17,11 +17,13 @@ export async function GET(request: NextRequest) {
     await connectToDatabase();
 
     let query: Record<string, unknown> = {};
-    if (session && session.role === 'CLIENT') {
-      if (session.authorizedFacilityIds && session.authorizedFacilityIds.length > 0) {
-        query = { facilityId: { $in: session.authorizedFacilityIds } };
-      } else {
-        return NextResponse.json({ success: true, data: [] });
+    if (session.role !== 'ADMIN') {
+      const assigned = session.authorizedFacilityIds || [];
+      if (!assigned.length) return NextResponse.json({ success: true, data: [] });
+      query.facilityId = { $in: assigned.map((id) => id.toUpperCase()) };
+      if (session.role === 'CLIENT') {
+        if (!session.clientGroupId) return NextResponse.json({ success: true, data: [] });
+        query.clientGroupId = session.clientGroupId;
       }
     }
 
@@ -44,7 +46,7 @@ export async function GET(request: NextRequest) {
       facilities.length === 0 &&
       process.env.NODE_ENV !== 'production' &&
       session &&
-      session.role !== 'CLIENT'
+      session.role === 'ADMIN'
     ) {
       const { MOCK_FACILITIES } = await import('@/lib/mockFallback');
       let fallbackList = MOCK_FACILITIES;
@@ -85,7 +87,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV === 'production' || session.role !== 'ADMIN') {
       return NextResponse.json(
         { success: false, error: 'Facility directory is temporarily unavailable.' },
         { status: 503 }
@@ -132,19 +134,7 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    console.warn('Error creating facility in DB, returning demo fallback:', error);
-    return NextResponse.json(
-      {
-        success: true,
-        message: 'Facility created successfully (Demo Mode)',
-        data: {
-          facilityId: 'DEMO_FACILITY',
-          name: 'Demo Facility',
-          status: 'ACTIVE',
-          createdAt: new Date().toISOString(),
-        },
-      },
-      { status: 201 }
-    );
+    console.error('Facility creation failed:', error);
+    return NextResponse.json({ error: 'Unable to create facility.' }, { status: 500 });
   }
 }

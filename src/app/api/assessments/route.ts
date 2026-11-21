@@ -20,8 +20,8 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
       query.facilityId = facilityId.toUpperCase();
-    } else if (session && session.role === 'CLIENT' && session.authorizedFacilityIds) {
-      query.facilityId = { $in: session.authorizedFacilityIds };
+    } else if (session && session.role !== 'ADMIN') {
+      query.facilityId = { $in: session.authorizedFacilityIds || [] };
     }
 
     if (complianceType) query.complianceType = complianceType;
@@ -54,14 +54,12 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ success: true, data: sanitized });
   } catch (error) {
-    console.warn('Error fetching assessments from DB, returning fallback demo assessments:', error);
-    const { MOCK_ASSESSMENTS } = await import('@/lib/mockFallback');
-    return NextResponse.json({ success: true, data: MOCK_ASSESSMENTS });
+    console.error('Error fetching assessments:', error);
+    return NextResponse.json({ success: false, error: 'Unable to load assessments.' }, { status: 503 });
   }
 }
 
 export async function POST(request: NextRequest) {
-  let requestData: Record<string, unknown> = {};
   try {
     await connectToDatabase();
     const session = getSessionFromRequest(request);
@@ -87,8 +85,8 @@ export async function POST(request: NextRequest) {
       };
       notes?: string;
     };
-    requestData = body as Record<string, unknown>;
 
+    if (!isAuthorizedForFacility(session, body.facilityId)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     const newAssessment = await AssessmentModel.create({
       ...body,
       facilityId: body.facilityId.toUpperCase(),
@@ -101,18 +99,7 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    console.warn('Error creating assessment in DB, returning demo success:', error);
-    return NextResponse.json(
-      {
-        success: true,
-        message: 'Assessment created successfully (Demo Mode)',
-        data: {
-          _id: 'ass_demo_' + Date.now(),
-          ...requestData,
-          version: 1,
-        },
-      },
-      { status: 201 }
-    );
+    console.error('Assessment creation failed:', error);
+    return NextResponse.json({ error: 'Unable to create assessment.' }, { status: 500 });
   }
 }

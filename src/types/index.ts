@@ -9,6 +9,7 @@ export interface IUser {
   authorizedFacilityIds?: string[];
   designation?: string;
   avatarUrl?: string;
+  mustChangePassword?: boolean;
 }
 
 export type ComplianceType = 'RCO' | 'PAT' | 'CCTS' | 'CEA';
@@ -374,6 +375,7 @@ export interface IAuthUserSession {
   role: UserRole;
   clientGroupId?: string;
   authorizedFacilityIds?: string[];
+  mustChangePassword?: boolean;
 }
 
 export type DataChecklistItemStatus = 'DUE' | 'RECEIVED' | 'NOT_APPLICABLE' | 'NOT_REQUIRED';

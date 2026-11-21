@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { DatasetModel } from '@/models/Dataset';
-import { getSessionFromRequest } from '@/lib/auth';
+import { getSessionFromRequest, authorizeRole, isAuthorizedForFacility } from '@/lib/auth';
 import { calculateReconciliation } from '@/lib/utils';
 import { GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
 import { IMonthlyRecord } from '@/types';
@@ -10,9 +10,11 @@ export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
     const session = getSessionFromRequest(request);
+    if (!authorizeRole(session, ['ADMIN', 'CONSULTANT'])) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     const body = await request.json();
 
     const facilityId = (body.facilityId || 'TRIDENT_PAPER').toUpperCase().trim();
+    if (!isAuthorizedForFacility(session, facilityId)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     const datasetType = body.datasetType || 'GRID_ELECTRICITY';
     const period = body.period || 'FY2025-26';
     const driveFolderUrl = body.driveFolderUrl || GOOGLE_DRIVE_FOLDER_URL;
@@ -110,20 +112,8 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.warn('Error importing Excel dataset to DB, returning demo success:', error);
-    const { MOCK_DATASET } = await import('@/lib/mockFallback');
-    return NextResponse.json({
-      success: true,
-      message: 'Successfully imported Excel rows (Demo Mode)! Data mapped to Google Drive.',
-      data: {
-        dataset: MOCK_DATASET,
-        dataGivenPercentage: 100,
-        dataMatchedPercentage: 66.7,
-        matchedCount: 2,
-        evaluatedCount: 3,
-        totalMonths: 12,
-      },
-    });
+    console.error('Excel import failed:', error);
+    return NextResponse.json({ error: 'Unable to import Excel data.' }, { status: 500 });
   }
 }
 

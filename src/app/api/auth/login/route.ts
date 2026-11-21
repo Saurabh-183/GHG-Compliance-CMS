@@ -1,245 +1,47 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { connectToDatabase } from '@/lib/db';
-import { UserModel, IUserDocument } from '@/models/User';
-import { signToken, getSessionFromRequest } from '@/lib/auth';
-import { UserRole } from '@/types';
+import { UserModel } from '@/models/User';
+import { FacilityModel } from '@/models/Facility';
+import { signToken } from '@/lib/auth';
 
-// Fallback demo accounts for instant access when MONGODB_URI is not yet configured in Vercel
-const DEMO_FALLBACK_ACCOUNTS: Record<string, {
-  name: string;
-  role: UserRole;
-  designation: string;
-  avatarUrl: string;
-  authorizedFacilityIds: string[];
-  clientGroupId?: string;
-}> = {
-  'consultant@carboncrunch.com': {
-    name: 'Priya Sharma',
-    role: 'CONSULTANT',
-    designation: 'Senior Energy & Carbon Compliance Lead',
-    avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop&crop=faces',
-    authorizedFacilityIds: ['TRIDENT_PAPER', 'TRIDENT_YARN', 'TRIDENT_TEXTILES'],
-  },
-  'admin@carboncrunch.com': {
-    name: 'Saurabh Agnihotri',
-    role: 'ADMIN',
-    designation: 'Principal Compliance Architect',
-    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces',
-    authorizedFacilityIds: ['TRIDENT_PAPER', 'TRIDENT_YARN', 'TRIDENT_TEXTILES'],
-  },
-  'client@tridentindia.com': {
-    name: 'Vikram Singh',
-    role: 'CLIENT',
-    designation: 'Head of Regulatory Affairs & Sustainability',
-    avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces',
-    clientGroupId: 'TRIDENT',
-    authorizedFacilityIds: ['TRIDENT_PAPER', 'TRIDENT_YARN', 'TRIDENT_TEXTILES'],
-  },
-};
+const COOKIE_NAME = 'cc_auth_token';
+function userPayload(user: any) {
+  return { _id: user._id.toString(), name: user.name, email: user.email, role: user.role,
+    designation: user.designation, avatarUrl: user.avatarUrl,
+    clientGroupId: user.clientGroupId?.toString(), authorizedFacilityIds: user.authorizedFacilityIds || [],
+    mustChangePassword: !!user.mustChangePassword };
+}
 
 export async function POST(request: NextRequest) {
   try {
-    const body = (await request.json()) as { email?: string; password?: string; role?: string };
-    const { email, password, role } = body;
-
-    let user: IUserDocument | null = null;
-    let dbConnected = false;
-
-    // 1. Attempt connection and check MongoDB if available
-    try {
-      await connectToDatabase();
-      dbConnected = true;
-
-      // Demo fallback is handled below; login must never reset database collections.
-
-      if (role && !email) {
-        user = (await UserModel.findOne({ role: role.toUpperCase() } as Record<string, unknown>)) as IUserDocument | null;
-      } else if (email) {
-        user = (await UserModel.findOne({ email: email.toLowerCase() })) as IUserDocument | null;
-        if (user && password) {
-          const isMatch = await bcrypt.compare(password, user.passwordHash);
-          if (!isMatch) {
-            return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
-          }
-        }
-      }
-    } catch (dbErr) {
-      console.warn('MongoDB connection unavailable in /api/auth/login. Using demo fallback:', dbErr);
-    }
-
-    // 2. If user document exists in MongoDB
-    if (user) {
-      const payload = {
-        userId: user._id.toString(),
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        clientGroupId: user.clientGroupId ? user.clientGroupId.toString() : undefined,
-        authorizedFacilityIds: user.authorizedFacilityIds,
-      };
-
-      const token = signToken(payload);
-
-      const response = NextResponse.json({
-        message: 'Login successful',
-        token,
-        user: {
-          _id: user._id.toString(),
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          designation: user.designation,
-          avatarUrl: user.avatarUrl,
-          clientGroupId: user.clientGroupId ? user.clientGroupId.toString() : undefined,
-          authorizedFacilityIds: user.authorizedFacilityIds,
-        },
-      });
-
-      response.cookies.set('cc_auth_token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 7 * 24 * 60 * 60,
-      });
-
-      return response;
-    }
-
-    // Demo identities are strictly development-only. Production must authenticate a real MongoDB user.
-    if (process.env.NODE_ENV === 'production' && process.env.ENABLE_DEMO_AUTH !== 'true') {
-      return NextResponse.json({ error: 'Demo login is disabled. Configure MongoDB users and authenticate with email and password.' }, { status: 503 });
-    }
-
-    // 3. Resilient Demo Fallback (development only unless explicitly enabled)
-    const targetEmail = email
-      ? email.toLowerCase()
-      : role === 'ADMIN'
-      ? 'admin@carboncrunch.com'
-      : role === 'CLIENT'
-      ? 'client@tridentindia.com'
-      : 'consultant@carboncrunch.com';
-
-    const fallback = DEMO_FALLBACK_ACCOUNTS[targetEmail];
-    if (fallback) {
-      // Validate password if user submitted one manually
-      if (password && password !== 'Demo@123') {
-        return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
-      }
-
-      const payload = {
-        userId: `USR_${fallback.role}_DEMO`,
-        name: fallback.name,
-        email: targetEmail,
-        role: fallback.role,
-        clientGroupId: fallback.clientGroupId,
-        authorizedFacilityIds: fallback.authorizedFacilityIds,
-      };
-
-      const token = signToken(payload);
-
-      const response = NextResponse.json({
-        message: 'Login successful (Demo Mode)',
-        token,
-        user: {
-          _id: payload.userId,
-          name: fallback.name,
-          email: targetEmail,
-          role: fallback.role,
-          designation: fallback.designation,
-          avatarUrl: fallback.avatarUrl,
-          clientGroupId: fallback.clientGroupId,
-          authorizedFacilityIds: fallback.authorizedFacilityIds,
-        },
-        notice: !dbConnected
-          ? 'MongoDB not yet connected in Vercel. Running in demo session mode.'
-          : undefined,
-      });
-
-      response.cookies.set('cc_auth_token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 7 * 24 * 60 * 60,
-      });
-
-      return response;
-    }
-
-    return NextResponse.json({ error: 'User not found' }, { status: 404 });
-  } catch (error) {
-    console.error('Login failed:', error);
-    if (process.env.NODE_ENV === 'production' && process.env.ENABLE_DEMO_AUTH !== 'true') {
-      return NextResponse.json({ error: 'Authentication service unavailable. Check database configuration.' }, { status: 503 });
-    }
-    const fallback = DEMO_FALLBACK_ACCOUNTS['consultant@carboncrunch.com'];
-    const payload = {
-      userId: `USR_${fallback.role}_DEMO`,
-      name: fallback.name,
-      email: 'consultant@carboncrunch.com',
-      role: fallback.role,
-      clientGroupId: fallback.clientGroupId,
-      authorizedFacilityIds: fallback.authorizedFacilityIds,
-    };
-    const token = signToken(payload);
-    const response = NextResponse.json({
-      message: 'Login successful (Demo Mode)',
-      token,
-      user: {
-        _id: payload.userId,
-        name: fallback.name,
-        email: 'consultant@carboncrunch.com',
-        role: fallback.role,
-        designation: fallback.designation,
-        avatarUrl: fallback.avatarUrl,
-        clientGroupId: fallback.clientGroupId,
-        authorizedFacilityIds: fallback.authorizedFacilityIds,
-      },
-    });
-    response.cookies.set('cc_auth_token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 7 * 24 * 60 * 60,
-    });
-    return response;
-  }
-}
-
-export async function GET(request: NextRequest) {
-  const session = getSessionFromRequest(request);
-  if (!session) {
-    return NextResponse.json({ authenticated: false }, { status: 401 });
-  }
-
-  try {
+    const body = await request.json();
+    const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
+    const password = typeof body.password === 'string' ? body.password : '';
+    if (!email || !password || password.length > 200) return NextResponse.json({ error: 'Email and password are required.' }, { status: 400 });
     await connectToDatabase();
-    const user = (await UserModel.findById(session.userId)) as IUserDocument | null;
-
-    if (user) {
-      return NextResponse.json({
-        authenticated: true,
-        user: {
-          _id: user._id.toString(),
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          designation: user.designation,
-          avatarUrl: user.avatarUrl,
-          clientGroupId: user.clientGroupId ? user.clientGroupId.toString() : undefined,
-          authorizedFacilityIds: user.authorizedFacilityIds,
-        },
-      });
+    const user = await UserModel.findOne({ email }).select('+passwordHash');
+    if (!user || !user.passwordHash || !(await bcrypt.compare(password, user.passwordHash))) {
+      return NextResponse.json({ error: 'Invalid email or password.' }, { status: 401 });
     }
-  } catch {
-    // If DB is offline, return decoded JWT session
+    if (user.status && user.status !== 'ACTIVE') return NextResponse.json({ error: 'This account is disabled. Contact your administrator.' }, { status: 403 });
+    if (user.role === 'CLIENT' && !user.clientGroupId) return NextResponse.json({ error: 'Your company account is not configured. Contact your administrator.' }, { status: 403 });
+    let authorizedFacilityIds = user.authorizedFacilityIds || [];
+    if (user.role === 'CONSULTANT' && authorizedFacilityIds.length === 0) {
+      const assigned = await FacilityModel.find({ $or: [{ assignedConsultantId: user._id }, { assignedReviewerId: user._id }], status: { $ne: 'INACTIVE' } }).select('facilityId').lean();
+      authorizedFacilityIds = assigned.map((facility) => facility.facilityId.toUpperCase());
+    }
+    if (user.role !== 'ADMIN' && authorizedFacilityIds.length === 0) {
+      return NextResponse.json({ error: 'No facilities have been assigned to this account. Contact your administrator.' }, { status: 403 });
+    }
+    const payload = { userId: user._id.toString(), name: user.name, email: user.email, role: user.role,
+      clientGroupId: user.clientGroupId?.toString(), authorizedFacilityIds, mustChangePassword: !!user.mustChangePassword };
+    const token = signToken(payload);
+    const response = NextResponse.json({ success: true, user: { ...userPayload(user), authorizedFacilityIds } });
+    response.cookies.set(COOKIE_NAME, token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/', maxAge: 30 * 60 });
+    return response;
+  } catch (error) {
+    console.error('Login error:', error);
+    return NextResponse.json({ error: 'Authentication service is unavailable.' }, { status: 503 });
   }
-
-  return NextResponse.json({
-    authenticated: true,
-    user: session,
-  });
 }

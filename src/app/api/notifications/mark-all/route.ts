@@ -1,23 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { Notification } from '@/models/Notification';
+import { getSessionFromRequest } from '@/lib/auth';
 
-export async function PATCH(req: NextRequest) {
+export async function PATCH(request: NextRequest) {
+  const session = getSessionFromRequest(request);
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
     await connectToDatabase();
-    const body = await req.json().catch(() => ({}));
-    const role = body.role;
-
-    const filter: Record<string, unknown> = { isRead: false };
-    if (role) {
-      filter.recipientRole = { $in: [role, 'ALL'] };
-    }
-
-    await Notification.updateMany(filter, { isRead: true });
-
-    return NextResponse.json({ success: true, message: 'All notifications marked as read' });
-  } catch (err: unknown) {
-    console.warn('Error marking notifications as read in DB, returning demo success:', err);
-    return NextResponse.json({ success: true, message: 'All notifications marked as read (Demo Mode)' });
+    const filter: Record<string, unknown> = {
+      isRead: false, recipientRole: { $in: [session.role, 'ALL'] },
+      $or: [{ recipientUserId: session.userId }, { recipientUserId: { $exists: false } }, { recipientUserId: null }],
+    };
+    if (session.role !== 'ADMIN') filter.facilityId = { $in: [...(session.authorizedFacilityIds || []), null] };
+    await Notification.updateMany(filter, { $set: { isRead: true } });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Mark all notifications read failed:', error);
+    return NextResponse.json({ error: 'Unable to update notifications.' }, { status: 500 });
   }
 }

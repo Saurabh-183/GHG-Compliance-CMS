@@ -1,114 +1,31 @@
 import { NextResponse, NextRequest } from 'next/server';
-
-interface JWTPayload {
-  userId: string;
-  name: string;
-  email: string;
-  role: 'ADMIN' | 'CONSULTANT' | 'CLIENT';
-  clientGroupId?: string;
-  authorizedFacilityIds?: string[];
-}
-
-function decodeJwtPayload(token: string): JWTPayload | null {
-  try {
-    const parts = token.split('.');
-    if (parts.length !== 3) return null;
-    const base64Url = parts[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
-    );
-    return JSON.parse(jsonPayload) as JWTPayload;
-  } catch {
-    return null;
-  }
-}
+import { verifyToken } from '@/lib/auth';
 
 export function proxy(request: NextRequest) {
-  // Local development is intentionally accessible without the login screen.
-  // API-level authorization receives a local ADMIN session from lib/auth.ts.
-  if (process.env.NODE_ENV === 'development') {
-    return NextResponse.next();
-  }
-
   const { pathname } = request.nextUrl;
-
-  // Public paths that do not require authentication
-  if (
-    pathname.startsWith('/_next') ||
-    pathname.startsWith('/api/auth/login') ||
-    pathname.startsWith('/api/auth/logout') ||
-    pathname.startsWith('/api/seed') ||
-    pathname === '/login' ||
-    pathname === '/favicon.ico' ||
-    /\.(png|jpg|jpeg|gif|svg|webp|ico)$/i.test(pathname)
-  ) {
-    return NextResponse.next();
-  }
+  const isPublic = pathname.startsWith('/_next') || pathname.startsWith('/api/auth/login') || pathname.startsWith('/api/auth/logout') || pathname === '/login' || pathname === '/change-password' || pathname.startsWith('/api/auth/change-password') || pathname === '/favicon.ico' || /\.(png|jpg|jpeg|gif|svg|webp|ico)$/i.test(pathname);
+  if (isPublic) return NextResponse.next();
 
   const token = request.cookies.get('cc_auth_token')?.value;
-
-  // If not logged in, redirect to login page
-  if (!token) {
-    const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('redirect', pathname);
-    return NextResponse.redirect(loginUrl);
-  }
-
-  const user = decodeJwtPayload(token);
+  const user = token ? verifyToken(token) : null;
   if (!user) {
-    const loginUrl = new URL('/login', request.url);
-    return NextResponse.redirect(loginUrl);
+    if (pathname.startsWith('/api/')) return NextResponse.json({ error: 'Authentication required.' }, { status: 401 });
+    const url = new URL('/login', request.url); url.searchParams.set('redirect', pathname);
+    const response = NextResponse.redirect(url);
+    response.cookies.set('cc_auth_token', '', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/', maxAge: 0 });
+    return response;
   }
-
-  // 1. RBAC Restriction: Client role is strictly confined to /portal
-  const isInternalRoute =
-    pathname.startsWith('/dashboard') ||
-    pathname.startsWith('/client-uploads') ||
-    pathname.startsWith('/approvals') ||
-    pathname.startsWith('/datasets') ||
-    pathname.startsWith('/assessments') ||
-    pathname.startsWith('/clients') ||
-    pathname.startsWith('/calendar') ||
-    (pathname.startsWith('/facilities') && !pathname.startsWith('/portal'));
-
-  if (user.role === 'CLIENT' && isInternalRoute) {
-    // External Client is barred from internal consultant/reviewer routes
-    return NextResponse.redirect(new URL('/portal?denied=unauthorized_internal', request.url));
+  if (user.mustChangePassword && pathname !== '/change-password' && !pathname.startsWith('/api/auth/change-password')) {
+    if (pathname.startsWith('/api/')) return NextResponse.json({ error: 'Password change required.' }, { status: 403 });
+    return NextResponse.redirect(new URL('/change-password', request.url));
   }
-
-  // 2. RBAC Restriction: Internal staff cannot enter Client Portal
-  if (user.role !== 'CLIENT' && pathname.startsWith('/portal')) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
-  }
-
-  // 3. Merged Consultant & Reviewer: Both have access to the Reviewer Approvals Queue (/approvals)
-  // (No restriction for consultants on /approvals)
-
-  // 4. Role-based landing: Root path '/' routes based on verified role
-  if (pathname === '/') {
-    if (user.role === 'CLIENT') {
-      return NextResponse.redirect(new URL('/portal', request.url));
-    } else {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
-    }
-  }
-
+  if (pathname.startsWith('/api/admin/') && user.role !== 'ADMIN') return NextResponse.json({ error: 'Forbidden.' }, { status: 403 });
+  if (pathname.startsWith('/admin') && user.role !== 'ADMIN') return NextResponse.redirect(new URL('/dashboard?denied=forbidden', request.url));
+  if (pathname.startsWith('/api/portal/') && user.role !== 'CLIENT') return NextResponse.json({ error: 'Forbidden.' }, { status: 403 });
+  if (pathname === '/') return NextResponse.redirect(new URL(user.role === 'CLIENT' ? '/portal' : '/dashboard', request.url));
+  const clientBlocked = ['/dashboard','/client-uploads','/approvals','/datasets','/assessments','/clients','/calendar','/facilities'];
+  if (user.role === 'CLIENT' && clientBlocked.some((path) => pathname.startsWith(path))) return NextResponse.redirect(new URL('/portal?denied=unauthorized_internal', request.url));
+  if (user.role !== 'CLIENT' && pathname.startsWith('/portal')) return NextResponse.redirect(new URL('/dashboard', request.url));
   return NextResponse.next();
 }
-
-export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - image files (png, jpg, jpeg, gif, svg, webp, ico) so the logo loads on the login page
-     */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|svg|webp|ico)$).*)',
-  ],
-};
+export const config = { matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\.(?:png|jpg|jpeg|gif|svg|webp|ico)$).*)'] };

@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { UserRole } from '@/types';
 import {
   Lock,
   Mail,
@@ -18,7 +17,7 @@ import CarbonCrunchLogo from '@/components/common/CarbonCrunchLogo';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, switchRole, theme, toggleTheme } = useAuth();
+  const { login, theme, toggleTheme } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -32,13 +31,11 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const ok = await login(email, undefined);
+      const ok = await login(email, password);
 
       if (ok) {
         notify.success(`Signed in successfully as ${email}`);
-        router.push(
-          email.includes('client') ? '/portal' : '/dashboard'
-        );
+        router.push('/');
       } else {
         const errMsg =
           'Invalid credentials. Please verify your email and password.';
@@ -54,22 +51,7 @@ export default function LoginPage() {
     }
   };
 
-  const handleQuickLogin = async (role: UserRole) => {
-    setIsSubmitting(true);
-    setError(null);
 
-    try {
-      await switchRole(role);
-      notify.success(`Switched role session to ${role}`);
-      router.push(role === 'CLIENT' ? '/portal' : '/dashboard');
-    } catch {
-      const errMsg = 'Unable to switch demo account. Please try again.';
-      setError(errMsg);
-      notify.error(errMsg);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   return (
     <div className="relative flex min-h-screen items-center justify-center px-4 py-10">
@@ -201,56 +183,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Demo Role Logins */}
-          <div className="space-y-3 border-t border-slate-200 dark:border-slate-800 pt-4">
-            <span className="block text-center text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              Instant Demo Logins (No password needed)
-            </span>
 
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                disabled={isSubmitting}
-                onClick={() => handleQuickLogin('CONSULTANT')}
-                className="flex flex-col items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-2 text-center text-xs font-medium text-slate-900 dark:text-white transition-colors hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-50"
-              >
-                <span className="font-semibold text-emerald-700 dark:text-emerald-400">
-                  Consultant
-                </span>
-                <span className="text-[10px] text-slate-500 dark:text-slate-400">
-                  Priya Sharma
-                </span>
-              </button>
-
-              <button
-                type="button"
-                disabled={isSubmitting}
-                onClick={() => handleQuickLogin('CLIENT')}
-                className="flex flex-col items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-2 text-center text-xs font-medium text-slate-900 dark:text-white transition-colors hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-50"
-              >
-                <span className="font-bold text-amber-600 dark:text-amber-400">
-                  Client Portal
-                </span>
-                <span className="text-[10px] text-slate-500 dark:text-slate-400">
-                  Trident Group
-                </span>
-              </button>
-
-              <button
-                type="button"
-                disabled={isSubmitting}
-                onClick={() => handleQuickLogin('ADMIN')}
-                className="flex flex-col items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-2 text-center text-xs font-medium text-slate-900 dark:text-white transition-colors hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-50"
-              >
-                <span className="font-bold text-purple-600 dark:text-purple-400">
-                  Admin
-                </span>
-                <span className="text-[10px] text-slate-500 dark:text-slate-400">
-                  Saurabh
-                </span>
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </div>

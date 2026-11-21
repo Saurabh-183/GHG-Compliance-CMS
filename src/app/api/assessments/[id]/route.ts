@@ -102,6 +102,9 @@ export async function PATCH(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    const existing = await AssessmentModel.findById(id);
+    if (!existing) return NextResponse.json({ error: 'Assessment not found' }, { status: 404 });
+    if (!isAuthorizedForFacility(session, existing.facilityId)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     const body = (await request.json()) as Record<string, unknown>;
 
     // Increment version when updating assessment records
@@ -120,10 +123,7 @@ export async function PATCH(
       data: updated,
     });
   } catch (error) {
-    console.warn('Error updating assessment in DB, returning demo success:', error);
-    return NextResponse.json({
-      success: true,
-      message: 'Assessment updated successfully (Demo Mode)',
-    });
+    console.error('Assessment update failed:', error);
+    return NextResponse.json({ error: 'Unable to update assessment.' }, { status: 500 });
   }
 }

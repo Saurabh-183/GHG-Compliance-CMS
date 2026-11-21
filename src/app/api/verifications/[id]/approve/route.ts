@@ -5,7 +5,7 @@ import { DatasetModel } from '@/models/Dataset';
 import { DataRequirementModel } from '@/models/DataRequirement';
 import { AssessmentModel } from '@/models/Assessment';
 import { ComplianceApplicabilityModel } from '@/models/ComplianceApplicability';
-import { getSessionFromRequest, authorizeRole } from '@/lib/auth';
+import { getSessionFromRequest, authorizeRole, isAuthorizedForFacility } from '@/lib/auth';
 
 export async function POST(
   request: NextRequest,
@@ -23,6 +23,7 @@ export async function POST(
     if (!dataset) {
       return NextResponse.json({ error: 'Dataset not found' }, { status: 404 });
     }
+    if (!isAuthorizedForFacility(session, dataset.facilityId)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const body = (await request.json().catch(() => ({}))) as { comments?: string };
 
@@ -117,23 +118,7 @@ export async function POST(
       data: dataset,
     });
   } catch (error) {
-    console.warn('Error approving verification in DB, returning demo success:', error);
-    const { MOCK_DATASET } = await import('@/lib/mockFallback');
-    return NextResponse.json({
-      success: true,
-      message: 'Dataset verified and approved successfully (Demo Mode). Audit trail recorded and version locked.',
-      data: {
-        ...MOCK_DATASET,
-        verificationStatus: 'APPROVED',
-        reviewerApproval: {
-          reviewerName: 'Priya Sharma (Consultant)',
-          status: 'APPROVED',
-          reviewedAt: new Date().toISOString(),
-          comments: 'Approved and locked under demo session.',
-          isLocked: true,
-          version: 2,
-        },
-      },
-    });
+    console.error('Verification approval failed:', error);
+    return NextResponse.json({ error: 'Unable to approve verification.' }, { status: 500 });
   }
 }

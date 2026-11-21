@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { AssessmentModel } from '@/models/Assessment';
-import { getSessionFromRequest, authorizeRole } from '@/lib/auth';
+import { getSessionFromRequest, authorizeRole, isAuthorizedForFacility } from '@/lib/auth';
 import { IMetricValue } from '@/types';
 
 export async function POST(
@@ -26,6 +26,8 @@ export async function POST(
       return NextResponse.json({ error: 'Assessment not found' }, { status: 404 });
     }
 
+    if (!isAuthorizedForFacility(session, assessment.facilityId)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
     // Merge or append metrics with versioning
     const existingMetricsMap = new Map<string, IMetricValue>();
     assessment.metrics.forEach((m) => existingMetricsMap.set(m.key, m));
@@ -49,10 +51,7 @@ export async function POST(
       data: assessment,
     });
   } catch (error) {
-    console.warn('Error saving metrics in DB, returning demo success:', error);
-    return NextResponse.json({
-      success: true,
-      message: 'Metrics recorded and versioned successfully (Demo Mode)',
-    });
+    console.error('Metrics update failed:', error);
+    return NextResponse.json({ error: 'Unable to save metrics.' }, { status: 500 });
   }
 }

@@ -6,215 +6,64 @@ import { IUser, UserRole } from '@/types';
 import { notify } from '@/lib/notify';
 
 interface AuthContextType {
-  currentUser: IUser | null;
-  currentRole: UserRole;
-  isLoading: boolean;
-  theme: 'dark' | 'light';
-  toggleTheme: () => void;
-  switchRole: (role: UserRole) => Promise<void>;
-  login: (email: string, role?: UserRole) => Promise<boolean>;
+  currentUser: IUser | null; currentRole: UserRole; isLoading: boolean;
+  theme: 'dark' | 'light'; toggleTheme: () => void;
+  login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
-  reseedData: () => Promise<boolean>;
 }
-
-const defaultUserForRole: Record<UserRole, IUser> = {
-  ADMIN: {
-    _id: 'USR_ADMIN_01',
-    name: 'Saurabh Agnihotri',
-    email: 'admin@carboncrunch.com',
-    role: 'ADMIN',
-    designation: 'Principal Compliance Architect',
-    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces',
-  },
-  CONSULTANT: {
-    _id: 'USR_CONS_01',
-    name: 'Priya Sharma',
-    email: 'consultant@carboncrunch.com',
-    role: 'CONSULTANT',
-    designation: 'Senior Energy & Carbon Compliance Lead',
-    avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop&crop=faces',
-  },
-  CLIENT: {
-    _id: 'USR_CLIENT_01',
-    name: 'Vikram Singh',
-    email: 'client@tridentindia.com',
-    role: 'CLIENT',
-    clientGroupId: 'TRIDENT',
-    authorizedFacilityIds: ['TRIDENT_PAPER', 'TRIDENT_YARN', 'TRIDENT_TEXTILES'],
-    designation: 'Head of Regulatory Affairs & Sustainability',
-    avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces',
-  },
-};
-
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const router = useRouter();
-  const [currentRole, setCurrentRole] = useState<UserRole>('CONSULTANT');
+  const [currentRole, setCurrentRole] = useState<UserRole>('CLIENT');
   const [currentUser, setCurrentUser] = useState<IUser | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [theme, setTheme] = useState<'dark' | 'light'>('light');
 
-  // Initialize theme and role on mount
   useEffect(() => {
-    // 1. Theme initialization (Default to professional government-style theme)
     const savedTheme = localStorage.getItem('cc_theme') as 'dark' | 'light' | null;
-    const initialTheme = savedTheme || 'light';
-    setTheme(initialTheme);
-    if (initialTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-      document.documentElement.classList.remove('light');
-    } else {
-      document.documentElement.classList.add('light');
-      document.documentElement.classList.remove('dark');
-    }
-
-    // 2. Fetch current authenticated session from cookie
-    async function initSession() {
+    const initialTheme = savedTheme || 'light'; setTheme(initialTheme);
+    document.documentElement.classList.toggle('dark', initialTheme === 'dark');
+    document.documentElement.classList.toggle('light', initialTheme === 'light');
+    (async () => {
       try {
-        const res = await fetch('/api/auth/me');
-        if (res.ok) {
-          const data = (await res.json()) as { user: IUser };
-          if (data.user) {
-            setCurrentUser(data.user);
-            setCurrentRole(data.user.role);
-            localStorage.setItem('cc_active_role', data.user.role);
-          }
-        } else {
-          // No active session in cookie -> user is unauthenticated
-          setCurrentUser(null);
-        }
-      } catch (e) {
-        console.warn('Session init error:', e);
-        setCurrentUser(null);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    initSession();
+        const response = await fetch('/api/auth/me', { cache: 'no-store' });
+        if (response.ok) {
+          const data = await response.json();
+          if (data.user) { setCurrentUser(data.user); setCurrentRole(data.user.role); }
+        } else setCurrentUser(null);
+      } catch { setCurrentUser(null); }
+      finally { setIsLoading(false); }
+    })();
   }, []);
 
   const toggleTheme = () => {
-    const nextTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(nextTheme);
-    localStorage.setItem('cc_theme', nextTheme);
-    if (nextTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-      document.documentElement.classList.remove('light');
-    } else {
-      document.documentElement.classList.add('light');
-      document.documentElement.classList.remove('dark');
-    }
+    const next = theme === 'dark' ? 'light' : 'dark'; setTheme(next);
+    localStorage.setItem('cc_theme', next);
+    document.documentElement.classList.toggle('dark', next === 'dark');
+    document.documentElement.classList.toggle('light', next === 'light');
   };
 
-  const switchRole = async (role: UserRole, showToast = true) => {
-    setIsLoading(true);
-    setCurrentRole(role);
-    setCurrentUser(defaultUserForRole[role]);
-    localStorage.setItem('cc_active_role', role);
-
-    try {
-      // Call login endpoint so real JWT is written to cc_auth_token cookie
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role }),
-      });
-      if (res.ok) {
-        const data = (await res.json()) as { user: IUser };
-        setCurrentUser(data.user);
-        if (showToast) {
-          notify.success(`Role switched to ${role} (${data.user.name})`);
-        }
-      }
-    } catch (e) {
-      console.warn('Could not sync cookie on role switch:', e);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const login = async (email: string, role?: UserRole): Promise<boolean> => {
+  const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, role }),
-      });
-      if (res.ok) {
-        const data = (await res.json()) as { user: IUser };
-        setCurrentUser(data.user);
-        setCurrentRole(data.user.role);
-        localStorage.setItem('cc_active_role', data.user.role);
-        notify.success(`Welcome back, ${data.user.name}!`);
-        return true;
-      }
-      notify.error('Invalid email or password credentials');
-      return false;
-    } catch {
-      notify.error('Network error during authentication');
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
+      const response = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+      const data = await response.json();
+      if (!response.ok) { notify.error(data.error || 'Unable to sign in.'); return false; }
+      setCurrentUser(data.user); setCurrentRole(data.user.role);
+      notify.success(`Welcome back, ${data.user.name}!`); return true;
+    } catch { notify.error('Network error during authentication.'); return false; }
+    finally { setIsLoading(false); }
   };
 
   const logout = async () => {
     setIsLoading(true);
-    try {
-      await fetch('/api/auth/logout', { method: 'POST' });
-      setCurrentUser(null);
-      localStorage.removeItem('cc_active_role');
-      notify.info('Logged out. Session cookie cleared.');
-      router.push('/login');
-    } catch {
-      notify.error('Failed to log out properly');
-    } finally {
-      setIsLoading(false);
-    }
+    try { await fetch('/api/auth/logout', { method: 'POST' }); }
+    finally { setCurrentUser(null); setCurrentRole('CLIENT'); setIsLoading(false); router.replace('/login'); }
   };
 
-  const reseedData = async (): Promise<boolean> => {
-    try {
-      notify.info('Resetting and seeding demo database with Trident Group data...');
-      const res = await fetch('/api/seed', { method: 'POST' });
-      if (res.ok) {
-        notify.success('Database reset & seeded successfully!');
-        return true;
-      }
-      notify.error('Failed to reseed database');
-      return false;
-    } catch {
-      notify.error('Network error while resetting database');
-      return false;
-    }
-  };
 
-  return (
-    <AuthContext.Provider
-      value={{
-        currentUser,
-        currentRole,
-        isLoading,
-        theme,
-        toggleTheme,
-        switchRole,
-        login,
-        logout,
-        reseedData,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
+
+  return <AuthContext.Provider value={{ currentUser, currentRole, isLoading, theme, toggleTheme, login, logout }}>{children}</AuthContext.Provider>;
 };
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-}
+export function useAuth() { const context = useContext(AuthContext); if (!context) throw new Error('useAuth must be used within an AuthProvider'); return context; }

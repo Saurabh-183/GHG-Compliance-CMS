@@ -1,47 +1,118 @@
+
 import { NextRequest, NextResponse } from 'next/server';
+
 import { connectToDatabase } from '@/lib/db';
+import { getSessionFromRequest } from '@/lib/auth';
+
+import { ClientGroupModel } from '@/models/ClientGroup';
 import { FacilityModel } from '@/models/Facility';
 import { DataRequirementModel } from '@/models/DataRequirement';
 import { ClarificationModel } from '@/models/Clarification';
 import { AssessmentModel } from '@/models/Assessment';
 import { CalendarItemModel } from '@/models/CalendarItem';
-import { getSessionFromRequest } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
   try {
-    await connectToDatabase();
+    // 1. Authenticate the request.
     const session = getSessionFromRequest(request);
 
-    // If client user, restrict strictly to authorized facilities
-    const facilityFilter =
-      session && session.role === 'CLIENT' && session.authorizedFacilityIds
-        ? { facilityId: { $in: session.authorizedFacilityIds } }
-        : {};
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
 
+    // 2. Connect to MongoDB.
+    await connectToDatabase();
+
+    // Ensure referenced schemas are registered before populate().
+    void ClientGroupModel;
+    void CalendarItemModel;
+
+    // 3. Build facility access restrictions.
+    let facilityFilter: Record<string, unknown> = {};
+
+    if (session.role !== 'CLIENT') {
+      return NextResponse.json({ success: false, error: 'Client portal access only.' }, { status: 403 });
+    }
+
+    if (session.role === 'CLIENT') {
+      // A client must have an organisation and explicit facility access.
+      if (
+        !session.clientGroupId ||
+        !Array.isArray(session.authorizedFacilityIds) ||
+        session.authorizedFacilityIds.length === 0
+      ) {
+        return NextResponse.json({
+          success: true,
+          data: {
+            facilities: [],
+            pendingRequests: [],
+            openClarifications: [],
+            approvedHistory: [],
+            upcomingDeadlines: [],
+          },
+        });
+      }
+
+      // Enforce BOTH organisation ownership and facility authorization.
+      facilityFilter = {
+        clientGroupId: session.clientGroupId,
+        facilityId: {
+          $in: session.authorizedFacilityIds,
+        },
+        status: 'ACTIVE',
+      };
+    }
+
+    // 4. Fetch only facilities the current user can access.
     const facilities = await FacilityModel.find(facilityFilter)
       .populate('clientGroupId', 'name code industry')
       .lean();
 
-    const facilityIds = facilities.map((f) => f.facilityId);
+    const facilityIds = facilities.map((facility) =>
+      facility.facilityId
+    );
 
-    // 1. Outstanding Data Requests (REQUESTED or PARTIALLY_RECEIVED)
+    // Never query associated data without an authorized facility.
+    if (facilityIds.length === 0) {
+      return NextResponse.json({
+        success: true,
+        data: {
+          facilities: [],
+          pendingRequests: [],
+          openClarifications: [],
+          approvedHistory: [],
+          upcomingDeadlines: [],
+        },
+      });
+    }
+
+    // Every subsequent query is restricted to these facility IDs.
+
+    // 5. Outstanding data requests.
     const pendingRequests = await DataRequirementModel.find({
       facilityId: { $in: facilityIds },
-      submissionStatus: { $in: ['REQUESTED', 'PARTIALLY_RECEIVED'] },
+      submissionStatus: {
+        $in: ['REQUESTED', 'PARTIALLY_RECEIVED'],
+      },
       isApplicable: true,
     })
       .sort({ dueDate: 1 })
       .lean();
 
-    // 2. Open Clarifications requiring client action
+    // 6. Open clarifications.
     const openClarifications = await ClarificationModel.find({
       facilityId: { $in: facilityIds },
-      status: { $in: ['OPEN', 'CLIENT_RESPONDED'] },
+      status: {
+        $in: ['OPEN', 'CLIENT_RESPONDED'],
+      },
     })
       .sort({ createdAt: -1 })
       .lean();
 
-    // 3. Approved Historical Assessments & Reports
+    // 7. Approved historical assessments.
     const approvedAssessments = await AssessmentModel.find({
       facilityId: { $in: facilityIds },
       workflowStatus: 'APPROVED',
@@ -50,72 +121,116 @@ export async function GET(request: NextRequest) {
       .sort({ period: -1 })
       .lean();
 
-    // Sanitize assessments: only approved metrics, no internal notes
-    const sanitizedHistory = approvedAssessments.map((a) => ({
-      _id: a._id.toString(),
-      facilityId: a.facilityId,
-      complianceType: a.complianceType,
-      period: a.period,
-      complianceOutcome: a.complianceOutcome,
-      documentLinks: a.documentLinks,
-      version: a.version,
-      approvedByName: (a.approvedBy as { name?: string })?.name,
-      approvedAt: a.approvedAt ? a.approvedAt.toISOString() : null,
-      metrics: a.metrics.filter((m) => m.approvalStatus === 'APPROVED'),
-    }));
+    // Only expose approved metrics.
+    const sanitizedHistory = approvedAssessments.map((assessment) => {
+      const approvedBy = assessment.approvedBy as
+        | { name?: string }
+        | null;
 
-    // 4. Client-facing upcoming deadlines
+      return {
+        _id: assessment._id.toString(),
+        facilityId: assessment.facilityId,
+        complianceType: assessment.complianceType,
+        period: assessment.period,
+        complianceOutcome: assessment.complianceOutcome,
+        documentLinks: assessment.documentLinks,
+        version: assessment.version,
+        approvedByName: approvedBy?.name || '',
+        approvedAt: assessment.approvedAt
+          ? new Date(assessment.approvedAt).toISOString()
+          : null,
+        metrics: (assessment.metrics || []).filter(
+          (metric) => metric.approvalStatus === 'APPROVED'
+        ),
+      };
+    });
+
+    // 8. Upcoming deadlines.
     const upcomingDeadlines = await CalendarItemModel.find({
       facilityId: { $in: facilityIds },
-      status: { $in: ['UPCOMING', 'PENDING', 'EXTENDED'] },
+      status: {
+        $in: ['UPCOMING', 'PENDING', 'EXTENDED'],
+      },
     })
       .sort({ clientDataSubmissionDeadline: 1 })
       .limit(6)
       .lean();
 
+    // 9. Format facilities.
+    const formattedFacilities = facilities.map((facility) => {
+      const clientGroup = facility.clientGroupId as unknown as {
+        _id?: { toString(): string };
+        name?: string;
+        code?: string;
+        industry?: string;
+      };
+
+      return {
+        ...facility,
+        _id: facility._id.toString(),
+        clientGroupId: clientGroup?._id
+          ? clientGroup._id.toString()
+          : String(facility.clientGroupId),
+        clientGroupName: clientGroup?.name || '',
+      };
+    });
+
+    // 10. Return dashboard data.
     return NextResponse.json({
       success: true,
       data: {
-        facilities: facilities.map((f) => {
-          const clientGroup = f.clientGroupId as unknown as { _id?: { toString(): string }; name?: string };
-          return {
-            ...f,
-            _id: f._id.toString(),
-            clientGroupId: clientGroup?._id ? clientGroup._id.toString() : String(f.clientGroupId),
-            clientGroupName: clientGroup?.name || '',
-          };
-        }),
-        pendingRequests: pendingRequests.map((r) => ({
-          ...r,
-          _id: r._id.toString(),
-          dueDate: r.dueDate ? r.dueDate.toISOString() : null,
+        facilities: formattedFacilities,
+
+        pendingRequests: pendingRequests.map((request) => ({
+          ...request,
+          _id: request._id.toString(),
+          dueDate: request.dueDate
+            ? new Date(request.dueDate).toISOString()
+            : null,
         })),
-        openClarifications: openClarifications.map((c) => ({
-          ...c,
-          _id: c._id.toString(),
-          datasetId: c.datasetId.toString(),
-        })),
+
+        openClarifications: openClarifications.map(
+          (clarification) => ({
+            ...clarification,
+            _id: clarification._id.toString(),
+            datasetId: clarification.datasetId
+              ? clarification.datasetId.toString()
+              : null,
+          })
+        ),
+
         approvedHistory: sanitizedHistory,
-        upcomingDeadlines: upcomingDeadlines.map((d) => ({
-          ...d,
-          _id: d._id.toString(),
-          clientDataSubmissionDeadline: d.clientDataSubmissionDeadline.toISOString(),
-          regulatoryDueDate: d.regulatoryDueDate.toISOString(),
+
+        upcomingDeadlines: upcomingDeadlines.map((deadline) => ({
+          ...deadline,
+          _id: deadline._id.toString(),
+          clientDataSubmissionDeadline:
+            deadline.clientDataSubmissionDeadline
+              ? new Date(
+                  deadline.clientDataSubmissionDeadline
+                ).toISOString()
+              : null,
+          regulatoryDueDate: deadline.regulatoryDueDate
+            ? new Date(
+                deadline.regulatoryDueDate
+              ).toISOString()
+            : null,
         })),
       },
     });
   } catch (error) {
-    console.warn('Error fetching portal dashboard from DB, returning fallback demo portal data:', error);
-    const { MOCK_FACILITIES, MOCK_REQUIREMENTS, MOCK_CLARIFICATIONS, MOCK_ASSESSMENTS, MOCK_CALENDAR_ITEMS } = await import('@/lib/mockFallback');
-    return NextResponse.json({
-      success: true,
-      data: {
-        facilities: MOCK_FACILITIES,
-        pendingRequests: MOCK_REQUIREMENTS,
-        openClarifications: MOCK_CLARIFICATIONS,
-        approvedHistory: MOCK_ASSESSMENTS.filter((a) => a.isHistorical),
-        upcomingDeadlines: MOCK_CALENDAR_ITEMS,
+    console.error(
+      'Portal dashboard database error:',
+      error
+    );
+
+    // Never return shared mock data to an authenticated company.
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Unable to load portal dashboard. Please try again.',
       },
-    });
+      { status: 500 }
+    );
   }
 }

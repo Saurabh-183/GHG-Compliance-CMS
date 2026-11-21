@@ -15,16 +15,17 @@ The platform manages compliance obligations under:
 
 ---
 
-### 1.1 Complete User Login Credentials & Role Matrix
+### 1.1 Authentication and Role Matrix
 
-All accounts are pre-seeded in the database and protected with bcrypt-hashed credentials and signed JWT tokens stored in HTTP-only secure cookies (`cc_auth_token`).
+The application does not ship with hardcoded demo credentials, role switching, or an automatic development administrator. All roles authenticate against MongoDB using bcrypt password hashes and a signed JWT in an HTTP-only cookie.
 
-| Role | User Name | Email Address | Password | Designation / Organization | Access Scope & Authorizations |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **CONSULTANT** | Priya Sharma | `consultant@carboncrunch.com` | `Demo@123` | Senior Energy & Carbon Consultant | Full access to multi-facility compliance matrices, Excel data import, monthly verification engine, discrepancy email drafting, statutory calendar. **Cannot approve datasets.** |
-| **REVIEWER** | Dr. Rajesh Nair | `reviewer@carboncrunch.com` | `Demo@123` | Chief Compliance Auditor & Reviewer | Access to Reviewer Queue (`/approvals`). Authorized to independently audit, sign off, lock dataset versions, or return them with audit notes. |
-| **CLIENT** | Vikram Singh | `client@tridentindia.com` | `Demo@123` | Head of Regulatory Affairs & Sustainability, Trident Group | Confined to Client Portal (`/portal`). Authorized to view Trident units (Paper, Yarn, Textiles), submit Google Drive evidence, and respond to discrepancies. |
-| **ADMIN** | Saurabh Agnihotri | `admin@carboncrunch.com` | `Demo@123` | Principal Compliance Architect | Universal platform access, client group onboarding, facility registration, system diagnostics, and database reseeding. |
+| Role | Account provisioning | Access scope |
+| :--- | :--- | :--- |
+| **ADMIN** | Created by the first-admin bootstrap command or another administrator | Platform-wide administration and user management |
+| **CONSULTANT** | Created by an administrator | Only facilities assigned to the account |
+| **CLIENT** | Created by an administrator and linked to a company group | Only facilities belonging to that company and explicitly authorized for the account |
+
+New accounts created in User Management must change their temporary password at first login. Existing accounts can be reset using the local password-maintenance script.
 
 ---
 
@@ -32,14 +33,13 @@ All accounts are pre-seeded in the database and protected with bcrypt-hashed cre
 
 ### 2.1 Strict Role-Based Access Control (RBAC) & Next.js Middleware
 - **Cookie Security**: Authentication relies on signed JWTs stored in `cc_auth_token` with `HttpOnly`, `SameSite=Lax`, and `Path=/`.
-- **Next.js Security Middleware** (`src/middleware.ts`):
+- **Next.js Proxy** (`src/proxy.ts`):
   - Unauthenticated visitors attempting to access protected screens are redirected to `/login`.
   - External `CLIENT` users attempting to access internal consultant/reviewer routes (`/dashboard`, `/approvals`, `/facilities/...`, `/datasets/...`, `/clients`, `/calendar`) are blocked and redirected to `/portal`.
-  - Internal `CONSULTANT` users attempting to enter the independent Reviewer Queue (`/approvals`) are intercepted and blocked.
   - Internal staff attempting to navigate into the Client Portal are redirected to `/dashboard`.
 - **Isolated User Interface**: The top navigation bar dynamically adapts to the authenticated role:
-  - Role switcher buttons are strictly removed from the header.
-  - Reviewer Queue tab is visible exclusively to Reviewers and Admins.
+  - Role-switching demo controls are removed.
+  - User Management is available only to administrators.
   - Client navigation is completely isolated from internal consultant tools.
 
 ### 2.2 Cross-Role Notification Engine (Sender & Receiver Triggers)
@@ -143,7 +143,7 @@ Per the PRD specification, Carbon Crunch does not store raw files on internal di
 | `/api/auth/login` | `POST` | Public | Authenticates user credentials, sets `cc_auth_token` cookie. |
 | `/api/auth/logout` | `POST` | Authenticated | Clears `cc_auth_token` cookie. |
 | `/api/auth/me` | `GET` | Authenticated | Returns current authenticated user and role. |
-| `/api/seed` | `POST` | Admin | Reseeds database to standard Trident Group demo state. |
+| `/api/admin/users` | `GET`, `POST` | Admin | Lists and provisions application accounts. |
 | `/api/client-groups` | `GET` | Internal | Fetches registered industrial conglomerates and facilities. |
 | `/api/facilities/[id]/compliance-matrix` | `GET` | Authenticated | Returns full compliance matrix for specified facility. |
 | `/api/datasets` | `GET` | Internal | Returns datasets for reconciliation and reviewer queues. |
@@ -164,13 +164,13 @@ Per the PRD specification, Carbon Crunch does not store raw files on internal di
 2. **Environment File** (`.env`):
    ```env
    MONGODB_URI=mongodb://127.0.0.1:27017/carbon_crunch_compliance
-   JWT_SECRET=carbon_crunch_jwt_secret_token_mvp_2026_secure
+   JWT_SECRET=<generate-a-unique-random-secret-at-least-32-characters>
    PORT=3000
    ```
 3. **Install Dependencies**: `npm install`
 4. **Run Development Server**: `npm run dev` (Access at `http://localhost:3000`)
 5. **Run Production Build Validation**: `npm run build`
-6. **Reset / Re-Seed Database**: Click **"Reset Demo"** in top header or issue `POST /api/seed`.
+6. **Create user accounts**: Sign in as an administrator and open **User Management**. Do not reseed production data.
 
 ---
 *Report Generated: October 2026 · Carbon Crunch Platform Engineering Team*
