@@ -1,109 +1,50 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { Notification } from '@/models/Notification';
-import { getSessionFromRequest } from '@/lib/auth';
+import { getSessionFromRequest, isAuthorizedForFacility } from '@/lib/auth';
 
-export async function GET(req: NextRequest) {
+export async function GET(request: NextRequest) {
+  const session = getSessionFromRequest(request);
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
     await connectToDatabase();
-    const session = getSessionFromRequest(req);
-    const { searchParams } = new URL(req.url);
-
-    const queryRole = searchParams.get('role') || session?.role;
-
-    const filter: Record<string, unknown> = {};
-    if (queryRole) {
-      filter.recipientRole = { $in: [queryRole, 'ALL'] };
-    }
-
-    const notifications = await Notification.find(filter)
-      .sort({ createdAt: -1 })
-      .limit(30)
-      .lean();
-
-    const unreadCount = await Notification.countDocuments({
-      ...filter,
-      isRead: false,
-    });
-
-    return NextResponse.json({
-      success: true,
-      data: notifications,
-      unreadCount,
-    });
-  } catch (err: unknown) {
-    console.warn('Notifications DB query failed, returning fallback demo notifications:', err);
-    const demoNotifications = [
-      {
-        _id: 'notif_demo_01',
-        title: 'Welcome to Carbon Crunch Workspace',
-        message: 'Trident Paper FY2025-26 compliance cycle is active. Google Drive document vault connected.',
-        recipientRole: 'CONSULTANT',
-        type: 'INFO',
-        isRead: false,
-        createdAt: new Date().toISOString(),
-        link: '/facilities/TRIDENT_PAPER',
-      },
-      {
-        _id: 'notif_demo_02',
-        title: 'Discrepancy Flagged: June 2025 Electricity',
-        message: 'June 2025 declared kWh (1,280,000) does not match DISCOM bill (1,265,000). 15,000 kWh variance.',
-        recipientRole: 'CONSULTANT',
-        type: 'WARNING',
-        isRead: false,
-        createdAt: new Date().toISOString(),
-        link: '/datasets/6adb9175b32c50edab95461f/verify',
-      },
-    ];
-
-    return NextResponse.json({
-      success: true,
-      data: demoNotifications,
-      unreadCount: demoNotifications.length,
-    });
+    const filter: Record<string, unknown> = {
+      recipientRole: { $in: [session.role, 'ALL'] },
+      $or: [{ recipientUserId: session.userId }, { recipientUserId: { $exists: false } }, { recipientUserId: null }],
+    };
+    if (session.role !== 'ADMIN') filter.$and = [{ $or: [{ facilityId: { $in: session.authorizedFacilityIds || [] } }, { facilityId: { $exists: false } }, { facilityId: null }] }];
+    const notifications = await Notification.find(filter).sort({ createdAt: -1 }).limit(30).lean();
+    const unreadCount = await Notification.countDocuments({ ...filter, isRead: false });
+    return NextResponse.json({ success: true, data: notifications, unreadCount });
+  } catch (error) {
+    console.error('Notifications query failed:', error);
+    return NextResponse.json({ error: 'Unable to load notifications.' }, { status: 503 });
   }
 }
 
-export async function POST(req: NextRequest) {
-  let body: any = null;
+export async function POST(request: NextRequest) {
+  const session = getSessionFromRequest(request);
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
+    const body = await request.json();
+    const recipientRole = body.recipientRole;
+    if (!['ADMIN', 'CONSULTANT', 'CLIENT', 'ALL'].includes(recipientRole) || typeof body.title !== 'string' || typeof body.message !== 'string' || typeof body.linkUrl !== 'string') {
+      return NextResponse.json({ error: 'Invalid notification payload.' }, { status: 400 });
+    }
+    if (body.facilityId && !isAuthorizedForFacility(session, String(body.facilityId))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    if (session.role === 'CLIENT' && recipientRole !== 'CONSULTANT') return NextResponse.json({ error: 'Clients can only notify their assigned consultants.' }, { status: 403 });
+    if (session.role === 'CONSULTANT' && !['CLIENT', 'ADMIN'].includes(recipientRole)) return NextResponse.json({ error: 'Consultants can only notify clients or administrators.' }, { status: 403 });
+    if (recipientRole === 'ALL' && session.role !== 'ADMIN') return NextResponse.json({ error: 'Only administrators can send platform-wide notifications.' }, { status: 403 });
     await connectToDatabase();
-    body = await req.json();
-
     const notification = await Notification.create({
-      recipientRole: body.recipientRole,
-      recipientUserId: body.recipientUserId,
-      senderRole: body.senderRole,
-      senderName: body.senderName,
-      type: body.type,
-      title: body.title,
-      message: body.message,
-      facilityId: body.facilityId,
-      linkUrl: body.linkUrl,
-      isRead: false,
-      createdAt: new Date(),
+      recipientRole, recipientUserId: session.role === 'ADMIN' ? body.recipientUserId : undefined,
+      senderRole: session.role, senderName: session.name,
+      type: body.type || 'EVIDENCE_SUBMITTED', title: body.title.slice(0, 180), message: body.message.slice(0, 3000),
+      facilityId: body.facilityId, linkUrl: body.linkUrl, isRead: false, createdAt: new Date(),
     });
-
-    return NextResponse.json(
-      { success: true, data: notification },
-      { status: 201 }
-    );
-  } catch (err: unknown) {
-    console.warn('Error creating notification in DB, returning demo success:', err);
-    return NextResponse.json(
-      {
-        success: true,
-        message: 'Notification recorded (Demo Mode)',
-        data: {
-          _id: 'notif_demo_' + Date.now(),
-          recipientRole: body?.recipientRole || 'CONSULTANT',
-          title: body?.title || 'Notification',
-          message: body?.message || '',
-          isRead: false,
-          createdAt: new Date().toISOString(),
-        },
-      },
-      { status: 201 }
-    );
+    return NextResponse.json({ success: true, data: notification }, { status: 201 });
+  } catch (error) {
+    console.error('Notification creation failed:', error);
+    return NextResponse.json({ error: 'Unable to create notification.' }, { status: 500 });
   }
 }

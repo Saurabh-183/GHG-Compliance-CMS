@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { DataRequirementModel } from '@/models/DataRequirement';
-import { getSessionFromRequest, authorizeRole } from '@/lib/auth';
-import type { IDataRequirement, ISubmittedDriveLink } from '@/types';
+import { getSessionFromRequest, authorizeRole, isAuthorizedForFacility } from '@/lib/auth';
 
 export interface ClientUploadListItem {
   requirementId: string;
@@ -47,10 +46,15 @@ export async function GET(request: NextRequest) {
   try {
     await connectToDatabase();
 
-    const query: { facilityId?: string; 'submittedDriveLinks.0': { $exists: boolean } } = {
+    const query: { facilityId?: string | { $in: string[] }; 'submittedDriveLinks.0': { $exists: boolean } } = {
       'submittedDriveLinks.0': { $exists: true },
     };
-    if (facilityId) query.facilityId = facilityId;
+    if (facilityId) {
+      if (!isAuthorizedForFacility(session, facilityId)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      query.facilityId = facilityId;
+    } else if (session?.role === 'CONSULTANT') {
+      query.facilityId = { $in: session.authorizedFacilityIds || [] };
+    }
 
     const requirements = await DataRequirementModel.find(query).sort({ updatedAt: -1 }).lean();
 
@@ -100,43 +104,8 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ success: true, data: items, total: items.length });
   } catch (error) {
-    console.warn('client-uploads fallback:', error);
-    const { MOCK_REQUIREMENTS } = await import('@/lib/mockFallback');
-    const fallback: ClientUploadListItem[] = [];
-    for (const req of MOCK_REQUIREMENTS as IDataRequirement[]) {
-      req.submittedDriveLinks.forEach((link: ISubmittedDriveLink, linkIndex: number) => {
-        fallback.push({
-          requirementId: req._id,
-          requirementTitle: req.title,
-          facilityId: req.facilityId,
-          period: req.period,
-          linkIndex,
-          url: link.url,
-          sourceUrl: link.sourceUrl,
-          vaultUrl: link.vaultUrl,
-          vaultFolderPath: link.vaultFolderPath,
-          vaultFolderUrl: link.vaultFolderUrl,
-          vaultCategory: link.vaultCategory,
-          vaultFileId: link.vaultFileId,
-          driveFolderId: link.driveFolderId,
-          vaultTargetFolderId: link.vaultTargetFolderId,
-          fileName: link.fileName,
-          ingestionMode: link.ingestionMode,
-          description: link.description,
-          submittedAt: link.submittedAt,
-          submittedBy: link.submittedBy,
-          mappingStatus: link.mappingStatus || 'PENDING',
-          mappedMonth: link.mappedMonth,
-          mappedDatasetId: link.mappedDatasetId,
-          verificationNotes: link.verificationNotes,
-          verificationStatus: req.verificationStatus,
-          submissionStatus: req.submissionStatus,
-          requestId: req.requestId,
-          requiredFields: req.requiredFields,
-          fieldReviews: req.fieldReviews,
-        });
-      });
-    }
-    return NextResponse.json({ success: true, data: fallback, total: fallback.length });
+    console.error('client-uploads request failed:', error);
+    return NextResponse.json({ error: 'Unable to load client uploads.' }, { status: 503 });
+
   }
 }

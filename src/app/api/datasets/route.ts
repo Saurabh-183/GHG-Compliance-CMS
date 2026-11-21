@@ -7,6 +7,7 @@ export async function GET(request: NextRequest) {
   try {
     await connectToDatabase();
     const session = getSessionFromRequest(request);
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     const searchParams = request.nextUrl.searchParams;
     const facilityId = searchParams.get('facilityId');
     const period = searchParams.get('period');
@@ -19,8 +20,8 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
       query.facilityId = facilityId.toUpperCase();
-    } else if (session && session.role === 'CLIENT' && session.authorizedFacilityIds) {
-      query.facilityId = { $in: session.authorizedFacilityIds };
+    } else if (session && session.role !== 'ADMIN') {
+      query.facilityId = { $in: session.authorizedFacilityIds || [] };
     }
 
     if (period) query.period = period;
@@ -72,12 +73,8 @@ export async function GET(request: NextRequest) {
       data: [],
     });
   } catch (error) {
-    console.warn('Error fetching datasets from DB, returning fallback demo dataset:', error);
-    const searchParams = request.nextUrl.searchParams;
-    const requestedFacility = searchParams.get('facilityId');
-    const { generateDriveDatasetForFacility } = await import('@/lib/gdrive');
-    const fallback = generateDriveDatasetForFacility(requestedFacility || 'TRIDENT_PAPER');
-    return NextResponse.json({ success: true, data: [fallback] });
+    console.error('Dataset query failed:', error);
+    return NextResponse.json({ error: 'Unable to load datasets.' }, { status: 503 });
   }
 }
 
@@ -95,6 +92,8 @@ export async function POST(request: NextRequest) {
       period: string;
       toleranceDefault?: number;
     };
+
+    if (!isAuthorizedForFacility(session, body.facilityId)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const newDataset = await DatasetModel.create({
       ...body,
@@ -119,11 +118,7 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    console.warn('Error creating dataset in DB, returning demo success:', error);
-    const { MOCK_DATASET } = await import('@/lib/mockFallback');
-    return NextResponse.json(
-      { success: true, message: 'Dataset created (Demo Mode)', data: MOCK_DATASET },
-      { status: 201 }
-    );
+    console.error('Dataset creation failed:', error);
+    return NextResponse.json({ error: 'Unable to create dataset.' }, { status: 500 });
   }
 }

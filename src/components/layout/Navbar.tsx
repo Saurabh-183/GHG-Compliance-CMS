@@ -5,14 +5,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { UserRole } from '@/types';
 import {
   Building2,
   Calendar,
   CheckCircle2,
   FileSpreadsheet,
   FolderInput,
-  RotateCcw,
   LogOut,
   Sun,
   Moon,
@@ -28,14 +26,11 @@ export const Navbar: React.FC = () => {
   const {
     currentRole,
     currentUser,
-    switchRole,
-    reseedData,
     logout,
     theme,
     toggleTheme,
   } = useAuth();
 
-  const [isReseeding, setIsReseeding] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Do not show the header on the login page.
@@ -48,29 +43,16 @@ export const Navbar: React.FC = () => {
 
   const isLight = theme === 'light';
 
-  const handleReseed = async () => {
-    setIsReseeding(true);
 
-    try {
-      const ok = await reseedData();
-
-      if (ok) {
-        setTimeout(() => {
-          window.location.reload();
-        }, 800);
-      }
-    } finally {
-      setIsReseeding(false);
-    }
-  };
 
   const getNavItems = () => {
     if (isClientPortal) {
       return [
         { label: 'Client Overview', href: '/portal', icon: Layers },
+        { label: 'Regulatory Forms', href: '/portal/regulatory', icon: FileSpreadsheet },
         {
-          label: 'Trident Paper',
-          href: '/portal/facilities/TRIDENT_PAPER',
+          label: 'My Facility',
+          href: `/portal/facilities/${currentUser?.authorizedFacilityIds?.[0] || 'TRIDENT_PAPER'}`,
           icon: Building2,
         },
         {
@@ -95,6 +77,10 @@ export const Navbar: React.FC = () => {
       { label: 'Workspace', href: '/dashboard', icon: Layers },
       { label: 'Clients & Units', href: '/clients', icon: Building2 },
     ];
+
+    if (currentRole === 'ADMIN') {
+      items.push({ label: 'User Management', href: '/admin/users', icon: Building2 });
+    }
 
     if (
       currentRole === 'ADMIN' ||
@@ -226,28 +212,7 @@ export const Navbar: React.FC = () => {
               )}
             </button>
 
-            <button
-              type="button"
-              onClick={handleReseed}
-              disabled={isReseeding}
-              className={`inline-flex items-center gap-1 rounded border px-2.5 py-1 text-[11px] font-medium transition-colors disabled:opacity-50 ${
-                isLight
-                  ? 'border-slate-300 bg-white text-slate-700 shadow-2xs hover:bg-slate-100 hover:text-emerald-700'
-                  : 'border-slate-700 bg-slate-800/90 text-slate-300 hover:bg-slate-700 hover:text-emerald-300'
-              }`}
-              title="Reset database to Trident Paper demo state"
-            >
-              <RotateCcw
-                className={`h-3 w-3 ${
-                  isReseeding
-                    ? 'animate-spin text-emerald-600'
-                    : ''
-                }`}
-              />
-              <span className="hidden xs:inline">
-                {isReseeding ? 'Resetting...' : 'Reset Demo'}
-              </span>
-            </button>
+
           </div>
         </div>
       </div>

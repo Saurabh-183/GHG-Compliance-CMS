@@ -3,6 +3,29 @@ import { connectToDatabase } from '@/lib/db';
 import { AssessmentModel } from '@/models/Assessment';
 import { getSessionFromRequest, authorizeRole } from '@/lib/auth';
 
+
+export async function GET(request: NextRequest) {
+  try {
+    await connectToDatabase();
+    const session = getSessionFromRequest(request);
+    if (!session) return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    const { RegulatorySubmissionModel } = await import('@/models/RegulatorySubmission');
+    const { isAuthorizedForFacility } = await import('@/lib/auth');
+    const query: Record<string, unknown> = {};
+    if (session.role !== 'ADMIN') {
+      const ids = session.authorizedFacilityIds || [];
+      if (!ids.length) return NextResponse.json({ success: true, data: [] });
+      query.facilityId = { $in: ids.map((id) => id.toUpperCase()) };
+    }
+    const submissions = await RegulatorySubmissionModel.find(query).sort({ updatedAt: -1 }).lean();
+    const data = submissions.filter((item) => isAuthorizedForFacility(session, item.facilityId));
+    return NextResponse.json({ success: true, data });
+  } catch (error) {
+    console.error('Regulatory submissions list failed:', error);
+    return NextResponse.json({ error: 'Unable to load regulatory requests' }, { status: 500 });
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
@@ -26,6 +49,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Assessment not found' }, { status: 404 });
     }
 
+    const { isAuthorizedForFacility } = await import('@/lib/auth');
+    if (!isAuthorizedForFacility(session, assessment.facilityId)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
     assessment.documentLinks.submissionAckUrl = body.submissionAckUrl.trim();
     assessment.workflowStatus = 'SUBMITTED';
     assessment.version += 1;
@@ -38,10 +64,7 @@ export async function POST(request: NextRequest) {
       data: assessment,
     });
   } catch (error) {
-    console.warn('Error linking regulatory submission in DB, returning demo success:', error);
-    return NextResponse.json({
-      success: true,
-      message: 'Regulatory submission acknowledgement linked (Demo Mode). Workflow status set to SUBMITTED.',
-    });
+    console.error('Error linking regulatory submission:', error);
+    return NextResponse.json({ error: 'Unable to link regulatory submission.' }, { status: 500 });
   }
 }

@@ -43,6 +43,7 @@ export async function GET(request: NextRequest) {
       await connectToDatabase();
       const facility = await FacilityModel.findOne({ facilityId }).lean();
       if (facility) {
+        if (session.role === 'CLIENT' && facility.clientGroupId.toString() !== session.clientGroupId) return NextResponse.json({ success: false, error: 'You are not authorized to access this facility.' }, { status: 403 });
         facilityName = facility.name;
       } else if (process.env.NODE_ENV === 'production') {
         return NextResponse.json(

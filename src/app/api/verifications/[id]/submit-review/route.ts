@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import { connectToDatabase } from '@/lib/db';
 import { DatasetModel } from '@/models/Dataset';
-import { getSessionFromRequest, authorizeRole } from '@/lib/auth';
+import { getSessionFromRequest, authorizeRole, isAuthorizedForFacility } from '@/lib/auth';
 
 export async function POST(
   request: NextRequest,
@@ -20,6 +20,7 @@ export async function POST(
     if (!dataset) {
       return NextResponse.json({ error: 'Dataset not found' }, { status: 404 });
     }
+    if (!isAuthorizedForFacility(session, dataset.facilityId)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const body = (await request.json().catch(() => ({}))) as { summary?: string };
 
@@ -57,15 +58,7 @@ export async function POST(
       data: dataset,
     });
   } catch (error) {
-    console.warn('Error submitting verification in DB, returning demo success:', error);
-    const { MOCK_DATASET } = await import('@/lib/mockFallback');
-    return NextResponse.json({
-      success: true,
-      message: 'Dataset submitted to Reviewer Queue successfully (Demo Mode)',
-      data: {
-        ...MOCK_DATASET,
-        verificationStatus: 'AWAITING_APPROVAL',
-      },
-    });
+    console.error('Verification submission failed:', error);
+    return NextResponse.json({ error: 'Unable to submit verification for review.' }, { status: 500 });
   }
 }

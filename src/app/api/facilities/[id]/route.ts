@@ -61,7 +61,7 @@ export async function GET(
       );
 
       if (facility) {
-        if (!isAuthorizedForFacility(session, facility.facilityId)) {
+        if (!isAuthorizedForFacility(session, facility.facilityId) || (session.role === 'CLIENT' && facility.clientGroupId?._id?.toString?.() !== session.clientGroupId && facility.clientGroupId?.toString?.() !== session.clientGroupId)) {
           return NextResponse.json(
             { success: false, error: 'You are not authorized to access this facility.' },
             { status: 403 }
@@ -83,7 +83,7 @@ export async function GET(
       );
     }
 
-    if (!isAuthorizedForFacility(session, facility.facilityId)) {
+    if (!isAuthorizedForFacility(session, facility.facilityId) || (session.role === 'CLIENT' && facility.clientGroupId?._id?.toString?.() !== session.clientGroupId && facility.clientGroupId?.toString?.() !== session.clientGroupId)) {
       return NextResponse.json(
         { success: false, error: 'You are not authorized to access this facility.' },
         { status: 403 }

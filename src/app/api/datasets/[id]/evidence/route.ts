@@ -28,22 +28,10 @@ export async function POST(
     };
 
     let dataset = await DatasetModel.findById(id);
-    if (!dataset) {
-      dataset = await DatasetModel.findOne({ facilityId: 'TRIDENT_PAPER' });
-    }
+    if (!dataset) return NextResponse.json({ error: 'Dataset not found' }, { status: 404 });
+    if (!isAuthorizedForFacility(session, dataset.facilityId)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-    if (!dataset) {
-      return NextResponse.json({
-        success: true,
-        message: 'Evidence document linked successfully (Demo Mode)',
-        data: {
-          month: body.month,
-          evidenceValue: body.evidenceValue,
-          evidenceDocumentUrl: body.evidenceDocumentUrl,
-          result: 'MATCHED',
-        },
-      });
-    }
+
 
     const monthIndex = dataset.months.findIndex((m) => m.month === body.month);
     if (monthIndex === -1) {
@@ -89,12 +77,7 @@ export async function POST(
       data: dataset,
     });
   } catch (error) {
-    console.warn('Error linking evidence to DB, returning demo success:', error);
-    const { MOCK_DATASET } = await import('@/lib/mockFallback');
-    return NextResponse.json({
-      success: true,
-      message: 'Evidence linked and reconciliation recomputed successfully (Demo Mode)',
-      data: MOCK_DATASET,
-    });
+    console.error('Evidence update failed:', error);
+    return NextResponse.json({ error: 'Unable to update evidence.' }, { status: 500 });
   }
 }

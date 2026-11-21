@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     await connectToDatabase();
     const session = getSessionFromRequest(request);
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    if (session.role === 'CLIENT' && !session.authorizedFacilityIds?.length) {
+    if (session.role !== 'ADMIN' && !session.authorizedFacilityIds?.length) {
       return NextResponse.json({ success: true, data: [] });
     }
     const searchParams = request.nextUrl.searchParams;
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
       query.facilityId = facilityId.toUpperCase();
-    } else if (session.role === 'CLIENT') {
+    } else if (session.role !== 'ADMIN') {
       query.facilityId = { $in: session.authorizedFacilityIds || [] };
     } else if (!['ADMIN', 'CONSULTANT'].includes(session.role)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -40,17 +40,7 @@ export async function GET(request: NextRequest) {
 
     if (period) query.period = period;
 
-    if (session.role === 'CONSULTANT') {
-      if (facilityId) {
-        const assignedFacility = await FacilityModel.findOne({ facilityId: facilityId.toUpperCase() }).select('assignedConsultantId').lean();
-        if (!assignedFacility || assignedFacility.assignedConsultantId?.toString() !== session.userId) {
-          return NextResponse.json({ error: 'This facility is not assigned to your consultant account.' }, { status: 403 });
-        }
-      } else {
-        const assignedFacilities = await FacilityModel.find({ assignedConsultantId: session.userId }).select('facilityId').lean();
-        query.facilityId = { $in: assignedFacilities.map((facility) => facility.facilityId) };
-      }
-    }
+
 
     const requirements = await DataRequirementModel.find(query)
       .populate('datasetId')
@@ -223,6 +213,7 @@ export async function POST(request: NextRequest) {
     }
     const facility = await FacilityModel.findOne({ facilityId: body.facilityId.toUpperCase() }).lean();
     if (!facility) return NextResponse.json({ error: 'Facility not found.' }, { status: 404 });
+    if (!isAuthorizedForFacility(session, facility.facilityId)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     if (session!.role === 'CONSULTANT' && facility.assignedConsultantId && facility.assignedConsultantId.toString() !== session!.userId) {
       return NextResponse.json({ error: 'This facility is not assigned to your consultant account.' }, { status: 403 });
     }

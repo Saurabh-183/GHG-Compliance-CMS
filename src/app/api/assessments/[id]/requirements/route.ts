@@ -43,8 +43,7 @@ export async function GET(
       })),
     });
   } catch (error) {
-    console.warn('Error fetching assessment requirements from DB, returning fallback demo requirements:', error);
-    const { MOCK_REQUIREMENTS } = await import('@/lib/mockFallback');
-    return NextResponse.json({ success: true, data: MOCK_REQUIREMENTS });
+    console.error('Assessment requirements query failed:', error);
+    return NextResponse.json({ error: 'Unable to load assessment requirements.' }, { status: 503 });
   }
 }

@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  if (session.role === 'CLIENT' && !session.authorizedFacilityIds?.length) {
+  if (session.role !== 'ADMIN' && !session.authorizedFacilityIds?.length) {
     return NextResponse.json(
       { success: false, error: 'No facilities are assigned to your account.' },
       { status: 403 }
@@ -34,8 +34,8 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
       query.facilityId = facilityId.toUpperCase();
-    } else if (session && session.role === 'CLIENT' && session.authorizedFacilityIds) {
-      query.facilityId = { $in: session.authorizedFacilityIds };
+    } else if (session && session.role !== 'ADMIN') {
+      query.facilityId = { $in: session.authorizedFacilityIds || [] };
     }
 
     if (status) query.status = status;
@@ -139,10 +139,9 @@ export async function GET(request: NextRequest) {
     // If database only has items for Trident, enrich with statutory deadlines for other client facilities
     if (responseData.length <= 5 && !facilityId) {
       const allDbFacilities = await FacilityModel.find({}).lean();
-      const facilityPool =
-        allDbFacilities.length > 0
-          ? allDbFacilities
-          : (await import('@/lib/mockFallback')).MOCK_FACILITIES;
+      const facilityPool = session.role === 'ADMIN'
+        ? allDbFacilities
+        : allDbFacilities.filter((facility) => (session.authorizedFacilityIds || []).includes(facility.facilityId));
 
       const existingFacilityIds = new Set(responseData.map((i) => i.facilityId.toUpperCase()));
       const additionalItems: ICalendarItem[] = [];
@@ -207,180 +206,8 @@ export async function GET(request: NextRequest) {
       data: responseData,
     });
   } catch (error) {
-    console.warn('Error fetching calendar from DB, returning fallback demo calendar:', error);
-    const demoCalendarItems: ICalendarItem[] = [
-      {
-        _id: 'cal_demo_01',
-        facilityId: 'TRIDENT_PAPER',
-        facilityName: 'Trident Paper Complex',
-        complianceType: 'CEA',
-        reportingPeriod: 'June 2025',
-        regulatoryDueDate: '2025-07-15T00:00:00.000Z',
-        internalDeadline: '2025-07-10T00:00:00.000Z',
-        clientDataSubmissionDeadline: '2025-07-05T00:00:00.000Z',
-        assignedConsultantId: 'USR_CONS_01',
-        status: 'PENDING',
-        actualSubmissionDate: null,
-        extensionHistory: [],
-        isRecurringCEA: true,
-      },
-      {
-        _id: 'cal_demo_02',
-        facilityId: 'TRIDENT_PAPER',
-        facilityName: 'Trident Paper Complex',
-        complianceType: 'PAT',
-        reportingPeriod: 'Cycle VII (FY2024-25)',
-        regulatoryDueDate: '2025-08-31T00:00:00.000Z',
-        internalDeadline: '2025-08-15T00:00:00.000Z',
-        clientDataSubmissionDeadline: '2025-08-01T00:00:00.000Z',
-        assignedConsultantId: 'USR_CONS_01',
-        status: 'PENDING',
-        actualSubmissionDate: null,
-        extensionHistory: [
-          {
-            oldDate: '2025-07-31T00:00:00.000Z',
-            newDate: '2025-08-31T00:00:00.000Z',
-            reason: 'BEE notification granting 30-day reporting extension for Pulp & Paper DCs',
-            notificationRef: 'BEE/PAT/VII/EXT-2025/14',
-            revisedAt: '2025-07-20T10:00:00.000Z',
-          },
-        ],
-        isRecurringCEA: false,
-      },
-      {
-        _id: 'cal_demo_03',
-        facilityId: 'TRIDENT_PAPER',
-        facilityName: 'Trident Paper Complex',
-        complianceType: 'CCTS',
-        reportingPeriod: 'FY2024-25',
-        regulatoryDueDate: '2025-09-30T00:00:00.000Z',
-        internalDeadline: '2025-09-15T00:00:00.000Z',
-        clientDataSubmissionDeadline: '2025-09-01T00:00:00.000Z',
-        assignedConsultantId: 'USR_CONS_01',
-        status: 'PENDING',
-        actualSubmissionDate: null,
-        extensionHistory: [],
-        isRecurringCEA: false,
-      },
-      {
-        _id: 'cal_demo_04',
-        facilityId: 'TRIDENT_PAPER',
-        facilityName: 'Trident Paper Complex',
-        complianceType: 'RCO',
-        reportingPeriod: 'FY2025-26',
-        regulatoryDueDate: '2026-06-30T00:00:00.000Z',
-        internalDeadline: '2026-06-15T00:00:00.000Z',
-        clientDataSubmissionDeadline: '2026-06-01T00:00:00.000Z',
-        assignedConsultantId: 'USR_CONS_01',
-        status: 'PENDING',
-        actualSubmissionDate: null,
-        extensionHistory: [],
-        isRecurringCEA: false,
-      },
-      {
-        _id: 'cal_demo_kajaria_01',
-        facilityId: 'KAJARIA_GAILPUR',
-        facilityName: 'Kajaria Ceramics - Gailpur',
-        complianceType: 'CEA',
-        reportingPeriod: 'June 2025 Electricity Returns',
-        regulatoryDueDate: '2025-07-15T00:00:00.000Z',
-        internalDeadline: '2025-07-10T00:00:00.000Z',
-        clientDataSubmissionDeadline: '2025-07-05T00:00:00.000Z',
-        assignedConsultantId: 'USR_CONS_01',
-        status: 'PENDING',
-        actualSubmissionDate: null,
-        extensionHistory: [],
-        isRecurringCEA: true,
-      },
-      {
-        _id: 'cal_demo_kajaria_02',
-        facilityId: 'KAJARIA_MALUTANA',
-        facilityName: 'Kajaria Ceramics - Malutana',
-        complianceType: 'CEA',
-        reportingPeriod: 'July 2025 Electricity Returns',
-        regulatoryDueDate: '2025-08-15T00:00:00.000Z',
-        internalDeadline: '2025-08-10T00:00:00.000Z',
-        clientDataSubmissionDeadline: '2025-08-05T00:00:00.000Z',
-        assignedConsultantId: 'USR_CONS_01',
-        status: 'UPCOMING',
-        actualSubmissionDate: null,
-        extensionHistory: [],
-        isRecurringCEA: true,
-      },
-      {
-        _id: 'cal_demo_kajaria_03',
-        facilityId: 'KAJARIA_SIKANDERABAD',
-        facilityName: 'Kajaria Ceramics - Sikanderabad',
-        complianceType: 'RCO',
-        reportingPeriod: 'FY2025-26 (Q1 Reconciliation)',
-        regulatoryDueDate: '2025-09-30T00:00:00.000Z',
-        internalDeadline: '2025-08-31T00:00:00.000Z',
-        clientDataSubmissionDeadline: '2025-08-15T00:00:00.000Z',
-        assignedConsultantId: 'USR_CONS_01',
-        status: 'PENDING',
-        actualSubmissionDate: null,
-        extensionHistory: [],
-        isRecurringCEA: false,
-      },
-      {
-        _id: 'cal_demo_kajaria_04',
-        facilityId: 'KAJARIA_SRIKALAHASTI',
-        facilityName: 'Kajaria Ceramics - Srikalahasti',
-        complianceType: 'PAT',
-        reportingPeriod: 'PAT Monitoring Period Assessment',
-        regulatoryDueDate: '2025-10-31T00:00:00.000Z',
-        internalDeadline: '2025-09-30T00:00:00.000Z',
-        clientDataSubmissionDeadline: '2025-09-15T00:00:00.000Z',
-        assignedConsultantId: 'USR_CONS_01',
-        status: 'PENDING',
-        actualSubmissionDate: null,
-        extensionHistory: [],
-        isRecurringCEA: false,
-      },
-      {
-        _id: 'cal_demo_utc_01',
-        facilityId: 'UTC_KOTPUTLI',
-        facilityName: 'Kotputli Cement Works (Ultratech Cement)',
-        complianceType: 'CEA',
-        reportingPeriod: 'June 2025 Electricity Returns',
-        regulatoryDueDate: '2025-07-15T00:00:00.000Z',
-        internalDeadline: '2025-07-10T00:00:00.000Z',
-        clientDataSubmissionDeadline: '2025-07-05T00:00:00.000Z',
-        assignedConsultantId: 'USR_CONS_01',
-        status: 'PENDING',
-        actualSubmissionDate: null,
-        extensionHistory: [],
-        isRecurringCEA: true,
-      },
-      {
-        _id: 'cal_demo_hero_01',
-        facilityId: 'HERO_DHARUHERA',
-        facilityName: 'Hero MotoCorp - Dharuhera',
-        complianceType: 'CEA',
-        reportingPeriod: 'June 2025 Electricity Returns',
-        regulatoryDueDate: '2025-07-15T00:00:00.000Z',
-        internalDeadline: '2025-07-10T00:00:00.000Z',
-        clientDataSubmissionDeadline: '2025-07-05T00:00:00.000Z',
-        assignedConsultantId: 'USR_CONS_01',
-        status: 'PENDING',
-        actualSubmissionDate: null,
-        extensionHistory: [],
-        isRecurringCEA: true,
-      },
-    ];
-
-    const visibleCalendarItems =
-      session.role === 'CLIENT'
-        ? demoCalendarItems.filter((item) =>
-            session.authorizedFacilityIds?.includes(item.facilityId)
-          )
-        : demoCalendarItems;
-
-    return NextResponse.json({
-      success: true,
-      source: 'development-fallback',
-      data: visibleCalendarItems,
-    });
+    console.error('Calendar query failed:', error);
+    return NextResponse.json({ error: 'Unable to load calendar.' }, { status: 503 });
   }
 }
 
@@ -403,6 +230,7 @@ export async function POST(request: NextRequest) {
       isRecurringCEA?: boolean;
     };
 
+    if (!isAuthorizedForFacility(session, body.facilityId)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     const newItem = await CalendarItemModel.create({
       facilityId: body.facilityId.toUpperCase(),
       complianceType: body.complianceType,
@@ -421,24 +249,8 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    console.warn('Error creating calendar deadline in DB, returning demo success:', error);
-    return NextResponse.json(
-      {
-        success: true,
-        message: 'Calendar deadline registered (Demo Mode)',
-        data: {
-          _id: 'cal_demo_' + Date.now(),
-          facilityId: body?.facilityId || 'TRIDENT_PAPER',
-          complianceType: body?.complianceType || 'RCO',
-          reportingPeriod: body?.reportingPeriod || 'FY2025-26',
-          regulatoryDueDate: body?.regulatoryDueDate || new Date().toISOString(),
-          internalDeadline: body?.internalDeadline || new Date().toISOString(),
-          clientDataSubmissionDeadline: body?.clientDataSubmissionDeadline || new Date().toISOString(),
-          status: 'PENDING',
-        },
-      },
-      { status: 201 }
-    );
+    console.error('Calendar deadline creation failed:', error);
+    return NextResponse.json({ error: 'Unable to create calendar deadline.' }, { status: 500 });
   }
 }
 
@@ -463,6 +275,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Calendar item not found' }, { status: 404 });
     }
 
+    if (!isAuthorizedForFacility(session, item.facilityId)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     const oldDate = item.regulatoryDueDate;
     item.extensionHistory.push({
       oldDate,
@@ -501,15 +314,7 @@ export async function PATCH(request: NextRequest) {
       data: item,
     });
   } catch (error) {
-    console.warn('Error extending deadline in DB, returning demo success:', error);
-    return NextResponse.json({
-      success: true,
-      message: 'Deadline extended and revision history logged (Demo Mode)',
-      data: {
-        _id: body?.itemId || 'cal_demo_01',
-        regulatoryDueDate: body?.newDate || new Date().toISOString(),
-        status: 'EXTENDED',
-      },
-    });
+    console.error('Calendar deadline update failed:', error);
+    return NextResponse.json({ error: 'Unable to extend deadline.' }, { status: 500 });
   }
 }

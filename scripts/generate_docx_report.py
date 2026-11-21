@@ -71,10 +71,10 @@ def create_report():
     # Credentials Table
     headers = ["Role", "User Name", "Email Address", "Password", "Designation / Unit", "Access Rights & Authorizations"]
     data = [
-        ["CONSULTANT", "Priya Sharma", "consultant@carboncrunch.com", "Demo@123", "Senior Energy Consultant", "Multi-facility matrices, Excel reconciliation, DISCOM tolerance check, email generator. Cannot approve datasets."],
-        ["REVIEWER", "Dr. Rajesh Nair", "reviewer@carboncrunch.com", "Demo@123", "Chief Compliance Auditor", "Reviewer Queue (/approvals). Authorized to independently audit, sign off, lock versions, or reject with notes."],
-        ["CLIENT", "Vikram Singh", "client@tridentindia.com", "Demo@123", "Head of Regulatory, Trident", "Confined to Client Portal (/portal). Can inspect Trident facilities, submit Google Drive links, answer queries."],
-        ["ADMIN", "Saurabh Agnihotri", "admin@carboncrunch.com", "Demo@123", "Principal Compliance Architect", "Universal platform access, conglomerate onboarding, system logs, database reseeding, user management."]
+        ["CONSULTANT", "Priya Sharma", "Provisioned by administrator", "No default password", "Senior Energy Consultant", "Multi-facility matrices, Excel reconciliation, DISCOM tolerance check, email generator. Cannot approve datasets."],
+        ["REVIEWER", "Dr. Rajesh Nair", "Role not separately supported", "No default password", "Chief Compliance Auditor", "Reviewer Queue (/approvals). Authorized to independently audit, sign off, lock versions, or reject with notes."],
+        ["CLIENT", "Vikram Singh", "Provisioned by administrator", "No default password", "Head of Regulatory, Trident", "Confined to Client Portal (/portal). Can inspect Trident facilities, submit Google Drive links, answer queries."],
+        ["ADMIN", "Saurabh Agnihotri", "Provisioned by administrator", "No default password", "Principal Compliance Architect", "Universal platform access, conglomerate onboarding, system logs, database reseeding, user management."]
     ]
 
     table = doc.add_table(rows=len(data) + 1, cols=6)
@@ -208,7 +208,7 @@ def create_report():
         ["/api/auth/login", "POST", "Public", "Validates user credentials, generates signed JWT, sets HTTP-only cookie."],
         ["/api/auth/logout", "POST", "Authenticated", "Evicts cc_auth_token cookie, terminates authenticated session."],
         ["/api/auth/me", "GET", "Authenticated", "Returns session details (userId, name, role, clientGroupId)."],
-        ["/api/seed", "POST", "Admin", "Reseeds MongoDB with complete Trident Group test records and notifications."],
+        ["/api/admin/users", "GET, POST", "Admin", "Lists and provisions administrator, consultant and client accounts."],
         ["/api/facilities/[id]/compliance-matrix", "GET", "Internal / Client", "Fetches multi-year compliance status, shortfalls, and matrix grid."],
         ["/api/datasets", "GET", "Internal", "Retrieves datasets for reconciliation and reviewer queues."],
         ["/api/datasets/[id]", "GET, PATCH", "Internal", "Fetches or updates monthly meter consumption and evidence links."],

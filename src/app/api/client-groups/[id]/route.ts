@@ -13,6 +13,7 @@ export async function GET(
   try {
     await connectToDatabase();
     const session = getSessionFromRequest(request);
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     if (session && session.role === 'CLIENT' && session.clientGroupId !== id) {
       return NextResponse.json({ error: 'Forbidden: Access denied to other client groups' }, { status: 403 });
@@ -34,48 +35,20 @@ export async function GET(
 
     let facilities: any[] = [];
     if (group) {
-      facilities = await FacilityModel.find({ clientGroupId: group._id })
+      const facilityQuery: Record<string, unknown> = { clientGroupId: group._id };
+      if (session && session.role !== 'ADMIN') facilityQuery.facilityId = { $in: session.authorizedFacilityIds || [] };
+      facilities = await FacilityModel.find(facilityQuery)
         .populate('assignedConsultantId', 'name email designation')
         .populate('assignedReviewerId', 'name email designation')
         .lean();
     }
 
-    // Fallback to MOCK_CLIENT_GROUPS if not in DB or facilities empty
-    const { MOCK_CLIENT_GROUPS, MOCK_FACILITIES } = await import('@/lib/mockFallback');
-    const mockGroup = MOCK_CLIENT_GROUPS.find(
-      (g) =>
-        g._id === id ||
-        g.code.toUpperCase() === id.toUpperCase() ||
-        g.name.toLowerCase() === id.toLowerCase() ||
-        g._id === group?._id?.toString()
-    );
-
-    if (!group && mockGroup) {
-      const mockFacs = MOCK_FACILITIES.filter((f) => f.clientGroupId === mockGroup._id);
-      return NextResponse.json({
-        success: true,
-        data: {
-          ...mockGroup,
-          facilities: mockFacs,
-        },
-      });
-    }
-
-    if (!group && !mockGroup) {
-      return NextResponse.json({ error: 'Client Group not found' }, { status: 404 });
-    }
-
-    const resolvedGroup = group || mockGroup;
-    let resolvedFacilities = facilities;
-    if (resolvedFacilities.length === 0 && mockGroup) {
-      resolvedFacilities = MOCK_FACILITIES.filter((f) => f.clientGroupId === mockGroup._id);
-    }
-
-    // Filter facilities for client users
-    const filteredFacilities =
-      session && session.role === 'CLIENT' && session.authorizedFacilityIds
-        ? resolvedFacilities.filter((f) => session.authorizedFacilityIds?.includes(f.facilityId))
-        : resolvedFacilities;
+    if (!group) return NextResponse.json({ error: 'Client Group not found' }, { status: 404 });
+    const resolvedGroup = group;
+    const filteredFacilities = session.role === 'ADMIN'
+      ? facilities
+      : facilities.filter((facility) => (session.authorizedFacilityIds || []).includes(facility.facilityId));
+    if (session.role === 'CONSULTANT' && filteredFacilities.length === 0) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     return NextResponse.json({
       success: true,
@@ -90,22 +63,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.warn('Error fetching group from DB, returning fallback demo client group:', error);
-    const { MOCK_CLIENT_GROUPS, MOCK_FACILITIES } = await import('@/lib/mockFallback');
-    const group =
-      MOCK_CLIENT_GROUPS.find(
-        (g) =>
-          g._id === id ||
-          g.code.toUpperCase() === id.toUpperCase() ||
-          g.name.toLowerCase() === id.toLowerCase()
-      ) || MOCK_CLIENT_GROUPS[0];
-    const groupFacilities = MOCK_FACILITIES.filter((f) => f.clientGroupId === group._id);
-    return NextResponse.json({
-      success: true,
-      data: {
-        ...group,
-        facilities: groupFacilities,
-      },
-    });
+    console.error('Client group lookup failed:', error);
+    return NextResponse.json({ error: 'Unable to load client group.' }, { status: 503 });
   }
 }

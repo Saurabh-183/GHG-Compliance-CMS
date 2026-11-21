@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { AssessmentModel } from '@/models/Assessment';
-import { getSessionFromRequest, authorizeRole } from '@/lib/auth';
+import { getSessionFromRequest, authorizeRole, isAuthorizedForFacility } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,6 +25,7 @@ export async function POST(request: NextRequest) {
     if (!assessment) {
       return NextResponse.json({ error: 'Assessment not found' }, { status: 404 });
     }
+    if (!isAuthorizedForFacility(session, assessment.facilityId)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     assessment.documentLinks.finalReportUrl = body.reportUrl.trim();
     assessment.version += 1;
@@ -40,10 +41,7 @@ export async function POST(request: NextRequest) {
       data: assessment,
     });
   } catch (error) {
-    console.warn('Error linking report in DB, returning demo success:', error);
-    return NextResponse.json({
-      success: true,
-      message: 'Final compliance report link linked successfully (Demo Mode)',
-    });
+    console.error('Report link update failed:', error);
+    return NextResponse.json({ error: 'Unable to link final report.' }, { status: 500 });
   }
 }

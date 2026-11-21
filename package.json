@@ -5,8 +5,13 @@
   "scripts": {
     "dev": "next dev -p 3001",
     "build": "next build --webpack",
-    "start": "next start -p 3001",
-    "seed": "tsx scripts/seed.ts"
+    "start": "next start",
+    "clients:dry-run": "node --env-file=.env migrate-company-facility-mapping.mjs",
+    "clients:provision": "node --env-file=.env migrate-company-facility-mapping.mjs --apply",
+    "clients:reset-passwords": "node --env-file=.env migrate-company-facility-mapping.mjs --apply --reset-passwords",
+    "admin:create": "node --env-file=.env scripts/create-admin.mjs",
+    "account:reset-password": "node --env-file=.env scripts/set-user-password.mjs",
+    "clients:require-password-change": "node --env-file=.env scripts/require-client-password-change.mjs"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
