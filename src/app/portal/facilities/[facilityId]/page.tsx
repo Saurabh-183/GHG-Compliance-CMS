@@ -23,7 +23,7 @@ import {
   CheckCheck,
 } from 'lucide-react';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
-import { GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
+import { GOOGLE_DRIVE_FOLDER_URL, resolveComplianceVaultFolderUrl, rewriteLegacyVaultUrlsInText } from '@/lib/gdrive';
 
 export default function ClientFacilityOverviewPage() {
   const params = useParams();
@@ -35,7 +35,7 @@ export default function ClientFacilityOverviewPage() {
     folderName: string;
     isConnected: boolean;
   }>({
-    folderUrl: process.env.NEXT_PUBLIC_GDRIVE_FOLDER_URL || GOOGLE_DRIVE_FOLDER_URL,
+    folderUrl: resolveComplianceVaultFolderUrl(process.env.NEXT_PUBLIC_GDRIVE_FOLDER_URL || GOOGLE_DRIVE_FOLDER_URL),
     folderName: 'Carbon Crunch · Compliance Documents & Evidence Vault',
     isConnected: true,
   });
@@ -306,7 +306,7 @@ export default function ClientFacilityOverviewPage() {
                       : ''}
                   </span>
                   <a
-                    href={f.url}
+                    href={rewriteLegacyVaultUrlsInText(f.url)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-emerald-700 dark:text-emerald-400 hover:underline font-semibold inline-flex items-center gap-1 text-[11px] cursor-pointer shrink-0"

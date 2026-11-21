@@ -6,7 +6,7 @@ import type { IAssessment } from '@/types';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { DriveLinkBadge } from '@/components/common/DriveLinkBadge';
 import { ClientRequirementSubmissionModal } from '@/components/portal/ClientRequirementSubmissionModal';
-import { formatDate } from '@/lib/utils';
+import { formatDate, formatDateTime } from '@/lib/utils';
 import { ShieldCheck, CheckCircle2, FileSpreadsheet, ArrowRight, RefreshCw } from 'lucide-react';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import type { IDataRequirement } from '@/types';
@@ -167,7 +167,7 @@ export default function ClientHistoryPage() {
                 {(item.reviewedByName || item.reviewedAt) && (
                   <p className="text-xs text-slate-600 dark:text-slate-400">
                     Verified by <strong>{item.reviewedByName || 'Consultant'}</strong>
-                    {item.reviewedAt ? ` on ${formatDate(item.reviewedAt)}` : ''}
+                    {item.reviewedAt ? ` on ${formatDateTime(item.reviewedAt)}` : ''}
                   </p>
                 )}
 
@@ -267,7 +267,7 @@ export default function ClientHistoryPage() {
                     <p className="text-xs text-slate-500 dark:text-slate-400">
                       Approved version v{item.version}
                       {item.approvedByName ? ` · ${item.approvedByName}` : ''}
-                      {item.approvedAt ? ` · ${formatDate(item.approvedAt)}` : ''}
+                      {item.approvedAt ? ` · ${formatDateTime(item.approvedAt)}` : ''}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">

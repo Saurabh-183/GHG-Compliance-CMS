@@ -2,6 +2,8 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Eye, Loader2, Save, Send } from 'lucide-react';
+import { Select, MenuItem, FormControl, TextField, Checkbox, ListSubheader } from '@mui/material';
+import { MuiDatePicker } from '@/components/common/MuiDatePicker';
 import { useAuth } from '@/context/AuthContext';
 import type {
   ComplianceType,
@@ -48,7 +50,76 @@ export function FacilityDataRequestPanel({
   period: defaultPeriod = DEFAULT_CHECKLIST_PERIOD,
   className = '',
 }: FacilityDataRequestPanelProps) {
-  const { currentUser } = useAuth();
+  const { currentUser, theme } = useAuth();
+  const isDark = theme === 'dark';
+
+  const muiFieldSx = {
+    backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+    borderRadius: '8px',
+    '& .MuiOutlinedInput-root': {
+      borderRadius: '8px',
+      fontSize: '12px',
+      color: isDark ? '#F8FAFC' : '#0F172A',
+      '& fieldset': {
+        borderColor: isDark ? '#334155' : '#CBD5E1',
+      },
+      '&:hover fieldset': {
+        borderColor: isDark ? '#475569' : '#94A3B8',
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: isDark ? '#34D399' : '#059669',
+        borderWidth: '1.5px',
+      },
+    },
+    '& .MuiInputBase-input': {
+      py: '7.5px',
+      px: '12px',
+      fontSize: '12px',
+      color: isDark ? '#F8FAFC' : '#0F172A',
+    },
+  };
+
+  const muiSelectSx = {
+    width: '100%',
+    backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+    color: isDark ? '#F8FAFC' : '#0F172A',
+    borderRadius: '8px',
+    fontSize: '12px',
+    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+    '& .MuiOutlinedInput-notchedOutline': {
+      borderColor: isDark ? '#334155' : '#CBD5E1',
+    },
+    '&:hover .MuiOutlinedInput-notchedOutline': {
+      borderColor: isDark ? '#475569' : '#94A3B8',
+    },
+    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+      borderColor: isDark ? '#34D399' : '#059669',
+      borderWidth: '1.5px',
+    },
+    '& .MuiSelect-select': {
+      py: '7.5px',
+      px: '12px',
+      display: 'flex',
+      alignItems: 'center',
+    },
+    '& .MuiSvgIcon-root': {
+      color: isDark ? '#94A3B8' : '#64748B',
+    },
+  };
+
+  const muiMenuProps = {
+    slotProps: {
+      paper: {
+        sx: {
+          backgroundColor: isDark ? '#1E293B' : '#FFFFFF',
+          color: isDark ? '#F8FAFC' : '#0F172A',
+          border: `1px solid ${isDark ? '#334155' : '#E2E8F0'}`,
+          borderRadius: '8px',
+          maxHeight: 280,
+        },
+      },
+    },
+  };
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [requirements, setRequirements] = useState<IDataRequirement[]>([]);
@@ -415,51 +486,74 @@ export function FacilityDataRequestPanel({
           onToggle={() => toggleSection(1)}
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-            <label className="space-y-1">
+            <div className="space-y-1">
               <span className="font-bold text-slate-600 dark:text-slate-400 uppercase text-[10px]">Organization</span>
-              <select
-                value={organizationId}
-                onChange={(e) => handleOrganizationChange(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2.5 dark:border-slate-700 dark:bg-slate-950"
-              >
-                <option value="">Select organization</option>
-                {organizations.map((org) => (
-                  <option key={org._id} value={org._id}>
-                    {org.name} {org.code ? `(${org.code})` : ''}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="space-y-1">
+              <FormControl size="small" fullWidth>
+                <Select
+                  value={organizationId}
+                  onChange={(e) => handleOrganizationChange(e.target.value)}
+                  displayEmpty
+                  renderValue={(val) => {
+                    if (!val) return <span className="text-slate-400 dark:text-slate-500 font-sans text-xs">Select organization</span>;
+                    const found = organizations.find((o) => o._id === val);
+                    return <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">{found ? `${found.name} ${found.code ? `(${found.code})` : ''}` : val}</span>;
+                  }}
+                  sx={muiSelectSx}
+                  MenuProps={muiMenuProps}
+                >
+                  <MenuItem value="" disabled sx={{ fontSize: '12px' }}>Select organization</MenuItem>
+                  {organizations.map((org) => (
+                    <MenuItem key={org._id} value={org._id} sx={{ fontSize: '12px' }}>
+                      {org.name} {org.code ? `(${org.code})` : ''}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
+            <div className="space-y-1">
               <span className="font-bold text-slate-600 dark:text-slate-400 uppercase text-[10px]">Facility / unit</span>
-              <select
-                value={facilityId}
-                disabled={!organizationId}
-                onChange={(e) => {
-                  setFacilityId(e.target.value);
-                  setSelectedChecklistKey('');
-                }}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2.5 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950"
-              >
-                {facilitiesInOrg.length === 0 && <option value="">No facilities in this organization</option>}
-                {facilitiesInOrg.map((f) => (
-                  <option key={f.facilityId} value={f.facilityId}>
-                    {f.name} · {f.facilityId}
-                  </option>
-                ))}
-              </select>
+              <FormControl size="small" fullWidth disabled={!organizationId || facilitiesInOrg.length === 0}>
+                <Select
+                  value={facilityId}
+                  onChange={(e) => {
+                    setFacilityId(e.target.value);
+                    setSelectedChecklistKey('');
+                  }}
+                  displayEmpty
+                  renderValue={(val) => {
+                    if (!val) return <span className="text-slate-400 dark:text-slate-500 font-sans text-xs">Select facility</span>;
+                    const found = facilitiesInOrg.find((f) => f.facilityId === val);
+                    return <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">{found ? `${found.name} · ${found.facilityId}` : val}</span>;
+                  }}
+                  sx={muiSelectSx}
+                  MenuProps={muiMenuProps}
+                >
+                  {facilitiesInOrg.map((f) => (
+                    <MenuItem key={f.facilityId} value={f.facilityId} sx={{ fontSize: '12px' }}>
+                      {f.name} · {f.facilityId}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
               <p className="text-[10px] text-slate-500">{facilitiesInOrg.length} unit(s) under {orgName}</p>
-            </label>
-            <label className="space-y-1">
+            </div>
+            <div className="space-y-1">
               <span className="font-bold text-slate-600 dark:text-slate-400 uppercase text-[10px]">Reporting financial year</span>
-              <select value={period} onChange={(e) => setPeriod(e.target.value)} className="w-full rounded-lg border px-3 py-2.5 dark:bg-slate-950">
-                {fyOptions.map((fy) => (
-                  <option key={fy} value={`FY${fy}`}>
-                    FY {fy}
-                  </option>
-                ))}
-              </select>
-            </label>
+              <FormControl size="small" fullWidth>
+                <Select
+                  value={period}
+                  onChange={(e) => setPeriod(e.target.value)}
+                  sx={muiSelectSx}
+                  MenuProps={muiMenuProps}
+                >
+                  {fyOptions.map((fy) => (
+                    <MenuItem key={fy} value={`FY${fy}`} sx={{ fontSize: '12px' }}>
+                      FY {fy}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
             <label className="space-y-1 md:col-span-2">
               <span className="font-bold text-slate-600 dark:text-slate-400 uppercase text-[10px]">
                 Data requirement (checklist)
@@ -537,14 +631,21 @@ export function FacilityDataRequestPanel({
                 ))}
               </div>
             </div>
-            <label className="space-y-1">
+            <div className="space-y-1">
               <span className="font-bold text-slate-600 dark:text-slate-400 uppercase text-[10px]">Priority</span>
-              <select value={priority} onChange={(e) => setPriority(e.target.value as typeof priority)} className="w-full rounded-lg border px-3 py-2 dark:bg-slate-950">
-                <option value="LOW">Low</option>
-                <option value="MEDIUM">Medium</option>
-                <option value="HIGH">High</option>
-              </select>
-            </label>
+              <FormControl size="small" fullWidth>
+                <Select
+                  value={priority}
+                  onChange={(e) => setPriority(e.target.value as typeof priority)}
+                  sx={muiSelectSx}
+                  MenuProps={muiMenuProps}
+                >
+                  <MenuItem value="LOW" sx={{ fontSize: '12px' }}>Low</MenuItem>
+                  <MenuItem value="MEDIUM" sx={{ fontSize: '12px' }}>Medium</MenuItem>
+                  <MenuItem value="HIGH" sx={{ fontSize: '12px' }}>High</MenuItem>
+                </Select>
+              </FormControl>
+            </div>
           </div>
         </FormSection>
 
@@ -576,20 +677,23 @@ export function FacilityDataRequestPanel({
           onToggle={() => toggleSection(3)}
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs mb-4">
-            <label className="space-y-1">
+            <div className="space-y-1">
               <span className="font-bold uppercase text-[10px] text-slate-500">Reporting frequency</span>
-              <select
-                value={reportingFrequency}
-                onChange={(e) => setReportingFrequency(e.target.value as ReportingFrequency)}
-                className="w-full rounded-lg border px-3 py-2.5 dark:bg-slate-950"
-              >
-                {REPORTING_FREQUENCIES.map((f) => (
-                  <option key={f.value} value={f.value}>
-                    {f.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+              <FormControl size="small" fullWidth>
+                <Select
+                  value={reportingFrequency}
+                  onChange={(e) => setReportingFrequency(e.target.value as ReportingFrequency)}
+                  sx={muiSelectSx}
+                  MenuProps={muiMenuProps}
+                >
+                  {REPORTING_FREQUENCIES.map((f) => (
+                    <MenuItem key={f.value} value={f.value} sx={{ fontSize: '12px' }}>
+                      {f.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
             <div className="space-y-1">
               <span className="font-bold uppercase text-[10px] text-slate-500">Submission format</span>
               <div className="w-full rounded-lg border border-slate-200 bg-slate-100 px-3 py-2.5 text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
@@ -637,20 +741,40 @@ export function FacilityDataRequestPanel({
 
         <FormSection step={4} title="Purpose & instructions" subtitle="Why and how the client should respond" open={!!openSections[4]} onToggle={() => toggleSection(4)}>
           <div className="space-y-3 text-xs">
-            <label className="block space-y-1">
+            <div className="space-y-1">
               <span className="font-bold uppercase text-[10px] text-slate-500">Purpose of collection</span>
-              <textarea rows={3} value={purpose} onChange={(e) => setPurpose(e.target.value)} className="w-full rounded-lg border px-3 py-2 dark:bg-slate-950" placeholder="Why this data is required for compliance…" />
-            </label>
-            <label className="block space-y-1">
+              <TextField
+                size="small"
+                fullWidth
+                multiline
+                rows={3}
+                value={purpose}
+                onChange={(e) => setPurpose(e.target.value)}
+                placeholder="Why this data is required for compliance…"
+                sx={{
+                  ...muiFieldSx,
+                  '& .MuiInputBase-root': { p: 1.25 },
+                  '& .MuiInputBase-input': { py: 0, px: 0 },
+                }}
+              />
+            </div>
+            <div className="space-y-1">
               <span className="font-bold uppercase text-[10px] text-slate-500">Instructions for client</span>
-              <textarea
+              <TextField
+                size="small"
+                fullWidth
+                multiline
                 rows={4}
                 value={instructions}
                 onChange={(e) => setInstructions(e.target.value)}
-                className="w-full rounded-lg border px-3 py-2 dark:bg-slate-950"
                 placeholder="Upload .xlsx to Google Drive, grant consultant view access, paste the share link. Note any missing months…"
+                sx={{
+                  ...muiFieldSx,
+                  '& .MuiInputBase-root': { p: 1.25 },
+                  '& .MuiInputBase-input': { py: 0, px: 0 },
+                }}
               />
-            </label>
+            </div>
           </div>
         </FormSection>
 
@@ -664,17 +788,37 @@ export function FacilityDataRequestPanel({
               <span className="font-bold uppercase text-[10px] text-slate-500">Client contact (optional)</span>
               <input value={clientContact} onChange={(e) => setClientContact(e.target.value)} placeholder="Name or email" className="w-full rounded-lg border px-3 py-2 dark:bg-slate-950" />
             </label>
-            <label className="space-y-1">
+            <div className="space-y-1">
               <span className="font-bold uppercase text-[10px] text-slate-500">Submission due date</span>
-              <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="w-full rounded-lg border px-3 py-2 dark:bg-slate-950" />
+              <MuiDatePicker
+                value={dueDate}
+                onChange={setDueDate}
+                placeholder="dd-mm-yyyy"
+              />
+            </div>
+            <label className="flex items-center gap-2 pt-5 cursor-pointer">
+              <Checkbox
+                checked={allowPartialSubmission}
+                onChange={(e) => setAllowPartialSubmission(e.target.checked)}
+                size="small"
+                sx={{
+                  color: isDark ? '#64748B' : '#94A3B8',
+                  '&.Mui-checked': { color: isDark ? '#34D399' : '#059669' },
+                }}
+              />
+              <span className="text-xs text-slate-700 dark:text-slate-300">Allow partial submission (e.g. month-by-month)</span>
             </label>
-            <label className="flex items-center gap-2 pt-6">
-              <input type="checkbox" checked={allowPartialSubmission} onChange={(e) => setAllowPartialSubmission(e.target.checked)} className="accent-emerald-700" />
-              Allow partial submission (e.g. month-by-month)
-            </label>
-            <label className="flex items-center gap-2">
-              <input type="checkbox" checked={notifyClient} onChange={(e) => setNotifyClient(e.target.checked)} className="accent-emerald-700" />
-              Notify client when sent
+            <label className="flex items-center gap-2 cursor-pointer">
+              <Checkbox
+                checked={notifyClient}
+                onChange={(e) => setNotifyClient(e.target.checked)}
+                size="small"
+                sx={{
+                  color: isDark ? '#64748B' : '#94A3B8',
+                  '&.Mui-checked': { color: isDark ? '#34D399' : '#059669' },
+                }}
+              />
+              <span className="text-xs text-slate-700 dark:text-slate-300">Notify client when sent</span>
             </label>
           </div>
         </FormSection>

@@ -2,6 +2,8 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import * as XLSX from 'xlsx';
+import { Select, MenuItem, FormControl } from '@mui/material';
+import { FileSpreadsheet, Send, Save, Loader2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import {
   RegulatoryTemplate, RegulatoryField, getTemplatesForFramework,
@@ -17,7 +19,8 @@ const columnLabel: Record<string,string> = {
 };
 
 export function RegulatoryMetricsPanel({ assessmentId, framework, period, facilityId }: Props) {
-  const { currentRole } = useAuth();
+  const { currentRole, theme } = useAuth();
+  const isDark = theme === 'dark';
   const templates = useMemo(() => getTemplatesForFramework(framework), [framework]);
   const [templateId, setTemplateId] = useState(framework === 'CCTS' ? '' : (templates[0]?.id || ''));
   const [values, setValues] = useState<Record<string, unknown>>({});
@@ -170,14 +173,171 @@ export function RegulatoryMetricsPanel({ assessmentId, framework, period, facili
           <h2 className="mt-1 text-lg font-bold text-slate-900 dark:text-white">Structured Regulatory Compliance Metrics</h2>
           <p className="mt-1 text-xs text-slate-500">Facility: {facilityId} · Period: {period} · Version: {version || 'New'}</p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <select value={templateId} disabled={isClient || (status !== 'DRAFT' && status !== 'RETURNED' && status !== 'NOT_REQUESTED')} onChange={e=>{setTemplateId(e.target.value);setValues({});setReviews([]);}} className="min-w-64 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-3 py-2 text-xs">
-            <option value="">Choose the correct sector / summary sheet</option>{templates.map(t=><option key={t.id} value={t.id}>{t.sector} — {t.formName}</option>)}
-          </select>
-          {isReviewer && (!status || status === 'DRAFT' || status === 'NOT_REQUESTED') && <button disabled={busy || !template} onClick={requestData} className="rounded-lg bg-indigo-700 px-4 py-2 text-xs font-semibold text-white disabled:opacity-50">Request data from client</button>}
-          {(isClient || !!template) && <button onClick={exportWorkbook} className="rounded-lg border border-slate-300 dark:border-slate-600 px-4 py-2 text-xs font-semibold">Export Excel</button>}
-          {isClient && <button disabled={busy || locked || !template} onClick={saveDraft} className="rounded-lg border border-slate-300 dark:border-slate-600 px-4 py-2 text-xs font-semibold disabled:opacity-50">{busy?'Saving…':'Save draft'}</button>}
-          {isClient && <button disabled={busy || locked || !template || status==='SUBMITTED' || status==='UNDER_REVIEW'} onClick={submit} className="rounded-lg bg-emerald-700 px-4 py-2 text-xs font-semibold text-white disabled:opacity-50">Submit for review</button>}
+        <div className="flex flex-wrap items-center gap-2.5">
+          <FormControl
+            size="small"
+            disabled={
+              isClient ||
+              (status !== 'DRAFT' && status !== 'RETURNED' && status !== 'NOT_REQUESTED')
+            }
+          >
+            <Select
+              value={templateId}
+              onChange={(e) => {
+                setTemplateId(e.target.value);
+                setValues({});
+                setReviews([]);
+              }}
+              displayEmpty
+              renderValue={(val) => {
+                if (!val) {
+                  return (
+                    <span className="text-slate-400 dark:text-slate-500 font-sans text-xs">
+                      Choose sector / summary sheet
+                    </span>
+                  );
+                }
+                const matched = templates.find((t) => t.id === val);
+                return (
+                  <span className="font-semibold text-xs text-slate-800 dark:text-slate-200 truncate max-w-[280px] sm:max-w-[340px]">
+                    {matched ? `${matched.sector} — ${matched.formName}` : val}
+                  </span>
+                );
+              }}
+              sx={{
+                minWidth: 260,
+                maxWidth: { xs: '100%', sm: 380 },
+                backgroundColor: isDark ? '#1E293B' : '#FFFFFF',
+                color: isDark ? '#F8FAFC' : '#0F172A',
+                borderRadius: '8px',
+                fontSize: '12px',
+                boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: isDark ? '#334155' : '#CBD5E1',
+                },
+                '&:hover .MuiOutlinedInput-notchedOutline': {
+                  borderColor: isDark ? '#475569' : '#94A3B8',
+                },
+                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                  borderColor: isDark ? '#34D399' : '#059669',
+                  borderWidth: '1.5px',
+                },
+                '& .MuiSelect-select': {
+                  py: '6.5px',
+                  px: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                },
+                '& .MuiSvgIcon-root': {
+                  color: isDark ? '#94A3B8' : '#64748B',
+                },
+              }}
+              MenuProps={{
+                slotProps: {
+                  paper: {
+                    sx: {
+                      backgroundColor: isDark ? '#1E293B' : '#FFFFFF',
+                      color: isDark ? '#F8FAFC' : '#0F172A',
+                      border: `1px solid ${isDark ? '#334155' : '#E2E8F0'}`,
+                      borderRadius: '8px',
+                      maxHeight: 320,
+                      boxShadow: isDark
+                        ? '0 10px 15px -3px rgba(0,0,0,0.5), 0 4px 6px -4px rgba(0,0,0,0.5)'
+                        : '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)',
+                    },
+                  },
+                },
+              }}
+            >
+              <MenuItem value="" disabled sx={{ fontSize: '12px' }}>
+                Choose sector / summary sheet
+              </MenuItem>
+              {templates.map((t) => (
+                <MenuItem
+                  key={t.id}
+                  value={t.id}
+                  sx={{
+                    fontSize: '12px',
+                    fontWeight: templateId === t.id ? 600 : 400,
+                    color: templateId === t.id ? (isDark ? '#34D399' : '#059669') : undefined,
+                    '&.Mui-selected': {
+                      backgroundColor: isDark ? 'rgba(52, 211, 153, 0.12)' : 'rgba(5, 150, 105, 0.08)',
+                    },
+                    '&:hover': {
+                      backgroundColor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)',
+                    },
+                  }}
+                >
+                  {t.sector} — {t.formName}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          {isReviewer && (!status || status === 'DRAFT' || status === 'NOT_REQUESTED') && (
+            <button
+              type="button"
+              disabled={busy || !template}
+              onClick={requestData}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-emerald-700 hover:bg-emerald-800 text-white disabled:opacity-50 transition-colors shadow-sm"
+            >
+              {busy ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Send className="w-3.5 h-3.5" />
+              )}
+              Request data from client
+            </button>
+          )}
+
+          {(isClient || !!template) && (
+            <button
+              type="button"
+              onClick={exportWorkbook}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-2xs"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
+              Export Excel
+            </button>
+          )}
+
+          {isClient && (
+            <button
+              type="button"
+              disabled={busy || locked || !template}
+              onClick={saveDraft}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 transition-colors shadow-2xs"
+            >
+              {busy ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Save className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
+              )}
+              {busy ? 'Saving…' : 'Save draft'}
+            </button>
+          )}
+
+          {isClient && (
+            <button
+              type="button"
+              disabled={
+                busy ||
+                locked ||
+                !template ||
+                status === 'SUBMITTED' ||
+                status === 'UNDER_REVIEW'
+              }
+              onClick={submit}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-emerald-700 hover:bg-emerald-800 text-white disabled:opacity-50 transition-colors shadow-sm"
+            >
+              {busy ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Send className="w-3.5 h-3.5" />
+              )}
+              Submit for review
+            </button>
+          )}
         </div>
       </div>
 
@@ -186,7 +346,17 @@ export function RegulatoryMetricsPanel({ assessmentId, framework, period, facili
       {isClient && status==='NOT_REQUESTED' && <div className="p-5 text-sm text-slate-600 dark:text-slate-300">No regulatory data request has been assigned to this facility yet. Your consultant will send the applicable summary sheet here.</div>}
       {isReviewer && status==='NOT_REQUESTED' && <div className="p-5 text-xs text-slate-500">Choose the applicable summary sheet above and send a data request to the client.</div>}
       {isReviewer && status==='REQUESTED' && <div className="px-5 pt-4 text-xs text-indigo-700 dark:text-indigo-300">Waiting for the client to complete this requested summary sheet.</div>}
-      {isReviewer && status==='SUBMITTED' && <div className="px-5 pt-4 flex gap-2"><button disabled={busy} onClick={()=>review('START_REVIEW')} className="rounded-lg bg-blue-700 text-white px-3 py-2 text-xs">Start review</button></div>}
+      {isReviewer && status==='SUBMITTED' && (
+        <div className="px-5 pt-4 flex gap-2">
+          <button
+            disabled={busy}
+            onClick={()=>review('START_REVIEW')}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-blue-700 hover:bg-blue-800 text-white text-xs font-semibold disabled:opacity-50 transition-colors shadow-sm"
+          >
+            Start review
+          </button>
+        </div>
+      )}
       {template && status !== 'NOT_REQUESTED' && (status !== 'REQUESTED' || isClient) && <div className="p-5 sm:p-6 space-y-6">
         {template.sections.map(section=>(
           <div key={section.id} className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
@@ -250,11 +420,33 @@ export function RegulatoryMetricsPanel({ assessmentId, framework, period, facili
           </div>}
           {evidence.map((item,i)=><div key={`${item.url}-${i}`} className="flex items-center justify-between gap-3 text-xs border-t border-slate-100 dark:border-slate-800 pt-2"><a href={item.url} target="_blank" rel="noreferrer" className="text-blue-600 underline">{item.title}</a>{isClient && <button onClick={()=>setEvidence(old=>old.filter((_,idx)=>idx!==i))} className="text-rose-600">Remove</button>}</div>)}
         </div>
-        {isReviewer && <div className="flex flex-wrap gap-2 border-t border-slate-200 dark:border-slate-700 pt-4">
-          <button disabled={busy || status!=='UNDER_REVIEW'} onClick={()=>review('VERIFY_REPORT')} className="rounded-lg bg-emerald-700 px-4 py-2 text-xs text-white disabled:opacity-40">Verify report</button>
-          <button disabled={busy || !['SUBMITTED','UNDER_REVIEW'].includes(status)} onClick={()=>review('RETURN')} className="rounded-lg bg-amber-600 px-4 py-2 text-xs text-white disabled:opacity-40">Return for correction</button>
-          {currentRole==='ADMIN' && <button disabled={busy || status!=='VERIFIED'} onClick={()=>review('APPROVE')} className="rounded-lg bg-blue-700 px-4 py-2 text-xs text-white disabled:opacity-40">Final approval</button>}
-        </div>}
+        {isReviewer && (
+          <div className="flex flex-wrap gap-2.5 border-t border-slate-200 dark:border-slate-700 pt-4">
+            <button
+              disabled={busy || status !== 'UNDER_REVIEW'}
+              onClick={() => review('VERIFY_REPORT')}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 px-4 py-2 text-xs font-semibold text-white disabled:opacity-40 transition-colors shadow-sm"
+            >
+              Verify report
+            </button>
+            <button
+              disabled={busy || !['SUBMITTED', 'UNDER_REVIEW'].includes(status)}
+              onClick={() => review('RETURN')}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 px-4 py-2 text-xs font-semibold text-white disabled:opacity-40 transition-colors shadow-sm"
+            >
+              Return for correction
+            </button>
+            {currentRole === 'ADMIN' && (
+              <button
+                disabled={busy || status !== 'VERIFIED'}
+                onClick={() => review('APPROVE')}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-blue-700 hover:bg-blue-800 px-4 py-2 text-xs font-semibold text-white disabled:opacity-40 transition-colors shadow-sm"
+              >
+                Final approval
+              </button>
+            )}
+          </div>
+        )}
       </div>}
     </section>
   );

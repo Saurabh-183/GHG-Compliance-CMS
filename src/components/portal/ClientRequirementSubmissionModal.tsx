@@ -19,13 +19,14 @@ import { notify } from '@/lib/notify';
 import { ClientDynamicFieldInput } from '@/components/requests/ClientDynamicFieldInput';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { formatDate } from '@/lib/utils';
+import { MuiDatePicker } from '@/components/common/MuiDatePicker';
 import {
   hydrateClientSubmissionForm,
   isClientSubmissionReadOnly,
   getLatestDriveLink,
 } from '@/lib/clientPortalSubmission';
 import { DriveLinkBadge } from '@/components/common/DriveLinkBadge';
-import { GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
+import { GOOGLE_DRIVE_FOLDER_URL, resolveComplianceVaultFolderUrl, rewriteLegacyVaultUrlsInText } from '@/lib/gdrive';
 
 type ConnectionForm = {
   providerName: string;
@@ -447,7 +448,7 @@ export function ClientRequirementSubmissionModal({
                       {(displayReq.submittedDriveLinks || []).map((link, i) => (
                         <DriveLinkBadge
                           key={`${link.url}-${i}`}
-                          url={link.vaultUrl || link.sourceUrl || link.url}
+                          url={rewriteLegacyVaultUrlsInText(link.vaultUrl || link.sourceUrl || link.url)}
                           label={link.fileName || link.description || `File ${i + 1}`}
                           facilityId={displayReq.facilityName || displayReq.facilityId}
                         />
@@ -506,7 +507,7 @@ export function ClientRequirementSubmissionModal({
                             Paste a shared link, or upload a file below. Submissions are copied into the Carbon Crunch
                             vault:{' '}
                             <a
-                              href={GOOGLE_DRIVE_FOLDER_URL}
+                              href={resolveComplianceVaultFolderUrl(GOOGLE_DRIVE_FOLDER_URL)}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="underline font-semibold"
@@ -796,12 +797,10 @@ export function ClientRequirementSubmissionModal({
                           <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
                             Billing Period (From Date) <span className="text-rose-500">*</span>
                           </label>
-                          <input
-                            required
-                            type="date"
+                          <MuiDatePicker
                             value={bill.billingFrom}
-                            onChange={(e) => setBillField('billingFrom', e.target.value)}
-                            className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-950/80 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 dark:focus:border-emerald-400 transition-all shadow-2xs font-medium"
+                            onChange={(val) => setBillField('billingFrom', val)}
+                            placeholder="dd-mm-yyyy"
                           />
                         </div>
 
@@ -809,12 +808,10 @@ export function ClientRequirementSubmissionModal({
                           <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
                             Billing Period (To Date) <span className="text-rose-500">*</span>
                           </label>
-                          <input
-                            required
-                            type="date"
+                          <MuiDatePicker
                             value={bill.billingTo}
-                            onChange={(e) => setBillField('billingTo', e.target.value)}
-                            className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-950/80 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 dark:focus:border-emerald-400 transition-all shadow-2xs font-medium"
+                            onChange={(val) => setBillField('billingTo', val)}
+                            placeholder="dd-mm-yyyy"
                           />
                         </div>
 

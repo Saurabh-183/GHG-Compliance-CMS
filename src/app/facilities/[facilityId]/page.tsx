@@ -3,8 +3,14 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import { Select, MenuItem, FormControl } from '@mui/material';
+import { useAuth } from '@/context/AuthContext';
 import { IDataRequirement, IFacilityComplianceMatrix, IComplianceApplicability } from '@/types';
 import { computePortalDataRequestPercentages } from '@/lib/requestStats';
+import {
+  type ClientSubmittedDriveFileCard,
+  listClientSubmittedDriveFiles,
+} from '@/lib/clientMonthlyEvidenceRows';
 import { PORTAL_PERIOD_OPTIONS, readPortalPeriod, writePortalScope } from '@/lib/portalScope';
 import { ComplianceMatrixTable } from '@/components/compliance/ComplianceMatrixTable';
 import { ExcelImportModal } from '@/components/compliance/ExcelImportModal';
@@ -16,7 +22,6 @@ import {
   FileSpreadsheet,
   Upload,
   ArrowRight,
-  ShieldCheck,
   ChevronRight,
   Folder,
   RefreshCw,
@@ -26,7 +31,7 @@ import {
 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
-import { GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
+import { GOOGLE_DRIVE_FOLDER_URL, resolveComplianceVaultFolderUrl, rewriteLegacyVaultUrlsInText } from '@/lib/gdrive';
 import { MOCK_CLIENT_GROUPS, MOCK_FACILITIES } from '@/lib/mockFallback';
 
 function resolveClientGroup(facility: {
@@ -90,11 +95,14 @@ function resolveClientGroup(facility: {
 }
 
 export default function FacilityDashboardPage() {
+  const { theme } = useAuth();
+  const isDark = theme === 'dark';
   const params = useParams();
   const facilityId = (params.facilityId as string) || 'TRIDENT_PAPER';
   const [matrixData, setMatrixData] = useState<IFacilityComplianceMatrix | null>(null);
   const [rawApplicability, setRawApplicability] = useState<IComplianceApplicability[]>([]);
   const [driveFiles, setDriveFiles] = useState<any[]>([]);
+  const [submissionFiles, setSubmissionFiles] = useState<ClientSubmittedDriveFileCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
@@ -178,7 +186,7 @@ export default function FacilityDashboardPage() {
           setStats((prev) => ({
             ...prev,
             isDriveConnected: driveJson.data.isConnected ?? true,
-            driveFolderUrl: driveJson.data.folderUrl || prev.driveFolderUrl,
+            driveFolderUrl: resolveComplianceVaultFolderUrl(driveJson.data.folderUrl || prev.driveFolderUrl),
             driveFolderName: driveJson.data.folderName || prev.driveFolderName,
           }));
         }
@@ -193,8 +201,11 @@ export default function FacilityDashboardPage() {
             r.isApplicable !== false
         );
         setRequestProgress(computePortalDataRequestPercentages(scoped));
+        const periodFiles = listClientSubmittedDriveFiles(scoped);
+        setSubmissionFiles(periodFiles);
       } else {
         setRequestProgress(computePortalDataRequestPercentages([]));
+        setSubmissionFiles([]);
       }
 
       // Load Drive evidence files.
@@ -292,76 +303,140 @@ export default function FacilityDashboardPage() {
       </div>
 
       {/* Facility Header Card */}
-      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 sm:p-8 shadow-md">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <span className="px-2.5 py-0.5 rounded font-mono font-bold text-xs bg-slate-100 text-emerald-800 border border-slate-300 dark:bg-slate-800 dark:text-emerald-400 dark:border-slate-700">
-                {facility.facilityId}
-              </span>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
-                {facility.name}
-              </h1>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20">
-                Active DC
-              </span>
-            </div>
-
-            <p className="text-xs text-slate-600 dark:text-slate-300">
-              {facility.category} · {facility.location}
-            </p>
-
-            <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400 pt-1">
-              <span>
-                Assigned Lead: <strong className="text-slate-800 dark:text-white">Priya Sharma</strong> (Senior Energy & Carbon Compliance Lead)
-              </span>
-              <span>·</span>
-              <span className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-medium">
-                <Folder className="w-3.5 h-3.5" />
-                <span>Google Drive Vault Connected</span>
-              </span>
-            </div>
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 sm:p-7 shadow-sm">
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <span className="px-2.5 py-0.5 rounded font-mono font-bold text-xs bg-slate-100 text-emerald-800 border border-slate-300 dark:bg-slate-800 dark:text-emerald-400 dark:border-slate-700">
+              {facility.facilityId}
+            </span>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20">
+              Active DC
+            </span>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <label className="flex items-center gap-2 text-[11px] text-slate-600 dark:text-slate-300">
-              <span className="font-semibold">FY</span>
-              <select
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              {facility.name}
+            </h1>
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              {facility.category} · {facility.location}
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400 pt-0.5">
+            <span>
+              Assigned Lead: <strong className="text-slate-800 dark:text-white">Priya Sharma</strong> (Senior Energy & Carbon Compliance Lead)
+            </span>
+            <span>·</span>
+            <span className="inline-flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-medium">
+              <Folder className="w-3.5 h-3.5" />
+              <span>Google Drive Vault Connected</span>
+            </span>
+          </div>
+        </div>
+
+        {/* Action Toolbar */}
+        <div className="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800/80 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <FormControl size="small">
+              <Select
                 value={selectedPeriod}
                 onChange={(e) => setSelectedPeriod(e.target.value)}
-                className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-2 py-1.5 font-mono text-xs"
+                displayEmpty
+                renderValue={(val) => (
+                  <div className="flex items-center gap-1.5 font-mono text-xs">
+                    <span className="font-sans font-semibold text-slate-500 dark:text-slate-400">Period:</span>
+                    <span className="font-bold text-emerald-700 dark:text-emerald-400">{val}</span>
+                  </div>
+                )}
+                sx={{
+                  height: 36,
+                  borderRadius: '8px',
+                  backgroundColor: isDark ? '#1E293B' : '#FFFFFF',
+                  color: isDark ? '#FFFFFF' : '#1E293B',
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: isDark ? '#34D399' : '#059669',
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: isDark ? '#34D399' : '#059669',
+                    borderWidth: '1.5px',
+                  },
+                  '& .MuiSelect-select': {
+                    py: '6px',
+                    px: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                  },
+                  '& .MuiSvgIcon-root': {
+                    color: isDark ? '#94A3B8' : '#64748B',
+                    fontSize: '18px',
+                  },
+                }}
+                MenuProps={{
+                  slotProps: {
+                    paper: {
+                      sx: {
+                        backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                        color: isDark ? '#FFFFFF' : '#1E293B',
+                        borderRadius: '8px',
+                        boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)',
+                        border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.12)' : '#E2E8F0'}`,
+                        '& .MuiList-root': { py: '4px' },
+                      },
+                    },
+                  },
+                }}
               >
                 {PORTAL_PERIOD_OPTIONS.map((fy) => (
-                  <option key={fy} value={fy}>
+                  <MenuItem
+                    key={fy}
+                    value={fy}
+                    sx={{
+                      fontSize: '12px',
+                      fontFamily: 'monospace',
+                      fontWeight: selectedPeriod === fy ? 600 : 400,
+                      color: selectedPeriod === fy ? (isDark ? '#34D399' : '#059669') : undefined,
+                      '&.Mui-selected': {
+                        backgroundColor: isDark ? 'rgba(52, 211, 153, 0.12)' : 'rgba(5, 150, 105, 0.08)',
+                      },
+                      '&:hover': {
+                        backgroundColor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)',
+                      },
+                    }}
+                  >
                     {fy}
-                  </option>
+                  </MenuItem>
                 ))}
-              </select>
-            </label>
+              </Select>
+            </FormControl>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2.5">
             <button
-              onClick={() => setIsDriveModalOpen(true)}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#17365D] hover:bg-[#102947] dark:bg-[#A56F63] dark:hover:bg-[#8C594E] text-white! text-xs font-semibold shadow-sm transition-colors"
-              style={{ color: '#FFFFFF' }}
+              onClick={() => setIsImportModalOpen(true)}
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white hover:bg-slate-50 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 text-xs font-semibold border border-slate-300 dark:border-slate-700 transition-colors shadow-2xs"
             >
-              <RefreshCw className="w-3.5 h-3.5 text-white!" style={{ stroke: '#FFFFFF' }} />
-              <span className="text-white! font-semibold" style={{ color: '#FFFFFF' }}>Connect & Sync Drive</span>
+              <Upload className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
+              <span>Import Excel / Templates</span>
             </button>
 
             <button
-              onClick={() => setIsImportModalOpen(true)}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white hover:bg-slate-100 text-slate-800 dark:bg-[#464858] dark:hover:bg-slate-700 dark:text-white text-xs font-semibold border border-slate-300 dark:border-slate-600 transition-colors shadow-2xs"
+              onClick={() => setIsDriveModalOpen(true)}
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white hover:bg-slate-50 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 text-xs font-semibold border border-slate-300 dark:border-slate-700 transition-colors shadow-2xs"
             >
-              <Upload className="w-3.5 h-3.5 text-emerald-700 dark:text-[#D99B7F]" />
-              <span className="font-semibold text-slate-800 dark:text-white">Import Excel / Templates</span>
+              <RefreshCw className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
+              <span>Connect & Sync Drive</span>
             </button>
 
             <Link
               href={`/datasets/${facilityId}/verify`}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#17365D] hover:bg-[#102947] dark:bg-[#A56F63] dark:hover:bg-[#8C594E] text-white! text-xs font-semibold transition-colors shadow-sm"
-              style={{ color: '#FFFFFF' }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold transition-colors shadow-sm"
             >
-              <FileSpreadsheet className="w-3.5 h-3.5 text-white!" style={{ stroke: '#FFFFFF' }} />
-              <span className="text-white! font-semibold" style={{ color: '#FFFFFF' }}>Reconciliation Engine</span>
+              <FileSpreadsheet className="w-3.5 h-3.5 text-white" />
+              <span>Reconciliation Engine</span>
             </Link>
           </div>
         </div>
@@ -402,21 +477,17 @@ export default function FacilityDashboardPage() {
 
           <div className="p-3.5 rounded-md bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 space-y-1">
             <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 ">
-              <span className="font-semibold uppercase tracking-wider text-[10px]">Google Drive Evidence Vault</span>
+              <span className="font-semibold uppercase tracking-wider text-[10px]">Submitted Evidence</span>
               <Folder className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
             </div>
-            <div className="text-xs font-bold text-emerald-700 dark:text-emerald-400 truncate">
-              {stats.driveFolderName}
+            <div className="text-xl font-extrabold text-slate-900 dark:text-white">
+              {submissionFiles.length} {submissionFiles.length === 1 ? 'File' : 'Files'}
             </div>
-            <a
-              href={stats.driveFolderUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[11px] text-slate-500 hover:text-emerald-700 dark:hover:text-emerald-400 inline-flex items-center gap-1"
-            >
-              <span>Browse Drive Repository</span>
-              <ExternalLink className="w-2.5 h-2.5" />
-            </a>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              {submissionFiles.length > 0
+                ? `Attached by client on data requests (${selectedPeriod})`
+                : `No client evidence submitted yet for ${selectedPeriod}`}
+            </p>
           </div>
         </div>
       </div>
@@ -424,133 +495,93 @@ export default function FacilityDashboardPage() {
       {/* Module 1: Multi-Year Compliance Matrix (Section 5.2) */}
       <ComplianceMatrixTable data={matrixData} />
 
-      {/* Registered Compliance Applicabilities Detail Table */}
-      <div className="rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-6 shadow-md space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
-              Statutory Compliance Applicability Register
-            </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Configured authorities, legal notifications, target values, and statutory submission deadlines.
-            </p>
-          </div>
-        </div>
-
-        <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950/80 text-[11px] font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                <th className="py-3 px-4">Framework</th>
-                <th className="py-3 px-4">Period</th>
-                <th className="py-3 px-4">Implementing Authority</th>
-                <th className="py-3 px-4">Notification Ref</th>
-                <th className="py-3 px-4">Target / Mandate</th>
-                <th className="py-3 px-4">Statutory Deadline</th>
-                <th className="py-3 px-4 text-center">Workflow</th>
-                <th className="py-3 px-4 text-center">Outcome</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200 dark:divide-slate-800/70 text-xs">
-              {rawApplicability.map((app) => (
-                <tr key={app._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                  <td className="py-3 px-4 font-semibold text-slate-900 dark:text-white">
-                    {app.complianceType}
-                  </td>
-                  <td className="py-3 px-4 text-slate-700 dark:text-slate-300 font-mono">
-                    {app.period}
-                  </td>
-                  <td className="py-3 px-4 text-slate-700 dark:text-slate-300">
-                    {app.authority}
-                  </td>
-                  <td className="py-3 px-4 text-slate-500 dark:text-slate-400 font-mono text-[11px]">
-                    {app.notificationReference || '—'}
-                  </td>
-                  <td className="py-3 px-4 text-emerald-700 dark:text-emerald-400 font-semibold">
-                    {app.targetValue !== null ? `${app.targetValue} ${app.targetUnit}` : 'Monthly Filing'}
-                  </td>
-                  <td className="py-3 px-4 text-slate-700 dark:text-slate-300 font-mono">
-                    {formatDate(app.deadline)}
-                  </td>
-                  <td className="py-3 px-4 text-center">
-                    <StatusBadge status={app.workflowStatus} type="workflow" size="sm" />
-                  </td>
-                  <td className="py-3 px-4 text-center">
-                    <StatusBadge status={app.complianceOutcome} type="outcome" size="sm" />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Google Drive Evidence Vault & Synced Repository Files */}
+      {/* Client-Submitted Evidence Section */}
       <div className="rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-6 shadow-md space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <Folder className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
-              Google Drive Evidence Vault & Document Repository
+              Submitted Evidence ({submissionFiles.length})
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Live mapped files, audited DISCOM invoices, consumption spreadsheets, and statutory certificates from the corporate Drive.
+              Live evidence documents, invoices, logs, and files submitted by the client for this facility ({selectedPeriod}).
             </p>
           </div>
-          <a
-            href={stats.driveFolderUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900 transition-colors shadow-2xs self-start sm:self-center"
-          >
-            <span>Open Google Drive Folder</span>
-            <ExternalLink className="w-3.5 h-3.5" />
-          </a>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">
-          {driveFiles.map((f: any) => (
-            <div
-              key={f.id}
-              className="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 hover:border-emerald-500/50 transition-all flex flex-col justify-between gap-3"
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/data-requests?facilityId=${encodeURIComponent(facilityId)}&period=${encodeURIComponent(selectedPeriod)}`}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900 transition-colors shadow-2xs cursor-pointer"
             >
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded font-semibold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                    {f.category.replace(/_/g, ' ')}
-                  </span>
-                  {f.month && (
-                    <span className="text-[10px] font-mono text-emerald-700 dark:text-emerald-400 font-bold">
-                      {f.month}
-                    </span>
-                  )}
-                </div>
-                <div className="text-xs font-bold text-slate-900 dark:text-white truncate" title={f.name}>
-                  {f.name}
-                </div>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 ">
-                  {f.mimeType.includes('pdf') ? 'PDF Utility Bill / Certificate' : 'Excel Energy Model / Log'}
-                </p>
-              </div>
-
-              <div className="pt-2 border-t border-slate-200/80 dark:border-slate-800 flex items-center justify-between text-xs">
-                <span className="text-[10px]  ">
-                  {f.sizeBytes ? `${Math.round(f.sizeBytes / 1024)} KB` : 'Cloud Doc'}
-                </span>
-                <a
-                  href={f.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-emerald-700 dark:text-emerald-400 hover:underline font-semibold inline-flex items-center gap-1 text-[11px]"
-                >
-                  <span>View in Drive</span>
-                  <ExternalLink className="w-3 h-3" />
-                </a>
-              </div>
-            </div>
-          ))}
+              <span>Manage on Data Requests</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </Link>
+            <a
+              href={resolveComplianceVaultFolderUrl(stats.driveFolderUrl)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-2xs"
+            >
+              <span>Open Vault</span>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+          </div>
         </div>
+
+        {submissionFiles.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">
+            {submissionFiles.map((f) => (
+              <div
+                key={f.id}
+                className="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 hover:border-emerald-500/50 transition-all flex flex-col justify-between gap-3 text-xs"
+              >
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded font-semibold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 truncate max-w-[65%]">
+                      {f.category.replace(/_/g, ' ')}
+                    </span>
+                    {f.month && (
+                      <span className="text-[10px] font-mono text-emerald-700 dark:text-emerald-400 font-bold shrink-0">
+                        {f.month}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-xs font-bold text-slate-900 dark:text-white truncate" title={f.name}>
+                    {f.name}
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2" title={f.requestTitle}>
+                    {f.requestTitle}
+                  </p>
+                </div>
+
+                <div className="pt-2 border-t border-slate-200/80 dark:border-slate-800 flex items-center justify-between text-xs gap-2">
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                    {f.submittedBy ? f.submittedBy : 'Client upload'}
+                    {f.submittedAt
+                      ? ` · ${new Date(f.submittedAt).toLocaleDateString('en-IN', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        })}`
+                      : ''}
+                  </span>
+                  <a
+                    href={rewriteLegacyVaultUrlsInText(f.url)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-emerald-700 dark:text-emerald-400 hover:underline font-semibold inline-flex items-center gap-1 text-[11px] shrink-0"
+                  >
+                    <span>Open file</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="p-8 text-center text-slate-500 dark:text-slate-400 rounded-lg border border-dashed border-slate-200 dark:border-slate-800">
+            <p className="text-xs">No client evidence submitted yet for {selectedPeriod}.</p>
+          </div>
+        )}
       </div>
 
       {/* Google Drive Connection & Direct Sync Modal */}

@@ -6,29 +6,46 @@ import { IDataset, IMonthlyRecord, ReconciliationResult } from '@/types';
  * https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn
  */
 
-/** Previous demo vault — migrated responses still pointing here are normalized. */
+/** Previous demo vaults — migrated responses still pointing here are redirected. */
 export const LEGACY_GOOGLE_DRIVE_FOLDER_ID = '1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7';
+export const PREVIOUS_INTERIM_VAULT_ID = '1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn';
 
-export const DEFAULT_GOOGLE_DRIVE_FOLDER_ID = '1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn';
+export const DEFAULT_GOOGLE_DRIVE_FOLDER_ID = '1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp';
 
 export const DEFAULT_GOOGLE_DRIVE_FOLDER_URL = `https://drive.google.com/drive/folders/${DEFAULT_GOOGLE_DRIVE_FOLDER_ID}`;
 
-export const GOOGLE_DRIVE_FOLDER_URL =
+const rawFolderUrl =
   process.env.NEXT_PUBLIC_GDRIVE_FOLDER_URL ||
   process.env.GDRIVE_FOLDER_URL ||
   DEFAULT_GOOGLE_DRIVE_FOLDER_URL;
 
-export const GOOGLE_DRIVE_FOLDER_ID =
+export const GOOGLE_DRIVE_FOLDER_URL =
+  rawFolderUrl &&
+  (rawFolderUrl.includes(LEGACY_GOOGLE_DRIVE_FOLDER_ID) ||
+    rawFolderUrl.includes(PREVIOUS_INTERIM_VAULT_ID) ||
+    /\/folders\/1oIObLXY/i.test(rawFolderUrl))
+    ? DEFAULT_GOOGLE_DRIVE_FOLDER_URL
+    : (rawFolderUrl || DEFAULT_GOOGLE_DRIVE_FOLDER_URL);
+
+const rawFolderId =
   process.env.NEXT_PUBLIC_GDRIVE_FOLDER_ID ||
   process.env.GDRIVE_FOLDER_ID ||
   (GOOGLE_DRIVE_FOLDER_URL.match(/\/folders\/([a-zA-Z0-9_-]+)/)?.[1] || DEFAULT_GOOGLE_DRIVE_FOLDER_ID);
 
-/** Use stored facility folder URL unless it still references the retired demo vault. */
+export const GOOGLE_DRIVE_FOLDER_ID =
+  rawFolderId === LEGACY_GOOGLE_DRIVE_FOLDER_ID ||
+  rawFolderId === PREVIOUS_INTERIM_VAULT_ID ||
+  /1oIObLXY/i.test(rawFolderId)
+    ? DEFAULT_GOOGLE_DRIVE_FOLDER_ID
+    : rawFolderId;
+
+/** Use stored facility folder URL unless it still references a retired vault. */
 export function resolveComplianceVaultFolderUrl(storedUrl?: string | null): string {
   const trimmed = storedUrl?.trim();
   if (!trimmed) return GOOGLE_DRIVE_FOLDER_URL;
   if (
     trimmed.includes(LEGACY_GOOGLE_DRIVE_FOLDER_ID) ||
+    trimmed.includes(PREVIOUS_INTERIM_VAULT_ID) ||
     /\/folders\/1oIObLXY/i.test(trimmed)
   ) {
     return GOOGLE_DRIVE_FOLDER_URL;
@@ -36,11 +53,17 @@ export function resolveComplianceVaultFolderUrl(storedUrl?: string | null): stri
   return trimmed;
 }
 
-/** Rewrites any stored link that still embeds the retired vault folder id. */
+/** Rewrites any stored link that still embeds a retired vault folder id. */
 export function rewriteLegacyVaultUrlsInText(url?: string | null): string {
-  const text = url?.trim() ?? '';
-  if (!text || !text.includes(LEGACY_GOOGLE_DRIVE_FOLDER_ID)) return text;
-  return text.split(LEGACY_GOOGLE_DRIVE_FOLDER_ID).join(GOOGLE_DRIVE_FOLDER_ID);
+  let text = url?.trim() ?? '';
+  if (!text) return '';
+  if (text.includes(LEGACY_GOOGLE_DRIVE_FOLDER_ID) || /1oIObLXY/i.test(text)) {
+    text = text.replace(/1oIObLXY[a-zA-Z0-9_\-]+/gi, DEFAULT_GOOGLE_DRIVE_FOLDER_ID);
+  }
+  if (text.includes(PREVIOUS_INTERIM_VAULT_ID)) {
+    text = text.split(PREVIOUS_INTERIM_VAULT_ID).join(DEFAULT_GOOGLE_DRIVE_FOLDER_ID);
+  }
+  return text;
 }
 
 export interface IDriveFileMetadata {

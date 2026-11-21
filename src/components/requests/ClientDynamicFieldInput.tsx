@@ -3,6 +3,7 @@
 import React from 'react';
 import type { IRequestField } from '@/types';
 import { formatSubmittedFieldValue } from '@/lib/clientPortalSubmission';
+import { MuiDatePicker } from '@/components/common/MuiDatePicker';
 
 export function ClientDynamicFieldInput({
   field,
@@ -139,10 +140,15 @@ export function ClientDynamicFieldInput({
       );
     case 'DATE':
       return (
-        <label className={wrap}>
+        <div className={wrap}>
           {label}
-          <input type="date" value={String(value ?? '')} onChange={(e) => onChange(e.target.value)} className={inputClass} />
-        </label>
+          <MuiDatePicker
+            value={String(value ?? '')}
+            onChange={(val) => onChange(val)}
+            placeholder="dd-mm-yyyy"
+            disabled={readOnly}
+          />
+        </div>
       );
     case 'NUMBER':
     case 'DECIMAL':

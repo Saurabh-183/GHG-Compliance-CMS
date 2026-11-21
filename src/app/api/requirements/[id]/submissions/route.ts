@@ -11,6 +11,7 @@ import {
   VaultPlacementError,
 } from '@/lib/driveVaultServer';
 import { upsertClientSubmissionLink } from '@/lib/clientSubmissionLinkUpsert';
+import { GOOGLE_DRIVE_FOLDER_URL, GOOGLE_DRIVE_FOLDER_ID, resolveComplianceVaultFolderUrl } from '@/lib/gdrive';
 
 export async function POST(
   request: NextRequest,
@@ -130,6 +131,8 @@ export async function POST(
 
     const storedLink = {
       ...vaultEntry,
+      vaultFolderUrl: resolveComplianceVaultFolderUrl(vaultEntry.vaultFolderUrl || GOOGLE_DRIVE_FOLDER_URL),
+      vaultTargetFolderId: GOOGLE_DRIVE_FOLDER_ID,
       ...(body.reportingMonth ? { mappedMonth: body.reportingMonth } : {}),
       ...(isElectricityRequest && bill && connection
         ? {

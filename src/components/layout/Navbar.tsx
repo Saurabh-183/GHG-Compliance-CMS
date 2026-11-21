@@ -105,7 +105,7 @@ export const Navbar: React.FC = () => {
   const getNavLinkClass = (isActive: boolean) => {
     if (isActive) {
       return isLight
-        ? 'bg-emerald-50 text-emerald-800 border border-emerald-300 font-semibold shadow-2xs'
+        ? 'bg-emerald-50 text-emerald-800 border border-emerald-300 font-semibold'
         : 'bg-emerald-950/60 text-emerald-300 border border-emerald-800/60 font-semibold';
     }
 
@@ -122,84 +122,6 @@ export const Navbar: React.FC = () => {
           : 'border-b border-slate-800 bg-slate-950/90 text-white'
       }`}
     >
-      {/* Top status bar */}
-      <div
-        className={`px-3 py-1.5 text-xs transition-colors sm:px-4 ${
-          isLight
-            ? 'border-b border-slate-200 bg-slate-100/90 text-slate-700'
-            : 'border-b border-slate-800/80 bg-slate-950/90 text-slate-300'
-        }`}
-      >
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2 overflow-x-auto py-0.5">
-            <span className="relative flex h-2 w-2 shrink-0">
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-600" />
-            </span>
-
-            <span
-              className={`text-[11px] font-medium ${
-                isLight ? '  ' : 'text-slate-300'
-              }`}
-            >
-              Active User:{' '}
-              <strong
-                className={
-                  isLight
-                    ? 'font-bold text-slate-900'
-                    : 'font-bold text-white'
-                }
-              >
-                {currentUser?.name}
-              </strong>
-            </span>
-
-            <span
-              className={`rounded-md border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
-                isLight
-                  ? 'border-emerald-300 bg-emerald-50 text-emerald-800'
-                  : 'border-emerald-800/60 bg-emerald-950/60 text-emerald-300'
-              }`}
-            >
-              {currentRole}
-            </span>
-
-            {currentRole === 'CLIENT' && (
-              <span
-                className={`hidden text-[10px] font-medium sm:inline ${
-                  isLight ? 'text-slate-500' : ' '
-                }`}
-              >
-                (Client Portal Protected Workspace)
-              </span>
-            )}
-          </div>
-
-          <div className="ml-auto flex items-center gap-2">
-            <NotificationBell />
-
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className={`rounded-lg border p-1.5 transition-colors ${
-                isLight
-                  ? 'border-slate-300 bg-white text-slate-700 shadow-2xs hover:bg-slate-100 hover:text-emerald-700'
-                  : 'border-slate-700 bg-slate-800/90 text-slate-300 hover:bg-slate-700 hover:text-emerald-400'
-              }`}
-              title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
-              aria-label="Toggle theme"
-            >
-              {theme === 'dark' ? (
-                <Sun className="h-3.5 w-3.5 text-amber-400" />
-              ) : (
-                <Moon className="h-3.5 w-3.5 text-slate-700" />
-              )}
-            </button>
-
-
-          </div>
-        </div>
-      </div>
-
       {/* Main navigation */}
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-6">
@@ -207,7 +129,7 @@ export const Navbar: React.FC = () => {
             href={isClientPortal ? '/portal' : '/dashboard'}
             className="group flex items-center gap-2.5 shrink-0"
           >
-            {/* Carbon Crunch logo replaces ShieldCheck */}
+            {/* Carbon Crunch logo */}
             <div className="flex h-10 w-10 shrink-0 items-center justify-center">
               <Image
                 src="/carbon-crunch-logo.png"
@@ -252,7 +174,7 @@ export const Navbar: React.FC = () => {
 
               <p
                 className={`hidden text-[9px] mt-0.5 font-normal tracking-wide sm:block ${
-                  isLight ? 'text-slate-500' : ' '
+                  isLight ? 'text-slate-500' : 'text-slate-400'
                 }`}
               >
                 Compliance Management Platform
@@ -285,7 +207,7 @@ export const Navbar: React.FC = () => {
                                 : 'text-emerald-400'
                               : isLight
                                 ? 'text-slate-500'
-                                : ' '
+                                : 'text-slate-400'
                           }`}
                         />
                         <span>{item.label}</span>
@@ -320,7 +242,7 @@ export const Navbar: React.FC = () => {
                           : 'text-emerald-400'
                         : isLight
                           ? 'text-slate-500'
-                          : ' '
+                          : 'text-slate-400'
                     }`}
                   />
                   <span>{item.label}</span>
@@ -332,47 +254,73 @@ export const Navbar: React.FC = () => {
 
         {/* User controls */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-4">
-          <div className="hidden text-right md:block">
-            <div
-              className={`text-xs font-semibold whitespace-nowrap ${
-                isLight ? 'text-slate-900' : 'text-white'
-              }`}
-            >
-              {currentUser?.name || 'User'}
-            </div>
+          <NotificationBell />
 
-            <div
-              className={`hidden 2xl:block text-[10px] text-slate-500 dark:text-slate-400 max-w-[140px] truncate mt-0.5`}
-              title={currentUser?.designation || currentRole}
-            >
-              {currentUser?.designation || currentRole}
-            </div>
-          </div>
-
-          <div
-            className={`flex items-center gap-1.5 rounded-full border p-1 ${
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className={`rounded-lg border p-1.5 transition-colors ${
               isLight
-                ? 'border-slate-300 bg-white shadow-2xs'
-                : 'border-slate-700 bg-slate-800'
+                ? 'border-slate-200 bg-white text-slate-600 shadow-2xs hover:bg-slate-100 hover:text-emerald-700'
+                : 'border-slate-800 bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-emerald-400'
+            }`}
+            title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+            aria-label="Toggle theme"
+          >
+            {theme === 'dark' ? (
+              <Sun className="h-4 w-4 text-amber-400" />
+            ) : (
+              <Moon className="h-4 w-4 text-slate-600" />
+            )}
+          </button>
+
+          <div className="hidden h-5 w-px bg-slate-200 dark:bg-slate-800 sm:block" />
+
+          {/* User badge */}
+          <div
+            className={`flex items-center gap-2 rounded-full border px-2.5 py-1 transition-colors ${
+              isLight
+                ? 'border-slate-200 bg-slate-50 shadow-2xs'
+                : 'border-slate-800 bg-slate-900'
             }`}
           >
-            <div
-              className={`user-avatar flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold shrink-0 ${
-                isLight
-                  ? 'bg-[#17365D] text-white'
-                  : 'bg-emerald-800 text-emerald-100'
-              }`}
-              style={isLight ? { backgroundColor: '#17365D', color: '#FFFFFF' } : undefined}
-            >
-              <span style={isLight ? { color: '#FFFFFF' } : undefined} className="text-white">
-                {currentUser?.name
-                  ? currentUser.name[0]
-                  : 'U'}
-              </span>
+            <div className="relative">
+              <div
+                className={`user-avatar flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold shrink-0 ${
+                  isLight
+                    ? 'bg-[#17365D] text-white'
+                    : 'bg-emerald-800 text-emerald-100'
+                }`}
+                style={isLight ? { backgroundColor: '#17365D', color: '#FFFFFF' } : undefined}
+              >
+                <span style={isLight ? { color: '#FFFFFF' } : undefined} className="text-white">
+                  {currentUser?.name ? currentUser.name[0] : 'U'}
+                </span>
+              </div>
+              <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-950" />
+            </div>
+
+            <div className="hidden text-left sm:block">
+              <div
+                className={`text-xs font-semibold whitespace-nowrap leading-tight ${
+                  isLight ? 'text-slate-900' : 'text-white'
+                }`}
+              >
+                {currentUser?.name || 'User'}
+              </div>
+
+              {currentUser?.designation && (
+                <div
+                  className="text-[10px] text-slate-500 dark:text-slate-400 max-w-[130px] truncate leading-none mt-0.5"
+                  title={currentUser.designation}
+                >
+                  {currentUser.designation}
+                </div>
+              )}
             </div>
 
             <span
-              className={`mr-1 rounded-full border px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider ${
+              className={`rounded-md border px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider ${
                 isLight
                   ? 'border-emerald-300 bg-emerald-50 text-emerald-800'
                   : 'border-emerald-800/60 bg-emerald-950/60 text-emerald-300'
@@ -387,10 +335,10 @@ export const Navbar: React.FC = () => {
             onClick={logout}
             className={`rounded-lg border p-1.5 transition-colors ${
               isLight
-                ? 'border-slate-300 bg-white text-slate-500 shadow-2xs hover:bg-rose-50 hover:text-rose-700'
-                : 'border-slate-700 bg-slate-800/80   hover:bg-rose-950/60 hover:text-rose-300'
+                ? 'border-slate-200 bg-white text-slate-500 shadow-2xs hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200'
+                : 'border-slate-800 bg-slate-900 text-slate-400 hover:bg-rose-950/60 hover:text-rose-300 hover:border-rose-900'
             }`}
-            title="Log Out (Clear Session Cookie)"
+            title="Log Out"
             aria-label="Log out"
           >
             <LogOut className="h-4 w-4" />
@@ -403,8 +351,8 @@ export const Navbar: React.FC = () => {
             }
             className={`rounded-lg border p-1.5 lg:hidden ${
               isLight
-                ? 'border-slate-300 bg-white text-slate-700 hover:text-slate-900'
-                : 'border-slate-700 bg-slate-800 text-slate-300 hover:text-white'
+                ? 'border-slate-200 bg-white text-slate-700 hover:text-slate-900'
+                : 'border-slate-800 bg-slate-900 text-slate-300 hover:text-white'
             }`}
             aria-label="Toggle navigation menu"
             aria-expanded={mobileMenuOpen}

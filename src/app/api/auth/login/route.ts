@@ -2,9 +2,26 @@ import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { connectToDatabase } from '@/lib/db';
 import { UserModel, IUserDocument } from '@/models/User';
+import { FacilityModel } from '@/models/Facility';
 import { signToken, getSessionFromRequest } from '@/lib/auth';
 import { findUserForSession } from '@/lib/resolveSessionUser';
 import { UserRole } from '@/types';
+
+const COOKIE_NAME = 'cc_auth_token';
+
+function userPayload(user: any) {
+  return {
+    _id: user._id.toString(),
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    designation: user.designation,
+    avatarUrl: user.avatarUrl,
+    clientGroupId: user.clientGroupId?.toString(),
+    authorizedFacilityIds: user.authorizedFacilityIds || [],
+    mustChangePassword: !!user.mustChangePassword,
+  };
+}
 
 // Fallback demo accounts for instant access when MONGODB_URI is not yet configured in Vercel
 const DEMO_FALLBACK_ACCOUNTS: Record<string, {
@@ -66,6 +83,9 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({ success: true, user: { ...userPayload(user), authorizedFacilityIds } });
     response.cookies.set(COOKIE_NAME, token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/', maxAge: 30 * 60 });
     return response;
+  } catch (error) {
+    console.error('Login error:', error);
+    return NextResponse.json({ error: 'Authentication service is unavailable.' }, { status: 503 });
   }
 }
 

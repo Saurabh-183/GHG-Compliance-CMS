@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { IDataRequirement, IFacility, IClarification } from '@/types';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
+import { rewriteLegacyVaultUrlsInText } from '@/lib/gdrive';
 import { computePortalDataRequestPercentages } from '@/lib/requestStats';
 import {
   type ClientSubmittedDriveFileCard,
@@ -418,7 +419,7 @@ export default function ClientPortalDashboard() {
                     {f.submittedBy || 'Client upload'}
                   </span>
                   <a
-                    href={f.url}
+                    href={rewriteLegacyVaultUrlsInText(f.url)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-emerald-700 dark:text-emerald-400 hover:underline font-semibold inline-flex items-center gap-1 text-[11px] shrink-0"

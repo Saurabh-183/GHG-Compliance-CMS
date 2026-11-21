@@ -1,4 +1,5 @@
 import type { IDataRequirement, ISubmittedDriveLink } from '@/types';
+import { rewriteLegacyVaultUrlsInText } from '@/lib/gdrive';
 
 export type ClientMonthlyEvidenceRow = {
   /** YYYY-MM for calendar months, or synthetic id for non-monthly rows */
@@ -27,7 +28,8 @@ export function formatBillingMonthLabel(monthKey: string): string {
 }
 
 function linkOpenUrl(link: ISubmittedDriveLink): string | undefined {
-  return link.vaultUrl || link.url || link.sourceUrl;
+  const raw = link.vaultUrl || link.url || link.sourceUrl;
+  return raw ? rewriteLegacyVaultUrlsInText(raw) : undefined;
 }
 
 function linkLabel(link: ISubmittedDriveLink): string {

@@ -96,9 +96,27 @@ support@carboncrunch.com`;
 export function formatDate(dateString: string | Date | null | undefined): string {
   if (!dateString) return '—';
   const d = new Date(dateString);
+  if (isNaN(d.getTime())) return '—';
   return d.toLocaleDateString('en-IN', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
   });
+}
+
+export function formatDateTime(dateString: string | Date | null | undefined): string {
+  if (!dateString) return '—';
+  const d = new Date(dateString);
+  if (isNaN(d.getTime())) return '—';
+  const datePart = d.toLocaleDateString('en-IN', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+  const timePart = d.toLocaleTimeString('en-IN', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  });
+  return `${datePart} · ${timePart}`;
 }

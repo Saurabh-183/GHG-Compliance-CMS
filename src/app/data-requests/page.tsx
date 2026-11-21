@@ -1,12 +1,16 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
+import { Select, MenuItem, FormControl } from '@mui/material';
+import { useAuth } from '@/context/AuthContext';
 import { FacilityDataRequestPanel } from '@/components/requests/FacilityDataRequestPanel';
 import { ChecklistDrivenRequestWizard } from '@/components/requests/ChecklistDrivenRequestWizard';
 import type { IFacility, IClientGroup } from '@/types';
 import { FileSpreadsheet } from 'lucide-react';
 
 export default function DataRequestsPage() {
+  const { theme } = useAuth();
+  const isDark = theme === 'dark';
   const [selectedFacilityId, setSelectedFacilityId] = useState('');
   const [facilityName, setFacilityName] = useState('');
   const [facilities, setFacilities] = useState<IFacility[]>([]);
@@ -83,37 +87,170 @@ export default function DataRequestsPage() {
       </header>
 
       <h2 className="text-xs font-bold uppercase text-slate-500">Client context</h2>
-      <div className="grid gap-3 rounded-xl border border-slate-200 bg-slate-50/80 p-4 dark:border-slate-800 dark:bg-slate-900/40 sm:grid-cols-2">
-        <label className="text-xs space-y-1">
-          <span className="font-semibold text-slate-700 dark:text-slate-300">Organization</span>
-          <select
-            value={organizationId}
-            onChange={(e) => handleOrganizationChange(e.target.value)}
-            className="w-full rounded-lg border px-3 py-2 dark:bg-slate-950"
-          >
-            <option value="">Select organization</option>
-            {organizations.map((org) => (
-              <option key={org._id} value={org._id}>
-                {org.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="text-xs space-y-1">
-          <span className="font-semibold text-slate-700 dark:text-slate-300">Facility / unit</span>
-          <select
-            value={selectedFacilityId}
-            disabled={!organizationId}
-            onChange={(e) => handleFacilityChange(e.target.value)}
-            className="w-full rounded-lg border px-3 py-2 disabled:opacity-50 dark:bg-slate-950"
-          >
-            {facilitiesInOrg.map((f) => (
-              <option key={f.facilityId} value={f.facilityId}>
-                {f.name} ({f.facilityId})
-              </option>
-            ))}
-          </select>
-        </label>
+      <div className="grid gap-4 rounded-xl border border-slate-200 bg-slate-50/80 p-4 dark:border-slate-800 dark:bg-slate-900/40 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
+            Organization
+          </label>
+          <FormControl size="small" fullWidth>
+            <Select
+              value={organizationId}
+              onChange={(e) => handleOrganizationChange(e.target.value)}
+              displayEmpty
+              renderValue={(val) => {
+                if (!val) {
+                  return <span className="text-slate-400 dark:text-slate-500 font-sans text-xs">Select organization</span>;
+                }
+                const found = organizations.find((o) => o._id === val);
+                return <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">{found?.name || val}</span>;
+              }}
+              sx={{
+                width: '100%',
+                backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                color: isDark ? '#F8FAFC' : '#0F172A',
+                borderRadius: '8px',
+                fontSize: '12px',
+                boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: isDark ? '#334155' : '#CBD5E1',
+                },
+                '&:hover .MuiOutlinedInput-notchedOutline': {
+                  borderColor: isDark ? '#475569' : '#94A3B8',
+                },
+                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                  borderColor: isDark ? '#34D399' : '#059669',
+                  borderWidth: '1.5px',
+                },
+                '& .MuiSelect-select': {
+                  py: '7.5px',
+                  px: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                },
+                '& .MuiSvgIcon-root': {
+                  color: isDark ? '#94A3B8' : '#64748B',
+                },
+              }}
+              MenuProps={{
+                slotProps: {
+                  paper: {
+                    sx: {
+                      backgroundColor: isDark ? '#1E293B' : '#FFFFFF',
+                      color: isDark ? '#F8FAFC' : '#0F172A',
+                      border: `1px solid ${isDark ? '#334155' : '#E2E8F0'}`,
+                      borderRadius: '8px',
+                      maxHeight: 300,
+                    },
+                  },
+                },
+              }}
+            >
+              <MenuItem value="" disabled sx={{ fontSize: '12px' }}>
+                Select organization
+              </MenuItem>
+              {organizations.map((org) => (
+                <MenuItem
+                  key={org._id}
+                  value={org._id}
+                  sx={{
+                    fontSize: '12px',
+                    fontWeight: organizationId === org._id ? 600 : 400,
+                    color: organizationId === org._id ? (isDark ? '#34D399' : '#059669') : undefined,
+                    '&.Mui-selected': {
+                      backgroundColor: isDark ? 'rgba(52, 211, 153, 0.12)' : 'rgba(5, 150, 105, 0.08)',
+                    },
+                  }}
+                >
+                  {org.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
+            Facility / unit
+          </label>
+          <FormControl size="small" fullWidth disabled={!organizationId || facilitiesInOrg.length === 0}>
+            <Select
+              value={selectedFacilityId}
+              onChange={(e) => handleFacilityChange(e.target.value)}
+              displayEmpty
+              renderValue={(val) => {
+                if (!val) {
+                  return <span className="text-slate-400 dark:text-slate-500 font-sans text-xs">Select facility / unit</span>;
+                }
+                const found = facilitiesInOrg.find((f) => f.facilityId === val);
+                return (
+                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
+                    {found ? `${found.name} (${found.facilityId})` : val}
+                  </span>
+                );
+              }}
+              sx={{
+                width: '100%',
+                backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                color: isDark ? '#F8FAFC' : '#0F172A',
+                borderRadius: '8px',
+                fontSize: '12px',
+                boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: isDark ? '#334155' : '#CBD5E1',
+                },
+                '&:hover .MuiOutlinedInput-notchedOutline': {
+                  borderColor: isDark ? '#475569' : '#94A3B8',
+                },
+                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                  borderColor: isDark ? '#34D399' : '#059669',
+                  borderWidth: '1.5px',
+                },
+                '& .MuiSelect-select': {
+                  py: '7.5px',
+                  px: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                },
+                '& .MuiSvgIcon-root': {
+                  color: isDark ? '#94A3B8' : '#64748B',
+                },
+              }}
+              MenuProps={{
+                slotProps: {
+                  paper: {
+                    sx: {
+                      backgroundColor: isDark ? '#1E293B' : '#FFFFFF',
+                      color: isDark ? '#F8FAFC' : '#0F172A',
+                      border: `1px solid ${isDark ? '#334155' : '#E2E8F0'}`,
+                      borderRadius: '8px',
+                      maxHeight: 300,
+                    },
+                  },
+                },
+              }}
+            >
+              <MenuItem value="" disabled sx={{ fontSize: '12px' }}>
+                Select facility / unit
+              </MenuItem>
+              {facilitiesInOrg.map((f) => (
+                <MenuItem
+                  key={f.facilityId}
+                  value={f.facilityId}
+                  sx={{
+                    fontSize: '12px',
+                    fontWeight: selectedFacilityId === f.facilityId ? 600 : 400,
+                    color: selectedFacilityId === f.facilityId ? (isDark ? '#34D399' : '#059669') : undefined,
+                    '&.Mui-selected': {
+                      backgroundColor: isDark ? 'rgba(52, 211, 153, 0.12)' : 'rgba(5, 150, 105, 0.08)',
+                    },
+                  }}
+                >
+                  {f.name} ({f.facilityId})
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </div>
       </div>
 
       {selectedFacilityId && (

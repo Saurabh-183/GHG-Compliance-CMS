@@ -10,6 +10,7 @@ import {
   VaultPlacementError,
 } from '@/lib/driveVaultServer';
 import { upsertClientSubmissionLink } from '@/lib/clientSubmissionLinkUpsert';
+import { GOOGLE_DRIVE_FOLDER_URL, GOOGLE_DRIVE_FOLDER_ID, resolveComplianceVaultFolderUrl, rewriteLegacyVaultUrlsInText } from '@/lib/gdrive';
 
 const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
 
@@ -95,11 +96,12 @@ export async function POST(
     }
 
     const submitterName = session.name || 'Client User';
+    const destinationFolderUrl = resolveComplianceVaultFolderUrl(GOOGLE_DRIVE_FOLDER_URL);
     const storedLink = {
-      url: placement.vaultUrl,
-      vaultUrl: placement.vaultUrl,
-      vaultFolderUrl: placement.vaultFolderUrl,
-      vaultTargetFolderId: placement.vaultTargetFolderId,
+      url: destinationFolderUrl,
+      vaultUrl: destinationFolderUrl,
+      vaultFolderUrl: destinationFolderUrl,
+      vaultTargetFolderId: GOOGLE_DRIVE_FOLDER_ID,
       vaultFileId: placement.vaultFileId,
       vaultFolderPath: vaultCtx.vaultFolderPath,
       vaultCategory: vaultCtx.vaultCategory,
@@ -107,7 +109,7 @@ export async function POST(
       description,
       submittedAt: new Date(),
       submittedBy: submitterName,
-      sourceUrl: placement.vaultUrl,
+      sourceUrl: destinationFolderUrl,
       mappingStatus: 'PENDING' as const,
       ingestionMode:
         placement.vaultTargetFolderId === 'local-dev-vault'

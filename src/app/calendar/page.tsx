@@ -20,6 +20,7 @@ import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import { notify } from '@/lib/notify';
 import { MOCK_CLIENT_GROUPS } from '@/lib/mockFallback';
 import { CompanySelectMui } from '@/components/dashboard/CompanySelectMui';
+import { MuiDatePicker } from '@/components/common/MuiDatePicker';
 import {
   generateDeadlinesForFacilities,
   generateAllClientDeadlines,
@@ -391,15 +392,11 @@ export default function ComplianceCalendarPage() {
 
             <form onSubmit={handleExtendDeadline} className="space-y-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                  New Statutory Due Date:
-                </label>
-                <input
-                  type="date"
-                  required
+                <MuiDatePicker
+                  label="New Statutory Due Date:"
                   value={newDueDate}
-                  onChange={(e) => setNewDueDate(e.target.value)}
-                  className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                  onChange={setNewDueDate}
+                  placeholder="dd-mm-yyyy"
                 />
               </div>
 
