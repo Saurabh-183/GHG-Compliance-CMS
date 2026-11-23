@@ -18,7 +18,6 @@ import {
 } from 'lucide-react';
 import { IDataRequirement, IFacility, IClarification } from '@/types';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
-import { rewriteLegacyVaultUrlsInText } from '@/lib/gdrive';
 import { computePortalDataRequestPercentages } from '@/lib/requestStats';
 import {
   type ClientSubmittedDriveFileCard,
@@ -376,7 +375,7 @@ export default function ClientPortalDashboard() {
                 Submitted evidence across your units ({submissionFiles.length})
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Drive links your team attached on data requests for {selectedPeriod} (all authorized facilities).
+                Documents submitted through this portal for {selectedPeriod}. Click a card to open the file.
               </p>
             </div>
             <Link
@@ -389,10 +388,11 @@ export default function ClientPortalDashboard() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">
-            {submissionFiles.slice(0, 9).map((f) => (
-              <div
+            {submissionFiles.map((f) => (
+              <a
                 key={f.id}
-                className="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/70 hover:border-emerald-500/50 transition-all flex flex-col justify-between gap-3 text-xs"
+                href={f.url}
+                className="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/70 hover:border-emerald-500/50 transition-all flex flex-col justify-between gap-3 text-xs cursor-pointer"
               >
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between gap-2">
@@ -418,17 +418,12 @@ export default function ClientPortalDashboard() {
                   <span className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
                     {f.submittedBy || 'Client upload'}
                   </span>
-                  <a
-                    href={rewriteLegacyVaultUrlsInText(f.url)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-emerald-700 dark:text-emerald-400 hover:underline font-semibold inline-flex items-center gap-1 text-[11px] shrink-0"
-                  >
+                  <span className="text-emerald-700 dark:text-emerald-400 font-semibold inline-flex items-center gap-1 text-[11px] shrink-0">
                     <span>Open file</span>
                     <ExternalLink className="w-3 h-3" />
-                  </a>
+                  </span>
                 </div>
-              </div>
+              </a>
             ))}
           </div>
         </div>

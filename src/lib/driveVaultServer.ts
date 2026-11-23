@@ -368,3 +368,110 @@ async function createShortcut(
 
   return createRes.data.id;
 }
+
+export async function getOrEnsureFacilityVaultFolder(facility: {
+  facilityId: string;
+  name: string;
+  clientGroupId?: any;
+  clientGroupName?: string;
+  driveConnection?: { folderUrl?: string; folderName?: string; isConnected?: boolean };
+}): Promise<{ folderId: string; folderUrl: string }> {
+  const rootFolderId = process.env.GDRIVE_FOLDER_ID || GOOGLE_DRIVE_FOLDER_ID;
+  const currentUrl = facility.driveConnection?.folderUrl?.trim();
+
+  // If already configured with a specific folder (not the root or legacy folder)
+  if (
+    currentUrl &&
+    !currentUrl.includes(rootFolderId) &&
+    !currentUrl.includes(GOOGLE_DRIVE_FOLDER_ID) &&
+    !currentUrl.includes('1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp') &&
+    !currentUrl.includes('1oIObLXY') &&
+    !currentUrl.includes('1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn')
+  ) {
+    const match = currentUrl.match(/\/folders\/([a-zA-Z0-9_-]+)/);
+    return {
+      folderId: match?.[1] || '',
+      folderUrl: currentUrl,
+    };
+  }
+
+  // Determine group identifier
+  let groupName = facility.clientGroupName?.trim();
+  if (!groupName && facility.clientGroupId) {
+    try {
+      const { ClientGroupModel } = await import('@/models/ClientGroup');
+      const group = await ClientGroupModel.findById(facility.clientGroupId).lean();
+      groupName = group?.code || group?.name;
+    } catch {
+      // ignore
+    }
+  }
+  if (!groupName) {
+    groupName = facility.name.split(' ')[0] || 'CLIENT';
+  }
+
+  const cleanGroup = groupName.replace(/\s+/g, '_').toUpperCase();
+  const cleanFacility = facility.facilityId.toUpperCase();
+  const facilityVaultPath = `Client_Submissions/${cleanGroup}/${cleanFacility}`;
+
+  // Attempt to resolve or create folder via Google Drive API
+  const drive = await createDriveWriteClient();
+  if (drive) {
+    try {
+      const sharedDriveId = process.env.GDRIVE_SHARED_DRIVE_ID;
+      const folderId = await ensureFolderPath(drive, rootFolderId, facilityVaultPath, sharedDriveId);
+      const folderUrl = `https://drive.google.com/drive/folders/${folderId}`;
+
+      try {
+        const { FacilityModel } = await import('@/models/Facility');
+        await FacilityModel.updateOne(
+          { facilityId: facility.facilityId },
+          {
+            $set: {
+              'driveConnection.isConnected': true,
+              'driveConnection.folderUrl': folderUrl,
+              'driveConnection.folderName': `${facility.name} Compliance Vault`,
+            },
+          }
+        );
+      } catch (err) {
+        console.warn('Failed to cache facility folder URL in DB:', err);
+      }
+
+      return { folderId, folderUrl };
+    } catch (err) {
+      console.warn('Failed to ensure facility folder via Drive API:', err);
+    }
+  }
+
+  // Fallback: Check if there's any submitted document with vaultFolderUrl / vaultFolderPath
+  try {
+    const { DataRequirementModel } = await import('@/models/DataRequirement');
+    const docWithLink = await DataRequirementModel.findOne({
+      facilityId: facility.facilityId,
+      'submittedDriveLinks.0': { $exists: true },
+    }).lean();
+
+    if (docWithLink?.submittedDriveLinks) {
+      for (const link of docWithLink.submittedDriveLinks) {
+        if (
+          link.vaultFolderUrl &&
+          !link.vaultFolderUrl.includes(rootFolderId) &&
+          !link.vaultFolderUrl.includes(GOOGLE_DRIVE_FOLDER_ID)
+        ) {
+          return {
+            folderId: link.vaultTargetFolderId || '',
+            folderUrl: link.vaultFolderUrl,
+          };
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('Fallback requirement check failed:', err);
+  }
+
+  return {
+    folderId: rootFolderId,
+    folderUrl: GOOGLE_DRIVE_FOLDER_URL,
+  };
+}

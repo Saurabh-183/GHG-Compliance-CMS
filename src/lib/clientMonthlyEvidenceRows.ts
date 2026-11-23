@@ -27,7 +27,20 @@ export function formatBillingMonthLabel(monthKey: string): string {
   return m;
 }
 
+/** Evidence created by a client submission in this app, not a historical Drive index or folder sync. */
+export function isSoftwareSubmittedEvidence(link: ISubmittedDriveLink): boolean {
+  if (/google drive master repository/i.test(link.description || '')) return false;
+  if (link.ingestionMode === 'DRIVE_API_COPIED' || link.ingestionMode === 'VAULT_INDEXED' || link.ingestionMode === 'LOCAL_VAULT_DEV') {
+    return true;
+  }
+  return Boolean(link.vaultFileId || link.fileName);
+}
+
 function linkOpenUrl(link: ISubmittedDriveLink): string | undefined {
+  const fileId = link.vaultFileId?.trim() || link.driveFileId?.trim();
+  if (fileId && fileId !== 'local-dev-vault') {
+    return `https://drive.google.com/file/d/${fileId}/view`;
+  }
   const raw = link.vaultUrl || link.url || link.sourceUrl;
   return raw ? rewriteLegacyVaultUrlsInText(raw) : undefined;
 }
@@ -77,6 +90,7 @@ export function buildClientMonthlyEvidenceRows(requirements: IDataRequirement[])
 
   for (const req of requirements) {
     for (const link of req.submittedDriveLinks || []) {
+      if (!isSoftwareSubmittedEvidence(link)) continue;
       const url = linkOpenUrl(link);
       if (!url) continue;
 
@@ -183,6 +197,8 @@ export type ClientSubmittedDriveFileCard = {
   requestTitle: string;
   requestId?: string;
   workflowStatus?: string;
+  vaultFolderUrl?: string;
+  vaultFolderPath?: string;
 };
 
 function requirementCategoryLabel(req: IDataRequirement): string {
@@ -199,6 +215,7 @@ export function listClientSubmittedDriveFiles(requirements: IDataRequirement[]):
   for (const req of requirements) {
     const baseCategory = requirementCategoryLabel(req);
     (req.submittedDriveLinks || []).forEach((link, index) => {
+      if (!isSoftwareSubmittedEvidence(link)) return;
       const url = linkOpenUrl(link);
       if (!url) return;
 
@@ -213,6 +230,8 @@ export function listClientSubmittedDriveFiles(requirements: IDataRequirement[]):
         requestTitle: req.title,
         requestId: req.requestId,
         workflowStatus: req.workflowStatus,
+        vaultFolderUrl: link.vaultFolderUrl,
+        vaultFolderPath: link.vaultFolderPath,
       });
     });
   }

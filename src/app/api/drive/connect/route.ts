@@ -29,31 +29,21 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const driveConnection = facility.driveConnection || {
-      isConnected: false,
-      folderUrl: GOOGLE_DRIVE_FOLDER_URL,
-      folderName: `${facility.name} Compliance Vault`,
-      spreadsheetUrl: '',
-      lastSyncedAt: null,
-      syncedMonthsCount: 0,
+    const { getOrEnsureFacilityVaultFolder } = await import('@/lib/driveVaultServer');
+    const resolvedVault = await getOrEnsureFacilityVaultFolder(facility);
+
+    const driveConnection = {
+      isConnected: facility.driveConnection?.isConnected ?? true,
+      folderUrl: resolvedVault.folderUrl,
+      folderName: facility.driveConnection?.folderName || `${facility.name} Compliance Vault`,
+      spreadsheetUrl: facility.driveConnection?.spreadsheetUrl || '',
+      lastSyncedAt: facility.driveConnection?.lastSyncedAt || null,
+      syncedMonthsCount: facility.driveConnection?.syncedMonthsCount || 0,
     };
-
-    const normalizedFolderUrl = resolveComplianceVaultFolderUrl(driveConnection.folderUrl);
-    const data =
-      normalizedFolderUrl === driveConnection.folderUrl
-        ? driveConnection
-        : { ...driveConnection, folderUrl: normalizedFolderUrl };
-
-    if (normalizedFolderUrl !== driveConnection.folderUrl && facility.driveConnection?.folderUrl) {
-      void FacilityModel.updateOne(
-        { facilityId },
-        { $set: { 'driveConnection.folderUrl': normalizedFolderUrl } }
-      );
-    }
 
     return NextResponse.json({
       success: true,
-      data,
+      data: driveConnection,
     });
   } catch (error) {
     console.error('Google Drive connection lookup failed:', error);

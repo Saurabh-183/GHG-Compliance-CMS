@@ -5,6 +5,7 @@ import { FacilityModel } from '@/models/Facility';
 import { ClientGroupModel } from '@/models/ClientGroup';
 import { getSessionFromRequest, isAuthorizedForFacility } from '@/lib/auth';
 import { parseGoogleDriveUrl } from '@/lib/driveVaultShared';
+import { GOOGLE_DRIVE_FOLDER_ID, GOOGLE_DRIVE_FOLDER_URL, resolveComplianceVaultFolderUrl } from '@/lib/gdrive';
 import {
   ingestClientDriveLink,
   isDriveVaultSyncConfigured,

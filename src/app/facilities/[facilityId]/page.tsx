@@ -31,7 +31,7 @@ import {
 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
-import { GOOGLE_DRIVE_FOLDER_URL, resolveComplianceVaultFolderUrl, rewriteLegacyVaultUrlsInText } from '@/lib/gdrive';
+import { GOOGLE_DRIVE_FOLDER_ID, GOOGLE_DRIVE_FOLDER_URL, resolveComplianceVaultFolderUrl, rewriteLegacyVaultUrlsInText } from '@/lib/gdrive';
 import { MOCK_CLIENT_GROUPS, MOCK_FACILITIES } from '@/lib/mockFallback';
 
 function resolveClientGroup(facility: {
@@ -522,7 +522,11 @@ export default function FacilityDashboardPage() {
               <ChevronRight className="w-3.5 h-3.5" />
             </Link>
             <a
-              href={resolveComplianceVaultFolderUrl(stats.driveFolderUrl)}
+              href={resolveComplianceVaultFolderUrl(
+                stats.driveFolderUrl && !stats.driveFolderUrl.includes(GOOGLE_DRIVE_FOLDER_ID)
+                  ? stats.driveFolderUrl
+                  : (submissionFiles.find((f) => f.vaultFolderUrl && !f.vaultFolderUrl.includes(GOOGLE_DRIVE_FOLDER_ID))?.vaultFolderUrl || stats.driveFolderUrl)
+              )}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-2xs"
