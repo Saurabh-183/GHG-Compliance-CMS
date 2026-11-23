@@ -25,7 +25,7 @@ import {
   CheckCheck,
 } from 'lucide-react';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
-import { GOOGLE_DRIVE_FOLDER_URL, resolveComplianceVaultFolderUrl, rewriteLegacyVaultUrlsInText } from '@/lib/gdrive';
+import { GOOGLE_DRIVE_FOLDER_ID, GOOGLE_DRIVE_FOLDER_URL, resolveComplianceVaultFolderUrl, rewriteLegacyVaultUrlsInText } from '@/lib/gdrive';
 
 export default function ClientFacilityOverviewPage() {
   const { theme } = useAuth();
@@ -306,13 +306,28 @@ export default function ClientFacilityOverviewPage() {
                 Drive or vault links you added when responding to consultant data requests for this facility.
               </p>
             </div>
-            <Link
-              href={dataRequestsHref}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/60 hover:bg-emerald-100 dark:hover:bg-emerald-900 transition-colors self-start sm:self-center cursor-pointer"
-            >
-              <span>Manage on Data Requests</span>
-              <ChevronRight className="w-3 h-3" />
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link
+                href={dataRequestsHref}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/60 hover:bg-emerald-100 dark:hover:bg-emerald-900 transition-colors self-start sm:self-center cursor-pointer"
+              >
+                <span>Manage on Data Requests</span>
+                <ChevronRight className="w-3 h-3" />
+              </Link>
+              <a
+                href={resolveComplianceVaultFolderUrl(
+                  driveConnection.folderUrl && !driveConnection.folderUrl.includes(GOOGLE_DRIVE_FOLDER_ID)
+                    ? driveConnection.folderUrl
+                    : (submissionFiles.find((f) => f.vaultFolderUrl && !f.vaultFolderUrl.includes(GOOGLE_DRIVE_FOLDER_ID))?.vaultFolderUrl || driveConnection.folderUrl)
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-2xs"
+              >
+                <span>Open Vault</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">

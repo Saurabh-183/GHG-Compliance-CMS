@@ -17,6 +17,7 @@ import {
   Menu,
   X,
   Layers,
+  HardDrive,
 } from 'lucide-react';
 import { NotificationBell } from '@/components/common/NotificationBell';
 import { PortalFacilityNavDropdown } from '@/components/portal/PortalFacilityNavDropdown';
@@ -59,12 +60,14 @@ export const Navbar: React.FC = () => {
         { label: 'Client Overview', href: '/portal', icon: Layers },
         { label: 'Data Requests', href: `/portal/requests${portalScopeQs}`, icon: FileSpreadsheet },
         { label: 'Approved History', href: '/portal/history', icon: CheckCircle2 },
+        { label: 'Drive Documents', href: `/drive-explorer${portalScopeQs}`, icon: HardDrive },
       ];
     }
 
     const items = [
       { label: 'Workspace', href: '/dashboard', icon: Layers },
       { label: 'Clients & Units', href: '/clients', icon: Building2 },
+      { label: 'Drive Explorer', href: '/drive-explorer', icon: HardDrive },
     ];
 
     if (currentRole === 'ADMIN') {
