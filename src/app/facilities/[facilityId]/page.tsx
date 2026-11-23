@@ -275,6 +275,12 @@ export default function FacilityDashboardPage() {
 
   const { facility } = matrixData;
   const resolvedGroup = resolveClientGroup(facility);
+  const driveFilesByYear = driveFiles.reduce<Record<string, any[]>>((groups, file) => {
+    const year = file.financialYear || 'Year not mapped';
+    (groups[year] ||= []).push(file);
+    return groups;
+  }, {});
+
   const {
     dataGivenPercentage,
     dataMatchedPercentage,
@@ -582,6 +588,33 @@ export default function FacilityDashboardPage() {
             <p className="text-xs">No client evidence submitted yet for {selectedPeriod}.</p>
           </div>
         )}
+      </div>
+
+      {/* Existing Google Drive historical documents, grouped by mapped financial year */}
+      <div className="rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-6 shadow-md space-y-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <Folder className="w-5 h-5 text-amber-500" /> Existing Google Drive Documents ({driveFiles.length})
+            </h3>
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Historical files discovered from the connected Drive, grouped using their mapped financial year.</p>
+          </div>
+          <Link href={`/drive-explorer?facilityId=${encodeURIComponent(facilityId)}`} className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:underline">Open full Drive explorer</Link>
+        </div>
+        {driveFiles.length ? Object.entries(driveFilesByYear).sort(([a], [b]) => b.localeCompare(a)).map(([year, files]) => {
+          const yearFiles = files as any[];
+          return (<div key={year} className="space-y-2">
+            <h4 className="text-xs font-bold uppercase tracking-wide text-slate-600 dark:text-slate-300">{year} ({yearFiles.length})</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
+              {yearFiles.map((file: any) => (
+                <a key={file.id} href={file.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 dark:border-slate-800 p-3 hover:border-emerald-500/60">
+                  <span className="min-w-0"><span className="block truncate text-xs font-semibold text-slate-800 dark:text-slate-100">{file.name}</span><span className="block truncate text-[10px] text-slate-500">{String(file.category || 'OTHER EVIDENCE').replace(/_/g, ' ')}{file.month ? ` · ${file.month}` : ''}</span></span>
+                  <ExternalLink className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+                </a>
+              ))}
+            </div>
+          </div>);
+        }) : <p className="rounded-lg border border-dashed border-slate-200 dark:border-slate-800 p-6 text-center text-xs text-slate-500">No historical Drive documents are mapped to this facility yet. An administrator can discover and map the company's folders in Drive Explorer.</p>}
       </div>
 
       {/* Google Drive Connection & Direct Sync Modal */}

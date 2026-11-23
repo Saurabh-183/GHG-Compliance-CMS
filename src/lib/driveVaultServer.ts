@@ -69,6 +69,7 @@ export async function uploadBytesToComplianceVault(args: {
   fileName: string;
   mimeType: string;
   buffer: Buffer;
+  targetFolderId?: string;
 }): Promise<VaultPlacementResult> {
   const drive = await createDriveWriteClient();
   if (!drive) {
@@ -85,7 +86,7 @@ export async function uploadBytesToComplianceVault(args: {
 
   const rootFolderId = process.env.GDRIVE_FOLDER_ID || GOOGLE_DRIVE_FOLDER_ID;
   const sharedDriveId = process.env.GDRIVE_SHARED_DRIVE_ID;
-  const targetFolderId = await ensureFolderPath(drive, rootFolderId, args.vaultFolderPath, sharedDriveId);
+  const targetFolderId = args.targetFolderId || await ensureFolderPath(drive, rootFolderId, args.vaultFolderPath, sharedDriveId);
   const targetFolderUrl = `https://drive.google.com/drive/folders/${targetFolderId}`;
 
   const { Readable } = await import('stream');

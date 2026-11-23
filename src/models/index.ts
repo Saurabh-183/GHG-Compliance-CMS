@@ -9,3 +9,4 @@ export * from './Clarification';
 export * from './DataRequirement';
 export * from './FacilityDataChecklist';
 export * from './Notification';
+export * from './DriveItem';

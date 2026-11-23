@@ -67,8 +67,13 @@ async function createOAuthDriveClient(): Promise<DriveV3 | null> {
   }
 }
 
-export async function createDriveWriteClient(): Promise<DriveV3 | null> {
+export async function createDriveReadClient(): Promise<DriveV3 | null> {
   const sa = await createServiceAccountDriveClient();
   if (sa) return sa;
   return createOAuthDriveClient();
+}
+
+export async function createDriveWriteClient(): Promise<DriveV3 | null> {
+  if (apiCopyDisabled()) return null;
+  return createDriveReadClient();
 }

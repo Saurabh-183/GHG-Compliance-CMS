@@ -70,12 +70,14 @@ export interface IDriveFileMetadata {
   id: string;
   name: string;
   mimeType: string;
-  category: 'GRID_ELECTRICITY' | 'RENEWABLE_PURCHASE' | 'FUEL_CONSUMPTION' | 'PRODUCTION' | 'STATUTORY_FILING';
+  category: 'GRID_ELECTRICITY' | 'RENEWABLE_PURCHASE' | 'FUEL_CONSUMPTION' | 'PRODUCTION' | 'STATUTORY_FILING' | 'OTHER_EVIDENCE';
   month?: string;
   url: string;
   downloadUrl: string;
   sizeBytes?: number;
   lastModified?: string;
+  financialYear?: string;
+  drivePath?: string;
 }
 
 // Pre-indexed Drive repository assets (compliance vault folder)

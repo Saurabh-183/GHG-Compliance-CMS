@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { FacilityModel } from '@/models/Facility';
-import { getSessionFromRequest } from '@/lib/auth';
+import { getSessionFromRequest, authorizeRole, isAuthorizedForFacility } from '@/lib/auth';
 import { GOOGLE_DRIVE_FOLDER_URL, resolveComplianceVaultFolderUrl } from '@/lib/gdrive';
 
 export async function GET(request: NextRequest) {

@@ -10,8 +10,10 @@ import {
   VaultPlacementError,
 } from '@/lib/driveVaultServer';
 import { upsertClientSubmissionLink } from '@/lib/clientSubmissionLinkUpsert';
-import { GOOGLE_DRIVE_FOLDER_URL, GOOGLE_DRIVE_FOLDER_ID, resolveComplianceVaultFolderUrl, rewriteLegacyVaultUrlsInText } from '@/lib/gdrive';
+import { GOOGLE_DRIVE_FOLDER_URL, resolveComplianceVaultFolderUrl } from '@/lib/gdrive';
 import { assertClientCanSubmitRequirement } from '@/lib/dataRequestDueDate';
+import { DriveItemModel } from '@/models/DriveItem';
+import { extractFinancialYear } from '@/lib/driveInventory';
 
 const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
 
@@ -90,10 +92,32 @@ export async function POST(
     );
     const fileName = `${vaultCtx.fileName}_${safeBaseName}`;
 
+    const financialYear = extractFinancialYear(requirement.period);
+    let mappedTargetFolder: { driveId: string; pathNames: string[] } | null = null;
+    if (financialYear) {
+      const categoryFolders = await DriveItemModel.find({
+        facilityId: requirement.facilityId, financialYear, category: vaultCtx.vaultCategory, mappingType: 'CATEGORY', isFolder: true, trashed: false,
+      }).limit(2).lean();
+      if (categoryFolders.length > 1) {
+        return NextResponse.json({ error: 'More than one Drive folder is mapped to this facility, financial year and document category. Ask an administrator to resolve the folder mapping before uploading.' }, { status: 409 });
+      }
+      if (categoryFolders.length === 1) mappedTargetFolder = categoryFolders[0];
+      if (!mappedTargetFolder) {
+        const yearFolders = await DriveItemModel.find({
+          facilityId: requirement.facilityId, financialYear, mappingType: 'FINANCIAL_YEAR', isFolder: true, trashed: false,
+        }).limit(2).lean();
+        if (yearFolders.length > 1) {
+          return NextResponse.json({ error: 'More than one Drive folder is mapped to this facility and financial year. Ask an administrator to resolve the folder mapping before uploading.' }, { status: 409 });
+        }
+        if (yearFolders.length === 1) mappedTargetFolder = yearFolders[0];
+      }
+    }
+
     let placement;
     try {
       placement = await uploadBytesToComplianceVault({
-        vaultFolderPath: vaultCtx.vaultFolderPath,
+        vaultFolderPath: mappedTargetFolder ? mappedTargetFolder.pathNames.slice(1).join('/') : vaultCtx.vaultFolderPath,
+        ...(mappedTargetFolder ? { targetFolderId: mappedTargetFolder.driveId } : {}),
         fileName,
         mimeType: file.type || 'application/octet-stream',
         buffer,
@@ -106,20 +130,20 @@ export async function POST(
     }
 
     const submitterName = session.name || 'Client User';
-    const destinationFolderUrl = resolveComplianceVaultFolderUrl(GOOGLE_DRIVE_FOLDER_URL);
+    const destinationFolderUrl = resolveComplianceVaultFolderUrl(placement.vaultFolderUrl || GOOGLE_DRIVE_FOLDER_URL);
     const storedLink = {
-      url: destinationFolderUrl,
-      vaultUrl: destinationFolderUrl,
+      url: placement.vaultUrl,
+      vaultUrl: placement.vaultUrl,
       vaultFolderUrl: destinationFolderUrl,
-      vaultTargetFolderId: GOOGLE_DRIVE_FOLDER_ID,
+      vaultTargetFolderId: placement.vaultTargetFolderId,
       vaultFileId: placement.vaultFileId,
-      vaultFolderPath: vaultCtx.vaultFolderPath,
+      vaultFolderPath: mappedTargetFolder ? mappedTargetFolder.pathNames.slice(1).join('/') : vaultCtx.vaultFolderPath,
       vaultCategory: vaultCtx.vaultCategory,
       fileName,
       description,
       submittedAt: new Date(),
       submittedBy: submitterName,
-      sourceUrl: destinationFolderUrl,
+      sourceUrl: placement.vaultUrl,
       mappingStatus: 'PENDING' as const,
       ingestionMode:
         placement.vaultTargetFolderId === 'local-dev-vault'
