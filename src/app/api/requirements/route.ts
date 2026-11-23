@@ -119,9 +119,15 @@ export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
     const session = getSessionFromRequest(request);
-    if (!authorizeRole(session, ['ADMIN', 'CONSULTANT'])) {
+    if (session?.role === 'ADMIN') {
       return NextResponse.json(
-        { error: 'Forbidden: Only Consultants or Admins can create requirements' },
+        { error: 'Forbidden: Admins have view-only access and cannot request data. Only consultants can create data requests.' },
+        { status: 403 }
+      );
+    }
+    if (!authorizeRole(session, ['CONSULTANT'])) {
+      return NextResponse.json(
+        { error: 'Forbidden: Only Consultants can create requirements' },
         { status: 403 }
       );
     }
@@ -280,7 +286,7 @@ export async function POST(request: NextRequest) {
         try {
           await Notification.create({
             recipientRole: 'CLIENT',
-            senderRole: session!.role === 'ADMIN' ? 'ADMIN' : 'CONSULTANT',
+            senderRole: session!.role,
             senderName: session!.name,
             type: 'DATA_CHECKLIST_SHARED',
             title: `New data request — ${targetFacility.name}`,

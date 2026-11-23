@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Select, MenuItem, FormControl } from '@mui/material';
 import { useAuth } from '@/context/AuthContext';
 import { FacilityDataRequestPanel } from '@/components/requests/FacilityDataRequestPanel';
@@ -9,7 +10,16 @@ import type { IFacility, IClientGroup } from '@/types';
 import { FileSpreadsheet } from 'lucide-react';
 
 export default function DataRequestsPage() {
-  const { theme } = useAuth();
+  const router = useRouter();
+  const { theme, currentRole, currentUser } = useAuth();
+  const isAdmin = currentRole === 'ADMIN' || currentUser?.role === 'ADMIN';
+
+  useEffect(() => {
+    if (isAdmin) {
+      router.replace('/dashboard');
+    }
+  }, [isAdmin, router]);
+
   const isDark = theme === 'dark';
   const [selectedFacilityId, setSelectedFacilityId] = useState('');
   const [facilityName, setFacilityName] = useState('');
@@ -72,9 +82,13 @@ export default function DataRequestsPage() {
     if (found?.clientGroupId) setOrganizationId(found.clientGroupId);
   };
 
+  if (isAdmin) {
+    return null;
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      <header className="pb-6 border-b border-slate-200 dark:border-slate-800">
+      <header className="p-4 rounded-lg pb-6 border-b border-slate-200 dark:border-slate-800">
         <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
           <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700">
             <FileSpreadsheet className="w-5 h-5" />

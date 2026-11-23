@@ -35,7 +35,7 @@ import {
   normalizeDocumentSpecsForDriveXlsx,
 } from '@/lib/submissionPolicy';
 
-const COMPLIANCE_OPTIONS: ComplianceType[] = ['RCO', 'PAT', 'CCTS', 'CEA'];
+const COMPLIANCE_OPTIONS: ComplianceType[] = ['RCO', 'PAT', 'CCTS'];
 
 interface FacilityDataRequestPanelProps {
   facilityId: string;
@@ -177,7 +177,9 @@ export function FacilityDataRequestPanel({
   const checklistByCategory = useMemo(() => {
     const map = new Map<string, IFacilityApplicableRequirement[]>();
     for (const row of checklistRows) {
+      if (row.master.category === 'ELECTRICITY_POWER') continue;
       const label = row.master.categoryLabel;
+      if (/electricity|cea/i.test(label) || /electricity|cea/i.test(row.master.name)) continue;
       if (!map.has(label)) map.set(label, []);
       map.get(label)!.push(row);
     }
@@ -189,7 +191,9 @@ export function FacilityDataRequestPanel({
       requirements.map((r) => r.dataCategory?.trim()).filter(Boolean) as string[]
     );
     return [...fromReqs].filter(
-      (c) => !checklistRows.some((row) => row.master.categoryLabel === c || row.master.name === c)
+      (c) =>
+        !/electricity|cea/i.test(c) &&
+        !checklistRows.some((row) => row.master.categoryLabel === c || row.master.name === c)
     );
   }, [requirements, checklistRows]);
 
@@ -330,7 +334,7 @@ export function FacilityDataRequestPanel({
     setFields((master.structuredFields || []).map((f) => ({ ...f })));
     setDocuments(normalizeDocumentSpecsForDriveXlsx(master.documentSpecs || []));
     setReportingFrequency((master.reportingFrequency as ReportingFrequency) || 'ANNUAL');
-    setLinkedCompliances(master.defaultCompliances);
+    setLinkedCompliances((master.defaultCompliances || []).filter((c) => c !== 'CEA'));
     setOpenSections({ 1: true, 2: Boolean(master.structuredFields?.length), 3: true, 4: true, 5: false });
     notify.success(`Loaded checklist fields for “${master.name}”.`);
   };
@@ -558,48 +562,174 @@ export function FacilityDataRequestPanel({
                 </Select>
               </FormControl>
             </div>
-            <label className="space-y-1 md:col-span-2">
+            <div className="space-y-1">
+              <span className="font-bold text-slate-600 dark:text-slate-400 uppercase text-[10px]">
+                Submission due date
+              </span>
+              <MuiDatePicker
+                value={dueDate}
+                onChange={setDueDate}
+                placeholder="dd-mm-yyyy"
+              />
+            </div>
+            <div className="space-y-1 md:col-span-2">
               <span className="font-bold text-slate-600 dark:text-slate-400 uppercase text-[10px]">
                 Data requirement (checklist)
               </span>
-              <select
-                value={selectedChecklistKey}
-                disabled={checklistLoading || !facilityId}
-                onChange={(e) => applyChecklistSelection(e.target.value)}
-                className="w-full rounded-lg border border-emerald-200 bg-emerald-50/40 px-3 py-2.5 dark:border-emerald-900 dark:bg-emerald-950/20"
-              >
-                <option value="">
-                  {checklistLoading ? 'Loading checklist…' : 'Select requirement for this facility'}
-                </option>
-                {checklistByCategory.map(([cat, rows]) => (
-                  <optgroup key={cat} label={cat}>
-                    {rows.map((row) => (
-                      <option
-                        key={row.master.itemKey}
-                        value={row.master.itemKey}
-                        disabled={row.needsVerification || (!row.requestable && row.applicability !== 'APPLICABLE')}
+              <FormControl size="small" fullWidth disabled={checklistLoading || !facilityId}>
+                <Select
+                  value={selectedChecklistKey}
+                  onChange={(e) => applyChecklistSelection(e.target.value)}
+                  displayEmpty
+                  renderValue={(selected) => {
+                    if (!selected) {
+                      return (
+                        <span className="text-slate-400 dark:text-slate-500 font-sans text-xs">
+                          {checklistLoading ? 'Loading checklist…' : 'Select requirement for this facility'}
+                        </span>
+                      );
+                    }
+                    if (selected === '__OTHER__') {
+                      return (
+                        <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                          Other — custom requirement (manual fields)
+                        </span>
+                      );
+                    }
+                    if (selected.startsWith('__EXISTING__::')) {
+                      const cat = selected.replace('__EXISTING__::', '');
+                      return (
+                        <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                          {cat} (reuse fields)
+                        </span>
+                      );
+                    }
+                    const matchedRow = checklistRows.find((r) => r.master.itemKey === selected);
+                    return (
+                      <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                        {matchedRow?.master.name || selected}
+                      </span>
+                    );
+                  }}
+                  sx={{
+                    ...muiSelectSx,
+                    backgroundColor: isDark ? 'rgba(6, 78, 59, 0.15)' : 'rgba(236, 253, 245, 0.6)',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDark ? 'rgba(52, 211, 153, 0.3)' : '#A7F3D0',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDark ? '#34D399' : '#059669',
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDark ? '#34D399' : '#059669',
+                      borderWidth: '1.5px',
+                    },
+                  }}
+                  MenuProps={{
+                    slotProps: {
+                      paper: {
+                        sx: {
+                          backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                          color: isDark ? '#F8FAFC' : '#0F172A',
+                          border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0'}`,
+                          borderRadius: '8px',
+                          maxHeight: 380,
+                          boxShadow: isDark
+                            ? '0 10px 25px -5px rgba(0, 0, 0, 0.6)'
+                            : '0 10px 25px -5px rgba(16, 185, 129, 0.12)',
+                          '& .MuiList-root': { py: '4px' },
+                        },
+                      },
+                    },
+                  }}
+                >
+                  <MenuItem value="" disabled sx={{ fontSize: '12px' }}>
+                    Select requirement for this facility
+                  </MenuItem>
+                  {checklistByCategory.flatMap(([cat, rows]) => [
+                    <ListSubheader
+                      key={`cat-${cat}`}
+                      sx={{
+                        backgroundColor: isDark ? '#0F172A' : '#F8FAFC',
+                        color: isDark ? '#34D399' : '#047857',
+                        fontWeight: 700,
+                        fontSize: '11px',
+                        lineHeight: '30px',
+                        letterSpacing: '0.025em',
+                      }}
+                    >
+                      {cat}
+                    </ListSubheader>,
+                    ...rows.map((row) => {
+                      const disabled =
+                        row.needsVerification || (!row.requestable && row.applicability !== 'APPLICABLE');
+                      return (
+                        <MenuItem
+                          key={row.master.itemKey}
+                          value={row.master.itemKey}
+                          disabled={disabled}
+                          sx={{
+                            fontSize: '12px',
+                            pl: 3,
+                            opacity: disabled ? 0.45 : 1,
+                            '&.Mui-selected': {
+                              backgroundColor: isDark ? 'rgba(52, 211, 153, 0.15)' : 'rgba(16, 185, 129, 0.1)',
+                              color: isDark ? '#34D399' : '#059669',
+                            },
+                          }}
+                        >
+                          {row.master.name}
+                          {row.needsVerification ? ' — needs verification' : ''}
+                          {row.applicability === 'NOT_REQUIRED' || row.applicability === 'NOT_APPLICABLE'
+                            ? ' — N/A'
+                            : ''}
+                        </MenuItem>
+                      );
+                    }),
+                  ])}
+                  {existingCustomCategories.length > 0 && [
+                    <ListSubheader
+                      key="cat-existing"
+                      sx={{
+                        backgroundColor: isDark ? '#0F172A' : '#F8FAFC',
+                        color: isDark ? '#34D399' : '#047857',
+                        fontWeight: 700,
+                        fontSize: '11px',
+                        lineHeight: '30px',
+                        letterSpacing: '0.025em',
+                      }}
+                    >
+                      Existing custom requests
+                    </ListSubheader>,
+                    ...existingCustomCategories.map((c) => (
+                      <MenuItem
+                        key={c}
+                        value={`__EXISTING__::${c}`}
+                        sx={{ fontSize: '12px', pl: 3 }}
                       >
-                        {row.master.name}
-                        {row.needsVerification ? ' — needs verification' : ''}
-                        {row.applicability === 'NOT_REQUIRED' || row.applicability === 'NOT_APPLICABLE'
-                          ? ' — N/A'
-                          : ''}
-                      </option>
-                    ))}
-                  </optgroup>
-                ))}
-                {existingCustomCategories.length > 0 && (
-                  <optgroup label="Existing custom requests">
-                    {existingCustomCategories.map((c) => (
-                      <option key={c} value={`__EXISTING__::${c}`}>
                         {c} (reuse fields)
-                      </option>
-                    ))}
-                  </optgroup>
-                )}
-                <option value="__OTHER__">Other — custom requirement (manual fields)</option>
-              </select>
-            </label>
+                      </MenuItem>
+                    )),
+                  ]}
+                  <ListSubheader
+                    key="cat-other"
+                    sx={{
+                      backgroundColor: isDark ? '#0F172A' : '#F8FAFC',
+                      color: isDark ? '#34D399' : '#047857',
+                      fontWeight: 700,
+                      fontSize: '11px',
+                      lineHeight: '30px',
+                      letterSpacing: '0.025em',
+                    }}
+                  >
+                    Custom
+                  </ListSubheader>
+                  <MenuItem value="__OTHER__" sx={{ fontSize: '12px', pl: 3 }}>
+                    Other — custom requirement (manual fields)
+                  </MenuItem>
+                </Select>
+              </FormControl>
+            </div>
             {selectedChecklistKey === '__OTHER__' && (
               <label className="space-y-1 md:col-span-2">
                 <span className="font-bold text-slate-600 dark:text-slate-400 uppercase text-[10px]">Other category name</span>
@@ -705,14 +835,24 @@ export function FacilityDataRequestPanel({
               </div>
               <p className="text-[10px] text-slate-500">Client uploads <strong>.xlsx</strong> to Drive and pastes the share link.</p>
             </div>
-            <label className="space-y-1">
+            <div className="space-y-1">
               <span className="font-bold uppercase text-[10px] text-slate-500">Reporting start (YYYY-MM)</span>
-              <input type="month" value={reportingPeriodStart} onChange={(e) => setReportingPeriodStart(e.target.value)} className="w-full rounded-lg border px-3 py-2 dark:bg-slate-950" />
-            </label>
-            <label className="space-y-1">
+              <MuiDatePicker
+                pickerType="month"
+                value={reportingPeriodStart}
+                onChange={setReportingPeriodStart}
+                placeholder="yyyy-mm"
+              />
+            </div>
+            <div className="space-y-1">
               <span className="font-bold uppercase text-[10px] text-slate-500">Reporting end (YYYY-MM)</span>
-              <input type="month" value={reportingPeriodEnd} onChange={(e) => setReportingPeriodEnd(e.target.value)} className="w-full rounded-lg border px-3 py-2 dark:bg-slate-950" />
-            </label>
+              <MuiDatePicker
+                pickerType="month"
+                value={reportingPeriodEnd}
+                onChange={setReportingPeriodEnd}
+                placeholder="yyyy-mm"
+              />
+            </div>
           </div>
 
           {reportingFrequency === 'MONTHLY' && monthOptions.length > 0 && (

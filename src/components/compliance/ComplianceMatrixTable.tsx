@@ -80,15 +80,18 @@ const isBeforeFoundingYear = (period: string) => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 dark:divide-slate-800/80 text-xs">
-            {compliances.map((comp) => {
-              const info = complianceLabels[comp];
-              return (
-                <tr key={comp}>
-                  {/* Framework Info */}
-                  <td className="py-4 px-4 align-top">
-                    <div className="font-semibold text-slate-900 dark:text-white text-sm">{info.title}</div>
-                    <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{info.subtitle}</div>
-                  </td>
+            {compliances
+              .filter((comp) => comp !== 'CEA')
+              .map((comp) => {
+                const info = complianceLabels[comp];
+                if (!info) return null;
+                return (
+                  <tr key={comp}>
+                    {/* Framework Info */}
+                    <td className="py-4 px-4 align-top">
+                      <div className="font-semibold text-slate-900 dark:text-white text-sm">{info.title}</div>
+                      <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{info.subtitle}</div>
+                    </td>
 
                   {/* Matrix Cells */}
                   {periods.map((period) => {

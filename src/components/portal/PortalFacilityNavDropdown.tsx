@@ -170,7 +170,7 @@ export function PortalFacilityNavDropdown({
         <span>Facilities</span>
         {selectedLabel && (
           <span
-            className={`hidden max-w-[8rem] truncate xl:inline text-[10px] font-normal ${
+            className={`hidden max-w-[8rem] truncate 2xl:inline text-[10px] font-normal ${
               isLight ? 'text-slate-500' : 'text-slate-400'
             }`}
             title={selectedLabel}

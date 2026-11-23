@@ -16,6 +16,7 @@ import {
   resolveComplianceVaultFolderUrl,
   rewriteLegacyVaultUrlsInText,
 } from '@/lib/gdrive';
+import { resolveRequirementDueDate } from '@/lib/dataRequestDueDate';
 
 export interface ClientUploadListItem {
   requirementId: string;
@@ -24,6 +25,7 @@ export interface ClientUploadListItem {
   facilityName?: string;
   clientGroupName?: string;
   period: string;
+  dueDate?: string;
   dataCategory?: string;
   sourceChecklistItemKey?: string;
   workflowStatus?: string;
@@ -173,6 +175,11 @@ export async function GET(request: NextRequest) {
           facilityName: meta?.name,
           clientGroupName,
           period: req.period,
+          dueDate: resolveRequirementDueDate(
+            req.dueDate,
+            req.period,
+            req.requestedAt || (req as unknown as { createdAt?: Date }).createdAt
+          ),
           dataCategory: category,
           sourceChecklistItemKey: req.sourceChecklistItemKey,
           workflowStatus: req.workflowStatus,

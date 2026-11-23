@@ -15,7 +15,9 @@ import {
   Download,
   TrendingUp,
   CheckCheck,
+  CalendarRange,
 } from 'lucide-react';
+import { FormControl, Select, MenuItem, SelectChangeEvent } from '@mui/material';
 import { IDataRequirement, IFacility, IClarification } from '@/types';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import { rewriteLegacyVaultUrlsInText } from '@/lib/gdrive';
@@ -38,7 +40,8 @@ import {
 } from '@/lib/clientGroupDisplay';
 
 export default function ClientPortalDashboard() {
-  const { currentUser, currentRole } = useAuth();
+  const { currentUser, currentRole, theme } = useAuth();
+  const isDark = theme === 'dark';
   const [data, setData] = useState<{
     facilities: IFacility[];
     openClarifications: IClarification[];
@@ -200,13 +203,13 @@ export default function ClientPortalDashboard() {
           </div>
 
           <div className="flex flex-row flex-wrap items-center gap-2.5 shrink-0 self-start md:self-center">
-            <button
+            {/* <button
               onClick={() => setIsExcelModalOpen(true)}
               className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs shadow-sm transition-colors whitespace-nowrap"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Compliance Excel Templates</span>
-            </button>
+            </button> */}
 
             <button
               onClick={() => setIsDriveModalOpen(true)}
@@ -294,24 +297,67 @@ export default function ClientPortalDashboard() {
             <Building2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
             Your Authorized Operating Facilities
           </h2>
-          <div className="flex flex-wrap items-center gap-2 text-xs">
-            <label className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-              <span className="font-semibold">Financial year</span>
-              <select
-                value={selectedPeriod}
-                onChange={(e) => setSelectedPeriod(e.target.value)}
-                className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-2 py-1.5 font-mono"
-              >
-                {PORTAL_PERIOD_OPTIONS.map((fy) => (
-                  <option key={fy} value={fy}>
-                    {fy}
-                  </option>
-                ))}
-              </select>
-            </label>
+          <div className="flex flex-wrap items-center gap-2.5 text-xs">
+            <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+              <CalendarRange className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <span className="font-semibold whitespace-nowrap">Financial year</span>
+              <FormControl size="small" sx={{ minWidth: 130 }}>
+                <Select
+                  value={selectedPeriod}
+                  onChange={(e: SelectChangeEvent) => setSelectedPeriod(e.target.value)}
+                  sx={{
+                    height: 36,
+                    fontSize: '12px',
+                    fontFamily: 'monospace',
+                    fontWeight: 600,
+                    borderRadius: '8px',
+                    backgroundColor: isDark ? '#020617' : '#FFFFFF',
+                    color: isDark ? '#FFFFFF' : '#0F172A',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDark ? '#34D399' : '#059669',
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDark ? '#34D399' : '#059669',
+                      borderWidth: '1.5px',
+                    },
+                    '& .MuiSelect-select': {
+                      py: '6px',
+                      px: '12px',
+                    },
+                  }}
+                  MenuProps={{
+                    slotProps: {
+                      paper: {
+                        sx: {
+                          mt: 0.5,
+                          maxHeight: 280,
+                          borderRadius: '8px',
+                          backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                          color: isDark ? '#FFFFFF' : '#0F172A',
+                          border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0'}`,
+                          boxShadow: isDark
+                            ? '0 10px 25px -5px rgba(0, 0, 0, 0.6)'
+                            : '0 10px 25px -5px rgba(16, 185, 129, 0.12)',
+                          '& .MuiList-root': { py: '4px' },
+                        },
+                      },
+                    },
+                  }}
+                >
+                  {PORTAL_PERIOD_OPTIONS.map((fy) => (
+                    <MenuItem key={fy} value={fy} sx={{ fontSize: '12px', fontFamily: 'monospace' }}>
+                      {fy}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
             <Link
               href={`/portal/requests${buildPortalScopeQuery(selectedFacilityId, selectedPeriod)}`}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 px-3 py-1.5 font-semibold text-white"
+              className="inline-flex items-center gap-1.5 h-[36px] rounded-lg bg-emerald-700 hover:bg-emerald-800 px-3.5 font-semibold text-white transition-colors shadow-2xs"
             >
               <FileSpreadsheet className="w-3.5 h-3.5" />
               Data Requests

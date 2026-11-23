@@ -11,7 +11,13 @@ export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
     const session = getSessionFromRequest(request);
-    if (!authorizeRole(session, ['ADMIN', 'CONSULTANT'])) {
+    if (session?.role === 'ADMIN') {
+      return NextResponse.json(
+        { error: 'Forbidden: Admins have view-only access and cannot request data. Only consultants can create data requests.' },
+        { status: 403 }
+      );
+    }
+    if (!authorizeRole(session, ['CONSULTANT'])) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

@@ -37,6 +37,10 @@ export async function applyCalendarDueDateExtension(input: CalendarExtensionInpu
       throw new Error('Linked data request not found');
     }
 
+    if (requirement.workflowStatus === 'ACCEPTED' || requirement.workflowStatus === 'CLOSED') {
+      throw new Error('Cannot extend due date for an accepted submission');
+    }
+
     const previousDue = requirement.dueDate ? new Date(requirement.dueDate) : input.newDate;
     extensionEntry.oldDate = previousDue;
     requirement.dueDate = input.newDate;
@@ -52,15 +56,8 @@ export async function applyCalendarDueDateExtension(input: CalendarExtensionInpu
 
     const requirementOid = requirement._id;
 
+    // Strictly find or create CalendarItem for this specific requirement
     let calendarRow = await CalendarItemModel.findOne({ dataRequirementId: requirementOid });
-
-    if (!calendarRow) {
-      calendarRow = await CalendarItemModel.findOne({
-        facilityId,
-        complianceType,
-        reportingPeriod,
-      });
-    }
 
     if (!calendarRow) {
       calendarRow = await CalendarItemModel.create({
@@ -84,7 +81,6 @@ export async function applyCalendarDueDateExtension(input: CalendarExtensionInpu
         isRecurringCEA: complianceType === 'CEA',
       });
     } else {
-      calendarRow.dataRequirementId = requirementOid;
       calendarRow.extensionHistory.push({
         oldDate: extensionEntry.oldDate,
         newDate: input.newDate,

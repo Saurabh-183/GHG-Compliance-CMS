@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Select, MenuItem, FormControl } from '@mui/material';
 import { useAuth } from '@/context/AuthContext';
 import { StatusBadge } from '@/components/common/StatusBadge';
@@ -10,7 +10,9 @@ import { formatDate } from '@/lib/utils';
 import { notify } from '@/lib/notify';
 import { resolveDataCategoryLabel } from '@/lib/dataRequestDisplay';
 import { resolveClientUploadWorkflowDisplay } from '@/lib/clientUploadStatus';
-import { Filter, X } from 'lucide-react';
+import { Filter, X, Loader2, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+
+const ITEMS_PER_PAGE = 15;
 
 export const WORKFLOW_FILTER_OPTIONS: Array<{ value: string; label: string }> = [
   { value: 'ALL', label: 'All review states' },
@@ -57,6 +59,7 @@ export interface RequirementsReviewTableProps {
   showWorkflowFilter?: boolean;
   hideFacilityColumn?: boolean;
   emptyMessage?: string;
+  compact?: boolean;
   onReviewed?: () => void | Promise<void>;
 }
 
@@ -65,13 +68,18 @@ export const RequirementsReviewTable: React.FC<RequirementsReviewTableProps> = (
   showWorkflowFilter = false,
   hideFacilityColumn = false,
   emptyMessage = 'No requests to review yet.',
+  compact = false,
   onReviewed,
 }) => {
-  const { theme } = useAuth();
+  const { theme, currentRole, currentUser } = useAuth();
+  const isAdmin = currentRole === 'ADMIN' || currentUser?.role === 'ADMIN';
   const isDark = theme === 'dark';
   const [workflowFilter, setWorkflowFilter] = useState('ALL');
+  const [searchInput, setSearchInput] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
   const [reviewRequirement, setReviewRequirement] = useState<IDataRequirement | null>(null);
-  const [reviewLoading, setReviewLoading] = useState(false);
+  const [loadingRequirementId, setLoadingRequirementId] = useState<string | null>(null);
 
   const sorted = useMemo(
     () =>
@@ -86,13 +94,72 @@ export const RequirementsReviewTable: React.FC<RequirementsReviewTableProps> = (
     [requirements]
   );
 
-  const visible = useMemo(() => {
-    if (workflowFilter === 'ALL') return sorted;
-    return sorted.filter((req) => (req.workflowStatus || '') === workflowFilter);
-  }, [sorted, workflowFilter]);
+  const filtered = useMemo(() => {
+    let result = sorted;
+    if (workflowFilter !== 'ALL') {
+      result = result.filter((req) => (req.workflowStatus || '') === workflowFilter);
+    }
+    const q = searchQuery.trim().toLowerCase();
+    if (q) {
+      result = result.filter((req) => {
+        const reqId = (req.requestId || String(req._id)).toLowerCase();
+        const title = (req.title || '').toLowerCase();
+        const category = (resolveDataCategoryLabel(req) || '').toLowerCase();
+        const submittedAt = resolveRequirementSubmittedAt(req);
+        const submittedStr = submittedAt ? formatDate(submittedAt).toLowerCase() : '';
+        const rawSubmitted = submittedAt ? submittedAt.toLowerCase() : '';
+
+        return (
+          reqId.includes(q) ||
+          title.includes(q) ||
+          category.includes(q) ||
+          submittedStr.includes(q) ||
+          rawSubmitted.includes(q)
+        );
+      });
+    }
+    return result;
+  }, [sorted, workflowFilter, searchQuery]);
+
+  // Debounce search query updates by 300ms
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchQuery(searchInput.trim());
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
+  // Reset to first page when search query or workflow filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, workflowFilter]);
+
+  const totalItems = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
+
+  const paginatedRequirements = useMemo(() => {
+    if (compact) return filtered;
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [compact, filtered, currentPage]);
+
+  const startIndex = totalItems === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
+  const endIndex = Math.min(currentPage * ITEMS_PER_PAGE, totalItems);
+
+  const handleClearSearch = () => {
+    setSearchInput('');
+    setSearchQuery('');
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      setSearchQuery(searchInput.trim());
+    }
+  };
 
   const openReview = async (req: IDataRequirement) => {
-    setReviewLoading(true);
+    setLoadingRequirementId(req._id);
     try {
       const res = await fetch(`/api/requirements/${encodeURIComponent(req._id)}`, {
         credentials: 'include',
@@ -105,7 +172,7 @@ export const RequirementsReviewTable: React.FC<RequirementsReviewTableProps> = (
       notify.error(err instanceof Error ? err.message : 'Unable to open review');
       setReviewRequirement(req);
     } finally {
-      setReviewLoading(false);
+      setLoadingRequirementId(null);
     }
   };
 
@@ -113,54 +180,92 @@ export const RequirementsReviewTable: React.FC<RequirementsReviewTableProps> = (
 
   return (
     <div className="space-y-4">
-      {showWorkflowFilter && (
-        <div className="flex items-center gap-2">
-          <Filter className="w-3.5 h-3.5 text-slate-400" />
-          <FormControl size="small" sx={{ minWidth: 168 }}>
-            <Select
-              value={workflowFilter}
-              onChange={(e) => setWorkflowFilter(e.target.value)}
-              sx={{
-                height: 32,
-                fontSize: '11px',
-                borderRadius: '8px',
-                backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
-                color: isDark ? '#FFFFFF' : '#1E293B',
-                '& .MuiOutlinedInput-notchedOutline': {
-                  borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
-                },
-                '&:hover .MuiOutlinedInput-notchedOutline': {
-                  borderColor: isDark ? '#34D399' : '#059669',
-                },
-                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                  borderColor: isDark ? '#34D399' : '#059669',
-                  borderWidth: '1.5px',
-                },
-                '& .MuiSelect-select': { py: '4px', px: '10px' },
-              }}
-              MenuProps={{
-                slotProps: {
-                  paper: {
-                    sx: {
-                      backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
-                      color: isDark ? '#FFFFFF' : '#1E293B',
-                      borderRadius: '8px',
-                      border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0'}`,
-                      '& .MuiList-root': { py: '4px' },
+      {/* Top Filter and Search Bar */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          {showWorkflowFilter && (
+            <div className="flex items-center gap-2">
+              <Filter className="w-3.5 h-3.5 text-slate-400" />
+              <FormControl size="small" sx={{ minWidth: 168 }}>
+                <Select
+                  value={workflowFilter}
+                  onChange={(e) => setWorkflowFilter(e.target.value)}
+                  sx={{
+                    height: 32,
+                    fontSize: '11px',
+                    borderRadius: '8px',
+                    backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                    color: isDark ? '#FFFFFF' : '#1E293B',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
                     },
-                  },
-                },
-              }}
-            >
-              {WORKFLOW_FILTER_OPTIONS.map((opt) => (
-                <MenuItem key={opt.value} value={opt.value} sx={{ fontSize: '11px' }}>
-                  {opt.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDark ? '#34D399' : '#059669',
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDark ? '#34D399' : '#059669',
+                      borderWidth: '1.5px',
+                    },
+                    '& .MuiSelect-select': { py: '4px', px: '10px' },
+                  }}
+                  MenuProps={{
+                    slotProps: {
+                      paper: {
+                        sx: {
+                          backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                          color: isDark ? '#FFFFFF' : '#1E293B',
+                          borderRadius: '8px',
+                          border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0'}`,
+                          '& .MuiList-root': { py: '4px' },
+                        },
+                      },
+                    },
+                  }}
+                >
+                  {WORKFLOW_FILTER_OPTIONS.map((opt) => (
+                    <MenuItem key={opt.value} value={opt.value} sx={{ fontSize: '11px' }}>
+                      {opt.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
+          )}
+
+          {/* Debounced Search Input */}
+          {!compact && (
+            <div className="relative">
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Search Request ID, title, category, date..."
+                className="h-[32px] pl-8 pr-7 py-1 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-500 w-64 sm:w-80"
+              />
+              {searchInput && (
+                <button
+                  type="button"
+                  onClick={handleClearSearch}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+                  title="Clear search"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          )}
         </div>
-      )}
+
+        {/* Counter Info */}
+        {!compact && (
+          <div className="text-xs text-slate-500 dark:text-slate-400">
+            Showing <span className="font-semibold text-slate-700 dark:text-slate-200">{filtered.length}</span> of{' '}
+            <span className="font-semibold text-slate-700 dark:text-slate-200">{requirements.length}</span> requests
+          </div>
+        )}
+      </div>
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-x-auto">
         <table className="w-full text-xs text-left">
@@ -176,14 +281,14 @@ export const RequirementsReviewTable: React.FC<RequirementsReviewTableProps> = (
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-            {visible.length === 0 ? (
+            {paginatedRequirements.length === 0 ? (
               <tr>
                 <td colSpan={colSpan} className="p-6 text-center text-slate-500">
-                  {emptyMessage}
+                  {searchQuery ? `No requests match "${searchQuery}".` : emptyMessage}
                 </td>
               </tr>
             ) : (
-              visible.map((req) => {
+              paginatedRequirements.map((req) => {
                 const submittedAt = resolveRequirementSubmittedAt(req);
                 const workflowDisplay = resolveWorkflowDisplay(req);
                 const category = resolveDataCategoryLabel(req);
@@ -200,14 +305,28 @@ export const RequirementsReviewTable: React.FC<RequirementsReviewTableProps> = (
                       <StatusBadge status={workflowDisplay} type="verification" size="sm" />
                     </td>
                     <td className="p-3 text-center">
-                      <button
-                        type="button"
-                        disabled={reviewLoading}
-                        onClick={() => void openReview(req)}
-                        className="px-3 py-1.5 rounded-lg bg-[#17365D] dark:bg-[#A56F63] text-white font-bold text-[11px] hover:opacity-90 disabled:opacity-50"
-                      >
-                        Review
-                      </button>
+                      {(() => {
+                        const isThisRowLoading = loadingRequirementId === req._id;
+                        return (
+                          <button
+                            type="button"
+                            disabled={Boolean(loadingRequirementId)}
+                            onClick={() => void openReview(req)}
+                            className={`inline-flex items-center justify-center min-w-[64px] px-3 py-1.5 rounded-lg bg-[#17365D] dark:bg-[#A56F63] text-white font-bold text-[11px] transition-all hover:opacity-90 ${
+                              isThisRowLoading ? 'opacity-75 cursor-wait' : 'cursor-pointer'
+                            }`}
+                          >
+                            {isThisRowLoading ? (
+                              <span className="inline-flex items-center gap-1">
+                                <Loader2 className="w-3 h-3 animate-spin" />
+                                <span>...</span>
+                              </span>
+                            ) : (
+                              isAdmin ? 'View' : 'Review'
+                            )}
+                          </button>
+                        );
+                      })()}
                     </td>
                   </tr>
                 );
@@ -216,6 +335,74 @@ export const RequirementsReviewTable: React.FC<RequirementsReviewTableProps> = (
           </tbody>
         </table>
       </div>
+
+      {/* Pagination Footer */}
+      {!compact && totalItems > 0 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1 text-xs text-slate-500 dark:text-slate-400">
+          <div>
+            Showing <strong className="text-slate-700 dark:text-slate-200">{startIndex}</strong> to{' '}
+            <strong className="text-slate-700 dark:text-slate-200">{endIndex}</strong> of{' '}
+            <strong className="text-slate-700 dark:text-slate-200">{totalItems}</strong> requests
+            {searchQuery && (
+              <span className="ml-1 text-emerald-600 dark:text-emerald-400 font-medium">
+                (filtered)
+              </span>
+            )}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                disabled={currentPage <= 1}
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-medium text-xs cursor-pointer"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+                <span>Previous</span>
+              </button>
+
+              {/* Page Number Buttons */}
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter((p) => {
+                    if (totalPages <= 7) return true;
+                    return p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1;
+                  })
+                  .map((p, idx, arr) => {
+                    const showEllipsis = idx > 0 && p - arr[idx - 1] > 1;
+                    return (
+                      <React.Fragment key={p}>
+                        {showEllipsis && <span className="px-1 text-slate-400">…</span>}
+                        <button
+                          type="button"
+                          onClick={() => setCurrentPage(p)}
+                          className={`w-7 h-7 rounded-lg text-xs font-semibold flex items-center justify-center transition-colors cursor-pointer ${
+                            currentPage === p
+                              ? 'bg-emerald-700 text-white !text-white font-bold shadow-2xs'
+                              : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      </React.Fragment>
+                    );
+                  })}
+              </div>
+
+              <button
+                type="button"
+                disabled={currentPage >= totalPages}
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-medium text-xs cursor-pointer"
+              >
+                <span>Next</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {reviewRequirement && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">

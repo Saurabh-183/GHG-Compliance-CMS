@@ -4,6 +4,8 @@ import React, { useMemo } from 'react';
 import type { IFacility } from '@/types';
 import { CalendarRange, Building2 } from 'lucide-react';
 import { PORTAL_PERIOD_OPTIONS, dedupeFacilitiesById } from '@/lib/portalScope';
+import { FormControl, Select, MenuItem, SelectChangeEvent } from '@mui/material';
+import { useAuth } from '@/context/AuthContext';
 
 export interface PortalScopeSelectorsProps {
   facilities: Array<Pick<IFacility, 'facilityId' | 'name'>>;
@@ -24,6 +26,8 @@ export function PortalScopeSelectors({
   className = '',
   compact = false,
 }: PortalScopeSelectorsProps) {
+  const { theme } = useAuth();
+  const isDark = theme === 'dark';
   const uniqueFacilities = useMemo(() => dedupeFacilitiesById(facilities), [facilities]);
 
   return (
@@ -36,40 +40,122 @@ export function PortalScopeSelectors({
           requests load for that scope only.
         </p>
       )}
-      <label className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-200">
+      <div className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-200 shrink-0">
         <Building2 className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
         <span className="font-semibold whitespace-nowrap">Facility</span>
-        <select
-          value={facilityId}
-          onChange={(e) => onFacilityChange(e.target.value)}
-          className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-2.5 py-1.5 font-medium min-w-[11rem]"
-        >
-          {uniqueFacilities.length === 0 ? (
-            <option value="">—</option>
-          ) : (
-            uniqueFacilities.map((f) => (
-              <option key={f.facilityId.toUpperCase()} value={f.facilityId}>
-                {f.name || f.facilityId}
-              </option>
-            ))
-          )}
-        </select>
-      </label>
-      <label className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-200">
+        <FormControl size="small" sx={{ minWidth: 200, maxWidth: 320 }}>
+          <Select
+            value={facilityId}
+            onChange={(e: SelectChangeEvent) => onFacilityChange(e.target.value)}
+            displayEmpty
+            sx={{
+              height: 36,
+              fontSize: '12px',
+              fontWeight: 500,
+              borderRadius: '8px',
+              backgroundColor: isDark ? '#020617' : '#FFFFFF',
+              color: isDark ? '#FFFFFF' : '#0F172A',
+              '& .MuiOutlinedInput-notchedOutline': {
+                borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
+              },
+              '&:hover .MuiOutlinedInput-notchedOutline': {
+                borderColor: isDark ? '#34D399' : '#059669',
+              },
+              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                borderColor: isDark ? '#34D399' : '#059669',
+                borderWidth: '1.5px',
+              },
+              '& .MuiSelect-select': {
+                py: '6px',
+                px: '12px',
+              },
+            }}
+            MenuProps={{
+              slotProps: {
+                paper: {
+                  sx: {
+                    mt: 0.5,
+                    maxHeight: 320,
+                    borderRadius: '8px',
+                    backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                    color: isDark ? '#FFFFFF' : '#0F172A',
+                    border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0'}`,
+                    boxShadow: isDark
+                      ? '0 10px 25px -5px rgba(0, 0, 0, 0.6)'
+                      : '0 10px 25px -5px rgba(16, 185, 129, 0.12)',
+                    '& .MuiList-root': { py: '4px' },
+                  },
+                },
+              },
+            }}
+          >
+            {uniqueFacilities.length === 0 ? (
+              <MenuItem value="" sx={{ fontSize: '12px' }}>—</MenuItem>
+            ) : (
+              uniqueFacilities.map((f) => (
+                <MenuItem key={f.facilityId.toUpperCase()} value={f.facilityId} sx={{ fontSize: '12px' }}>
+                  {f.name || f.facilityId}
+                </MenuItem>
+              ))
+            )}
+          </Select>
+        </FormControl>
+      </div>
+
+      <div className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-200 shrink-0">
         <CalendarRange className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
         <span className="font-semibold whitespace-nowrap">Financial year</span>
-        <select
-          value={period}
-          onChange={(e) => onPeriodChange(e.target.value)}
-          className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-2.5 py-1.5 font-mono min-w-[8rem]"
-        >
-          {PORTAL_PERIOD_OPTIONS.map((fy) => (
-            <option key={fy} value={fy}>
-              {fy}
-            </option>
-          ))}
-        </select>
-      </label>
+        <FormControl size="small" sx={{ minWidth: 130 }}>
+          <Select
+            value={period}
+            onChange={(e: SelectChangeEvent) => onPeriodChange(e.target.value)}
+            sx={{
+              height: 36,
+              fontSize: '12px',
+              fontFamily: 'monospace',
+              fontWeight: 600,
+              borderRadius: '8px',
+              backgroundColor: isDark ? '#020617' : '#FFFFFF',
+              color: isDark ? '#FFFFFF' : '#0F172A',
+              '& .MuiOutlinedInput-notchedOutline': {
+                borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
+              },
+              '&:hover .MuiOutlinedInput-notchedOutline': {
+                borderColor: isDark ? '#34D399' : '#059669',
+              },
+              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                borderColor: isDark ? '#34D399' : '#059669',
+                borderWidth: '1.5px',
+              },
+              '& .MuiSelect-select': {
+                py: '6px',
+                px: '12px',
+              },
+            }}
+            MenuProps={{
+              slotProps: {
+                paper: {
+                  sx: {
+                    mt: 0.5,
+                    maxHeight: 280,
+                    borderRadius: '8px',
+                    backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                    color: isDark ? '#FFFFFF' : '#0F172A',
+                    border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0'}`,
+                    '& .MuiList-root': { py: '4px' },
+                  },
+                },
+              },
+            }}
+          >
+            {PORTAL_PERIOD_OPTIONS.map((fy) => (
+              <MenuItem key={fy} value={fy} sx={{ fontSize: '12px', fontFamily: 'monospace' }}>
+                {fy}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </div>
     </div>
   );
 }

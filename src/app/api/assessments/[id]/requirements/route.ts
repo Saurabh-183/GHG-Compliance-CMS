@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import mongoose from 'mongoose';
 import { connectToDatabase } from '@/lib/db';
 import { AssessmentModel } from '@/models/Assessment';
 import { DataRequirementModel } from '@/models/DataRequirement';
@@ -13,7 +14,28 @@ export async function GET(
     const { id } = await params;
     const session = getSessionFromRequest(request);
 
-    const assessment = await AssessmentModel.findById(id).lean();
+    let assessment: any = null;
+    if (mongoose.isValidObjectId(id)) {
+      assessment = await AssessmentModel.findById(id).lean();
+    }
+    if (!assessment) {
+      assessment = await AssessmentModel.findOne({ _id: id }).lean();
+    }
+    if (!assessment) {
+      const { parseAssessmentId } = await import('@/lib/assessmentIds');
+      const parsed = parseAssessmentId(id);
+      if (parsed) {
+        assessment = await AssessmentModel.findOne({
+          facilityId: parsed.facilityId,
+          complianceType: parsed.complianceType,
+          period: parsed.period,
+        }).lean();
+      }
+    }
+    if (!assessment) {
+      const { resolveAssessmentById } = await import('@/lib/complianceMatrixData');
+      assessment = resolveAssessmentById(id) as typeof assessment;
+    }
     if (!assessment) {
       return NextResponse.json({ error: 'Assessment not found' }, { status: 404 });
     }

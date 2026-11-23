@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 import path from "path";
 
 const nextConfig: NextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: false,
   outputFileTracingRoot: path.resolve(__dirname),
 };
 

@@ -8,13 +8,71 @@ export async function GET(request: NextRequest) {
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
     await connectToDatabase();
-    const filter: Record<string, unknown> = {
+
+    const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+    // Clean up read notifications older than 24 hours
+    void Notification.deleteMany({
+      isRead: true,
+      $or: [
+        { readAt: { $lt: cutoff } },
+        { readAt: { $exists: false }, updatedAt: { $lt: cutoff } },
+      ],
+    }).catch((err) => console.warn('Notification cleanup warning:', err));
+
+    const baseConditions: Record<string, unknown>[] = [
+      { recipientRole: { $in: [session.role, 'ALL'] } },
+      {
+        $or: [
+          { recipientUserId: session.userId },
+          { recipientUserId: { $exists: false } },
+          { recipientUserId: null },
+        ],
+      },
+      {
+        $or: [
+          { isRead: false }, // All unread notifications ALWAYS come
+          { isRead: true, readAt: { $gte: cutoff } }, // Read within last 24h
+          { isRead: true, readAt: { $exists: false }, updatedAt: { $gte: cutoff } },
+        ],
+      },
+    ];
+
+    if (session.role !== 'ADMIN') {
+      baseConditions.push({
+        $or: [
+          { facilityId: { $in: session.authorizedFacilityIds || [] } },
+          { facilityId: { $exists: false } },
+          { facilityId: null },
+        ],
+      });
+    }
+
+    const filter = { $and: baseConditions };
+    const notifications = await Notification.find(filter).sort({ createdAt: -1 }).limit(40).lean();
+
+    const unreadCountFilter: Record<string, unknown> = {
+      isRead: false,
       recipientRole: { $in: [session.role, 'ALL'] },
-      $or: [{ recipientUserId: session.userId }, { recipientUserId: { $exists: false } }, { recipientUserId: null }],
+      $or: [
+        { recipientUserId: session.userId },
+        { recipientUserId: { $exists: false } },
+        { recipientUserId: null },
+      ],
     };
-    if (session.role !== 'ADMIN') filter.$and = [{ $or: [{ facilityId: { $in: session.authorizedFacilityIds || [] } }, { facilityId: { $exists: false } }, { facilityId: null }] }];
-    const notifications = await Notification.find(filter).sort({ createdAt: -1 }).limit(30).lean();
-    const unreadCount = await Notification.countDocuments({ ...filter, isRead: false });
+    if (session.role !== 'ADMIN') {
+      unreadCountFilter.$and = [
+        {
+          $or: [
+            { facilityId: { $in: session.authorizedFacilityIds || [] } },
+            { facilityId: { $exists: false } },
+            { facilityId: null },
+          ],
+        },
+      ];
+    }
+
+    const unreadCount = await Notification.countDocuments(unreadCountFilter);
     return NextResponse.json({ success: true, data: notifications, unreadCount });
   } catch (error) {
     console.error('Notifications query failed:', error);

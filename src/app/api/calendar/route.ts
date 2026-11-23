@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
       CalendarItemModel.find(query).sort({ regulatoryDueDate: 1 }).lean(),
       DataRequirementModel.find(reqQuery)
         .select(
-          '_id facilityId period dueDate linkedCompliances workflowStatus submissionStatus isApplicable title requestId'
+          '_id facilityId period dueDate linkedCompliances workflowStatus submissionStatus verificationStatus submittedDriveLinks submissionHistory isApplicable title requestId'
         )
         .sort({ dueDate: 1 })
         .lean(),
@@ -151,7 +151,16 @@ export async function PATCH(request: NextRequest) {
   try {
     await connectToDatabase();
     const session = getSessionFromRequest(request);
-    if (!authorizeRole(session, ['ADMIN', 'CONSULTANT'])) {
+    if (!session) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
+    if (session.role === 'ADMIN') {
+      return NextResponse.json(
+        { error: 'Admins do not have permission to extend due dates. Only assigned consultants can extend due dates.' },
+        { status: 403 }
+      );
+    }
+    if (!authorizeRole(session, ['CONSULTANT'])) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

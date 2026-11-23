@@ -16,7 +16,9 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (notification.recipientRole !== 'ALL' && notification.recipientRole !== session.role) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     if (notification.recipientUserId && notification.recipientUserId !== session.userId) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     if (notification.facilityId && !isAuthorizedForFacility(session, notification.facilityId)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    notification.isRead = true; await notification.save();
+    notification.isRead = true;
+    notification.readAt = new Date();
+    await notification.save();
     return NextResponse.json({ success: true, data: notification });
   } catch (error) {
     console.error('Mark notification read failed:', error);

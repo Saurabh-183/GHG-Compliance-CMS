@@ -2,7 +2,8 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { Calendar, ClipboardCheck, ExternalLink } from 'lucide-react';
+import { Calendar, ClipboardCheck, ExternalLink, ChevronDown } from 'lucide-react';
+import { Select, MenuItem, FormControl, SelectChangeEvent } from '@mui/material';
 import { ClientSubmissionsReviewTable } from '@/components/uploads/ClientSubmissionsReviewTable';
 import { CompanySelectMui } from '@/components/dashboard/CompanySelectMui';
 import { FacilitySelectMui } from '@/components/dashboard/FacilitySelectMui';
@@ -10,11 +11,14 @@ import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import { MOCK_CLIENT_GROUPS } from '@/lib/mockFallback';
 import { COMPLIANCE_PERIODS } from '@/lib/complianceMatrixData';
 import { DEFAULT_CHECKLIST_PERIOD } from '@/lib/facilityDataChecklistTemplate';
+import { useAuth } from '@/context/AuthContext';
 import type { IClientGroup, IFacility } from '@/types';
 
 const ALL_FACILITIES_VALUE = '__ALL_FACILITIES__';
 
 export default function DataReviewPage() {
+  const { theme } = useAuth();
+  const isDark = theme === 'dark';
   const [groups, setGroups] = useState<IClientGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCompanyId, setSelectedCompanyId] = useState('ALL');
@@ -88,7 +92,7 @@ export default function DataReviewPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-      <header className="pb-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+      <header className="p-4 rounded-lg pb-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <ClipboardCheck className="w-6 h-6 text-emerald-600" />
@@ -99,12 +103,12 @@ export default function DataReviewPage() {
             Same records as the dashboard — one row per request (latest client evidence).
           </p>
         </div>
-        <Link
+        {/* <Link
           href="/client-uploads"
           className="text-xs text-emerald-700 dark:text-emerald-400 hover:underline inline-flex items-center gap-1 shrink-0"
         >
           Drive vault mapping <ExternalLink className="w-3 h-3" />
-        </Link>
+        </Link> */}
       </header>
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-4 shadow-sm space-y-3">
@@ -126,21 +130,95 @@ export default function DataReviewPage() {
               allowAll={currentFacilities.length > 1}
             />
           )}
-          <label className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+          <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
             <Calendar className="w-4 h-4 text-emerald-600 shrink-0" />
             <span className="font-semibold whitespace-nowrap">Financial year</span>
-            <select
-              value={selectedPeriod}
-              onChange={(e) => setSelectedPeriod(e.target.value)}
-              className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-2.5 py-1.5 font-mono text-xs min-w-[7.5rem]"
-            >
-              {COMPLIANCE_PERIODS.map((fy) => (
-                <option key={fy} value={fy}>
-                  {fy}
-                </option>
-              ))}
-            </select>
-          </label>
+            <FormControl size="small" sx={{ minWidth: 130 }}>
+              <Select
+                value={selectedPeriod}
+                onChange={(e: SelectChangeEvent) => setSelectedPeriod(e.target.value)}
+                IconComponent={() => (
+                  <ChevronDown
+                    className="w-4 h-4 pointer-events-none"
+                    style={{
+                      color: isDark ? '#94A3B8' : '#64748B',
+                      marginRight: 8,
+                    }}
+                  />
+                )}
+                sx={{
+                  height: 38,
+                  fontSize: '12px',
+                  fontFamily: 'monospace',
+                  fontWeight: 600,
+                  borderRadius: '8px',
+                  backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                  color: isDark ? '#FFFFFF' : '#0F172A',
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: isDark ? '#34D399' : '#059669',
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: isDark ? '#34D399' : '#059669',
+                    borderWidth: '1.5px',
+                  },
+                  '& .MuiSelect-select': {
+                    py: '6px',
+                    px: '12px',
+                  },
+                }}
+                MenuProps={{
+                  slotProps: {
+                    paper: {
+                      sx: {
+                        mt: 0.5,
+                        maxHeight: 280,
+                        borderRadius: '8px',
+                        backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                        color: isDark ? '#FFFFFF' : '#0F172A',
+                        border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0'}`,
+                        boxShadow: isDark
+                          ? '0 10px 25px -5px rgba(0, 0, 0, 0.6)'
+                          : '0 10px 25px -5px rgba(16, 185, 129, 0.12)',
+                        '& .MuiList-root': { py: '4px' },
+                      },
+                    },
+                  },
+                }}
+              >
+                {COMPLIANCE_PERIODS.map((fy) => (
+                  <MenuItem
+                    key={fy}
+                    value={fy}
+                    sx={{
+                      fontSize: '12px',
+                      fontFamily: 'monospace',
+                      fontWeight: selectedPeriod === fy ? 600 : 400,
+                      py: 0.75,
+                      px: 1.5,
+                      borderRadius: '6px',
+                      mx: 0.5,
+                      my: 0.25,
+                      '&.Mui-selected': {
+                        backgroundColor: isDark ? 'rgba(52, 211, 153, 0.15)' : 'rgba(16, 185, 129, 0.1)',
+                        color: isDark ? '#34D399' : '#059669',
+                        '&:hover': {
+                          backgroundColor: isDark ? 'rgba(52, 211, 153, 0.2)' : 'rgba(16, 185, 129, 0.15)',
+                        },
+                      },
+                      '&:hover': {
+                        backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.04)',
+                      },
+                    }}
+                  >
+                    {fy}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </div>
         </div>
         <p className="text-[10px] text-slate-500 dark:text-slate-400">
           Showing{' '}

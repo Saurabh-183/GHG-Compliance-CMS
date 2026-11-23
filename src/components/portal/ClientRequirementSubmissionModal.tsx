@@ -28,6 +28,8 @@ import {
 import { clientSubmissionDueBlockedMessage, isDataRequestPastDue } from '@/lib/dataRequestDueDate';
 import { DriveLinkBadge } from '@/components/common/DriveLinkBadge';
 import { GOOGLE_DRIVE_FOLDER_URL, resolveComplianceVaultFolderUrl, rewriteLegacyVaultUrlsInText } from '@/lib/gdrive';
+import { FormControl, Select, MenuItem, SelectChangeEvent } from '@mui/material';
+import { useAuth } from '@/context/AuthContext';
 
 type ConnectionForm = {
   providerName: string;
@@ -88,6 +90,8 @@ export function ClientRequirementSubmissionModal({
   scopeFacilityName,
   scopePeriod,
 }: ClientRequirementSubmissionModalProps) {
+  const { theme } = useAuth();
+  const isDark = theme === 'dark';
   const [driveUrl, setDriveUrl] = useState('');
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [fileDescription, setFileDescription] = useState('');
@@ -566,11 +570,62 @@ export function ClientRequirementSubmissionModal({
 
                     {displayReq.monthlyFrequency && (
                       <div className="mt-4">
-                        <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1.5">Reporting month <span className="text-rose-500">*</span></label>
-                        <select required={!readOnly} disabled={inputDisabled} value={reportingMonth} onChange={(event) => setReportingMonth(event.target.value)} className="w-full px-3.5 py-2.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white">
-                          <option value="">Select month</option>
-                          {(displayReq.reportingMonths || []).map((month) => <option key={month} value={month}>{month}</option>)}
-                        </select>
+                        <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
+                          Reporting month <span className="text-rose-500">*</span>
+                        </label>
+                        <FormControl size="small" fullWidth>
+                          <Select
+                            value={reportingMonth}
+                            onChange={(e: SelectChangeEvent) => setReportingMonth(e.target.value)}
+                            disabled={inputDisabled || readOnly}
+                            displayEmpty
+                            sx={{
+                              height: 38,
+                              fontSize: '12px',
+                              borderRadius: '8px',
+                              backgroundColor: isDark ? '#0F172A' : '#F8FAFC',
+                              color: isDark ? '#FFFFFF' : '#0F172A',
+                              '& .MuiOutlinedInput-notchedOutline': {
+                                borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
+                              },
+                              '&:hover .MuiOutlinedInput-notchedOutline': {
+                                borderColor: isDark ? '#34D399' : '#059669',
+                              },
+                              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                borderColor: isDark ? '#34D399' : '#059669',
+                                borderWidth: '1.5px',
+                              },
+                              '& .MuiSelect-select': {
+                                py: '8px',
+                                px: '12px',
+                              },
+                            }}
+                            MenuProps={{
+                              slotProps: {
+                                paper: {
+                                  sx: {
+                                    mt: 0.5,
+                                    maxHeight: 280,
+                                    borderRadius: '8px',
+                                    backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                                    color: isDark ? '#FFFFFF' : '#0F172A',
+                                    border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0'}`,
+                                    '& .MuiList-root': { py: '4px' },
+                                  },
+                                },
+                              },
+                            }}
+                          >
+                            <MenuItem value="" sx={{ fontSize: '12px' }}>
+                              Select month
+                            </MenuItem>
+                            {(displayReq.reportingMonths || []).map((month) => (
+                              <MenuItem key={month} value={month} sx={{ fontSize: '12px' }}>
+                                {month}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
                       </div>
                     )}
                     <div>

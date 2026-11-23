@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import mongoose from 'mongoose';
 import { connectToDatabase } from '@/lib/db';
 import { AssessmentModel } from '@/models/Assessment';
 import { getSessionFromRequest, authorizeRole, isAuthorizedForFacility } from '@/lib/auth';
@@ -21,7 +22,24 @@ export async function POST(
       return NextResponse.json({ error: 'Invalid metrics payload' }, { status: 400 });
     }
 
-    const assessment = await AssessmentModel.findById(id);
+    let assessment: any = null;
+    if (mongoose.isValidObjectId(id)) {
+      assessment = await AssessmentModel.findById(id);
+    }
+    if (!assessment) {
+      assessment = await AssessmentModel.findOne({ _id: id });
+    }
+    if (!assessment) {
+      const { parseAssessmentId } = await import('@/lib/assessmentIds');
+      const parsed = parseAssessmentId(id);
+      if (parsed) {
+        assessment = await AssessmentModel.findOne({
+          facilityId: parsed.facilityId,
+          complianceType: parsed.complianceType,
+          period: parsed.period,
+        });
+      }
+    }
     if (!assessment) {
       return NextResponse.json({ error: 'Assessment not found' }, { status: 404 });
     }
@@ -30,7 +48,7 @@ export async function POST(
 
     // Merge or append metrics with versioning
     const existingMetricsMap = new Map<string, IMetricValue>();
-    assessment.metrics.forEach((m) => existingMetricsMap.set(m.key, m));
+    (assessment.metrics || []).forEach((m: IMetricValue) => existingMetricsMap.set(m.key, m));
 
     body.metrics.forEach((newM) => {
       const existing = existingMetricsMap.get(newM.key);

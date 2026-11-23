@@ -383,7 +383,7 @@ export function FacilityDataChecklistPanel({
             <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 mr-0.5">
               Link requests to:
             </span>
-            {(['RCO', 'PAT', 'CCTS', 'CEA'] as ComplianceType[]).map((code) => {
+            {(['RCO', 'PAT', 'CCTS'] as ComplianceType[]).map((code) => {
               const isChecked = linkedCompliances.includes(code);
               return (
                 <label

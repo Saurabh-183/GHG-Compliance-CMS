@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Select, MenuItem, FormControl } from '@mui/material';
+import { Select, MenuItem, FormControl, SelectChangeEvent } from '@mui/material';
 import { useAuth } from '@/context/AuthContext';
 import { DriveLinkBadge } from '@/components/common/DriveLinkBadge';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
@@ -33,6 +33,8 @@ import {
   ExternalLink,
   CloudUpload,
   AlertCircle,
+  Loader2,
+  ChevronDown,
 } from 'lucide-react';
 
 interface ClientUploadsPanelProps {
@@ -62,7 +64,7 @@ export const ClientUploadsPanel: React.FC<ClientUploadsPanelProps> = ({
   const [saving, setSaving] = useState(false);
   const [previewDoc, setPreviewDoc] = useState<ClientUploadListItem | null>(null);
   const [reviewRequirement, setReviewRequirement] = useState<IDataRequirement | null>(null);
-  const [reviewLoading, setReviewLoading] = useState(false);
+  const [reviewLoadingId, setReviewLoadingId] = useState<string | null>(null);
   const [vaultRootUrl, setVaultRootUrl] = useState('https://drive.google.com/drive/shared-with-me');
   const [autoUploadEnabled, setAutoUploadEnabled] = useState(false);
   const [loadError, setLoadError] = useState('');
@@ -203,7 +205,8 @@ export const ClientUploadsPanel: React.FC<ClientUploadsPanelProps> = ({
   };
 
   const openRequirementReview = async (row: ClientUploadListItem) => {
-    setReviewLoading(true);
+    const targetId = `${row.requirementId}-${row.linkIndex}`;
+    setReviewLoadingId(targetId);
     try {
       const res = await fetch(`/api/requirements/${encodeURIComponent(row.requirementId)}`, {
         credentials: 'include',
@@ -215,7 +218,7 @@ export const ClientUploadsPanel: React.FC<ClientUploadsPanelProps> = ({
     } catch (err) {
       notify.error(err instanceof Error ? err.message : 'Unable to open request review');
     } finally {
-      setReviewLoading(false);
+      setReviewLoadingId(null);
     }
   };
 
@@ -498,14 +501,29 @@ export const ClientUploadsPanel: React.FC<ClientUploadsPanelProps> = ({
                   </td>
                   <td className="py-3 px-3 text-center">
                     <div className="flex flex-col gap-1 items-center">
-                      <button
-                        type="button"
-                        disabled={reviewLoading}
-                        onClick={() => void openRequirementReview(row)}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-emerald-300 text-emerald-800 text-[10px] font-semibold hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-300"
-                      >
-                        Review request
-                      </button>
+                      {(() => {
+                        const targetId = `${row.requirementId}-${row.linkIndex}`;
+                        const isThisReviewLoading = reviewLoadingId === targetId;
+                        return (
+                          <button
+                            type="button"
+                            disabled={Boolean(reviewLoadingId)}
+                            onClick={() => void openRequirementReview(row)}
+                            className={`inline-flex items-center justify-center min-w-[96px] gap-1 px-2.5 py-1 rounded-md border border-emerald-300 text-emerald-800 text-[10px] font-semibold hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-300 transition-all ${
+                              isThisReviewLoading ? 'opacity-70 cursor-wait' : 'cursor-pointer'
+                            }`}
+                          >
+                            {isThisReviewLoading ? (
+                              <>
+                                <Loader2 className="w-3 h-3 animate-spin" />
+                                <span>Loading...</span>
+                              </>
+                            ) : (
+                              'Review request'
+                            )}
+                          </button>
+                        );
+                      })()}
                       <button
                         type="button"
                         onClick={() => openMapping(row)}
@@ -719,12 +737,71 @@ export const ClientUploadsPanel: React.FC<ClientUploadsPanelProps> = ({
                 <div className="text-[11px] font-bold text-slate-800 dark:text-slate-200">Field-level review</div>
                 {fieldReviews.map((review) => {
                   const field = mappingItem.requiredFields?.find((item) => item.key === review.fieldKey);
-                  return <div key={review.fieldKey} className="grid grid-cols-1 sm:grid-cols-[1fr_150px] gap-2 items-center">
-                    <span className="text-[11px] text-slate-700 dark:text-slate-300">{field?.label || review.fieldKey}</span>
-                    <select value={review.status} onChange={(event) => setFieldReviews((current) => current.map((item) => item.fieldKey === review.fieldKey ? { ...item, status: event.target.value } : item))} className="text-xs rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-2 py-1.5 text-slate-900 dark:text-white">
-                      <option value="PENDING">Pending</option><option value="VERIFIED">Verified</option><option value="MISSING">Missing</option><option value="INCORRECT">Incorrect</option><option value="CLARIFICATION_REQUIRED">Clarification</option>
-                    </select>
-                  </div>;
+                  return (
+                    <div key={review.fieldKey} className="grid grid-cols-1 sm:grid-cols-[1fr_150px] gap-2 items-center">
+                      <span className="text-[11px] text-slate-700 dark:text-slate-300">{field?.label || review.fieldKey}</span>
+                      <FormControl size="small" sx={{ minWidth: 140 }}>
+                        <Select
+                          value={review.status}
+                          onChange={(e: SelectChangeEvent) =>
+                            setFieldReviews((current) =>
+                              current.map((item) =>
+                                item.fieldKey === review.fieldKey ? { ...item, status: e.target.value } : item
+                              )
+                            )
+                          }
+                          IconComponent={() => (
+                            <ChevronDown
+                              className="w-3.5 h-3.5 pointer-events-none"
+                              style={{ color: isDark ? '#94A3B8' : '#64748B', marginRight: 6 }}
+                            />
+                          )}
+                          sx={{
+                            height: 32,
+                            fontSize: '11px',
+                            fontWeight: 600,
+                            borderRadius: '6px',
+                            backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                            color: isDark ? '#FFFFFF' : '#0F172A',
+                            '& .MuiOutlinedInput-notchedOutline': {
+                              borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
+                            },
+                            '&:hover .MuiOutlinedInput-notchedOutline': {
+                              borderColor: isDark ? '#34D399' : '#059669',
+                            },
+                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                              borderColor: isDark ? '#34D399' : '#059669',
+                              borderWidth: '1.5px',
+                            },
+                            '& .MuiSelect-select': {
+                              py: '4px',
+                              px: '8px',
+                            },
+                          }}
+                          MenuProps={{
+                            slotProps: {
+                              paper: {
+                                sx: {
+                                  mt: 0.5,
+                                  borderRadius: '8px',
+                                  backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                                  color: isDark ? '#FFFFFF' : '#0F172A',
+                                  border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0'}`,
+                                  '& .MuiList-root': { py: '4px' },
+                                },
+                              },
+                            },
+                          }}
+                        >
+                          <MenuItem value="PENDING" sx={{ fontSize: '11px', py: 0.5 }}>Pending</MenuItem>
+                          <MenuItem value="VERIFIED" sx={{ fontSize: '11px', py: 0.5 }}>Verified</MenuItem>
+                          <MenuItem value="MISSING" sx={{ fontSize: '11px', py: 0.5 }}>Missing</MenuItem>
+                          <MenuItem value="INCORRECT" sx={{ fontSize: '11px', py: 0.5 }}>Incorrect</MenuItem>
+                          <MenuItem value="CLARIFICATION_REQUIRED" sx={{ fontSize: '11px', py: 0.5 }}>Clarification</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </div>
+                  );
                 })}
               </div>
             )}

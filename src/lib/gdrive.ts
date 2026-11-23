@@ -8,9 +8,9 @@ import { IDataset, IMonthlyRecord, ReconciliationResult } from '@/types';
 
 /** Previous demo vaults — migrated responses still pointing here are redirected. */
 export const LEGACY_GOOGLE_DRIVE_FOLDER_ID = '1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7';
-export const PREVIOUS_INTERIM_VAULT_ID = '1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn';
+export const PREVIOUS_INTERIM_VAULT_ID = '1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp';
 
-export const DEFAULT_GOOGLE_DRIVE_FOLDER_ID = '1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp';
+export const DEFAULT_GOOGLE_DRIVE_FOLDER_ID = '1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn';
 
 export const DEFAULT_GOOGLE_DRIVE_FOLDER_URL = `https://drive.google.com/drive/folders/${DEFAULT_GOOGLE_DRIVE_FOLDER_ID}`;
 
@@ -46,7 +46,8 @@ export function resolveComplianceVaultFolderUrl(storedUrl?: string | null): stri
   if (
     trimmed.includes(LEGACY_GOOGLE_DRIVE_FOLDER_ID) ||
     trimmed.includes(PREVIOUS_INTERIM_VAULT_ID) ||
-    /\/folders\/1oIObLXY/i.test(trimmed)
+    /\/folders\/1oIObLXY/i.test(trimmed) ||
+    /1WFdU/i.test(trimmed)
   ) {
     return GOOGLE_DRIVE_FOLDER_URL;
   }
@@ -60,8 +61,8 @@ export function rewriteLegacyVaultUrlsInText(url?: string | null): string {
   if (text.includes(LEGACY_GOOGLE_DRIVE_FOLDER_ID) || /1oIObLXY/i.test(text)) {
     text = text.replace(/1oIObLXY[a-zA-Z0-9_\-]+/gi, DEFAULT_GOOGLE_DRIVE_FOLDER_ID);
   }
-  if (text.includes(PREVIOUS_INTERIM_VAULT_ID)) {
-    text = text.split(PREVIOUS_INTERIM_VAULT_ID).join(DEFAULT_GOOGLE_DRIVE_FOLDER_ID);
+  if (text.includes(PREVIOUS_INTERIM_VAULT_ID) || /1WFdU/i.test(text)) {
+    text = text.replace(/1WFdU[a-zA-Z0-9_\-]+/gi, DEFAULT_GOOGLE_DRIVE_FOLDER_ID);
   }
   return text;
 }

@@ -12,9 +12,54 @@ const jsonError = (message: string, status: number) => NextResponse.json({ error
 async function getAssessmentAndSession(request: NextRequest, id: string) {
   const session = getSessionFromRequest(request);
   if (!session) return { error: jsonError('Authentication required', 401) } as const;
-  if (!mongoose.isValidObjectId(id)) return { error: jsonError('Invalid assessment ID', 400) } as const;
+  if (!id?.trim()) return { error: jsonError('Assessment ID is required', 400) } as const;
+
   await connectToDatabase();
-  const assessment = await AssessmentModel.findById(id);
+  let assessment: any = null;
+  if (mongoose.isValidObjectId(id)) {
+    assessment = await AssessmentModel.findById(id);
+  }
+  if (!assessment) {
+    assessment = await AssessmentModel.findOne({ _id: id });
+  }
+
+  const { parseAssessmentId } = await import('@/lib/assessmentIds');
+  const parsed = parseAssessmentId(id);
+
+  if (!assessment && parsed) {
+    assessment = await AssessmentModel.findOne({
+      facilityId: parsed.facilityId,
+      complianceType: parsed.complianceType,
+      period: parsed.period,
+    });
+  }
+
+  if (!assessment && parsed) {
+    const { resolveAssessmentById } = await import('@/lib/complianceMatrixData');
+    const fallback = resolveAssessmentById(id);
+    assessment = await AssessmentModel.findOneAndUpdate(
+      {
+        facilityId: parsed.facilityId,
+        complianceType: parsed.complianceType,
+        period: parsed.period,
+      },
+      {
+        $setOnInsert: {
+          facilityId: parsed.facilityId,
+          complianceType: parsed.complianceType,
+          period: parsed.period,
+          workflowStatus: fallback?.workflowStatus || 'DATA_COLLECTION',
+          complianceOutcome: fallback?.complianceOutcome || 'PENDING_DETERMINATION',
+          isHistorical: false,
+          version: 1,
+          documentLinks: fallback?.documentLinks || {},
+          metrics: fallback?.metrics || [],
+        },
+      },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+  }
+
   if (!assessment) return { error: jsonError('Assessment not found', 404) } as const;
   if (!isAuthorizedForFacility(session, assessment.facilityId)) {
     return { error: jsonError('You are not authorized for this facility', 403) } as const;

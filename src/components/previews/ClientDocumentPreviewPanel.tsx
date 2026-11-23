@@ -354,8 +354,8 @@ export const ClientDocumentPreviewPanel: React.FC<ClientDocumentPreviewPanelProp
   if (!modal) return inner;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-      <div className={`relative w-full max-h-[92vh] overflow-hidden flex flex-col ${fileOnly ? 'max-w-5xl' : 'max-w-3xl'}`}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md">
+      <div className="relative w-[96vw] max-w-6xl xl:max-w-7xl 2xl:max-w-[1560px] max-h-[94vh] overflow-hidden flex flex-col rounded-2xl shadow-2xl">
         <button
           type="button"
           onClick={onClose}

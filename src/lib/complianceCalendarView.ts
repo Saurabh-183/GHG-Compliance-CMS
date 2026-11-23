@@ -1,6 +1,8 @@
 import type { ComplianceType, ICalendarItem } from '@/types';
 import type { IDataRequirementDocument } from '@/models/DataRequirement';
 import type { ICalendarItemDocument } from '@/models/CalendarItem';
+import { resolveRequirementDueDate } from '@/lib/dataRequestDueDate';
+import { resolveClientUploadWorkflowDisplay } from '@/lib/clientUploadStatus';
 
 export type CalendarRowSource = 'requirement';
 
@@ -45,6 +47,9 @@ type RequirementCalendarPick = Pick<
   | 'linkedCompliances'
   | 'workflowStatus'
   | 'submissionStatus'
+  | 'verificationStatus'
+  | 'submittedDriveLinks'
+  | 'submissionHistory'
   | 'title'
   | 'requestId'
 >;
@@ -64,19 +69,32 @@ function mapRequirementRow(
   facilityName: string,
   extensionOverlay?: ICalendarItemDocument
 ): CalendarViewRow | null {
-  const hasDueDate = Boolean(req.dueDate);
-  let regulatoryDue: Date | null = null;
-  if (req.dueDate) {
-    const due = req.dueDate instanceof Date ? req.dueDate : new Date(req.dueDate);
-    if (!Number.isNaN(due.getTime())) regulatoryDue = due;
+  const dueIso = resolveRequirementDueDate(req.dueDate, req.period);
+  let regulatoryDue: Date = new Date(dueIso);
+  if (Number.isNaN(regulatoryDue.getTime())) {
+    regulatoryDue = new Date();
   }
 
   const linkedFrameworks: ComplianceType[] =
     req.linkedCompliances?.length > 0 ? [...req.linkedCompliances] : (['RCO'] as ComplianceType[]);
   const primaryFramework = linkedFrameworks[0];
 
-  const milestones = regulatoryDue ? deriveMilestoneDates(regulatoryDue) : null;
+  const milestones = deriveMilestoneDates(regulatoryDue);
   const hasExtensions = (extensionOverlay?.extensionHistory?.length ?? 0) > 0;
+
+  const hasSubmissions =
+    (req.submittedDriveLinks && req.submittedDriveLinks.length > 0) ||
+    (req.submissionHistory && req.submissionHistory.length > 0);
+
+  let resolvedStatus = resolveClientUploadWorkflowDisplay({
+    workflowStatus: req.workflowStatus,
+    verificationStatus: req.verificationStatus,
+    submissionStatus: req.submissionStatus,
+  });
+
+  if ((!resolvedStatus || resolvedStatus === 'REQUESTED') && hasSubmissions) {
+    resolvedStatus = 'SUBMITTED';
+  }
 
   return {
     _id: `req-${req._id.toString()}`,
@@ -84,19 +102,13 @@ function mapRequirementRow(
     facilityName,
     complianceType: primaryFramework,
     reportingPeriod: req.period,
-    regulatoryDueDate: regulatoryDue ? regulatoryDue.toISOString() : '',
-    internalDeadline: milestones
-      ? milestones.internalDeadline.toISOString()
-      : '',
-    clientDataSubmissionDeadline: milestones
-      ? milestones.clientDataSubmissionDeadline.toISOString()
-      : '',
+    regulatoryDueDate: regulatoryDue.toISOString(),
+    internalDeadline: milestones.internalDeadline.toISOString(),
+    clientDataSubmissionDeadline: milestones.clientDataSubmissionDeadline.toISOString(),
     assignedConsultantId: extensionOverlay?.assignedConsultantId?.toString() || '',
-    status: !regulatoryDue
-      ? 'PENDING'
-      : hasExtensions
-        ? 'EXTENDED'
-        : mapWorkflowToCalendarStatus(req.workflowStatus, regulatoryDue),
+    status: hasExtensions
+      ? 'EXTENDED'
+      : mapWorkflowToCalendarStatus(resolvedStatus, regulatoryDue),
     actualSubmissionDate: null,
     extensionHistory: extensionOverlay ? mapExtensionHistory(extensionOverlay) : [],
     isRecurringCEA: linkedFrameworks.includes('CEA'),
@@ -105,38 +117,26 @@ function mapRequirementRow(
     requestTitle: req.title,
     requestCode: req.requestId,
     linkedFrameworks,
-    requestWorkflowStatus: req.workflowStatus || 'REQUESTED',
+    requestWorkflowStatus: resolvedStatus || 'REQUESTED',
     requestSubmissionStatus: req.submissionStatus || 'REQUESTED',
-    hasDueDate,
+    hasDueDate: true,
   };
 }
 
 /** Calendar rows = one row per consultant data request (with due date), optional extension log overlay. */
 export function buildComplianceCalendarView(input: {
   requirements: Array<
-    Pick<
-      IDataRequirementDocument,
-      | '_id'
-      | 'facilityId'
-      | 'period'
-      | 'dueDate'
-      | 'linkedCompliances'
-      | 'workflowStatus'
-      | 'submissionStatus'
-      | 'isApplicable'
-      | 'title'
-      | 'requestId'
-    >
+    RequirementCalendarPick & {
+      isApplicable?: boolean;
+    }
   >;
   calendarItems?: Array<ICalendarItemDocument & { _id: { toString(): string } }>;
   facilityNameById: Map<string, string>;
 }): CalendarViewRow[] {
   const extensionByReqId = new Map<string, ICalendarItemDocument>();
-  const extensionByKey = new Map<string, ICalendarItemDocument>();
   for (const item of input.calendarItems || []) {
     const reqId = item.dataRequirementId?.toString();
     if (reqId) extensionByReqId.set(reqId, item);
-    extensionByKey.set(rowKey(item.facilityId, item.complianceType, item.reportingPeriod), item);
   }
 
   const rows: CalendarViewRow[] = [];
@@ -144,14 +144,9 @@ export function buildComplianceCalendarView(input: {
   for (const req of input.requirements) {
     if (req.isApplicable === false) continue;
     const name = input.facilityNameById.get(req.facilityId) || req.facilityId;
-    const frameworks =
-      req.linkedCompliances?.length > 0 ? req.linkedCompliances : (['RCO'] as ComplianceType[]);
-    const overlay =
-      extensionByReqId.get(req._id.toString()) ||
-      frameworks
-        .map((ct) => extensionByKey.get(rowKey(req.facilityId, ct, req.period)))
-        .find(Boolean) ||
-      extensionByKey.get(rowKey(req.facilityId, frameworks[0], req.period));
+
+    // Extension history is strictly isolated to this specific data request
+    const overlay = extensionByReqId.get(req._id.toString());
 
     const row = mapRequirementRow(req, name, overlay);
     if (row) rows.push(row);

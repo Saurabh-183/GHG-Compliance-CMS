@@ -11,7 +11,7 @@ import { masterRowsByCategory } from '@/lib/dataRequirementMaster';
 import { notify } from '@/lib/notify';
 import { generateMonthRange, financialYearOptions } from '@/lib/dataRequestCategories';
 
-const COMPLIANCE_OPTIONS: ComplianceType[] = ['RCO', 'PAT', 'CCTS', 'CEA'];
+const COMPLIANCE_OPTIONS: ComplianceType[] = ['RCO', 'PAT', 'CCTS'];
 
 interface ChecklistDrivenRequestWizardProps {
   facilityId: string;
@@ -78,7 +78,16 @@ export function ChecklistDrivenRequestWizard({
       if (!res.ok) throw new Error(json.error || 'Failed to load checklist');
       const rows = (json.data?.requirements || []) as IFacilityApplicableRequirement[];
       setRequirements(rows);
-      const preselect = rows.filter((r) => r.requestable && !r.needsVerification).map((r) => r.master.itemKey);
+      const preselect = rows
+        .filter(
+          (r) =>
+            r.requestable &&
+            !r.needsVerification &&
+            r.master.category !== 'ELECTRICITY_POWER' &&
+            !/electricity|cea/i.test(r.master.categoryLabel) &&
+            !/electricity|cea/i.test(r.master.name)
+        )
+        .map((r) => r.master.itemKey);
       setSelected(new Set(preselect));
       setBundleTitle((prev) =>
         prev.trim()
@@ -98,11 +107,14 @@ export function ChecklistDrivenRequestWizard({
 
   const grouped = useMemo(() => {
     const map = masterRowsByCategory();
-    return Object.entries(map).map(([cat, masters]) => ({
-      categoryKey: cat,
-      categoryLabel: masters[0] ? requirements.find((r) => r.master.category === cat)?.master.categoryLabel || cat : cat,
-      rows: requirements.filter((r) => r.master.category === cat),
-    }));
+    return Object.entries(map)
+      .filter(([cat]) => cat !== 'ELECTRICITY_POWER')
+      .map(([cat, masters]) => ({
+        categoryKey: cat,
+        categoryLabel: masters[0] ? requirements.find((r) => r.master.category === cat)?.master.categoryLabel || cat : cat,
+        rows: requirements.filter((r) => r.master.category === cat),
+      }))
+      .filter((g) => !/electricity|cea/i.test(g.categoryLabel));
   }, [requirements]);
 
   const toggleCategory = (keys: string[], on: boolean) => {

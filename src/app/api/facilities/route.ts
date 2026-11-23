@@ -112,7 +112,7 @@ export async function GET(request: NextRequest) {
     const { MOCK_FACILITIES } = await import('@/lib/mockFallback');
     let fallbackList = MOCK_FACILITIES;
     const portalScope = request.nextUrl.searchParams.get('portalScope') === 'authorized';
-    if (portalScope || session?.role === 'CLIENT') {
+    if (portalScope) {
       fallbackList = filterFacilitiesToPortalScope(session, MOCK_FACILITIES);
     }
     return NextResponse.json({

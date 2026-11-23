@@ -16,8 +16,12 @@ import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import { notify } from '@/lib/notify';
 import { ClientRequirementSubmissionModal } from '@/components/portal/ClientRequirementSubmissionModal';
 import { LayoutGrid, List, RefreshCw, Search } from 'lucide-react';
+import { FormControl, Select, MenuItem, SelectChangeEvent } from '@mui/material';
+import { useAuth } from '@/context/AuthContext';
 
 export default function ClientRequestsPage() {
+  const { theme } = useAuth();
+  const isDark = theme === 'dark';
   const searchParams = useSearchParams();
   const [facilities, setFacilities] = useState<IFacility[]>([]);
   const [requirements, setRequirements] = useState<IDataRequirement[]>([]);
@@ -85,7 +89,7 @@ export default function ClientRequestsPage() {
       });
       const payload = await response.json().catch(() => null);
       if (!response.ok) throw new Error(payload?.error || 'Failed to load compliance requests.');
-      const rows = Array.isArray(payload?.data) ? payload.data : [];
+      const rows: IDataRequirement[] = Array.isArray(payload?.data) ? payload.data : [];
       const scoped = rows.filter(
         (r) =>
           r.facilityId?.toUpperCase() === facilityFilter.toUpperCase() &&
@@ -163,45 +167,133 @@ export default function ClientRequestsPage() {
         onQuickFilter={(key) => setQuickFilter(key)}
       />
 
-      <div className="sticky top-16 z-20 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md p-4 shadow-sm space-y-3">
-        <div className="flex flex-col lg:flex-row gap-3">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search by request ID, title, facility or category…"
-              className="w-full pl-10 pr-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-sm text-slate-900 dark:text-white"
-            />
+      <div className="sticky top-16 z-20 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md p-3.5 sm:p-4 shadow-sm">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 flex-wrap flex-1">
+            {/* Search bar: small about w-72, aligned with the left */}
+            <div className="relative w-full sm:w-72 shrink-0">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+              <input
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Search by ID, title, facility..."
+                className="w-full pl-9 pr-3 h-[38px] rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 dark:focus:border-emerald-400 transition-all shadow-2xs"
+              />
+            </div>
+
+            {/* MUI Category Dropdown */}
+            <FormControl size="small" sx={{ minWidth: 160, maxWidth: 220 }}>
+              <Select
+                value={categoryFilter}
+                onChange={(e: SelectChangeEvent) => setCategoryFilter(e.target.value)}
+                sx={{
+                  height: 38,
+                  fontSize: '12px',
+                  borderRadius: '8px',
+                  backgroundColor: isDark ? '#020617' : '#FFFFFF',
+                  color: isDark ? '#FFFFFF' : '#0F172A',
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: isDark ? '#34D399' : '#059669',
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: isDark ? '#34D399' : '#059669',
+                    borderWidth: '1.5px',
+                  },
+                  '& .MuiSelect-select': {
+                    py: '6px',
+                    px: '12px',
+                  },
+                }}
+                MenuProps={{
+                  slotProps: {
+                    paper: {
+                      sx: {
+                        mt: 0.5,
+                        maxHeight: 320,
+                        borderRadius: '8px',
+                        backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                        color: isDark ? '#FFFFFF' : '#0F172A',
+                        border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0'}`,
+                        boxShadow: isDark
+                          ? '0 10px 25px -5px rgba(0, 0, 0, 0.6)'
+                          : '0 10px 25px -5px rgba(16, 185, 129, 0.12)',
+                        '& .MuiList-root': { py: '4px' },
+                      },
+                    },
+                  },
+                }}
+              >
+                <MenuItem value="ALL" sx={{ fontSize: '12px' }}>All categories</MenuItem>
+                {categoryOptions.map((c) => (
+                  <MenuItem key={c} value={c} sx={{ fontSize: '12px' }}>
+                    {c}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            {/* MUI Status Dropdown */}
+            <FormControl size="small" sx={{ minWidth: 150 }}>
+              <Select
+                value={statusFilter}
+                onChange={(e: SelectChangeEvent) => setStatusFilter(e.target.value)}
+                sx={{
+                  height: 38,
+                  fontSize: '12px',
+                  borderRadius: '8px',
+                  backgroundColor: isDark ? '#020617' : '#FFFFFF',
+                  color: isDark ? '#FFFFFF' : '#0F172A',
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: isDark ? '#34D399' : '#059669',
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: isDark ? '#34D399' : '#059669',
+                    borderWidth: '1.5px',
+                  },
+                  '& .MuiSelect-select': {
+                    py: '6px',
+                    px: '12px',
+                  },
+                }}
+                MenuProps={{
+                  slotProps: {
+                    paper: {
+                      sx: {
+                        mt: 0.5,
+                        maxHeight: 320,
+                        borderRadius: '8px',
+                        backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                        color: isDark ? '#FFFFFF' : '#0F172A',
+                        border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0'}`,
+                        boxShadow: isDark
+                          ? '0 10px 25px -5px rgba(0, 0, 0, 0.6)'
+                          : '0 10px 25px -5px rgba(16, 185, 129, 0.12)',
+                        '& .MuiList-root': { py: '4px' },
+                      },
+                    },
+                  },
+                }}
+              >
+                <MenuItem value="ALL" sx={{ fontSize: '12px' }}>All statuses</MenuItem>
+                <MenuItem value="REQUESTED" sx={{ fontSize: '12px' }}>Requested</MenuItem>
+                <MenuItem value="IN_PROGRESS" sx={{ fontSize: '12px' }}>In progress</MenuItem>
+                <MenuItem value="SUBMITTED" sx={{ fontSize: '12px' }}>Submitted</MenuItem>
+                <MenuItem value="UNDER_REVIEW" sx={{ fontSize: '12px' }}>Under review</MenuItem>
+                <MenuItem value="CHANGES_REQUESTED" sx={{ fontSize: '12px' }}>Changes requested</MenuItem>
+                <MenuItem value="RESUBMITTED" sx={{ fontSize: '12px' }}>Resubmitted</MenuItem>
+                <MenuItem value="ACCEPTED" sx={{ fontSize: '12px' }}>Accepted</MenuItem>
+                <MenuItem value="REJECTED" sx={{ fontSize: '12px' }}>Rejected</MenuItem>
+              </Select>
+            </FormControl>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <select
-              value={categoryFilter}
-              onChange={(event) => setCategoryFilter(event.target.value)}
-              className="rounded-xl border px-3 py-2.5 text-xs max-w-[160px] dark:bg-slate-950"
-            >
-              <option value="ALL">All categories</option>
-              {categoryOptions.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-            <select
-              value={statusFilter}
-              onChange={(event) => setStatusFilter(event.target.value)}
-              className="rounded-xl border px-3 py-2.5 text-xs dark:bg-slate-950"
-            >
-              <option value="ALL">All statuses</option>
-              <option value="REQUESTED">Requested</option>
-              <option value="IN_PROGRESS">In progress</option>
-              <option value="SUBMITTED">Submitted</option>
-              <option value="UNDER_REVIEW">Under review</option>
-              <option value="CHANGES_REQUESTED">Changes requested</option>
-              <option value="RESUBMITTED">Resubmitted</option>
-              <option value="ACCEPTED">Accepted</option>
-              <option value="REJECTED">Rejected</option>
-            </select>
+
+          <div className="flex items-center gap-2 shrink-0 self-end md:self-auto">
             <ViewToggle view={view} onChange={setView} />
           </div>
         </div>
@@ -321,11 +413,11 @@ function PageHeader({ onRefresh, count }: { onRefresh: () => void; count: number
 
 function ViewToggle({ view, onChange }: { view: 'cards' | 'table'; onChange: (v: 'cards' | 'table') => void }) {
   return (
-    <div className="inline-flex border rounded-xl overflow-hidden h-[42px]">
+    <div className="inline-flex border border-slate-300 dark:border-slate-700 rounded-lg overflow-hidden h-[38px] bg-white dark:bg-slate-900 shadow-2xs">
       <button
         type="button"
         onClick={() => onChange('cards')}
-        className={`px-3 ${view === 'cards' ? 'bg-emerald-700 text-white' : ''}`}
+        className={`px-3 flex items-center justify-center transition-colors ${view === 'cards' ? 'bg-emerald-700 text-white' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
         title="Cards"
       >
         <LayoutGrid className="w-4 h-4" />
@@ -333,7 +425,7 @@ function ViewToggle({ view, onChange }: { view: 'cards' | 'table'; onChange: (v:
       <button
         type="button"
         onClick={() => onChange('table')}
-        className={`px-3 ${view === 'table' ? 'bg-emerald-700 text-white' : ''}`}
+        className={`px-3 flex items-center justify-center transition-colors ${view === 'table' ? 'bg-emerald-700 text-white' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
         title="Table"
       >
         <List className="w-4 h-4" />

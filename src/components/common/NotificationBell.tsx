@@ -14,7 +14,7 @@ import {
   Clock,
   Check,
 } from 'lucide-react';
-import { formatDate } from '@/lib/utils';
+import { formatDate, formatDateTime } from '@/lib/utils';
 
 interface NotificationItem {
   _id: string;
@@ -26,6 +26,7 @@ interface NotificationItem {
   message: string;
   linkUrl: string;
   isRead: boolean;
+  readAt?: string;
   createdAt: string;
 }
 
@@ -72,8 +73,9 @@ export const NotificationBell: React.FC = () => {
   const handleMarkAsRead = async (id: string, linkUrl: string) => {
     try {
       await fetch(`/api/notifications/${id}/read`, { method: 'PATCH' });
+      const nowIso = new Date().toISOString();
       setNotifications((prev) =>
-        prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
+        prev.map((n) => (n._id === id ? { ...n, isRead: true, readAt: nowIso } : n))
       );
       setUnreadCount((prev) => Math.max(0, prev - 1));
       setIsOpen(false);
@@ -91,7 +93,8 @@ export const NotificationBell: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ role: currentRole }),
       });
-      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+      const nowIso = new Date().toISOString();
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true, readAt: nowIso })));
       setUnreadCount(0);
     } catch (e) {
       console.error(e);
@@ -224,11 +227,13 @@ export const NotificationBell: React.FC = () => {
                     {item.message}
                   </p>
 
-                  <div className="flex items-center justify-between text-[10px] text-slate-500 pl-7 pt-0.5">
-                    <span className={`font-medium truncate max-w-[180px] ${isLight ? '  ' : ' '}`}>
+                  <div className="flex items-center justify-between text-[10px] text-slate-500 pl-7 pt-0.5 gap-2">
+                    <span className={`font-medium truncate max-w-[150px] ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
                       From: {item.senderName}
                     </span>
-                    <span>{formatDate(item.createdAt)}</span>
+                    <span className="font-mono text-[9px] text-slate-500 dark:text-slate-400 shrink-0">
+                      {formatDateTime(item.createdAt)}
+                    </span>
                   </div>
                 </div>
               ))

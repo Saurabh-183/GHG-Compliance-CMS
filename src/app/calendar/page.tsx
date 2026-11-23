@@ -22,12 +22,17 @@ import { notify } from '@/lib/notify';
 import { MOCK_CLIENT_GROUPS } from '@/lib/mockFallback';
 import { CompanySelectMui } from '@/components/dashboard/CompanySelectMui';
 import { MuiDatePicker } from '@/components/common/MuiDatePicker';
+import { useAuth } from '@/context/AuthContext';
 import {
   generateDeadlinesForFacilities,
   generateAllClientDeadlines,
 } from '@/lib/statutoryCalendar';
 
 export default function ComplianceCalendarPage() {
+  const { currentRole, currentUser } = useAuth();
+  const isAdmin = currentRole === 'ADMIN' || currentUser?.role === 'ADMIN';
+  const isConsultant = currentRole === 'CONSULTANT' || currentUser?.role === 'CONSULTANT';
+
   const [items, setItems] = useState<ICalendarItem[]>([]);
   const [groups, setGroups] = useState<IClientGroup[]>([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>('ALL');
@@ -95,6 +100,11 @@ export default function ComplianceCalendarPage() {
 
   const handleExtendDeadline = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isAdmin) {
+      notify.error('Admins do not have permission to extend due dates.');
+      setExtendingItem(null);
+      return;
+    }
     if (!extendingItem || !newDueDate || !extensionReason || !notificationRef) {
       notify.warning('Please fill in all extension fields');
       return;
@@ -120,7 +130,8 @@ export default function ComplianceCalendarPage() {
         setNotificationRef('');
         await loadData();
       } else {
-        notify.error('Failed to record deadline extension');
+        const json = await res.json().catch(() => null);
+        notify.error(json?.error || 'Failed to record deadline extension');
       }
     } catch (err) {
       notify.error('Network error updating deadline');
@@ -183,7 +194,7 @@ export default function ComplianceCalendarPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Header with Title and Filters */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
-        <div>
+        <div className='p-4 rounded-lg broder border-gray-200 bg-white'>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2.5">
             <CalendarIcon className="w-6 h-6 text-emerald-700 dark:text-emerald-400" />
             Centralized Statutory Compliance Calendar
@@ -214,14 +225,21 @@ export default function ComplianceCalendarPage() {
             {['ALL', 'RCO', 'PAT', 'CCTS', 'CEA'].map((cat) => (
               <button
                 key={cat}
+                type="button"
                 onClick={() => setFilter(cat)}
                 className={`px-3 py-1 rounded text-xs font-semibold transition-colors ${
                   filter === cat
-                    ? 'bg-emerald-700 text-white font-bold shadow-2xs'
+                    ? 'bg-emerald-700 text-white !text-white font-bold shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white'
                 }`}
+                style={filter === cat ? { color: '#FFFFFF' } : undefined}
               >
-                {cat}
+                <span
+                  className={filter === cat ? 'text-white !text-white font-bold' : ''}
+                  style={filter === cat ? { color: '#FFFFFF' } : undefined}
+                >
+                  {cat}
+                </span>
               </button>
             ))}
           </div>
@@ -347,20 +365,51 @@ export default function ComplianceCalendarPage() {
                     />
                   </td>
                   <td className="py-3.5 px-4 text-center">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setExtendingItem(item);
-                        setNewDueDate(
-                          row.hasDueDate && item.regulatoryDueDate
-                            ? item.regulatoryDueDate.split('T')[0]
-                            : ''
+                    {(() => {
+                      const isAccepted = row.requestWorkflowStatus === 'ACCEPTED' || row.requestWorkflowStatus === 'CLOSED';
+                      const canExtend = !isAdmin && isConsultant && !isAccepted;
+
+                      if (canExtend) {
+                        return (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setExtendingItem(item);
+                              setNewDueDate(
+                                row.hasDueDate && item.regulatoryDueDate
+                                  ? item.regulatoryDueDate.split('T')[0]
+                                  : ''
+                              );
+                            }}
+                            className="px-2.5 py-1 text-[11px] rounded bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 dark:border-transparent transition-colors shadow-2xs font-medium cursor-pointer"
+                          >
+                            {row.hasDueDate ? 'Extend due date' : 'Set due date'}
+                          </button>
                         );
-                      }}
-                      className="px-2.5 py-1 text-[11px] rounded bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 dark:border-transparent transition-colors shadow-2xs font-medium"
-                    >
-                      {row.hasDueDate ? 'Extend due date' : 'Set due date'}
-                    </button>
+                      }
+
+                      if (isAccepted) {
+                        return (
+                          <span className="text-[11px] text-slate-400 font-medium select-none" title="Submission accepted — due date locked">
+                            —
+                          </span>
+                        );
+                      }
+
+                      if (isAdmin) {
+                        return (
+                          <span className="text-[11px] text-slate-400 font-medium select-none" title="Admin view only — extensions reserved for consultants">
+                            —
+                          </span>
+                        );
+                      }
+
+                      return (
+                        <span className="text-[11px] text-slate-400 font-medium select-none">
+                          —
+                        </span>
+                      );
+                    })()}
                   </td>
                 </tr>
               );

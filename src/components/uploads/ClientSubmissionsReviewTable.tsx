@@ -30,6 +30,7 @@ function uploadRowToRequirement(row: ClientUploadListItem): IDataRequirement {
     facilityId: row.facilityId,
     facilityName: row.facilityName,
     period: row.period,
+    dueDate: row.dueDate,
     dataCategory: row.dataCategory,
     workflowStatus: row.workflowStatus,
     verificationStatus: row.verificationStatus,
@@ -57,6 +58,15 @@ export interface ClientSubmissionsReviewTableProps {
   showWorkflowFilter?: boolean;
 }
 
+const clientUploadsInFlight = new Map<
+  string,
+  Promise<{ data?: ClientUploadListItem[]; error?: string; ok: boolean }>
+>();
+const clientUploadsCache = new Map<
+  string,
+  { timestamp: number; data: ClientUploadListItem[] }
+>();
+
 export const ClientSubmissionsReviewTable: React.FC<ClientSubmissionsReviewTableProps> = ({
   facilityId,
   facilityIds,
@@ -69,36 +79,76 @@ export const ClientSubmissionsReviewTable: React.FC<ClientSubmissionsReviewTable
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      setLoadError('');
-      const params = new URLSearchParams();
-      if (facilityId) params.set('facilityId', facilityId);
-      else if (facilityIds) params.set('facilityIds', facilityIds);
-      if (clientGroupId) params.set('clientGroupId', clientGroupId);
-      const res = await fetch(`/api/client-uploads?${params.toString()}`, {
-        credentials: 'include',
-        cache: 'no-store',
-      });
-      const json = (await res.json()) as { data?: ClientUploadListItem[]; error?: string };
-      if (!res.ok) {
+  const load = useCallback(
+    async (forceRefresh = false) => {
+      setLoading(true);
+      try {
+        setLoadError('');
+        const params = new URLSearchParams();
+        if (facilityId) params.set('facilityId', facilityId);
+        else if (facilityIds) params.set('facilityIds', facilityIds);
+        if (clientGroupId) params.set('clientGroupId', clientGroupId);
+        const url = `/api/client-uploads?${params.toString()}`;
+
+        // Return immediate cache if requested within the last 1500ms
+        const cached = clientUploadsCache.get(url);
+        if (!forceRefresh && cached && Date.now() - cached.timestamp < 1500) {
+          let rows = cached.data;
+          if (period) {
+            rows = rows.filter((r) => !r.period || r.period === period);
+          }
+          setUploads(rows);
+          setLoading(false);
+          return;
+        }
+
+        // Deduplicate in-flight promises so concurrent or StrictMode renders share one request
+        let fetchPromise = clientUploadsInFlight.get(url);
+        if (!fetchPromise || forceRefresh) {
+          fetchPromise = fetch(url, {
+            credentials: 'include',
+            cache: 'no-store',
+          })
+            .then(async (res) => {
+              const json = (await res.json()) as {
+                data?: ClientUploadListItem[];
+                error?: string;
+              };
+              return { ok: res.ok, data: json.data, error: json.error };
+            })
+            .finally(() => {
+              clientUploadsInFlight.delete(url);
+            });
+          clientUploadsInFlight.set(url, fetchPromise);
+        }
+
+        const result = await fetchPromise;
+        if (!result.ok) {
+          setUploads([]);
+          setLoadError(result.error || 'Could not load submissions');
+          return;
+        }
+
+        const fetchedRows = result.data || [];
+        clientUploadsCache.set(url, {
+          timestamp: Date.now(),
+          data: fetchedRows,
+        });
+
+        let rows = fetchedRows;
+        if (period) {
+          rows = rows.filter((r) => !r.period || r.period === period);
+        }
+        setUploads(rows);
+      } catch {
+        setLoadError('Network error while loading submissions');
         setUploads([]);
-        setLoadError(json.error || 'Could not load submissions');
-        return;
+      } finally {
+        setLoading(false);
       }
-      let rows = json.data || [];
-      if (period) {
-        rows = rows.filter((r) => !r.period || r.period === period);
-      }
-      setUploads(rows);
-    } catch {
-      setLoadError('Network error while loading submissions');
-      setUploads([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [facilityId, facilityIds, clientGroupId, period]);
+    },
+    [facilityId, facilityIds, clientGroupId, period]
+  );
 
   useEffect(() => {
     void load();
@@ -126,8 +176,9 @@ export const ClientSubmissionsReviewTable: React.FC<ClientSubmissionsReviewTable
       <RequirementsReviewTable
         requirements={displayRequirements}
         showWorkflowFilter={showWorkflowFilter && !compact}
+        compact={compact}
         emptyMessage="No client submissions to review yet."
-        onReviewed={load}
+        onReviewed={() => load(true)}
       />
 
       {compact && requirements.length > 5 && (

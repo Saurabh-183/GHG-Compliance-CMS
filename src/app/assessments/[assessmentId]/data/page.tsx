@@ -11,9 +11,13 @@ import { ChecklistDrivenRequestWizard } from '@/components/requests/ChecklistDri
 import { RequirementsReviewTable } from '@/components/requests/RequirementsReviewTable';
 import { matchesQuickFilter } from '@/lib/dataRequestDisplay';
 import { computeRequestStats } from '@/lib/requestStats';
-import { ChevronRight, ExternalLink, FileSpreadsheet, Plus, RefreshCw } from 'lucide-react';
+import { ChevronRight, ExternalLink, FileSpreadsheet, Plus, RefreshCw, ChevronDown } from 'lucide-react';
+import { Select, MenuItem, FormControl, SelectChangeEvent } from '@mui/material';
+import { useAuth } from '@/context/AuthContext';
 
 export default function AssessmentDataPage() {
+  const { theme } = useAuth();
+  const isDark = theme === 'dark';
   const params = useParams();
   const router = useRouter();
   const assessmentId = params.assessmentId as string;
@@ -152,33 +156,97 @@ export default function AssessmentDataPage() {
               <span className="font-mono font-bold">{assessment?.complianceType}</span>
             </p>
             {assessment && (
-              <label className="mt-3 inline-flex flex-wrap items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+              <div className="mt-3 inline-flex flex-wrap items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
                 <span className="font-semibold">Data collection year</span>
-                <select
-                  value={assessment.period}
-                  onChange={(e) => {
-                    const nextPeriod = e.target.value;
-                    const nextId = buildAssessmentId(
-                      assessment.facilityId,
-                      assessment.complianceType,
-                      nextPeriod
-                    );
-                    if (nextId !== assessmentId) {
-                      router.push(`/assessments/${encodeURIComponent(nextId)}/data`);
-                    }
-                  }}
-                  className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-2.5 py-1.5 font-mono text-emerald-800 dark:text-emerald-300"
-                >
-                  {COMPLIANCE_PERIODS.map((fy) => (
-                    <option key={fy} value={fy}>
-                      {fy}
-                    </option>
-                  ))}
-                </select>
+                <FormControl size="small" sx={{ minWidth: 130 }}>
+                  <Select
+                    value={assessment.period}
+                    onChange={(e: SelectChangeEvent) => {
+                      const nextPeriod = e.target.value;
+                      const nextId = buildAssessmentId(
+                        assessment.facilityId,
+                        assessment.complianceType,
+                        nextPeriod
+                      );
+                      if (nextId !== assessmentId) {
+                        router.push(`/assessments/${encodeURIComponent(nextId)}/data`);
+                      }
+                    }}
+                    IconComponent={() => (
+                      <ChevronDown
+                        className="w-4 h-4 pointer-events-none"
+                        style={{ color: isDark ? '#94A3B8' : '#64748B', marginRight: 8 }}
+                      />
+                    )}
+                    sx={{
+                      height: 34,
+                      fontSize: '12px',
+                      fontFamily: 'monospace',
+                      fontWeight: 600,
+                      borderRadius: '8px',
+                      backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                      color: isDark ? '#FFFFFF' : '#0F172A',
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
+                      },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: isDark ? '#34D399' : '#059669',
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: isDark ? '#34D399' : '#059669',
+                        borderWidth: '1.5px',
+                      },
+                      '& .MuiSelect-select': {
+                        py: '5px',
+                        px: '10px',
+                      },
+                    }}
+                    MenuProps={{
+                      slotProps: {
+                        paper: {
+                          sx: {
+                            mt: 0.5,
+                            borderRadius: '8px',
+                            backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                            color: isDark ? '#FFFFFF' : '#0F172A',
+                            border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0'}`,
+                            boxShadow: isDark
+                              ? '0 10px 25px -5px rgba(0, 0, 0, 0.6)'
+                              : '0 10px 25px -5px rgba(16, 185, 129, 0.12)',
+                            '& .MuiList-root': { py: '4px' },
+                          },
+                        },
+                      },
+                    }}
+                  >
+                    {COMPLIANCE_PERIODS.map((fy) => (
+                      <MenuItem
+                        key={fy}
+                        value={fy}
+                        sx={{
+                          fontSize: '12px',
+                          fontFamily: 'monospace',
+                          fontWeight: assessment.period === fy ? 600 : 400,
+                          py: 0.75,
+                          px: 1.5,
+                          borderRadius: '6px',
+                          mx: 0.5,
+                          my: 0.25,
+                          '&.Mui-selected': {
+                            backgroundColor: isDark ? 'rgba(52, 211, 153, 0.15)' : 'rgba(16, 185, 129, 0.1)',
+                            color: isDark ? '#34D399' : '#059669',
+                          },
+                        }}
+                      >
+                        {fy}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
                 <span className="text-[10px] text-slate-400">
                   Switches assessment year, stats, and client request list together.
                 </span>
-              </label>
+              </div>
             )}
           </div>
 

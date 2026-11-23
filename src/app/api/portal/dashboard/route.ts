@@ -37,6 +37,15 @@ async function buildPortalFacilityQuery(session: ReturnType<typeof getSessionFro
   return { filter, portalFacilityIds };
 }
 
+function toSafeIso(val: unknown): string | null {
+  if (!val) return null;
+  if (val instanceof Date) {
+    return isNaN(val.getTime()) ? null : val.toISOString();
+  }
+  const d = new Date(String(val));
+  return isNaN(d.getTime()) ? String(val) : d.toISOString();
+}
+
 export async function GET(request: NextRequest) {
   try {
     // 1. Authenticate the request.
@@ -186,25 +195,6 @@ export async function GET(request: NextRequest) {
       .limit(6)
       .lean();
 
-    // 9. Format facilities.
-    const formattedFacilities = facilities.map((facility) => {
-      const clientGroup = facility.clientGroupId as unknown as {
-        _id?: { toString(): string };
-        name?: string;
-        code?: string;
-        industry?: string;
-      };
-
-      return {
-        ...facility,
-        _id: facility._id.toString(),
-        clientGroupId: clientGroup?._id
-          ? clientGroup._id.toString()
-          : String(facility.clientGroupId),
-        clientGroupName: clientGroup?.name || '',
-      };
-    });
-
     // 10. Return dashboard data.
     return NextResponse.json({
       success: true,
@@ -213,35 +203,26 @@ export async function GET(request: NextRequest) {
         pendingRequests: pendingRequests.map((r) => ({
           ...r,
           _id: r._id.toString(),
-          dueDate: r.dueDate ? r.dueDate.toISOString() : null,
+          dueDate: toSafeIso(r.dueDate),
         })),
 
-        openClarifications: openClarifications.map(
-          (clarification) => ({
-            ...clarification,
-            _id: clarification._id.toString(),
-            datasetId: clarification.datasetId
-              ? clarification.datasetId.toString()
-              : null,
-          })
-        ),
+        openClarifications: openClarifications.map((clarification) => ({
+          ...clarification,
+          _id: clarification._id.toString(),
+          datasetId: clarification.datasetId
+            ? clarification.datasetId.toString()
+            : null,
+        })),
 
         approvedHistory: sanitizedHistory,
 
         upcomingDeadlines: upcomingDeadlines.map((deadline) => ({
           ...deadline,
           _id: deadline._id.toString(),
-          clientDataSubmissionDeadline:
+          clientDataSubmissionDeadline: toSafeIso(
             deadline.clientDataSubmissionDeadline
-              ? new Date(
-                  deadline.clientDataSubmissionDeadline
-                ).toISOString()
-              : null,
-          regulatoryDueDate: deadline.regulatoryDueDate
-            ? new Date(
-                deadline.regulatoryDueDate
-              ).toISOString()
-            : null,
+          ),
+          regulatoryDueDate: toSafeIso(deadline.regulatoryDueDate),
         })),
       },
     });

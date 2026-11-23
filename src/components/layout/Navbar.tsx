@@ -75,15 +75,18 @@ export const Navbar: React.FC = () => {
       });
     }
 
-    if (
-      currentRole === 'ADMIN' ||
-      currentRole === 'CONSULTANT'
-    ) {
+    if (currentRole === 'CONSULTANT') {
       items.push({
         label: 'Data Requests',
         href: '/data-requests',
         icon: FileSpreadsheet,
       });
+    }
+
+    if (
+      currentRole === 'ADMIN' ||
+      currentRole === 'CONSULTANT'
+    ) {
       items.push({
         label: 'Data Review',
         href: '/data-review',
@@ -123,8 +126,8 @@ export const Navbar: React.FC = () => {
       }`}
     >
       {/* Main navigation */}
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-6">
+      <div className="mx-auto flex h-16 w-full max-w-[96rem] items-center justify-between px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center gap-2.5 sm:gap-4 xl:gap-6 min-w-0">
           <Link
             href={isClientPortal ? '/portal' : '/dashboard'}
             className="group flex items-center gap-2.5 shrink-0"
@@ -173,7 +176,7 @@ export const Navbar: React.FC = () => {
               </div>
 
               <p
-                className={`hidden text-[9px] mt-0.5 font-normal tracking-wide sm:block ${
+                className={`hidden text-[9px] mt-0.5 font-normal tracking-wide xl:block ${
                   isLight ? 'text-slate-500' : 'text-slate-400'
                 }`}
               >
@@ -183,7 +186,7 @@ export const Navbar: React.FC = () => {
           </Link>
 
           {/* Desktop navigation */}
-          <nav className="hidden items-center gap-1 lg:flex">
+          <nav className="hidden items-center gap-1 lg:flex shrink-0">
             {isClientPortal && (
               <>
                 {navItems
@@ -253,7 +256,7 @@ export const Navbar: React.FC = () => {
         </div>
 
         {/* User controls */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-4">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 ml-2 sm:ml-4">
           <NotificationBell />
 
           <button
@@ -311,7 +314,7 @@ export const Navbar: React.FC = () => {
 
               {currentUser?.designation && (
                 <div
-                  className="text-[10px] text-slate-500 dark:text-slate-400 max-w-[130px] truncate leading-none mt-0.5"
+                  className="hidden 2xl:block text-[10px] text-slate-500 dark:text-slate-400 max-w-[130px] truncate leading-none mt-0.5"
                   title={currentUser.designation}
                 >
                   {currentUser.designation}

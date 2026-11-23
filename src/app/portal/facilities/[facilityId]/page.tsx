@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
+import { FormControl, Select, MenuItem, SelectChangeEvent } from '@mui/material';
 import { IDataRequirement, IFacility } from '@/types';
 import { computePortalDataRequestPercentages } from '@/lib/requestStats';
 import {
@@ -26,6 +28,8 @@ import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import { GOOGLE_DRIVE_FOLDER_URL, resolveComplianceVaultFolderUrl, rewriteLegacyVaultUrlsInText } from '@/lib/gdrive';
 
 export default function ClientFacilityOverviewPage() {
+  const { theme } = useAuth();
+  const isDark = theme === 'dark';
   const params = useParams();
   const facilityId = (params.facilityId as string) || 'TRIDENT_PAPER';
   const [facility, setFacility] = useState<IFacility | null>(null);
@@ -181,20 +185,62 @@ export default function ClientFacilityOverviewPage() {
               <span>Open in Google Drive</span>
               <ExternalLink className="w-3 h-3" />
             </a>
-            <label className="flex items-center gap-2 text-[11px] text-slate-600 dark:text-slate-300 mr-1">
-              <span className="font-semibold">FY</span>
-              <select
-                value={selectedPeriod}
-                onChange={(e) => setSelectedPeriod(e.target.value)}
-                className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-2 py-1.5 font-mono text-xs"
-              >
-                {PORTAL_PERIOD_OPTIONS.map((fy) => (
-                  <option key={fy} value={fy}>
-                    {fy}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 mr-1">
+              <span className="font-semibold whitespace-nowrap">FY</span>
+              <FormControl size="small" sx={{ minWidth: 125 }}>
+                <Select
+                  value={selectedPeriod}
+                  onChange={(e: SelectChangeEvent) => setSelectedPeriod(e.target.value)}
+                  sx={{
+                    height: 34,
+                    fontSize: '12px',
+                    fontFamily: 'monospace',
+                    fontWeight: 600,
+                    borderRadius: '8px',
+                    backgroundColor: isDark ? '#020617' : '#FFFFFF',
+                    color: isDark ? '#FFFFFF' : '#0F172A',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDark ? '#34D399' : '#059669',
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDark ? '#34D399' : '#059669',
+                      borderWidth: '1.5px',
+                    },
+                    '& .MuiSelect-select': {
+                      py: '5px',
+                      px: '10px',
+                    },
+                  }}
+                  MenuProps={{
+                    slotProps: {
+                      paper: {
+                        sx: {
+                          mt: 0.5,
+                          maxHeight: 280,
+                          borderRadius: '8px',
+                          backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                          color: isDark ? '#FFFFFF' : '#0F172A',
+                          border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0'}`,
+                          boxShadow: isDark
+                            ? '0 10px 25px -5px rgba(0, 0, 0, 0.6)'
+                            : '0 10px 25px -5px rgba(16, 185, 129, 0.12)',
+                          '& .MuiList-root': { py: '4px' },
+                        },
+                      },
+                    },
+                  }}
+                >
+                  {PORTAL_PERIOD_OPTIONS.map((fy) => (
+                    <MenuItem key={fy} value={fy} sx={{ fontSize: '12px', fontFamily: 'monospace' }}>
+                      {fy}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
             <Link
               href={dataRequestsHref}
               className="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-white border border-slate-300 dark:border-slate-700 shadow-sm transition-colors cursor-pointer"

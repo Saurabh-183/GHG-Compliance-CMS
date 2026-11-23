@@ -12,6 +12,7 @@ import {
 } from '@/lib/driveVaultServer';
 import { upsertClientSubmissionLink } from '@/lib/clientSubmissionLinkUpsert';
 import { assertClientCanSubmitRequirement } from '@/lib/dataRequestDueDate';
+import { GOOGLE_DRIVE_FOLDER_URL, GOOGLE_DRIVE_FOLDER_ID, resolveComplianceVaultFolderUrl } from '@/lib/gdrive';
 
 export async function POST(
   request: NextRequest,
@@ -249,11 +250,11 @@ export async function POST(
       data: requirement,
       vault: {
         folderPath: vaultEntry.vaultFolderPath,
-        folderUrl: vaultEntry.vaultFolderUrl,
-        vaultUrl: vaultEntry.vaultUrl,
-        vaultFileId: vaultEntry.vaultFileId,
-        targetFolderId: vaultEntry.vaultTargetFolderId,
-        ingestionMode: vaultEntry.ingestionMode,
+        folderUrl: storedLink.vaultFolderUrl,
+        vaultUrl: storedLink.vaultUrl,
+        vaultFileId: storedLink.vaultFileId,
+        targetFolderId: storedLink.vaultTargetFolderId,
+        ingestionMode: storedLink.ingestionMode,
         uploadedToVault,
       },
     });

@@ -163,6 +163,84 @@ a.bg-emerald-600 svg,
 }
 
 /* ==========================================================================
+   LOGIN ENTERPRISE SHOWCASE PANEL: IMMUTABLE DARK EXECUTIVE THEME IN ALL MODES
+   ========================================================================== */
+html.light .login-showcase-panel,
+html:not(.dark) .login-showcase-panel {
+  background: linear-gradient(155deg, #070F1E 0%, #0D1C34 50%, #091526 100%) !important;
+  color: #FFFFFF !important;
+}
+
+html.light .login-showcase-panel h1,
+html.light .login-showcase-panel h2,
+html.light .login-showcase-panel h3,
+html.light .login-showcase-panel h4,
+html:not(.dark) .login-showcase-panel h1,
+html:not(.dark) .login-showcase-panel h2,
+html:not(.dark) .login-showcase-panel h3,
+html:not(.dark) .login-showcase-panel h4 {
+  color: #FFFFFF !important;
+}
+
+html.light .login-showcase-panel p,
+html:not(.dark) .login-showcase-panel p {
+  color: #CBD5E1 !important;
+}
+
+html.light .login-showcase-panel .text-white,
+html.light .login-showcase-panel span.text-white,
+html:not(.dark) .login-showcase-panel .text-white,
+html:not(.dark) .login-showcase-panel span.text-white {
+  color: #FFFFFF !important;
+}
+
+html.light .login-showcase-panel .text-slate-300,
+html.light .login-showcase-panel span.text-slate-300,
+html.light .login-showcase-panel p.text-slate-300,
+html:not(.dark) .login-showcase-panel .text-slate-300,
+html:not(.dark) .login-showcase-panel span.text-slate-300,
+html:not(.dark) .login-showcase-panel p.text-slate-300 {
+  color: #CBD5E1 !important;
+}
+
+html.light .login-showcase-panel .text-slate-400,
+html.light .login-showcase-panel span.text-slate-400,
+html.light .login-showcase-panel p.text-slate-400,
+html:not(.dark) .login-showcase-panel .text-slate-400,
+html:not(.dark) .login-showcase-panel span.text-slate-400,
+html:not(.dark) .login-showcase-panel p.text-slate-400 {
+  color: #94A3B8 !important;
+}
+
+html.light .login-showcase-panel .text-emerald-400,
+html.light .login-showcase-panel .text-emerald-300,
+html.light .login-showcase-panel span.text-emerald-400,
+html.light .login-showcase-panel span.text-emerald-300,
+html:not(.dark) .login-showcase-panel .text-emerald-400,
+html:not(.dark) .login-showcase-panel .text-emerald-300,
+html:not(.dark) .login-showcase-panel span.text-emerald-400,
+html:not(.dark) .login-showcase-panel span.text-emerald-300 {
+  color: #34D399 !important;
+}
+
+html.light .login-showcase-panel .showcase-card,
+html:not(.dark) .login-showcase-panel .showcase-card {
+  background-color: #112038 !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+html.light .login-showcase-panel .showcase-stat-box,
+html:not(.dark) .login-showcase-panel .showcase-stat-box {
+  background-color: #0F1E33 !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+html.light .login-showcase-panel svg,
+html:not(.dark) .login-showcase-panel svg {
+  color: inherit;
+}
+
+/* ==========================================================================
    SECONDARY & OUTLINE BUTTONS IN LIGHT MODE: CRISP DARK TEXT (#343A40)
    ========================================================================== */
 html:not(.dark) button.bg-white,
@@ -440,10 +518,10 @@ html.light h6:not(button *):not([class*="bg-[#17365D]"] *):not([class*="bg-emera
 html.light .text-slate-900,
 html.light .text-slate-100:not(button *):not([class*="bg-[#17365D]"] *):not([class*="bg-emerald"] *),
 html.light .text-slate-200:not(button *):not([class*="bg-[#17365D]"] *):not([class*="bg-emerald"] *),
-html:not(.dark) div[class*="bg-slate-"] > div.text-white:not(button *):not(a *):not(.user-avatar):not(.user-avatar *),
-html:not(.dark) div[class*="bg-slate-"] > .text-white:not(button *):not(a *):not(.user-avatar):not(.user-avatar *),
-html.light div[class*="bg-slate-"] > div.text-white:not(button *):not(a *):not(.user-avatar):not(.user-avatar *),
-html.light div[class*="bg-slate-"] > .text-white:not(button *):not(a *):not(.user-avatar):not(.user-avatar *),
+html:not(.dark) div[class*="bg-slate-"] > div.text-white:not(button):not(button *):not(a):not(a *):not(.user-avatar):not(.user-avatar *):not([class*="bg-emerald"]):not([class*="bg-[#17365D]"]):not(.\!text-white):not(.\!text-white *),
+html:not(.dark) div[class*="bg-slate-"] > .text-white:not(button):not(button *):not(a):not(a *):not(.user-avatar):not(.user-avatar *):not([class*="bg-emerald"]):not([class*="bg-[#17365D]"]):not(.\!text-white):not(.\!text-white *),
+html.light div[class*="bg-slate-"] > div.text-white:not(button):not(button *):not(a):not(a *):not(.user-avatar):not(.user-avatar *):not([class*="bg-emerald"]):not([class*="bg-[#17365D]"]):not(.\!text-white):not(.\!text-white *),
+html.light div[class*="bg-slate-"] > .text-white:not(button):not(button *):not(a):not(a *):not(.user-avatar):not(.user-avatar *):not([class*="bg-emerald"]):not([class*="bg-[#17365D]"]):not(.\!text-white):not(.\!text-white *),
 html:not(.dark) .text-white:not(button.bg-emerald-700):not(button.bg-emerald-700 *):not(button.bg-emerald-600):not(button.bg-emerald-600 *):not(button.bg-emerald-800):not(button.bg-emerald-800 *):not(a.bg-emerald-700):not(a.bg-emerald-700 *):not(a.bg-emerald-600):not(a.bg-emerald-600 *):not(button.bg-rose-600):not(button.bg-rose-600 *):not(button.bg-rose-700):not(button.bg-rose-700 *):not(a.bg-rose-600):not(a.bg-rose-600 *):not([class*="bg-[#17365D]"]):not([class*="bg-[#17365D]"] *):not([class*="bg-[#102947]"]):not([class*="bg-[#102947]"] *):not([class*="bg-[#A56F63]"]):not([class*="bg-[#A56F63]"] *):not([class*="bg-[#8C594E]"]):not([class*="bg-[#8C594E]"] *):not(.user-avatar):not(.user-avatar *):not(.notification-badge):not(.notification-badge *):not(.\!text-white):not(.\!text-white *):not(.text-white\!),
 html.light .text-white:not(button.bg-emerald-700):not(button.bg-emerald-700 *):not(button.bg-emerald-600):not(button.bg-emerald-600 *):not(button.bg-emerald-800):not(button.bg-emerald-800 *):not(a.bg-emerald-700):not(a.bg-emerald-700 *):not(a.bg-emerald-600):not(a.bg-emerald-600 *):not(button.bg-rose-600):not(button.bg-rose-600 *):not(button.bg-rose-700):not(button.bg-rose-700 *):not(a.bg-rose-600):not(a.bg-rose-600 *):not([class*="bg-[#17365D]"]):not([class*="bg-[#17365D]"] *):not([class*="bg-[#102947]"]):not([class*="bg-[#102947]"] *):not([class*="bg-[#A56F63]"]):not([class*="bg-[#A56F63]"] *):not([class*="bg-[#8C594E]"]):not([class*="bg-[#8C594E]"] *):not(.user-avatar):not(.user-avatar *):not(.notification-badge):not(.notification-badge *):not(.\!text-white):not(.\!text-white *):not(.text-white\!) {
   color: #1E293B !important;

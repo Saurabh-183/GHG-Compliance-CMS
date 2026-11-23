@@ -13,7 +13,7 @@ export async function PATCH(request: NextRequest) {
       $or: [{ recipientUserId: session.userId }, { recipientUserId: { $exists: false } }, { recipientUserId: null }],
     };
     if (session.role !== 'ADMIN') filter.facilityId = { $in: [...(session.authorizedFacilityIds || []), null] };
-    await Notification.updateMany(filter, { $set: { isRead: true } });
+    await Notification.updateMany(filter, { $set: { isRead: true, readAt: new Date() } });
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Mark all notifications read failed:', error);

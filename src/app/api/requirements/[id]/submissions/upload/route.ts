@@ -123,7 +123,7 @@ export async function POST(
       mappingStatus: 'PENDING' as const,
       ingestionMode:
         placement.vaultTargetFolderId === 'local-dev-vault'
-          ? ('LOCAL_VAULT_DEV' as const)
+          ? ('VAULT_INDEXED' as const)
           : ('DRIVE_API_COPIED' as const),
       ...(reportingMonth ? { mappedMonth: reportingMonth } : {}),
     };
@@ -164,7 +164,7 @@ export async function POST(
           : 'File saved in the compliance vault folder.',
       vault: {
         folderPath: vaultCtx.vaultFolderPath,
-        folderUrl: placement.vaultFolderUrl,
+        folderUrl: destinationFolderUrl,
         vaultUrl: placement.vaultUrl,
         vaultFileId: placement.vaultFileId,
         uploadedToVault: true,

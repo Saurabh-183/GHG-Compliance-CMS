@@ -6,7 +6,7 @@ import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, X } from 'lucide-r
 import { useAuth } from '@/context/AuthContext';
 
 export interface MuiDatePickerProps {
-  value: string; // YYYY-MM-DD
+  value: string; // YYYY-MM-DD or YYYY-MM
   onChange: (value: string) => void;
   label?: string;
   placeholder?: string;
@@ -14,6 +14,7 @@ export interface MuiDatePickerProps {
   error?: boolean;
   className?: string;
   fullWidth?: boolean;
+  pickerType?: 'date' | 'month';
 }
 
 const MONTH_NAMES = [
@@ -31,6 +32,21 @@ const MONTH_NAMES = [
   'December',
 ];
 
+const MONTH_SHORT_NAMES = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
+
 const WEEKDAY_NAMES = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 
 // Helpers for date conversions
@@ -39,6 +55,13 @@ function parseIsoDate(isoStr?: string): { year: number; month: number; day: numb
   const [y, m, d] = isoStr.split('-').map(Number);
   if (!y || !m || !d) return null;
   return { year: y, month: m - 1, day: d };
+}
+
+function parseIsoMonth(isoStr?: string): { year: number; month: number } | null {
+  if (!isoStr || !/^\d{4}-\d{2}$/.test(isoStr)) return null;
+  const [y, m] = isoStr.split('-').map(Number);
+  if (!y || !m) return null;
+  return { year: y, month: m - 1 };
 }
 
 function formatIso(year: number, month: number, day: number): string {
@@ -59,41 +82,64 @@ export function MuiDatePicker({
   value,
   onChange,
   label,
-  placeholder = 'dd-mm-yyyy',
+  placeholder,
   disabled = false,
   error = false,
   className = '',
   fullWidth = true,
+  pickerType = 'date',
 }: MuiDatePickerProps) {
   const { theme } = useAuth();
   const isDark = theme === 'dark';
+  const isMonthPicker = pickerType === 'month';
+  const resolvedPlaceholder = placeholder ?? (isMonthPicker ? 'yyyy-mm' : 'dd-mm-yyyy');
 
   const anchorRef = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
 
   // Initialize view year and month
   const today = useMemo(() => new Date(), []);
-  const parsedValue = useMemo(() => parseIsoDate(value), [value]);
+  const parsedDateValue = useMemo(() => (!isMonthPicker ? parseIsoDate(value) : null), [isMonthPicker, value]);
+  const parsedMonthValue = useMemo(() => (isMonthPicker ? parseIsoMonth(value) : null), [isMonthPicker, value]);
 
-  const [viewYear, setViewYear] = useState(() => parsedValue?.year ?? today.getFullYear());
-  const [viewMonth, setViewMonth] = useState(() => parsedValue?.month ?? today.getMonth());
+  const [viewYear, setViewYear] = useState(() => {
+    if (isMonthPicker) return parsedMonthValue?.year ?? today.getFullYear();
+    return parsedDateValue?.year ?? today.getFullYear();
+  });
+  const [viewMonth, setViewMonth] = useState(() => {
+    if (isMonthPicker) return parsedMonthValue?.month ?? today.getMonth();
+    return parsedDateValue?.month ?? today.getMonth();
+  });
 
   // Keep view synchronized when value changes from outside
   useEffect(() => {
-    if (parsedValue) {
-      setViewYear(parsedValue.year);
-      setViewMonth(parsedValue.month);
+    if (isMonthPicker && parsedMonthValue) {
+      setViewYear(parsedMonthValue.year);
+      setViewMonth(parsedMonthValue.month);
+    } else if (!isMonthPicker && parsedDateValue) {
+      setViewYear(parsedDateValue.year);
+      setViewMonth(parsedDateValue.month);
     }
-  }, [value, parsedValue]);
+  }, [isMonthPicker, parsedDateValue, parsedMonthValue]);
 
   const handleOpen = () => {
     if (disabled) return;
-    if (parsedValue) {
-      setViewYear(parsedValue.year);
-      setViewMonth(parsedValue.month);
+    if (isMonthPicker) {
+      if (parsedMonthValue) {
+        setViewYear(parsedMonthValue.year);
+        setViewMonth(parsedMonthValue.month);
+      } else {
+        setViewYear(today.getFullYear());
+        setViewMonth(today.getMonth());
+      }
     } else {
-      setViewYear(today.getFullYear());
-      setViewMonth(today.getMonth());
+      if (parsedDateValue) {
+        setViewYear(parsedDateValue.year);
+        setViewMonth(parsedDateValue.month);
+      } else {
+        setViewYear(today.getFullYear());
+        setViewMonth(today.getMonth());
+      }
     }
     setOpen(true);
   };
@@ -189,7 +235,13 @@ export function MuiDatePicker({
     return list;
   }, [today]);
 
-  const displayString = formatDisplayDate(value);
+  const displayString = useMemo(() => {
+    if (!value) return '';
+    if (isMonthPicker) {
+      return value;
+    }
+    return formatDisplayDate(value);
+  }, [isMonthPicker, value]);
 
   return (
     <div className={`relative ${fullWidth ? 'w-full' : ''} ${className}`}>
@@ -214,7 +266,7 @@ export function MuiDatePicker({
         }`}
       >
         <span className={displayString ? 'font-mono text-xs font-medium' : 'text-slate-400 dark:text-slate-500'}>
-          {displayString || placeholder}
+          {displayString || resolvedPlaceholder}
         </span>
 
         <div className="flex items-center gap-1.5 ml-2">
@@ -270,205 +322,362 @@ export function MuiDatePicker({
           },
         }}
       >
-        {/* Popover Header: Month & Year Selector with Navigation Arrows */}
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-            <select
-              value={viewMonth}
-              onChange={(e) => setViewMonth(Number(e.target.value))}
-              className={`rounded border px-1.5 py-1 text-xs font-bold outline-none cursor-pointer transition-colors ${
-                isDark
-                  ? 'bg-slate-900 border-slate-700 text-slate-100'
-                  : 'bg-slate-50 border-slate-200 text-slate-800'
-              }`}
+        {isMonthPicker ? (
+          <>
+            {/* Month Picker Header: Year Selector with Navigation Arrows */}
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+              <Typography sx={{ fontSize: '13px', fontWeight: 700, color: isDark ? '#FFFFFF' : '#0F172A' }}>
+                Select Month ({viewYear})
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <select
+                  value={viewYear}
+                  onChange={(e) => setViewYear(Number(e.target.value))}
+                  className={`rounded border px-2 py-1 text-xs font-bold outline-none cursor-pointer transition-colors ${
+                    isDark
+                      ? 'bg-slate-900 border-slate-700 text-slate-100'
+                      : 'bg-slate-50 border-slate-200 text-slate-800'
+                  }`}
+                >
+                  {yearOptions.map((y) => (
+                    <option key={y} value={y}>
+                      {y}
+                    </option>
+                  ))}
+                </select>
+                <IconButton
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setViewYear((y) => y - 1);
+                  }}
+                  sx={{
+                    p: 0.5,
+                    color: isDark ? '#94A3B8' : '#64748B',
+                    '&:hover': {
+                      backgroundColor: isDark ? '#334155' : '#F1F5F9',
+                      color: isDark ? '#F8FAFC' : '#0F172A',
+                    },
+                  }}
+                  title="Previous year"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </IconButton>
+                <IconButton
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setViewYear((y) => y + 1);
+                  }}
+                  sx={{
+                    p: 0.5,
+                    color: isDark ? '#94A3B8' : '#64748B',
+                    '&:hover': {
+                      backgroundColor: isDark ? '#334155' : '#F1F5F9',
+                      color: isDark ? '#F8FAFC' : '#0F172A',
+                    },
+                  }}
+                  title="Next year"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </IconButton>
+              </Box>
+            </Box>
+
+            {/* 4x3 Month Grid */}
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1 }}>
+              {MONTH_SHORT_NAMES.map((name, idx) => {
+                const isSelected =
+                  parsedMonthValue !== null &&
+                  parsedMonthValue.year === viewYear &&
+                  parsedMonthValue.month === idx;
+
+                const isCurrentMonth =
+                  today.getFullYear() === viewYear &&
+                  today.getMonth() === idx;
+
+                return (
+                  <button
+                    key={name}
+                    type="button"
+                    onClick={() => {
+                      const mm = String(idx + 1).padStart(2, '0');
+                      onChange(`${viewYear}-${mm}`);
+                      setOpen(false);
+                    }}
+                    className={`py-2 px-1 rounded-lg text-xs font-semibold transition-all text-center ${
+                      isSelected
+                        ? 'bg-emerald-600 text-white font-bold shadow-sm hover:bg-emerald-700'
+                        : isCurrentMonth
+                        ? 'border-2 border-emerald-500 text-emerald-600 dark:text-emerald-400 font-bold hover:bg-emerald-50 dark:hover:bg-emerald-950/40'
+                        : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    }`}
+                    title={MONTH_NAMES[idx]}
+                  >
+                    {name}
+                  </button>
+                );
+              })}
+            </Box>
+
+            {/* Footer toolbar: Clear and This month */}
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                mt: 2,
+                pt: 1.5,
+                borderTop: `1px solid ${isDark ? '#334155' : '#E2E8F0'}`,
+              }}
             >
-              {MONTH_NAMES.map((name, index) => (
-                <option key={name} value={index}>
-                  {name}
-                </option>
+              <Button
+                size="small"
+                onClick={handleClear}
+                sx={{
+                  textTransform: 'none',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  color: isDark ? '#94A3B8' : '#64748B',
+                  '&:hover': {
+                    color: isDark ? '#F8FAFC' : '#0F172A',
+                    backgroundColor: 'transparent',
+                  },
+                }}
+              >
+                Clear
+              </Button>
+
+              <Button
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const nowY = today.getFullYear();
+                  const nowM = String(today.getMonth() + 1).padStart(2, '0');
+                  onChange(`${nowY}-${nowM}`);
+                  setOpen(false);
+                }}
+                sx={{
+                  textTransform: 'none',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  color: isDark ? '#34D399' : '#059669',
+                  '&:hover': {
+                    backgroundColor: isDark ? 'rgba(52, 211, 153, 0.1)' : 'rgba(5, 150, 105, 0.1)',
+                  },
+                }}
+              >
+                This month
+              </Button>
+            </Box>
+          </>
+        ) : (
+          <>
+            {/* Popover Header: Month & Year Selector with Navigation Arrows */}
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                <select
+                  value={viewMonth}
+                  onChange={(e) => setViewMonth(Number(e.target.value))}
+                  className={`rounded border px-1.5 py-1 text-xs font-bold outline-none cursor-pointer transition-colors ${
+                    isDark
+                      ? 'bg-slate-900 border-slate-700 text-slate-100'
+                      : 'bg-slate-50 border-slate-200 text-slate-800'
+                  }`}
+                >
+                  {MONTH_NAMES.map((name, index) => (
+                    <option key={name} value={index}>
+                      {name}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  value={viewYear}
+                  onChange={(e) => setViewYear(Number(e.target.value))}
+                  className={`rounded border px-1.5 py-1 text-xs font-bold outline-none cursor-pointer transition-colors ${
+                    isDark
+                      ? 'bg-slate-900 border-slate-700 text-slate-100'
+                      : 'bg-slate-50 border-slate-200 text-slate-800'
+                  }`}
+                >
+                  {yearOptions.map((y) => (
+                    <option key={y} value={y}>
+                      {y}
+                    </option>
+                  ))}
+                </select>
+              </Box>
+
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <IconButton
+                  size="small"
+                  onClick={handlePrevMonth}
+                  sx={{
+                    p: 0.5,
+                    color: isDark ? '#94A3B8' : '#64748B',
+                    '&:hover': {
+                      backgroundColor: isDark ? '#334155' : '#F1F5F9',
+                      color: isDark ? '#F8FAFC' : '#0F172A',
+                    },
+                  }}
+                  title="Previous month"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </IconButton>
+
+                <IconButton
+                  size="small"
+                  onClick={handleNextMonth}
+                  sx={{
+                    p: 0.5,
+                    color: isDark ? '#94A3B8' : '#64748B',
+                    '&:hover': {
+                      backgroundColor: isDark ? '#334155' : '#F1F5F9',
+                      color: isDark ? '#F8FAFC' : '#0F172A',
+                    },
+                  }}
+                  title="Next month"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </IconButton>
+              </Box>
+            </Box>
+
+            {/* Days of week header */}
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 0.5, mb: 1, textAlign: 'center' }}>
+              {WEEKDAY_NAMES.map((day) => (
+                <Typography
+                  key={day}
+                  variant="caption"
+                  sx={{
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    color: isDark ? '#64748B' : '#94A3B8',
+                  }}
+                >
+                  {day}
+                </Typography>
               ))}
-            </select>
+            </Box>
 
-            <select
-              value={viewYear}
-              onChange={(e) => setViewYear(Number(e.target.value))}
-              className={`rounded border px-1.5 py-1 text-xs font-bold outline-none cursor-pointer transition-colors ${
-                isDark
-                  ? 'bg-slate-900 border-slate-700 text-slate-100'
-                  : 'bg-slate-50 border-slate-200 text-slate-800'
-              }`}
-            >
-              {yearOptions.map((y) => (
-                <option key={y} value={y}>
-                  {y}
-                </option>
-              ))}
-            </select>
-          </Box>
+            {/* Dates grid */}
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 0.5 }}>
+              {/* Previous month leading days */}
+              {prevMonthDays.map((day) => {
+                const prevMonth = viewMonth === 0 ? 11 : viewMonth - 1;
+                const prevYear = viewMonth === 0 ? viewYear - 1 : viewYear;
+                return (
+                  <button
+                    key={`prev-${day}`}
+                    type="button"
+                    onClick={() => handleSelectDay(prevYear, prevMonth, day)}
+                    className="h-8 w-8 rounded-full flex items-center justify-center text-xs text-slate-400 dark:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors mx-auto"
+                  >
+                    {day}
+                  </button>
+                );
+              })}
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <IconButton
-              size="small"
-              onClick={handlePrevMonth}
+              {/* Current month days */}
+              {currentMonthDays.map((day) => {
+                const isSelected =
+                  parsedDateValue !== null &&
+                  parsedDateValue.year === viewYear &&
+                  parsedDateValue.month === viewMonth &&
+                  parsedDateValue.day === day;
+
+                const isToday =
+                  today.getFullYear() === viewYear &&
+                  today.getMonth() === viewMonth &&
+                  today.getDate() === day;
+
+                return (
+                  <button
+                    key={`current-${day}`}
+                    type="button"
+                    onClick={() => handleSelectDay(viewYear, viewMonth, day)}
+                    className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-medium transition-all mx-auto ${
+                      isSelected
+                        ? 'bg-emerald-600 text-white font-bold shadow-sm hover:bg-emerald-700'
+                        : isToday
+                        ? 'border-2 border-emerald-500 text-emerald-600 dark:text-emerald-400 font-bold hover:bg-emerald-50 dark:hover:bg-emerald-950/40'
+                        : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/60'
+                    }`}
+                  >
+                    {day}
+                  </button>
+                );
+              })}
+
+              {/* Next month trailing days */}
+              {nextMonthDays.map((day) => {
+                const nextMonth = viewMonth === 11 ? 0 : viewMonth + 1;
+                const nextYear = viewMonth === 11 ? viewYear + 1 : viewYear;
+                return (
+                  <button
+                    key={`next-${day}`}
+                    type="button"
+                    onClick={() => handleSelectDay(nextYear, nextMonth, day)}
+                    className="h-8 w-8 rounded-full flex items-center justify-center text-xs text-slate-400 dark:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors mx-auto"
+                  >
+                    {day}
+                  </button>
+                );
+              })}
+            </Box>
+
+            {/* Footer toolbar: Clear and Today */}
+            <Box
               sx={{
-                p: 0.5,
-                color: isDark ? '#94A3B8' : '#64748B',
-                '&:hover': {
-                  backgroundColor: isDark ? '#334155' : '#F1F5F9',
-                  color: isDark ? '#F8FAFC' : '#0F172A',
-                },
-              }}
-              title="Previous month"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </IconButton>
-
-            <IconButton
-              size="small"
-              onClick={handleNextMonth}
-              sx={{
-                p: 0.5,
-                color: isDark ? '#94A3B8' : '#64748B',
-                '&:hover': {
-                  backgroundColor: isDark ? '#334155' : '#F1F5F9',
-                  color: isDark ? '#F8FAFC' : '#0F172A',
-                },
-              }}
-              title="Next month"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </IconButton>
-          </Box>
-        </Box>
-
-        {/* Days of week header */}
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 0.5, mb: 1, textAlign: 'center' }}>
-          {WEEKDAY_NAMES.map((day) => (
-            <Typography
-              key={day}
-              variant="caption"
-              sx={{
-                fontSize: '11px',
-                fontWeight: 600,
-                color: isDark ? '#64748B' : '#94A3B8',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                mt: 2,
+                pt: 1.5,
+                borderTop: `1px solid ${isDark ? '#334155' : '#E2E8F0'}`,
               }}
             >
-              {day}
-            </Typography>
-          ))}
-        </Box>
-
-        {/* Dates grid */}
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 0.5 }}>
-          {/* Previous month leading days */}
-          {prevMonthDays.map((day) => {
-            const prevMonth = viewMonth === 0 ? 11 : viewMonth - 1;
-            const prevYear = viewMonth === 0 ? viewYear - 1 : viewYear;
-            return (
-              <button
-                key={`prev-${day}`}
-                type="button"
-                onClick={() => handleSelectDay(prevYear, prevMonth, day)}
-                className="h-8 w-8 rounded-full flex items-center justify-center text-xs text-slate-400 dark:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors mx-auto"
+              <Button
+                size="small"
+                onClick={handleClear}
+                sx={{
+                  textTransform: 'none',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  color: isDark ? '#94A3B8' : '#64748B',
+                  '&:hover': {
+                    color: isDark ? '#F8FAFC' : '#0F172A',
+                    backgroundColor: 'transparent',
+                  },
+                }}
               >
-                {day}
-              </button>
-            );
-          })}
+                Clear
+              </Button>
 
-          {/* Current month days */}
-          {currentMonthDays.map((day) => {
-            const isSelected =
-              parsedValue !== null &&
-              parsedValue.year === viewYear &&
-              parsedValue.month === viewMonth &&
-              parsedValue.day === day;
-
-            const isToday =
-              today.getFullYear() === viewYear &&
-              today.getMonth() === viewMonth &&
-              today.getDate() === day;
-
-            return (
-              <button
-                key={`current-${day}`}
-                type="button"
-                onClick={() => handleSelectDay(viewYear, viewMonth, day)}
-                className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-medium transition-all mx-auto ${
-                  isSelected
-                    ? 'bg-emerald-600 text-white font-bold shadow-sm hover:bg-emerald-700'
-                    : isToday
-                    ? 'border-2 border-emerald-500 text-emerald-600 dark:text-emerald-400 font-bold hover:bg-emerald-50 dark:hover:bg-emerald-950/40'
-                    : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/60'
-                }`}
+              <Button
+                size="small"
+                onClick={handleToday}
+                sx={{
+                  textTransform: 'none',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  color: isDark ? '#34D399' : '#059669',
+                  '&:hover': {
+                    backgroundColor: isDark ? 'rgba(52, 211, 153, 0.1)' : 'rgba(5, 150, 105, 0.1)',
+                  },
+                }}
               >
-                {day}
-              </button>
-            );
-          })}
-
-          {/* Next month trailing days */}
-          {nextMonthDays.map((day) => {
-            const nextMonth = viewMonth === 11 ? 0 : viewMonth + 1;
-            const nextYear = viewMonth === 11 ? viewYear + 1 : viewYear;
-            return (
-              <button
-                key={`next-${day}`}
-                type="button"
-                onClick={() => handleSelectDay(nextYear, nextMonth, day)}
-                className="h-8 w-8 rounded-full flex items-center justify-center text-xs text-slate-400 dark:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors mx-auto"
-              >
-                {day}
-              </button>
-            );
-          })}
-        </Box>
-
-        {/* Footer toolbar: Clear and Today */}
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            mt: 2,
-            pt: 1.5,
-            borderTop: `1px solid ${isDark ? '#334155' : '#E2E8F0'}`,
-          }}
-        >
-          <Button
-            size="small"
-            onClick={handleClear}
-            sx={{
-              textTransform: 'none',
-              fontSize: '11px',
-              fontWeight: 600,
-              color: isDark ? '#94A3B8' : '#64748B',
-              '&:hover': {
-                color: isDark ? '#F8FAFC' : '#0F172A',
-                backgroundColor: 'transparent',
-              },
-            }}
-          >
-            Clear
-          </Button>
-
-          <Button
-            size="small"
-            onClick={handleToday}
-            sx={{
-              textTransform: 'none',
-              fontSize: '11px',
-              fontWeight: 600,
-              color: isDark ? '#34D399' : '#059669',
-              '&:hover': {
-                backgroundColor: isDark ? 'rgba(52, 211, 153, 0.1)' : 'rgba(5, 150, 105, 0.1)',
-              },
-            }}
-          >
-            Today
-          </Button>
-        </Box>
+                Today
+              </Button>
+            </Box>
+          </>
+        )}
       </Popover>
     </div>
   );
+}
+
+export function MuiMonthPicker(props: Omit<MuiDatePickerProps, 'pickerType'>) {
+  return <MuiDatePicker pickerType="month" placeholder="yyyy-mm" {...props} />;
 }

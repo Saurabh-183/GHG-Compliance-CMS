@@ -81,6 +81,7 @@ export type ReportingFrequency =
   | 'CUSTOM';
 
 export interface IRequestField {
+  id?: string;
   key: string;
   label: string;
   type: RequestFieldType;

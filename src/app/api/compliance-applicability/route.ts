@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
         data: records.map((r) => ({
           ...r,
           _id: r._id.toString(),
-          deadline: r.deadline ? r.deadline.toISOString() : null,
+          deadline: r.deadline ? (r.deadline instanceof Date ? r.deadline.toISOString() : (() => { const d = new Date(String(r.deadline)); return isNaN(d.getTime()) ? String(r.deadline) : d.toISOString(); })()) : null,
         })),
       });
     }

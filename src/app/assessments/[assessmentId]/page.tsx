@@ -14,7 +14,6 @@ import {
   ShieldCheck,
   FileSpreadsheet,
   CheckCircle2,
-  TrendingUp,
   ChevronRight,
 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
@@ -323,14 +322,6 @@ export default function AssessmentDetailPage() {
             >
               <FileSpreadsheet className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
               <span>Client Submissions Table</span>
-            </Link>
-
-            <Link
-              href={`/assessments/${assessment._id}/comparison`}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold transition-colors shadow-sm"
-            >
-              <TrendingUp className="w-3.5 h-3.5 text-white" />
-              <span>YoY Comparison &amp; Trajectory</span>
             </Link>
           </div>
         </div>

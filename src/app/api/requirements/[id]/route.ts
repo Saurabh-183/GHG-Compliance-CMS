@@ -6,21 +6,27 @@ import { getSessionFromRequest, authorizeRole, isAuthorizedForFacility } from '@
 import { assertTransition } from '@/lib/requestWorkflow';
 import type { ComplianceType, RequestFieldType, RequestWorkflowStatus } from '@/types';
 import { Notification } from '@/models/Notification';
+import { resolveRequirementDueDate } from '@/lib/dataRequestDueDate';
 
 function serializeRequirement(r: Record<string, unknown>) {
   const doc = r as {
     _id: { toString: () => string };
-    dueDate?: Date;
+    dueDate?: Date | string;
     reviewedAt?: Date;
     requestedAt?: Date;
     submittedDriveLinks?: Array<Record<string, unknown>>;
     datasetId?: { toString?: () => string };
   };
+  const resolvedDue = resolveRequirementDueDate(
+    doc.dueDate,
+    String(r.period || ''),
+    doc.requestedAt || (r.createdAt as string)
+  );
   return {
     ...r,
     _id: doc._id.toString(),
     datasetId: doc.datasetId?.toString?.() ?? doc.datasetId,
-    dueDate: doc.dueDate instanceof Date ? doc.dueDate.toISOString() : doc.dueDate ?? null,
+    dueDate: resolvedDue,
     reviewedAt: doc.reviewedAt instanceof Date ? doc.reviewedAt.toISOString() : doc.reviewedAt ?? null,
     requestedAt: doc.requestedAt instanceof Date ? doc.requestedAt.toISOString() : doc.requestedAt ?? null,
     submittedDriveLinks: (doc.submittedDriveLinks || []).map((link) => ({
@@ -62,11 +68,16 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     const facility = await FacilityModel.findOne({ facilityId: requirement.facilityId }).lean();
+    const serialized = serializeRequirement(requirement as unknown as Record<string, unknown>);
+
+    if (!requirement.dueDate && serialized.dueDate) {
+      void DataRequirementModel.findByIdAndUpdate(id, { dueDate: new Date(serialized.dueDate) }).catch(() => undefined);
+    }
 
     return NextResponse.json({
       success: true,
       data: {
-        ...serializeRequirement(requirement as unknown as Record<string, unknown>),
+        ...serialized,
         requestId:
           requirement.requestId || `REQ-${requirement._id.toString().slice(-8).toUpperCase()}`,
         facilityName: facility?.name,
