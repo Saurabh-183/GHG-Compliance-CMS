@@ -122,7 +122,7 @@ export default function ApprovalsPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
         <div>
@@ -274,7 +274,7 @@ export default function ApprovalsPage() {
                         {!isLocked && (
                           <button
                             onClick={() => setSelectedDataset(d)}
-                            className="px-2.5 py-1 text-xs font-semibold rounded bg-emerald-700 hover:bg-emerald-800 dark:bg-[#A56F63] dark:hover:bg-[#8C594E] transition-colors"
+                            className="px-2.5 py-1 text-xs font-semibold rounded bg-emerald-700 hover:bg-emerald-800 transition-colors"
                             style={{ color: '#FFFFFF' }}
                           >
                             Sign-off

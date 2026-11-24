@@ -152,7 +152,7 @@ export function PortalFacilityNavDropdown({
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="listbox"
-        className={`inline-flex items-center gap-1.5 rounded-md border border-transparent px-2.5 py-1.5 text-xs font-medium whitespace-nowrap transition-all ${getNavLinkClass(
+        className={`inline-flex items-center gap-1.5 rounded-md border border-transparent px-2 py-1.5 xl:px-2.5 text-xs font-medium whitespace-nowrap transition-all ${getNavLinkClass(
           isActive
         )}`}
       >
@@ -168,16 +168,6 @@ export function PortalFacilityNavDropdown({
           }`}
         />
         <span>Facilities</span>
-        {selectedLabel && (
-          <span
-            className={`hidden max-w-[8rem] truncate 2xl:inline text-[10px] font-normal ${
-              isLight ? 'text-slate-500' : 'text-slate-400'
-            }`}
-            title={selectedLabel}
-          >
-            · {selectedLabel}
-          </span>
-        )}
         <ChevronDown
           className={`h-3 w-3 shrink-0 transition-transform ${open ? 'rotate-180' : ''} ${
             isLight ? 'text-slate-500' : 'text-slate-400'

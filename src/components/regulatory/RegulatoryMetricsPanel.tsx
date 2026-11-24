@@ -30,6 +30,7 @@ export function RegulatoryMetricsPanel({ assessmentId, framework, period, facili
   const [version, setVersion] = useState(0);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [reviewingAction, setReviewingAction] = useState<{ key: string; action: string } | null>(null);
   const [message, setMessage] = useState('');
   const [evidenceTitle, setEvidenceTitle] = useState('');
   const [evidenceUrl, setEvidenceUrl] = useState('');
@@ -111,7 +112,12 @@ export function RegulatoryMetricsPanel({ assessmentId, framework, period, facili
   }
 
   async function review(action: string, fieldKey?: string, comments?: string) {
-    setBusy(true); setMessage('');
+    if (fieldKey) {
+      setReviewingAction({ key: fieldKey, action });
+    } else {
+      setBusy(true);
+    }
+    setMessage('');
     try {
       const defaultComments = action === 'REJECT_FIELD'
         ? 'Please review the supporting source and correct this value.'
@@ -137,7 +143,11 @@ export function RegulatoryMetricsPanel({ assessmentId, framework, period, facili
     } catch (e) {
       setMessage(e instanceof Error ? e.message : 'Review action failed');
     } finally {
-      setBusy(false);
+      if (fieldKey) {
+        setReviewingAction(null);
+      } else {
+        setBusy(false);
+      }
     }
   }
 
@@ -443,10 +453,61 @@ export function RegulatoryMetricsPanel({ assessmentId, framework, period, facili
                             <div className={`text-[10px] mb-1 font-medium ${reviewState?.status === 'VERIFIED' ? 'text-emerald-600' : reviewState?.status === 'REJECTED' ? 'text-rose-600' : 'text-slate-500'}`}>
                               {reviewState?.status || 'PENDING'}
                             </div>
-                            <div className="flex gap-1">
-                              <button disabled={busy || !['SUBMITTED', 'UNDER_REVIEW'].includes(status)} onClick={() => review('VERIFY_FIELD', field.key)} className="rounded bg-emerald-700 text-white px-2 py-1 text-[10px] disabled:opacity-40">Verify</button>
-                              <button disabled={busy || !['SUBMITTED', 'UNDER_REVIEW'].includes(status)} onClick={() => review('REJECT_FIELD', field.key)} className="rounded bg-rose-700 text-white px-2 py-1 text-[10px] disabled:opacity-40">Reject</button>
-                            </div>
+                            {(() => {
+                              const isEligible = ['SUBMITTED', 'UNDER_REVIEW'].includes(status);
+                              const isThisFieldReviewing = reviewingAction?.key === field.key;
+                              const isThisVerifying = isThisFieldReviewing && reviewingAction?.action === 'VERIFY_FIELD';
+                              const isThisRejecting = isThisFieldReviewing && reviewingAction?.action === 'REJECT_FIELD';
+                              const isOtherRowBusy = Boolean(reviewingAction && !isThisFieldReviewing);
+                              const isButtonDisabled = !isEligible || busy || isThisFieldReviewing || isOtherRowBusy;
+
+                              return (
+                                <div className="flex gap-1.5 items-center">
+                                  <button
+                                    type="button"
+                                    disabled={isButtonDisabled}
+                                    onClick={() => review('VERIFY_FIELD', field.key)}
+                                    className={`inline-flex items-center justify-center gap-1 rounded bg-emerald-700 hover:bg-emerald-800 text-white px-2.5 py-1 text-[10px] font-medium transition-all shadow-2xs ${
+                                      !isEligible ? 'opacity-40 cursor-not-allowed' : ''
+                                    } ${
+                                      isThisVerifying ? 'opacity-90 ring-2 ring-emerald-400 scale-[0.98]' : ''
+                                    } ${
+                                      isOtherRowBusy ? 'cursor-not-allowed' : ''
+                                    }`}
+                                  >
+                                    {isThisVerifying ? (
+                                      <>
+                                        <Loader2 className="w-2.5 h-2.5 animate-spin" />
+                                        <span>Verifying…</span>
+                                      </>
+                                    ) : (
+                                      'Verify'
+                                    )}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    disabled={isButtonDisabled}
+                                    onClick={() => review('REJECT_FIELD', field.key)}
+                                    className={`inline-flex items-center justify-center gap-1 rounded bg-rose-700 hover:bg-rose-800 text-white px-2.5 py-1 text-[10px] font-medium transition-all shadow-2xs ${
+                                      !isEligible ? 'opacity-40 cursor-not-allowed' : ''
+                                    } ${
+                                      isThisRejecting ? 'opacity-90 ring-2 ring-rose-400 scale-[0.98]' : ''
+                                    } ${
+                                      isOtherRowBusy ? 'cursor-not-allowed' : ''
+                                    }`}
+                                  >
+                                    {isThisRejecting ? (
+                                      <>
+                                        <Loader2 className="w-2.5 h-2.5 animate-spin" />
+                                        <span>Rejecting…</span>
+                                      </>
+                                    ) : (
+                                      'Reject'
+                                    )}
+                                  </button>
+                                </div>
+                              );
+                            })()}
                             {reviewState?.comments && <div className="mt-1 max-w-40 text-[10px] text-slate-500">{reviewState.comments}</div>}
                           </>
                         )}
@@ -473,7 +534,7 @@ export function RegulatoryMetricsPanel({ assessmentId, framework, period, facili
           <div className="flex flex-wrap gap-2.5 border-t border-slate-200 dark:border-slate-700 pt-4">
             <button
               type="button"
-              disabled={busy || !['SUBMITTED', 'UNDER_REVIEW'].includes(status) || reviewableFields.length === 0}
+              disabled={busy || Boolean(reviewingAction) || !['SUBMITTED', 'UNDER_REVIEW'].includes(status) || reviewableFields.length === 0}
               onClick={() => {
                 const confirmed = window.confirm(
                   `Verify all ${reviewableFields.length} eligible input fields? Make sure you have checked the submitted values and supporting evidence.`
@@ -486,7 +547,7 @@ export function RegulatoryMetricsPanel({ assessmentId, framework, period, facili
             </button>
             <button
               type="button"
-              disabled={busy || !['SUBMITTED', 'UNDER_REVIEW', 'VERIFIED'].includes(status)}
+              disabled={busy || Boolean(reviewingAction) || !['SUBMITTED', 'UNDER_REVIEW', 'VERIFIED'].includes(status)}
               onClick={() => {
                 const reason = window.prompt('Enter the reason for returning this report for correction:');
                 if (reason && reason.trim()) void review('RETURN', undefined, reason.trim());
@@ -497,7 +558,7 @@ export function RegulatoryMetricsPanel({ assessmentId, framework, period, facili
             </button>
             <button
               type="button"
-              disabled={busy || status !== 'VERIFIED'}
+              disabled={busy || Boolean(reviewingAction) || status !== 'VERIFIED'}
               onClick={() => {
                 if (window.confirm('Give final approval to this verified regulatory report?')) {
                   void review('APPROVE');

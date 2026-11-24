@@ -324,7 +324,7 @@ export const ClientDocumentPreviewPanel: React.FC<ClientDocumentPreviewPanelProp
               href={driveUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="shrink-0 inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#17365D] dark:bg-[#A56F63] text-white text-[10px] font-bold"
+              className="shrink-0 inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#17365D] dark:bg-emerald-700 hover:opacity-90 text-white text-[10px] font-bold"
             >
               Open in Drive <ExternalLink className="w-3 h-3" />
             </a>
@@ -355,7 +355,7 @@ export const ClientDocumentPreviewPanel: React.FC<ClientDocumentPreviewPanelProp
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md">
-      <div className="relative w-[96vw] max-w-6xl xl:max-w-7xl 2xl:max-w-[1560px] max-h-[94vh] overflow-hidden flex flex-col rounded-2xl shadow-2xl">
+      <div className="relative w-[96vw] max-w-6xl xl:max-w-8xl 2xl:max-w-[1560px] max-h-[94vh] overflow-hidden flex flex-col rounded-2xl shadow-2xl">
         <button
           type="button"
           onClick={onClose}

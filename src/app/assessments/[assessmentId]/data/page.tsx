@@ -102,7 +102,7 @@ export default function AssessmentDataPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-16 text-center text-xs text-slate-500">
+      <div className="mx-auto max-w-8xl px-4 py-16 text-center text-xs text-slate-500">
         Loading data requests for this assessment…
       </div>
     );
@@ -110,7 +110,7 @@ export default function AssessmentDataPage() {
 
   if (!assessment && error) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-16">
+      <div className="mx-auto max-w-8xl px-4 py-16">
         <div role="alert" className="rounded-lg border border-rose-300 bg-rose-50 p-4 text-sm text-rose-800">
           {error}
         </div>
@@ -127,7 +127,7 @@ export default function AssessmentDataPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-8xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
       <nav className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
         <Link
           href={`/facilities/${encodeURIComponent(assessment?.facilityId || '')}`}

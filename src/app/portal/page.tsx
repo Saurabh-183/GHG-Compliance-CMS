@@ -194,9 +194,9 @@ export default function ClientPortalDashboard() {
   });
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Client Group Overview Hero */}
-      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-6 sm:p-8 shadow-sm dark:shadow-xl">
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-6 sm:p-8 dark:shadow-xl">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-wider mb-2">
@@ -214,10 +214,11 @@ export default function ClientPortalDashboard() {
           <div className="flex flex-row flex-wrap items-center gap-2.5 shrink-0 self-start md:self-center">
             <Link
               href="/portal/regulatory"
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-blue-700 hover:bg-blue-800 text-white font-semibold text-xs shadow-sm transition-colors whitespace-nowrap"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-700 text-white !text-white font-semibold text-xs shadow-sm transition-colors whitespace-nowrap"
+              style={{ color: '#FFFFFF' }}
             >
-              <FileSpreadsheet className="w-3.5 h-3.5" />
-              <span>Regulatory Requests</span>
+              <FileSpreadsheet className="w-3.5 h-3.5 text-white !text-white" style={{ stroke: '#FFFFFF', color: '#FFFFFF' }} />
+              <span className="text-white !text-white font-semibold" style={{ color: '#FFFFFF' }}>Regulatory Requests</span>
             </Link>
             <button
               onClick={() => setIsExcelModalOpen(true)}
@@ -225,7 +226,7 @@ export default function ClientPortalDashboard() {
             >
               <Download className="w-3.5 h-3.5" />
               <span>Compliance Excel Templates</span>
-            </button> */}
+            </button>
 
           </div>
         </div>

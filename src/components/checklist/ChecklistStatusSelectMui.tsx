@@ -43,17 +43,6 @@ const STATUS_CONFIGS: Record<DataChecklistItemStatus, StatusConfig> = {
     darkBorder: 'rgba(217, 119, 6, 0.55)',
     darkDot: '#F59E0B',
   },
-  NEEDS_VERIFICATION: {
-    label: 'Needs Verification',
-    lightBg: '#FEF3C7',
-    lightColor: '#92400E',
-    lightBorder: '#FCD34D',
-    lightDot: '#D97706',
-    darkBg: 'rgba(120, 53, 15, 0.45)',
-    darkColor: '#FDE68A',
-    darkBorder: 'rgba(217, 119, 6, 0.55)',
-    darkDot: '#F59E0B',
-  },
   RECEIVED: {
     label: 'Received',
     lightBg: '#D1FAE5',
@@ -106,7 +95,6 @@ const ORDERED_STATUSES: DataChecklistItemStatus[] = [
   'RECEIVED',
   'NOT_APPLICABLE',
   'NOT_REQUIRED',
-  'NEEDS_VERIFICATION',
 ];
 
 export const ChecklistStatusSelectMui: React.FC<ChecklistStatusSelectMuiProps> = ({

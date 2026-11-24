@@ -118,7 +118,7 @@ export default function DriveExplorerPage() {
 
   return (
     <main className="min-h-screen bg-slate-50 p-4 text-slate-900 dark:bg-slate-950 dark:text-slate-100 md:p-8">
-      <div className="mx-auto max-w-7xl space-y-6">
+      <div className="mx-auto max-w-8xl space-y-6">
         <header className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
             <div className="flex items-center justify-center w-11 h-11 rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 shrink-0">
@@ -143,14 +143,11 @@ export default function DriveExplorerPage() {
               <span>Discover / Refresh Drive</span>
             </button>
           )}
-        <header className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3"><div className="rounded-xl bg-blue-100 p-3 text-blue-700 dark:bg-blue-950 dark:text-blue-300"><HardDrive /></div><div><h1 className="text-2xl font-bold">Google Drive Explorer</h1><p className="text-sm text-slate-500">Browse facility vaults and mapped Drive folders.</p></div></div>
-          {currentRole === 'ADMIN' && <button onClick={runDiscovery} disabled={loading} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"><RefreshCw size={16} className={loading ? 'animate-spin' : ''} /> Discover / Refresh Drive</button>}
         </header>
 
         <section className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
           <label className="min-w-64 flex-1 text-sm text-slate-700 dark:text-slate-300">
-            Facility ID (required for consultant/client access)
+            Facility ID{currentRole === 'CONSULTANT' && ' (required)'}
             <input
               value={facilityId}
               onChange={(e) => setFacilityId(e.target.value.toUpperCase())}
@@ -159,8 +156,9 @@ export default function DriveExplorerPage() {
             />
           </label>
           <button
-            onClick={() => { setStack([]); void loadItems('', facilityId); }}
-            className="rounded-lg border border-slate-300 dark:border-slate-700 px-4 py-2 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 transition-colors cursor-pointer"
+            onClick={loadFacility}
+            disabled={loading}
+            className="rounded-lg border border-slate-300 dark:border-slate-700 px-4 py-2 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 transition-colors cursor-pointer disabled:opacity-50"
           >
             Load facility
           </button>
@@ -173,9 +171,6 @@ export default function DriveExplorerPage() {
               className="mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:border-slate-700"
             />
           </label>
-          <label className="min-w-64 flex-1 text-sm">Facility ID{currentRole === 'CONSULTANT' && ' (required)'}<input value={facilityId} onChange={(e) => setFacilityId(e.target.value.toUpperCase())} placeholder="e.g. NR_AGARWAL_UNIT_1" className="mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 dark:border-slate-700" /></label>
-          <button onClick={loadFacility} disabled={loading} className="rounded-lg border border-slate-300 px-4 py-2 text-sm dark:border-slate-700">Load facility</button>
-          <label className="min-w-56 flex-1 text-sm">Search this folder<input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by file or folder name" className="mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 dark:border-slate-700" /></label>
         </section>
 
         {vaultUnavailable && <p role="status" className="text-sm text-amber-700 dark:text-amber-400">The facility vault is temporarily unavailable. Showing indexed Drive items.</p>}

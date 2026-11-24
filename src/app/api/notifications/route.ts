@@ -40,66 +40,46 @@ export async function GET(request: NextRequest) {
           { recipientUserId: null },
         ],
       },
-      {
-        $or: [
-          { isRead: false }, // All unread notifications ALWAYS come
-          { isRead: true, readAt: { $gte: cutoff } }, // Read within last 24h
-          { isRead: true, readAt: { $exists: false }, updatedAt: { $gte: cutoff } },
-        ],
-      },
     ];
 
-    if (session.role !== 'ADMIN') {
-      baseConditions.push({
-        $or: [
-          { facilityId: { $in: session.authorizedFacilityIds || [] } },
-          { facilityId: { $exists: false } },
-          { facilityId: null },
-        ],
-      });
-    }
-
-    const filter = { $and: baseConditions };
-    const notifications = await Notification.find(filter).sort({ createdAt: -1 }).limit(40).lean();
-
-    const unreadCountFilter: Record<string, unknown> = {
-      isRead: false,
-      recipientRole: { $in: [session.role, 'ALL'] },
-      $or: [
-        { recipientUserId: session.userId },
-        { recipientUserId: { $exists: false } },
-        { recipientUserId: null },
-      ],
-    };
-    if (session.role !== 'ADMIN') {
-      unreadCountFilter.$and = [
-        {
-          $or: [
-            { facilityId: { $in: session.authorizedFacilityIds || [] } },
-            { facilityId: { $exists: false } },
-            { facilityId: null },
-          ],
-        },
-      ];
-    }
-
-    const unreadCount = await Notification.countDocuments(unreadCountFilter);
     if (session.role !== 'ADMIN') {
       let allowedFacilityIds = (session.authorizedFacilityIds || []).map((id) => id.toUpperCase());
       if (session.role === 'CLIENT' && session.clientGroupId) {
         const companyFacilityIds = await getClientFacilityIds(session.clientGroupId);
         allowedFacilityIds = [...new Set([...allowedFacilityIds, ...companyFacilityIds])];
       }
-      filter.$and = [{
+      baseConditions.push({
         $or: [
           { facilityId: { $in: allowedFacilityIds } },
           { facilityId: { $exists: false } },
           { facilityId: null },
         ],
-      }];
+      });
     }
-    const notifications = await Notification.find(filter).sort({ createdAt: -1 }).limit(30).lean();
-    const unreadCount = await Notification.countDocuments({ ...filter, isRead: false });
+
+    const filter = {
+      $and: [
+        ...baseConditions,
+        {
+          $or: [
+            { isRead: false }, // All unread notifications ALWAYS come
+            { isRead: true, readAt: { $gte: cutoff } }, // Read within last 24h
+            { isRead: true, readAt: { $exists: false }, updatedAt: { $gte: cutoff } },
+          ],
+        },
+      ],
+    };
+
+    const notifications = await Notification.find(filter).sort({ createdAt: -1 }).limit(40).lean();
+
+    const unreadCountFilter = {
+      $and: [
+        ...baseConditions,
+        { isRead: false },
+      ],
+    };
+
+    const unreadCount = await Notification.countDocuments(unreadCountFilter);
     return NextResponse.json({ success: true, data: notifications, unreadCount });
   } catch (error) {
     console.error('Notifications query failed:', error);

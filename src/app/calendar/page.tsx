@@ -191,7 +191,7 @@ export default function ComplianceCalendarPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Header with Title and Filters */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
         <div>
@@ -211,51 +211,56 @@ export default function ComplianceCalendarPage() {
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          {/* MUI Company Filter Dropdown */}
-          <CompanySelectMui
-            groups={activeGroups}
-            selectedCompanyId={selectedCompanyId}
-            onCompanyChange={(id) => {
-              setSelectedCompanyId(id);
-              setSearchQuery('');
-            }}
-          />
+        <div className="flex flex-col gap-2.5 sm:items-end w-full lg:w-auto">
+          {/* Top Row: Company Filter Dropdown & Search Bar */}
+          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+            {/* MUI Company Filter Dropdown */}
+            <CompanySelectMui
+              groups={activeGroups}
+              selectedCompanyId={selectedCompanyId}
+              onCompanyChange={(id) => {
+                setSelectedCompanyId(id);
+                setSearchQuery('');
+              }}
+            />
 
-          {/* Compliance Framework Filter Pills */}
-          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-lg border border-slate-200 dark:border-slate-800">
-            {['ALL', 'RCO', 'PAT', 'CCTS', 'CEA'].map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => setFilter(cat)}
-                className={`px-3 py-1 rounded text-xs font-semibold transition-colors ${
-                  filter === cat
-                    ? 'bg-emerald-700 text-white !text-white font-bold shadow-2xs'
-                    : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white'
-                }`}
-                style={filter === cat ? { color: '#FFFFFF' } : undefined}
-              >
-                <span
-                  className={filter === cat ? 'text-white !text-white font-bold' : ''}
-                  style={filter === cat ? { color: '#FFFFFF' } : undefined}
-                >
-                  {cat}
-                </span>
-              </button>
-            ))}
+            {/* Quick Facility Search Input */}
+            <div className="relative">
+              <Search className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Search facility..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-8 pr-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 w-48 sm:w-60 shadow-2xs h-[38px]"
+              />
+            </div>
           </div>
 
-          {/* Quick Facility Search Input */}
-          <div className="relative">
-            <Search className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <input
-              type="text"
-              placeholder="Search facility..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 pr-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 w-44 sm:w-52 shadow-2xs"
-            />
+          {/* Bottom Row: Compliance Framework Filter Pills aligned to the right */}
+          <div className="flex items-center justify-end w-full">
+            <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-lg border border-slate-200 dark:border-slate-800">
+              {['ALL', 'RCO', 'PAT', 'CCTS', 'CEA'].map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setFilter(cat)}
+                  className={`px-3 py-1 rounded text-xs font-semibold transition-colors ${
+                    filter === cat
+                      ? 'bg-emerald-700 text-white !text-white font-bold shadow-2xs'
+                      : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white'
+                  }`}
+                  style={filter === cat ? { color: '#FFFFFF' } : undefined}
+                >
+                  <span
+                    className={filter === cat ? 'text-white !text-white font-bold' : ''}
+                    style={filter === cat ? { color: '#FFFFFF' } : undefined}
+                  >
+                    {cat}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>

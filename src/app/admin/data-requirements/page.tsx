@@ -118,7 +118,7 @@ export default function AdminDataRequirementsPage() {
 
   if (loading && !matrix) {
     return (
-      <div className="mx-auto max-w-7xl p-8 text-center text-sm text-slate-500">
+      <div className="mx-auto max-w-8xl p-8 text-center text-sm text-slate-500">
         <Loader2 className="mx-auto h-5 w-5 animate-spin" /> Loading configuration…
       </div>
     );

@@ -72,7 +72,7 @@ export default function ClientGroupDetailPage() {
 
   if (!group) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-16 text-center text-slate-500">
+      <div className="max-w-8xl mx-auto px-4 py-16 text-center text-slate-500">
         <h2 className="text-lg font-bold text-slate-900 dark:text-white">Client Group Not Found</h2>
         <Link href="/clients" className="mt-4 inline-block text-[#17365D] dark:text-emerald-400 hover:underline text-xs">
           Return to Clients list
@@ -93,7 +93,7 @@ export default function ClientGroupDetailPage() {
   });
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 ">
         <Link href="/clients" className="hover:text-[#17365D] dark:hover:text-emerald-400">
@@ -107,8 +107,8 @@ export default function ClientGroupDetailPage() {
       <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 sm:p-8 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-start gap-4">
-            <div className="w-16 h-16 rounded-md bg-[#EAF1F8] dark:bg-[#464858] border border-[#D5DCE5] dark:border-slate-700 flex items-center justify-center text-[#17365D] dark:text-[#D99B7F] shadow-2xs shrink-0">
-              <Building2 className="w-8 h-8 text-[#17365D] dark:text-[#D99B7F]" />
+            <div className="w-16 h-16 rounded-md bg-[#EAF1F8] dark:bg-slate-800 border border-[#D5DCE5] dark:border-slate-700 flex items-center justify-center text-[#17365D] dark:text-emerald-400 shadow-2xs shrink-0">
+              <Building2 className="w-8 h-8 text-[#17365D] dark:text-emerald-400" />
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2 sm:gap-3">
@@ -116,7 +116,7 @@ export default function ClientGroupDetailPage() {
                 <span className="px-2 py-0.5 rounded text-xs font-mono font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                   {group.code}
                 </span>
-                <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-[#EAF1F8] dark:bg-[#A56F63]/25 text-black dark:text-[#D99B7F] border border-[#D5DCE5] dark:border-[#A56F63]/40">
+                <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-[#EAF1F8] dark:bg-emerald-950/60 text-slate-800 dark:text-emerald-300 border border-[#D5DCE5] dark:border-emerald-800/60">
                   Client Conglomerate
                 </span>
               </div>
@@ -213,7 +213,7 @@ export default function ClientGroupDetailPage() {
               <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
                 <Link
                   href={`/facilities/${facility.facilityId}`}
-                  className="w-full inline-flex items-center justify-between px-3 py-2 rounded-lg bg-[#17365D] hover:bg-[#102947] dark:bg-[#A56F63] dark:hover:bg-[#8C594E]  text-xs font-semibold shadow-xs transition-colors group"
+                  className="w-full inline-flex items-center justify-between px-3 py-2 rounded-lg bg-[#17365D] hover:bg-[#102947] dark:bg-emerald-700 dark:hover:bg-emerald-800 text-xs font-semibold shadow-xs transition-colors group"
                   style={{ color: '#FFFFFF' }}
                 >
                   <span className="flex items-center gap-1.5 text-white! font-medium" style={{ color: '#FFFFFF' }}>

@@ -57,23 +57,24 @@ export const Navbar: React.FC = () => {
   const getNavItems = () => {
     if (isClientPortal) {
       return [
-        { label: 'Client Overview', href: '/portal', icon: Layers },
-        { label: 'Data Requests', href: `/portal/requests${portalScopeQs}`, icon: FileSpreadsheet },
-        { label: 'Regulatory Sheets', href: '/portal/regulatory', icon: FileSpreadsheet },
-        { label: 'Approved History', href: '/portal/history', icon: CheckCircle2 },
-        { label: 'Drive Documents', href: `/drive-explorer${portalScopeQs}`, icon: HardDrive },
+        { label: 'Client Overview', shortLabel: 'Overview', href: '/portal', icon: Layers },
+        { label: 'Data Requests', shortLabel: 'Requests', href: `/portal/requests${portalScopeQs}`, icon: FileSpreadsheet },
+        { label: 'Regulatory Sheets', shortLabel: 'Regulatory', href: '/portal/regulatory', icon: FileSpreadsheet },
+        { label: 'Approved History', shortLabel: 'History', href: '/portal/history', icon: CheckCircle2 },
+        { label: 'Drive Documents', shortLabel: 'Drive Vaults', href: `/drive-explorer${portalScopeQs}`, icon: HardDrive },
       ];
     }
 
     const items = [
-      { label: 'Workspace', href: '/dashboard', icon: Layers },
-      { label: 'Clients & Units', href: '/clients', icon: Building2 },
-      { label: 'Drive Explorer', href: '/drive-explorer', icon: HardDrive },
+      { label: 'Workspace', shortLabel: 'Workspace', href: '/dashboard', icon: Layers },
+      { label: 'Clients & Units', shortLabel: 'Clients', href: '/clients', icon: Building2 },
+      { label: 'Drive Explorer', shortLabel: 'Drive', href: '/drive-explorer', icon: HardDrive },
     ];
 
     if (currentRole === 'ADMIN') {
       items.push({
         label: 'Checklist Config',
+        shortLabel: 'Checklists',
         href: '/admin/data-requirements',
         icon: FileSpreadsheet,
       });
@@ -82,6 +83,7 @@ export const Navbar: React.FC = () => {
     if (currentRole === 'CONSULTANT') {
       items.push({
         label: 'Data Requests',
+        shortLabel: 'Requests',
         href: '/data-requests',
         icon: FileSpreadsheet,
       });
@@ -93,6 +95,7 @@ export const Navbar: React.FC = () => {
     ) {
       items.push({
         label: 'Data Review',
+        shortLabel: 'Review',
         href: '/data-review',
         icon: CheckCircle2,
       });
@@ -100,6 +103,7 @@ export const Navbar: React.FC = () => {
 
     items.push({
       label: 'Compliance Calendar',
+      shortLabel: 'Calendar',
       href: '/calendar',
       icon: Calendar,
     });
@@ -130,8 +134,8 @@ export const Navbar: React.FC = () => {
       }`}
     >
       {/* Main navigation */}
-      <div className="mx-auto flex h-16 w-full max-w-[96rem] items-center justify-between px-3 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-2.5 sm:gap-4 xl:gap-6 min-w-0">
+      <div className="mx-auto flex h-16 w-full max-w-[96rem] items-center justify-between px-3 sm:px-4 lg:px-6 2xl:px-8">
+        <div className="flex items-center gap-2 sm:gap-3 lg:gap-3.5 xl:gap-4 2xl:gap-5 min-w-0">
           <Link
             href={isClientPortal ? '/portal' : '/dashboard'}
             className="group flex items-center gap-2.5 shrink-0"
@@ -180,7 +184,7 @@ export const Navbar: React.FC = () => {
               </div>
 
               <p
-                className={`hidden text-[9px] mt-0.5 font-normal tracking-wide xl:block ${
+                className={`hidden text-[9px] mt-0.5 font-normal tracking-wide 2xl:block ${
                   isLight ? 'text-slate-500' : 'text-slate-400'
                 }`}
               >
@@ -190,7 +194,7 @@ export const Navbar: React.FC = () => {
           </Link>
 
           {/* Desktop navigation */}
-          <nav className="hidden items-center gap-1 lg:flex shrink-0">
+          <nav className="hidden items-center gap-0.5 xl:gap-1 2xl:gap-1.5 lg:flex shrink min-w-0">
             {isClientPortal && (
               <>
                 {navItems
@@ -202,7 +206,7 @@ export const Navbar: React.FC = () => {
                       <Link
                         key={item.href}
                         href={item.href}
-                        className={`inline-flex items-center gap-1.5 rounded-md border border-transparent px-2.5 py-1.5 text-xs font-medium whitespace-nowrap transition-all ${getNavLinkClass(
+                        className={`inline-flex items-center gap-1.5 rounded-md border border-transparent px-2 py-1.5 2xl:px-2.5 text-xs font-medium whitespace-nowrap transition-all ${getNavLinkClass(
                           isActive
                         )}`}
                       >
@@ -217,7 +221,8 @@ export const Navbar: React.FC = () => {
                                 : 'text-slate-400'
                           }`}
                         />
-                        <span>{item.label}</span>
+                        <span className="hidden 2xl:inline">{item.label}</span>
+                        <span className="2xl:hidden">{item.shortLabel || item.label}</span>
                       </Link>
                     );
                   })}
@@ -237,7 +242,7 @@ export const Navbar: React.FC = () => {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`inline-flex items-center gap-1.5 rounded-md border border-transparent px-2.5 py-1.5 text-xs font-medium whitespace-nowrap transition-all ${getNavLinkClass(
+                  className={`inline-flex items-center gap-1.5 rounded-md border border-transparent px-2 py-1.5 2xl:px-2.5 text-xs font-medium whitespace-nowrap transition-all ${getNavLinkClass(
                     isActive
                   )}`}
                 >
@@ -252,7 +257,8 @@ export const Navbar: React.FC = () => {
                           : 'text-slate-400'
                     }`}
                   />
-                  <span>{item.label}</span>
+                  <span className="hidden 2xl:inline">{item.label}</span>
+                  <span className="2xl:hidden">{item.shortLabel || item.label}</span>
                 </Link>
               );
             })}
@@ -260,7 +266,7 @@ export const Navbar: React.FC = () => {
         </div>
 
         {/* User controls */}
-        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 ml-2 sm:ml-4">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-1.5 sm:ml-2.5">
           <NotificationBell />
 
           <button
@@ -309,16 +315,17 @@ export const Navbar: React.FC = () => {
 
             <div className="hidden text-left sm:block">
               <div
-                className={`text-xs font-semibold whitespace-nowrap leading-tight ${
+                className={`text-xs font-semibold whitespace-nowrap leading-tight max-w-[85px] lg:max-w-[105px] xl:max-w-[145px] truncate ${
                   isLight ? 'text-slate-900' : 'text-white'
                 }`}
+                title={currentUser?.name || 'User'}
               >
                 {currentUser?.name || 'User'}
               </div>
 
               {currentUser?.designation && (
                 <div
-                  className="hidden 2xl:block text-[10px] text-slate-500 dark:text-slate-400 max-w-[130px] truncate leading-none mt-0.5"
+                  className="hidden 3xl:block text-[10px] text-slate-500 dark:text-slate-400 max-w-[110px] truncate leading-none mt-0.5"
                   title={currentUser.designation}
                 >
                   {currentUser.designation}

@@ -210,7 +210,6 @@ export async function GET(request: NextRequest) {
           ...r,
           _id: r._id.toString(),
           submittedDriveLinks: (r.submittedDriveLinks || []).filter(isSoftwareSubmittedEvidence),
-          dueDate: r.dueDate ? r.dueDate.toISOString() : null,
           dueDate: toSafeIso(r.dueDate),
         })),
 

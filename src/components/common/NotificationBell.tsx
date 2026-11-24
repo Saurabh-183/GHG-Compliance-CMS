@@ -32,7 +32,7 @@ interface NotificationItem {
 
 export const NotificationBell: React.FC = () => {
   const router = useRouter();
-  const { currentRole, theme } = useAuth();
+  const { currentRole, currentUser, isLoading, theme } = useAuth();
   const isLight = theme === 'light';
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState<number>(0);
@@ -42,8 +42,18 @@ export const NotificationBell: React.FC = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const fetchNotifications = async () => {
+    if (isLoading || !currentUser) {
+      setNotifications([]);
+      setUnreadCount(0);
+      return;
+    }
     try {
       const res = await fetch('/api/notifications', { cache: 'no-store', credentials: 'include' });
+      if (res.status === 401 || res.status === 403) {
+        setNotifications([]);
+        setUnreadCount(0);
+        return;
+      }
       const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(json.error || `Notification request failed (${res.status})`);
       setNotifications(json.data || []);
@@ -52,12 +62,17 @@ export const NotificationBell: React.FC = () => {
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unable to load notifications';
       setNotificationError(message);
-      console.error('Notification fetch failed:', message);
+      console.warn('Notification fetch warning:', message);
     }
   };
 
   useEffect(() => {
-    fetchNotifications();
+    if (isLoading || !currentUser) {
+      setNotifications([]);
+      setUnreadCount(0);
+      return;
+    }
+    void fetchNotifications();
     const interval = setInterval(fetchNotifications, 15000);
     const onFocus = () => { void fetchNotifications(); };
     window.addEventListener('focus', onFocus);
@@ -65,9 +80,8 @@ export const NotificationBell: React.FC = () => {
       clearInterval(interval);
       window.removeEventListener('focus', onFocus);
     };
-  }, [currentRole]);
+  }, [currentRole, currentUser, isLoading]);
 
-  // Close dropdown on click outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -79,8 +93,6 @@ export const NotificationBell: React.FC = () => {
   }, []);
 
   const handleMarkAsRead = async (id: string, linkUrl: string) => {
-    // Older regulatory notifications used the consultant-only /assessments
-    // route. Translate those historical links to the dedicated client route.
     const clientDestination = currentRole === 'CLIENT'
       ? linkUrl.replace(/^\/assessments\/([^/?#]+).*$/, '/portal/regulatory/$1')
       : linkUrl;
@@ -160,6 +172,8 @@ export const NotificationBell: React.FC = () => {
   const hasUrgentDeadlineAlerts = notifications.some(
     (n) => !n.isRead && n.type === 'DEADLINE_REMINDER'
   );
+
+  if (!currentUser) return null;
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -285,7 +299,7 @@ export const NotificationBell: React.FC = () => {
                         </span>
                         <div className="flex items-center gap-1.5 truncate">
                           {isDeadlineAlert && (
-                            <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-rose-600 text-white shrink-0 shadow-2xs">
+                            <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-rose-600 text-white shrink-0 shadow-2xs">
                               Urgent Alert
                             </span>
                           )}
@@ -308,7 +322,7 @@ export const NotificationBell: React.FC = () => {
                       {!item.isRead && (
                         <span
                           className={`w-2 h-2 rounded-full shrink-0 mt-1 ${
-                            isDeadlineAlert ? 'bg-rose-600 animate-pulse' : 'bg-emerald-500'
+                            isDeadlineAlert ? 'bg-rose-400 animate-pulse' : 'bg-emerald-500'
                           }`}
                         ></span>
                       )}
@@ -364,7 +378,7 @@ export const NotificationBell: React.FC = () => {
           <div className={`px-4 py-2 border-t text-center text-[10px] text-slate-500 ${
             isLight ? 'border-slate-200 bg-slate-50' : 'border-slate-800/80 bg-slate-950/60'
           }`}>
-            Cross-role triggers between Consultant, Reviewer & Client
+           Notifications
           </div>
         </div>
       )}

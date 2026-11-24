@@ -25,7 +25,11 @@ import {
   CheckCheck,
 } from 'lucide-react';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
-import { rewriteLegacyVaultUrlsInText } from '@/lib/gdrive';
+import {
+  GOOGLE_DRIVE_FOLDER_URL,
+  resolveComplianceVaultFolderUrl,
+  rewriteLegacyVaultUrlsInText,
+} from '@/lib/gdrive';
 
 export default function ClientFacilityOverviewPage() {
   const { theme } = useAuth();
@@ -90,7 +94,7 @@ export default function ClientFacilityOverviewPage() {
 
   if (!facility) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-16 text-center">
+      <div className="max-w-8xl mx-auto px-4 py-16 text-center">
         <h2 className="text-lg font-bold text-slate-900 dark:text-white">Facility Not Found</h2>
         <Link href="/portal" className="mt-4 inline-block text-emerald-600 dark:text-emerald-400 text-xs">
           Return to Portal
@@ -108,9 +112,14 @@ export default function ClientFacilityOverviewPage() {
     total: requestTotal,
   } = requestProgress;
   const dataRequestsHref = `/portal/requests${buildPortalScopeQuery(facilityId, selectedPeriod)}`;
+  const driveFolderUrl = resolveComplianceVaultFolderUrl(
+    facility?.driveConnection?.folderUrl ||
+    submissionFiles.find((f) => f.vaultFolderUrl)?.vaultFolderUrl ||
+    GOOGLE_DRIVE_FOLDER_URL
+  );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-xs">
         <Link href="/portal" className="hover:text-emerald-600 dark:hover:text-emerald-400 text-slate-500 dark:text-slate-400">Client Portal</Link>
@@ -140,7 +149,7 @@ export default function ClientFacilityOverviewPage() {
 
           <div className="flex flex-wrap items-center gap-3">
             <a
-              href={driveConnection.folderUrl}
+              href={driveFolderUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="px-4 py-2 text-xs font-semibold rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm transition-colors inline-flex items-center gap-1.5 cursor-pointer"
@@ -205,20 +214,6 @@ export default function ClientFacilityOverviewPage() {
                 </Select>
               </FormControl>
             </div>
-            <label className="flex items-center gap-2 text-[11px] text-slate-600 dark:text-slate-300 mr-1">
-              <span className="font-semibold">FY</span>
-              <select
-                value={selectedPeriod}
-                onChange={(e) => setSelectedPeriod(e.target.value)}
-                className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-2 py-1.5 font-mono text-xs"
-              >
-                {PORTAL_PERIOD_OPTIONS.map((fy) => (
-                  <option key={fy} value={fy}>
-                    {fy}
-                  </option>
-                ))}
-              </select>
-            </label>
             <Link
               href={dataRequestsHref}
               className="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-white border border-slate-300 dark:border-slate-700 shadow-sm transition-colors cursor-pointer"

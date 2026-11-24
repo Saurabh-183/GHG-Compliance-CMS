@@ -8,7 +8,6 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { IDataRequirement, IFacility } from '@/types';
 import { PortalScopeSelectors } from '@/components/portal/PortalScopeSelectors';
@@ -46,7 +45,6 @@ export default function ClientRequestsPage() {
   );
 }
 
-function ClientRequestsContent() {
 function ClientRequestsContent() {
   const { theme } = useAuth();
   const isDark = theme === 'dark';
@@ -148,9 +146,6 @@ function ClientRequestsContent() {
       const rows: IDataRequirement[] = Array.isArray(payload?.data)
         ? payload.data
         : [];
-
-      if (!response.ok) throw new Error(payload?.error || 'Failed to load compliance requests.');
-      const rows: IDataRequirement[] = Array.isArray(payload?.data) ? payload.data : [];
       const scoped = rows.filter(
         (requirement: IDataRequirement) =>
           requirement.facilityId?.toUpperCase() ===
@@ -213,7 +208,6 @@ function ClientRequestsContent() {
     () => computeRequestStats(filteredForStats),
     [filteredForStats]
   );
-  const stats = useMemo(() => computeRequestStats(filteredForStats), [filteredForStats]);
 
   const urgentDeadlineAlerts = useMemo(
     () => extractPortalDeadlineAlerts(requirements),
@@ -234,7 +228,7 @@ function ClientRequestsContent() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       <PageHeader
         onRefresh={() => void loadRequests()}
         count={visibleRequirements.length}
@@ -262,50 +256,6 @@ function ClientRequestsContent() {
         activeQuickFilter={quickFilter}
         onQuickFilter={(key) => setQuickFilter(key)}
       />
-
-      <div className="sticky top-16 z-20 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md p-4 shadow-sm space-y-3">
-        <div className="flex flex-col lg:flex-row gap-3">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-
-            <input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search by request ID, title, facility or category…"
-              className="w-full pl-10 pr-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-sm text-slate-900 dark:text-white"
-            />
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            <select
-              value={categoryFilter}
-              onChange={(event) => setCategoryFilter(event.target.value)}
-              className="rounded-xl border px-3 py-2.5 text-xs max-w-[160px] dark:bg-slate-950"
-            >
-              <option value="ALL">All categories</option>
-
-              {categoryOptions.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
-
-            <select
-              value={statusFilter}
-              onChange={(event) => setStatusFilter(event.target.value)}
-              className="rounded-xl border px-3 py-2.5 text-xs dark:bg-slate-950"
-            >
-              <option value="ALL">All statuses</option>
-              <option value="REQUESTED">Requested</option>
-              <option value="IN_PROGRESS">In progress</option>
-              <option value="SUBMITTED">Submitted</option>
-              <option value="UNDER_REVIEW">Under review</option>
-              <option value="CHANGES_REQUESTED">Changes requested</option>
-              <option value="RESUBMITTED">Resubmitted</option>
-              <option value="ACCEPTED">Accepted</option>
-              <option value="REJECTED">Rejected</option>
-            </select>
 
       <div className="sticky top-16 z-20 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md p-3.5 sm:p-4 shadow-sm">
         <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
@@ -639,9 +589,6 @@ function ViewToggle({
       <button
         type="button"
         onClick={() => onChange('cards')}
-        className={`px-3 ${
-          view === 'cards' ? 'bg-emerald-700 text-white' : ''
-        }`}
         className={`px-3 flex items-center justify-center transition-colors ${view === 'cards' ? 'bg-emerald-700 text-white' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
         title="Cards"
       >
@@ -651,23 +598,11 @@ function ViewToggle({
       <button
         type="button"
         onClick={() => onChange('table')}
-        className={`px-3 ${
-          view === 'table' ? 'bg-emerald-700 text-white' : ''
-        }`}
         className={`px-3 flex items-center justify-center transition-colors ${view === 'table' ? 'bg-emerald-700 text-white' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
         title="Table"
       >
         <List className="w-4 h-4" />
       </button>
     </div>
-  );
-}
-
-
-export default function ClientRequestsPage() {
-  return (
-    <Suspense fallback={<CarbonCrunchLoader message="Loading your data requests…" />}>
-      <ClientRequestsContent />
-    </Suspense>
   );
 }

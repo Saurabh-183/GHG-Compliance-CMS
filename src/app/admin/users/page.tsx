@@ -63,7 +63,7 @@ export default function AdminUsersPage() {
   }
 
   if (currentRole !== 'ADMIN') return <main className="mx-auto max-w-4xl p-8">You do not have permission to manage accounts.</main>;
-  return <main className="mx-auto max-w-7xl space-y-8 p-5 sm:p-8">
+  return <main className="mx-auto max-w-8xl space-y-8 p-5 sm:p-8">
     <header><h1 className="text-2xl font-bold">User Management</h1><p className="mt-1 text-sm text-slate-500">Create and manage database-backed administrator, consultant and client accounts.</p></header>
     {message && <div role="status" className="rounded-lg border border-slate-300 bg-slate-50 p-3 text-sm dark:border-slate-700 dark:bg-slate-900">{message}</div>}
     <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">

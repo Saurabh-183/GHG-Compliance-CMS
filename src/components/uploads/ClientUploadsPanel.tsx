@@ -527,7 +527,7 @@ export const ClientUploadsPanel: React.FC<ClientUploadsPanelProps> = ({
                       <button
                         type="button"
                         onClick={() => openMapping(row)}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#17365D] dark:bg-[#A56F63] text-white text-[10px] font-bold hover:opacity-90"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#17365D] dark:bg-emerald-700 text-white text-[10px] font-bold hover:opacity-90"
                       >
                         <MapPin className="w-3 h-3" />
                         Map / Verify

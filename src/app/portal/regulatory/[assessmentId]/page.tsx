@@ -76,7 +76,7 @@ export default function ClientRegulatorySummarySheetPage() {
   if (loading) return <CarbonCrunchLoader message="Opening your regulatory summary sheet..." />;
 
   return (
-    <main className="mx-auto max-w-7xl space-y-5 px-4 py-8 sm:px-6 lg:px-8">
+    <main className="mx-auto max-w-8xl space-y-5 px-4 py-8 sm:px-6 lg:px-8">
       <Link
         href="/portal/regulatory"
         className="inline-flex items-center gap-2 text-sm font-medium text-emerald-700 hover:text-emerald-800 dark:text-emerald-400"

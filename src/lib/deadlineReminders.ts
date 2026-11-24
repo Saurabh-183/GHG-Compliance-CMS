@@ -84,14 +84,14 @@ export async function syncClientDeadlineNotifications(session?: {
 
     if (isOverdue) {
       const pastDays = Math.abs(daysRemaining);
-      title = `🚨 OVERDUE DEADLINE: ${req.title} (${pastDays}d overdue)`;
-      message = `CRITICAL ALERT: The submission deadline for "${req.title}" (${req.facilityId} — ${req.period}) expired on ${formattedDueDate} (${pastDays} day${pastDays === 1 ? '' : 's'} ago). Please upload your Google Drive evidence and submit immediately.`;
+      title = `${req.title} (${req.facilityId}) — ${pastDays}d overdue`;
+      message = `Submission deadline expired on ${formattedDueDate} (${pastDays} day${pastDays === 1 ? '' : 's'} ago). Please upload required compliance files and submit.`;
     } else if (isToday) {
-      title = `⚠️ DUE TODAY: ${req.title} (Deadline Tonight)`;
-      message = `URGENT REMINDER: "${req.title}" (${req.facilityId} — ${req.period}) submission is due TODAY (${formattedDueDate}). Please submit your data before 11:59 PM.`;
+      title = `${req.title} (${req.facilityId}) — due today`;
+      message = `Submission is due today (${formattedDueDate}). Please submit your data before the cut-off.`;
     } else {
-      title = `⚠️ DUE IN ${daysRemaining} DAYS: ${req.title}`;
-      message = `UPCOMING DEADLINE: "${req.title}" (${req.facilityId} — ${req.period}) is due in ${daysRemaining} day${daysRemaining === 1 ? '' : 's'} on ${formattedDueDate}. Please ensure your compliance files are ready and uploaded.`;
+      title = `${req.title} (${req.facilityId}) — due in ${daysRemaining} days`;
+      message = `Upcoming client submission deadline is on ${formattedDueDate} (${daysRemaining} day${daysRemaining === 1 ? '' : 's'} remaining).`;
     }
 
     try {
@@ -99,7 +99,7 @@ export async function syncClientDeadlineNotifications(session?: {
         recipientRole: 'CLIENT',
         recipientUserId: session?.role === 'CLIENT' ? session.userId : undefined,
         senderRole: 'SYSTEM',
-        senderName: 'Compliance Deadline Alert',
+        senderName: 'Compliance Deadline',
         type: 'DEADLINE_REMINDER',
         title,
         message,
@@ -155,14 +155,15 @@ export async function syncClientDeadlineNotifications(session?: {
     let message = '';
 
     if (isOverdue) {
-      title = `🚨 OVERDUE STATUTORY FILING: ${item.complianceType} (${item.facilityId})`;
-      message = `CRITICAL ALERT: Client submission deadline for ${item.complianceType} (${item.reportingPeriod}) passed on ${formattedDueDate}. Immediate action required.`;
+      const pastDays = Math.abs(daysRemaining);
+      title = `${item.complianceType} filing overdue: ${item.facilityId}`;
+      message = `Client submission deadline for ${item.complianceType} (${item.reportingPeriod}) passed on ${formattedDueDate} (${pastDays} day${pastDays === 1 ? '' : 's'} ago).`;
     } else if (isToday) {
-      title = `⚠️ STATUTORY FILING DUE TODAY: ${item.complianceType} (${item.facilityId})`;
-      message = `URGENT ALERT: Client submission deadline for ${item.complianceType} (${item.reportingPeriod}) is TODAY (${formattedDueDate}).`;
+      title = `${item.complianceType} filing due today: ${item.facilityId}`;
+      message = `Client submission deadline for ${item.complianceType} (${item.reportingPeriod}) is today (${formattedDueDate}).`;
     } else {
-      title = `⚠️ ${item.complianceType} FILING DUE IN ${daysRemaining} DAYS: ${item.facilityId}`;
-      message = `REMINDER: Client submission deadline for ${item.complianceType} (${item.reportingPeriod}) is on ${formattedDueDate} (${daysRemaining} day${daysRemaining === 1 ? '' : 's'} remaining).`;
+      title = `${item.complianceType} filing due in ${daysRemaining} days: ${item.facilityId}`;
+      message = `Client submission deadline for ${item.complianceType} (${item.reportingPeriod}) is on ${formattedDueDate} (${daysRemaining} day${daysRemaining === 1 ? '' : 's'} remaining).`;
     }
 
     try {
@@ -170,7 +171,7 @@ export async function syncClientDeadlineNotifications(session?: {
         recipientRole: 'CLIENT',
         recipientUserId: session?.role === 'CLIENT' ? session.userId : undefined,
         senderRole: 'SYSTEM',
-        senderName: 'Statutory Compliance Alert',
+        senderName: 'Statutory Calendar',
         type: 'DEADLINE_REMINDER',
         title,
         message,

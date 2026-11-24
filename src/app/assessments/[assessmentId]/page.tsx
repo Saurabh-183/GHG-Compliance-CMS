@@ -103,7 +103,7 @@ export default function AssessmentDetailPage() {
     const isNotFound = loadError?.toLowerCase().includes('not found');
 
     return (
-      <div className="max-w-7xl mx-auto px-4 py-16 text-center">
+      <div className="max-w-8xl mx-auto px-4 py-16 text-center">
         <h2 className="text-lg font-bold text-slate-900 dark:text-white">
           {isNotFound ? 'Assessment Not Found' : 'Unable to Load Assessment'}
         </h2>
@@ -133,7 +133,7 @@ export default function AssessmentDetailPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-xs">
         <Link

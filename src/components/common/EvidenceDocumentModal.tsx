@@ -96,7 +96,7 @@ export const EvidenceDocumentModal: React.FC<EvidenceDocumentModalProps> = ({
         className={
           isFullScreen
             ? 'relative w-full h-full max-w-none max-h-none rounded-none bg-white dark:bg-slate-900 border-0 shadow-2xl overflow-hidden flex flex-col'
-            : 'relative w-[96vw] max-w-6xl xl:max-w-7xl 2xl:max-w-[1560px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[94vh]'
+            : 'relative w-[96vw] max-w-6xl xl:max-w-8xl 2xl:max-w-[1560px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[94vh]'
         }
         role="dialog"
         aria-modal="true"

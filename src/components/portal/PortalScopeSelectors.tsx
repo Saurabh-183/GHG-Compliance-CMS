@@ -35,7 +35,7 @@ export function PortalScopeSelectors({
       className={`flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 rounded-xl border border-emerald-200/80 dark:border-emerald-900/40 bg-emerald-50/50 dark:bg-emerald-950/20 px-4 py-3 ${className}`}
     >
       {!compact && (
-        <p className="text-[11px] text-slate-600 dark:text-slate-300 w-full sm:w-auto sm:flex-1 min-w-0">
+        <p className="text-[11px] text-slate-100 dark:text-slate-300 w-full sm:w-auto sm:flex-1 min-w-0">
           Select <strong>facility</strong> and <strong>financial year</strong> — same as consultant workspace. Data
           requests load for that scope only.
         </p>

@@ -27,8 +27,8 @@ export default function ClientRegulatoryRequestsPage() {
   if (loading) return <CarbonCrunchLoader message="Loading regulatory data requests..." />;
   if (currentRole !== 'CLIENT') return <div className="max-w-5xl mx-auto p-8 text-sm">This page is available to client accounts only.</div>;
   const label = (status: string) => status.replaceAll('_', ' ');
-  return <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-    <header className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-5">
+  return <main className="max-w-8xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+    <header className="p-4 rounded-lg border border-slate-300 flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-5">
       <div><div className="text-xs font-bold uppercase tracking-wider text-emerald-700">Client data collection</div><h1 className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">Regulatory summary-sheet requests</h1><p className="mt-1 text-sm text-slate-500">Complete the summary sheets requested by your consultant and submit your facility data for verification.</p></div>
       <button onClick={() => void load()} className="inline-flex items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-xs font-semibold"><RefreshCw size={14}/> Refresh</button>
     </header>

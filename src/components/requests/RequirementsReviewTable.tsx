@@ -312,7 +312,7 @@ export const RequirementsReviewTable: React.FC<RequirementsReviewTableProps> = (
                             type="button"
                             disabled={Boolean(loadingRequirementId)}
                             onClick={() => void openReview(req)}
-                            className={`inline-flex items-center justify-center min-w-[64px] px-3 py-1.5 rounded-lg bg-[#17365D] dark:bg-[#A56F63] text-white font-bold text-[11px] transition-all hover:opacity-90 ${
+                            className={`inline-flex items-center justify-center min-w-[64px] px-3 py-1.5 rounded-lg bg-[#17365D] dark:bg-emerald-700 text-white font-bold text-[11px] transition-all hover:opacity-90 ${
                               isThisRowLoading ? 'opacity-75 cursor-wait' : 'cursor-pointer'
                             }`}
                           >

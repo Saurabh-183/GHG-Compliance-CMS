@@ -20,12 +20,10 @@ import { StatusBadge } from '@/components/common/StatusBadge';
 import {
   Building2,
   Calendar,
-  FileSpreadsheet,
   Upload,
   ArrowRight,
   ChevronRight,
   Folder,
-  RefreshCw,
   TrendingUp,
   CheckCheck,
   ExternalLink,
@@ -245,7 +243,7 @@ export default function FacilityDashboardPage() {
 
   if (!matrixData) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-16 text-center">
+      <div className="max-w-8xl mx-auto px-4 py-16 text-center">
         <h2 className="text-lg font-bold text-slate-900 dark:text-white">
           {loadError?.toLowerCase().includes('not found')
             ? 'Facility Not Found'
@@ -294,7 +292,7 @@ export default function FacilityDashboardPage() {
   } = requestProgress;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Breadcrumbs */}
       <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 ">
         <Link href="/clients" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
@@ -431,22 +429,6 @@ export default function FacilityDashboardPage() {
               <Upload className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
               <span>Import Excel / Templates</span>
             </button>
-
-            <button
-              onClick={() => setIsDriveModalOpen(true)}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white hover:bg-slate-50 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 text-xs font-semibold border border-slate-300 dark:border-slate-700 transition-colors shadow-2xs"
-            >
-              <RefreshCw className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
-              <span>Connect & Sync Drive</span>
-            </button>
-
-            <Link
-              href={`/datasets/${facilityId}/verify`}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold transition-colors shadow-sm"
-            >
-              <FileSpreadsheet className="w-3.5 h-3.5 text-white" />
-              <span>Reconciliation Engine</span>
-            </Link>
           </div>
         </div>
 
