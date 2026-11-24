@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import { connectToDatabase } from '@/lib/db';
 import { AssessmentModel } from '@/models/Assessment';
+import { getClientFacilityIds } from '@/lib/clientFacilityAccess';
 import { getSessionFromRequest, isAuthorizedForFacility, authorizeRole } from '@/lib/auth';
 
 export async function GET(
@@ -35,7 +36,12 @@ export async function GET(
       return NextResponse.json({ error: 'Assessment not found' }, { status: 404 });
     }
 
-    if (!isAuthorizedForFacility(session, assessment.facilityId)) {
+    let facilityAuthorized = isAuthorizedForFacility(session, assessment.facilityId);
+    if (!facilityAuthorized && session?.role === 'CLIENT' && session.clientGroupId) {
+      const companyFacilityIds = await getClientFacilityIds(session.clientGroupId);
+      facilityAuthorized = companyFacilityIds.includes(assessment.facilityId.toUpperCase());
+    }
+    if (!facilityAuthorized) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

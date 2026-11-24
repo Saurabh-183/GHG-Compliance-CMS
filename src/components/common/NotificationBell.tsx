@@ -37,25 +37,33 @@ export const NotificationBell: React.FC = () => {
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [notificationError, setNotificationError] = useState<string>('');
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const fetchNotifications = async () => {
     try {
-      const res = await fetch(`/api/notifications?role=${currentRole}`);
-      if (res.ok) {
-        const json = await res.json();
-        setNotifications(json.data || []);
-        setUnreadCount(json.unreadCount || 0);
-      }
-    } catch {
-      // Gracefully ignore transient network drops or dev server restarts
+      const res = await fetch('/api/notifications', { cache: 'no-store', credentials: 'include' });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json.error || `Notification request failed (${res.status})`);
+      setNotifications(json.data || []);
+      setUnreadCount(json.unreadCount || 0);
+      setNotificationError('');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to load notifications';
+      setNotificationError(message);
+      console.error('Notification fetch failed:', message);
     }
   };
 
   useEffect(() => {
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 20000);
-    return () => clearInterval(interval);
+    const interval = setInterval(fetchNotifications, 15000);
+    const onFocus = () => { void fetchNotifications(); };
+    window.addEventListener('focus', onFocus);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
+    };
   }, [currentRole]);
 
   // Close dropdown on click outside
@@ -70,17 +78,33 @@ export const NotificationBell: React.FC = () => {
   }, []);
 
   const handleMarkAsRead = async (id: string, linkUrl: string) => {
+    // Older regulatory notifications used the consultant-only /assessments
+    // route. Translate those historical links to the dedicated client route.
+    const clientDestination = currentRole === 'CLIENT'
+      ? linkUrl.replace(/^\/assessments\/([^/?#]+).*$/, '/portal/regulatory/$1')
+      : linkUrl;
+    const destination = clientDestination.startsWith('/') ? clientDestination : '/portal';
+
     try {
-      await fetch(`/api/notifications/${id}/read`, { method: 'PATCH' });
-      setNotifications((prev) =>
-        prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
-      );
-      setUnreadCount((prev) => Math.max(0, prev - 1));
-      setIsOpen(false);
-      router.push(linkUrl);
+      const response = await fetch(`/api/notifications/${id}/read`, {
+        method: 'PATCH',
+        credentials: 'include',
+        cache: 'no-store',
+      });
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        console.error('Unable to mark notification as read:', payload.error || response.statusText);
+      } else {
+        setNotifications((prev) =>
+          prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
+        );
+        setUnreadCount((prev) => Math.max(0, prev - 1));
+      }
     } catch (e) {
-      console.error(e);
-      router.push(linkUrl);
+      console.error('Notification read request failed:', e);
+    } finally {
+      setIsOpen(false);
+      router.push(destination);
     }
   };
 
@@ -111,7 +135,13 @@ export const NotificationBell: React.FC = () => {
       case 'DATASET_APPROVED':
         return <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />;
       case 'DATASET_REJECTED':
+      case 'REGULATORY_RETURNED':
         return <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400" />;
+      case 'REGULATORY_DATA_REQUESTED':
+      case 'REGULATORY_SUBMITTED':
+        return <FileSpreadsheet className="w-4 h-4 text-blue-600 dark:text-blue-400" />;
+      case 'REGULATORY_APPROVED':
+        return <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />;
       default:
         return <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />;
     }
@@ -121,7 +151,10 @@ export const NotificationBell: React.FC = () => {
     <div className="relative" ref={dropdownRef}>
       {/* Bell Button */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          setIsOpen((open) => !open);
+          void fetchNotifications();
+        }}
         className={`relative p-1.5 rounded-lg border transition-colors ${
           isLight
             ? 'bg-white text-slate-700 hover:text-emerald-700 hover:bg-slate-100 border-slate-300 shadow-2xs'
@@ -188,7 +221,7 @@ export const NotificationBell: React.FC = () => {
           }`}>
             {notifications.length === 0 ? (
               <div className="py-8 text-center text-xs text-slate-500">
-                No notifications for your role.
+                {notificationError ? notificationError : 'No notifications for your role.'}
               </div>
             ) : (
               notifications.map((item) => (

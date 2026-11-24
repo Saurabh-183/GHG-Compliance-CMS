@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { Notification } from '@/models/Notification';
+import { getClientFacilityIds } from '@/lib/clientFacilityAccess';
 import { getSessionFromRequest, isAuthorizedForFacility } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
@@ -12,7 +13,20 @@ export async function GET(request: NextRequest) {
       recipientRole: { $in: [session.role, 'ALL'] },
       $or: [{ recipientUserId: session.userId }, { recipientUserId: { $exists: false } }, { recipientUserId: null }],
     };
-    if (session.role !== 'ADMIN') filter.$and = [{ $or: [{ facilityId: { $in: session.authorizedFacilityIds || [] } }, { facilityId: { $exists: false } }, { facilityId: null }] }];
+    if (session.role !== 'ADMIN') {
+      let allowedFacilityIds = (session.authorizedFacilityIds || []).map((id) => id.toUpperCase());
+      if (session.role === 'CLIENT' && session.clientGroupId) {
+        const companyFacilityIds = await getClientFacilityIds(session.clientGroupId);
+        allowedFacilityIds = [...new Set([...allowedFacilityIds, ...companyFacilityIds])];
+      }
+      filter.$and = [{
+        $or: [
+          { facilityId: { $in: allowedFacilityIds } },
+          { facilityId: { $exists: false } },
+          { facilityId: null },
+        ],
+      }];
+    }
     const notifications = await Notification.find(filter).sort({ createdAt: -1 }).limit(30).lean();
     const unreadCount = await Notification.countDocuments({ ...filter, isRead: false });
     return NextResponse.json({ success: true, data: notifications, unreadCount });

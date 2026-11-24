@@ -86,7 +86,7 @@ export interface IDataRequirementDocument extends Document {
     mappedAt?: Date;
     mappedBy?: string;
     verificationNotes?: string;
-    ingestionMode?: 'VAULT_INDEXED' | 'DRIVE_API_COPIED';
+    ingestionMode?: 'VAULT_INDEXED' | 'DRIVE_API_COPIED' | 'LOCAL_VAULT_DEV';
     billDetails?: {
       invoiceNumber: string;
       billingFrom: string;
@@ -296,7 +296,7 @@ const DataRequirementSchema = new Schema<IDataRequirementDocument>(
         mappedAt: { type: Date },
         mappedBy: { type: String },
         verificationNotes: { type: String },
-        ingestionMode: { type: String, enum: ['VAULT_INDEXED', 'DRIVE_API_COPIED'] },
+        ingestionMode: { type: String, enum: ['VAULT_INDEXED', 'DRIVE_API_COPIED', 'LOCAL_VAULT_DEV'] },
         utilityConnectionSnapshot: {
           providerName: String,
           connectionType: String,

@@ -8,7 +8,11 @@ export type NotificationType =
   | 'DATASET_APPROVED'
   | 'DATASET_REJECTED'
   | 'DEADLINE_EXTENDED'
-  | 'DATA_CHECKLIST_SHARED';
+  | 'DATA_CHECKLIST_SHARED'
+  | 'REGULATORY_DATA_REQUESTED'
+  | 'REGULATORY_SUBMITTED'
+  | 'REGULATORY_APPROVED'
+  | 'REGULATORY_RETURNED';
 
 export interface INotification extends Document {
   recipientRole: 'CONSULTANT' | 'CLIENT' | 'ADMIN' | 'ALL';
@@ -50,6 +54,10 @@ const NotificationSchema: Schema = new Schema(
         'DATASET_REJECTED',
         'DEADLINE_EXTENDED',
         'DATA_CHECKLIST_SHARED',
+        'REGULATORY_DATA_REQUESTED',
+        'REGULATORY_SUBMITTED',
+        'REGULATORY_APPROVED',
+        'REGULATORY_RETURNED',
       ],
     },
     title: { type: String, required: true },

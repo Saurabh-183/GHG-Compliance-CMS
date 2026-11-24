@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { AssessmentModel } from '@/models/Assessment';
-import { getSessionFromRequest, authorizeRole } from '@/lib/auth';
+import { getClientFacilityIds } from '@/lib/clientFacilityAccess';
+import { getSessionFromRequest, authorizeRole, isAuthorizedForFacility } from '@/lib/auth';
 
 
 export async function GET(request: NextRequest) {
@@ -10,15 +11,21 @@ export async function GET(request: NextRequest) {
     const session = getSessionFromRequest(request);
     if (!session) return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     const { RegulatorySubmissionModel } = await import('@/models/RegulatorySubmission');
-    const { isAuthorizedForFacility } = await import('@/lib/auth');
     const query: Record<string, unknown> = {};
+    let allowedFacilityIds = (session.authorizedFacilityIds || []).map((id) => id.toUpperCase());
+    if (session.role === 'CLIENT' && session.clientGroupId) {
+      const companyFacilityIds = await getClientFacilityIds(session.clientGroupId);
+      allowedFacilityIds = [...new Set([...allowedFacilityIds, ...companyFacilityIds])];
+    }
     if (session.role !== 'ADMIN') {
-      const ids = session.authorizedFacilityIds || [];
-      if (!ids.length) return NextResponse.json({ success: true, data: [] });
-      query.facilityId = { $in: ids.map((id) => id.toUpperCase()) };
+      if (!allowedFacilityIds.length) return NextResponse.json({ success: true, data: [] });
+      query.facilityId = { $in: allowedFacilityIds };
     }
     const submissions = await RegulatorySubmissionModel.find(query).sort({ updatedAt: -1 }).lean();
-    const data = submissions.filter((item) => isAuthorizedForFacility(session, item.facilityId));
+    const allowedSet = new Set(allowedFacilityIds);
+    const data = session.role === 'ADMIN'
+      ? submissions
+      : submissions.filter((item) => allowedSet.has(item.facilityId.toUpperCase()));
     return NextResponse.json({ success: true, data });
   } catch (error) {
     console.error('Regulatory submissions list failed:', error);
@@ -49,7 +56,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Assessment not found' }, { status: 404 });
     }
 
-    const { isAuthorizedForFacility } = await import('@/lib/auth');
     if (!isAuthorizedForFacility(session, assessment.facilityId)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     assessment.documentLinks.submissionAckUrl = body.submissionAckUrl.trim();

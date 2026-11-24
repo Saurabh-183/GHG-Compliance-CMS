@@ -22,6 +22,7 @@ import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import { FacilityDataChecklistPanel } from '@/components/checklist/FacilityDataChecklistPanel';
 import { DEFAULT_CHECKLIST_PERIOD } from '@/lib/facilityDataChecklistTemplate';
 import { RegulatoryMetricsPanel } from '@/components/regulatory/RegulatoryMetricsPanel';
+import { RegulatoryApprovedMetricsTable } from '@/components/regulatory/RegulatoryApprovedMetricsTable';
 
 export default function AssessmentDetailPage() {
   const { theme } = useAuth();
@@ -348,76 +349,62 @@ export default function AssessmentDetailPage() {
         </div>
       )}
 
-      {/* Structured Summary Metrics Table */}
-      <div className="rounded-md border border-slate-800 bg-slate-900/60 p-6 shadow-xl space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-emerald-400" />
-              Structured Regulatory Compliance Metrics
-            </h3>
-
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Approved and verified parameters, accounting basis, and
-              calculation outcomes.
-            </p>
+      {/* Regulatory metrics are sourced only from a final-approved summary sheet.
+          The legacy assessment.metrics array can contain demo/provisional values,
+          so it must not be presented as statutory client-submitted data. */}
+      {(['RCO', 'PAT', 'CCTS'] as string[]).includes(assessment.complianceType) ? (
+        <RegulatoryApprovedMetricsTable
+          assessmentId={assessment._id}
+          framework={assessment.complianceType as 'RCO' | 'PAT' | 'CCTS'}
+        />
+      ) : assessment.complianceType === 'CEA' ? (
+        <div className="rounded-md border border-slate-800 bg-slate-900/60 p-6 shadow-xl space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-emerald-400" />
+                Structured Regulatory Compliance Metrics
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                Approved and verified parameters, accounting basis, and calculation outcomes.
+              </p>
+            </div>
+          </div>
+          <div className="overflow-x-auto rounded-lg border border-slate-800">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-slate-800 bg-slate-950/80 text-[11px] font-semibold uppercase tracking-wider">
+                  <th className="py-3 px-4">Parameter</th>
+                  <th className="py-3 px-4">Reported Value</th>
+                  <th className="py-3 px-4">Source / Accounting Basis</th>
+                  <th className="py-3 px-4 text-center">Data Status</th>
+                  <th className="py-3 px-4 text-center">Version</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800/70 text-xs">
+                {(assessment.metrics || []).map((metric, idx) => (
+                  <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                    <td className="py-3.5 px-4 font-semibold text-slate-900 dark:text-white">{metric.name}</td>
+                    <td className="py-3.5 px-4 font-mono font-bold text-blue-600 dark:text-blue-400 text-sm">
+                      {metric.value}{' '}
+                      <span className="text-xs font-normal text-slate-500 dark:text-slate-400">{metric.unit}</span>
+                    </td>
+                    <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300">{metric.source}</td>
+                    <td className="py-3.5 px-4 text-center">
+                      {metric.isProvisional ? (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700">Provisional</span>
+                      ) : (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 dark:bg-blue-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/60">Approved Final</span>
+                      )}
+                    </td>
+                    <td className="py-3.5 px-4 text-center font-mono text-slate-500">v{metric.version}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
-
-        <div className="overflow-x-auto rounded-lg border border-slate-800">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-slate-800 bg-slate-950/80 text-[11px] font-semibold uppercase tracking-wider">
-                <th className="py-3 px-4">Parameter</th>
-                <th className="py-3 px-4">Reported Value</th>
-                <th className="py-3 px-4">Source / Accounting Basis</th>
-                <th className="py-3 px-4 text-center">Data Status</th>
-                <th className="py-3 px-4 text-center">Version</th>
-              </tr>
-            </thead>
-
-            <tbody className="divide-y divide-slate-800/70 text-xs">
-              {(assessment.metrics || []).map((metric, idx) => (
-                <tr
-                  key={idx}
-                  className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
-                >
-                  <td className="py-3.5 px-4 font-semibold text-slate-900 dark:text-white">
-                    {metric.name}
-                  </td>
-
-                  <td className="py-3.5 px-4 font-mono font-bold text-blue-600 dark:text-blue-400 text-sm">
-                    {metric.value}{' '}
-                    <span className="text-xs font-normal text-slate-500 dark:text-slate-400">
-                      {metric.unit}
-                    </span>
-                  </td>
-
-                  <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300">
-                    {metric.source}
-                  </td>
-
-                  <td className="py-3.5 px-4 text-center">
-                    {metric.isProvisional ? (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700">
-                        Provisional
-                      </span>
-                    ) : (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 dark:bg-blue-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/60">
-                        Approved Final
-                      </span>
-                    )}
-                  </td>
-
-                  <td className="py-3.5 px-4 text-center font-mono text-slate-500">
-                    v{metric.version}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      ) : null}
 
       {/* Framework-specific regulatory data collection and approval */}
       {(['RCO', 'PAT', 'CCTS'] as string[]).includes(assessment.complianceType) && (

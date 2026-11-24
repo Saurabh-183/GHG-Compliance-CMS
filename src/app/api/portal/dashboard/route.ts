@@ -186,26 +186,7 @@ export async function GET(request: NextRequest) {
       .limit(6)
       .lean();
 
-    // 9. Format facilities.
-    const formattedFacilities = facilities.map((facility) => {
-      const clientGroup = facility.clientGroupId as unknown as {
-        _id?: { toString(): string };
-        name?: string;
-        code?: string;
-        industry?: string;
-      };
-
-      return {
-        ...facility,
-        _id: facility._id.toString(),
-        clientGroupId: clientGroup?._id
-          ? clientGroup._id.toString()
-          : String(facility.clientGroupId),
-        clientGroupName: clientGroup?.name || '',
-      };
-    });
-
-    // 10. Return dashboard data.
+    // 9. Return dashboard data.
     return NextResponse.json({
       success: true,
       data: {
