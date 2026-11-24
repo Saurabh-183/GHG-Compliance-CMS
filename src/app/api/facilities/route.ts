@@ -1,3 +1,4 @@
+
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { FacilityModel } from '@/models/Facility';
@@ -25,38 +26,45 @@ export async function GET(request: NextRequest) {
     const portalScope = searchParams.get('portalScope') === 'authorized';
 
     let query: Record<string, unknown> = {};
+
     if (portalScope) {
       const ids = authorizedFacilityIdsForPortal(session);
-      query = ids.length ? { facilityId: { $in: ids } } : { facilityId: '__NONE__' };
-    } else if (session && session.role === 'CLIENT') {
+      query = ids.length
+        ? { facilityId: { $in: ids } }
+        : { facilityId: '__NONE__' };
+    } else if (session.role === 'CLIENT') {
       const ids = authorizedFacilityIdsForPortal(session);
+
       if (!ids.length) {
         return NextResponse.json({ success: true, data: [] });
       }
+
       query = { facilityId: { $in: ids } };
     }
 
     const clientGroupIdParam = searchParams.get('clientGroupId');
+
     if (clientGroupIdParam) {
       query.clientGroupId = clientGroupIdParam;
     }
 
-    let facilities = await FacilityModel.find(query)
+    const facilities = await FacilityModel.find(query)
       .populate('clientGroupId', 'name code industry')
       .populate('assignedConsultantId', 'name email designation')
       .populate('assignedReviewerId', 'name email designation')
       .lean();
 
-    // GET requests must not seed or reset persistent data. Internal users receive
-    // the read-only demo directory fallback below when MongoDB has no records.
+    // GET requests must not seed or reset persistent data.
+    // Internal users receive the read-only demo directory fallback
+    // below when MongoDB has no records.
 
     if (
       facilities.length === 0 &&
       process.env.NODE_ENV !== 'production' &&
-      session &&
       session.role === 'ADMIN'
     ) {
       const { MOCK_FACILITIES } = await import('@/lib/mockFallback');
+
       let fallbackList = MOCK_FACILITIES;
 
       if (clientGroupIdParam) {
@@ -74,17 +82,23 @@ export async function GET(request: NextRequest) {
 
     let data = dedupeFacilitiesById(
       facilities.map((f) => {
-        const clientGroup = f.clientGroupId as unknown as { _id?: { toString(): string }; name?: string };
+        const clientGroup = f.clientGroupId as unknown as {
+          _id?: { toString(): string };
+          name?: string;
+        };
+
         return {
           ...f,
           _id: f._id.toString(),
-          clientGroupId: clientGroup?._id ? clientGroup._id.toString() : String(f.clientGroupId),
+          clientGroupId: clientGroup?._id
+            ? clientGroup._id.toString()
+            : String(f.clientGroupId),
           clientGroupName: clientGroup?.name || '',
         };
       })
     );
 
-    if (portalScope || session.role === 'CLIENT') {
+    if (portalScope) {
       data = filterFacilitiesToPortalScope(session, data);
     }
 
@@ -95,20 +109,35 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.warn('Error fetching facilities from DB:', error);
 
-    if (session.role === 'CLIENT' && process.env.NODE_ENV === 'production') {
+    if (
+      session.role === 'CLIENT' &&
+      process.env.NODE_ENV === 'production'
+    ) {
       return NextResponse.json(
-        { success: false, error: 'Facility directory is temporarily unavailable.' },
+        {
+          success: false,
+          error: 'Facility directory is temporarily unavailable.',
+        },
         { status: 503 }
       );
     }
 
-    if (process.env.NODE_ENV === 'production' || session.role !== 'ADMIN') {
+    if (
+      process.env.NODE_ENV === 'production' ||
+      session.role !== 'ADMIN'
+    ) {
       return NextResponse.json(
-        { success: false, error: 'Facility directory is temporarily unavailable.' },
+        {
+          success: false,
+          error: 'Facility directory is temporarily unavailable.',
+        },
         { status: 503 }
       );
     }
 
+    // Only ADMIN can reach this development fallback.
+    // No CLIENT comparison is needed here because the role
+    // has already been narrowed to ADMIN by the condition above.
     const { MOCK_FACILITIES } = await import('@/lib/mockFallback');
     let fallbackList = MOCK_FACILITIES;
     const portalScope = request.nextUrl.searchParams.get('portalScope') === 'authorized';
@@ -118,7 +147,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       source: 'development-fallback',
-      data: fallbackList,
+      data: MOCK_FACILITIES,
     });
   }
 }
@@ -126,7 +155,9 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
+
     const session = getSessionFromRequest(request);
+
     if (!authorizeRole(session, ['ADMIN'])) {
       return NextResponse.json(
         { error: 'Forbidden: Only Admins can register new facilities' },
@@ -150,11 +181,19 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(
-      { success: true, message: 'Facility created successfully', data: newFacility },
+      {
+        success: true,
+        message: 'Facility created successfully',
+        data: newFacility,
+      },
       { status: 201 }
     );
   } catch (error) {
     console.error('Facility creation failed:', error);
-    return NextResponse.json({ error: 'Unable to create facility.' }, { status: 500 });
+
+    return NextResponse.json(
+      { error: 'Unable to create facility.' },
+      { status: 500 }
+    );
   }
 }

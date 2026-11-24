@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import { connectToDatabase } from '@/lib/db';
 import { Notification } from '@/models/Notification';
 import { getSessionFromRequest, isAuthorizedForFacility } from '@/lib/auth';
+import { getClientFacilityIds } from '@/lib/clientFacilityAccess';
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = getSessionFromRequest(request);
@@ -19,6 +20,15 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     notification.isRead = true;
     notification.readAt = new Date();
     await notification.save();
+    if (notification.facilityId) {
+      let facilityAuthorized = isAuthorizedForFacility(session, notification.facilityId);
+      if (!facilityAuthorized && session.role === 'CLIENT' && session.clientGroupId) {
+        const companyFacilityIds = await getClientFacilityIds(session.clientGroupId);
+        facilityAuthorized = companyFacilityIds.includes(notification.facilityId.toUpperCase());
+      }
+      if (!facilityAuthorized) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+    notification.isRead = true; await notification.save();
     return NextResponse.json({ success: true, data: notification });
   } catch (error) {
     console.error('Mark notification read failed:', error);

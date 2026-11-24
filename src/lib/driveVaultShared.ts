@@ -53,7 +53,7 @@ export interface VaultIngestResult {
   vaultTargetFolderId?: string;
   fileName: string;
   mappingStatus: DriveLinkMappingStatus;
-  ingestionMode: 'VAULT_INDEXED' | 'DRIVE_API_COPIED';
+  ingestionMode: 'VAULT_INDEXED' | 'DRIVE_API_COPIED' | 'LOCAL_VAULT_DEV';
 }
 
 export type VaultIngestOverrides = Partial<

@@ -5,6 +5,7 @@ import { UserModel, IUserDocument } from '@/models/User';
 import { FacilityModel } from '@/models/Facility';
 import { signToken, getSessionFromRequest } from '@/lib/auth';
 import { findUserForSession } from '@/lib/resolveSessionUser';
+import { getClientFacilityIds } from '@/lib/clientFacilityAccess';
 import { UserRole } from '@/types';
 
 const COOKIE_NAME = 'cc_auth_token';
@@ -73,6 +74,14 @@ export async function POST(request: NextRequest) {
     if (user.role === 'CONSULTANT' && authorizedFacilityIds.length === 0) {
       const assigned = await FacilityModel.find({ $or: [{ assignedConsultantId: user._id }, { assignedReviewerId: user._id }], status: { $ne: 'INACTIVE' } }).select('facilityId').lean();
       authorizedFacilityIds = assigned.map((facility) => facility.facilityId.toUpperCase());
+    }
+
+    // Client access is scoped by the client's company. Do not rely only on
+    // a manually maintained authorizedFacilityIds array: older client users
+    // may have a valid clientGroupId but an empty facility list.
+    if (user.role === 'CLIENT' && user.clientGroupId) {
+      const companyFacilityIds = await getClientFacilityIds(String(user.clientGroupId));
+      authorizedFacilityIds = [...new Set([...authorizedFacilityIds.map((id: string) => id.toUpperCase()), ...companyFacilityIds])];
     }
     if (user.role !== 'ADMIN' && authorizedFacilityIds.length === 0) {
       return NextResponse.json({ error: 'No facilities have been assigned to this account. Contact your administrator.' }, { status: 403 });

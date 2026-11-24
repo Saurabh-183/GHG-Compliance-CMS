@@ -197,6 +197,7 @@ export async function GET(request: NextRequest) {
       .lean();
 
     // 10. Return dashboard data.
+    // 9. Return dashboard data.
     return NextResponse.json({
       success: true,
       data: {

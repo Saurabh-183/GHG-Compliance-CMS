@@ -214,7 +214,14 @@ export default function ClientPortalDashboard() {
           </div>
 
           <div className="flex flex-row flex-wrap items-center gap-2.5 shrink-0 self-start md:self-center">
-            {/* <button
+            <Link
+              href="/portal/regulatory"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-blue-700 hover:bg-blue-800 text-white font-semibold text-xs shadow-sm transition-colors whitespace-nowrap"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5" />
+              <span>Regulatory Requests</span>
+            </Link>
+            <button
               onClick={() => setIsExcelModalOpen(true)}
               className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs shadow-sm transition-colors whitespace-nowrap"
             >

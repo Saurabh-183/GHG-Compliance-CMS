@@ -59,6 +59,7 @@ export const Navbar: React.FC = () => {
       return [
         { label: 'Client Overview', href: '/portal', icon: Layers },
         { label: 'Data Requests', href: `/portal/requests${portalScopeQs}`, icon: FileSpreadsheet },
+        { label: 'Regulatory Sheets', href: '/portal/regulatory', icon: FileSpreadsheet },
         { label: 'Approved History', href: '/portal/history', icon: CheckCircle2 },
         { label: 'Drive Documents', href: `/drive-explorer${portalScopeQs}`, icon: HardDrive },
       ];

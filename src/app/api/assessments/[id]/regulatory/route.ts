@@ -5,11 +5,20 @@ import { AssessmentModel } from '@/models/Assessment';
 import { RegulatorySubmissionModel } from '@/models/RegulatorySubmission';
 import { getSessionFromRequest, authorizeRole, isAuthorizedForFacility } from '@/lib/auth';
 import { getRegulatoryTemplate, calculateRegulatoryValues } from '@/lib/regulatory/regulatoryTemplates';
+import { Notification } from '@/models/Notification';
+import { FacilityModel } from '@/models/Facility';
+import { UserModel } from '@/models/User';
+import { getClientFacilityIds } from '@/lib/clientFacilityAccess';
+import { parseAssessmentId } from '@/lib/assessmentIds';
 
 type Ctx = { params: Promise<{ id: string }> };
 const jsonError = (message: string, status: number) => NextResponse.json({ error: message }, { status });
 
-async function getAssessmentAndSession(request: NextRequest, id: string) {
+async function getAssessmentAndSession(
+  request: NextRequest,
+  id: string,
+  allowCreateFromMatrixId = false
+) {
   const session = getSessionFromRequest(request);
   if (!session) return { error: jsonError('Authentication required', 401) } as const;
   if (!id?.trim()) return { error: jsonError('Assessment ID is required', 400) } as const;
@@ -141,6 +150,14 @@ export async function PUT(request: NextRequest, { params }: Ctx) {
     }) : [];
     const calculated = calculateRegulatoryValues(template.id, values);
     const mergedValues = { ...values, ...calculated };
+    const existingValues = existing?.values && typeof existing.values === 'object'
+      ? (typeof (existing.values as any).toObject === 'function'
+          ? (existing.values as any).toObject()
+          : existing.values)
+      : {};
+    const valuesChanged = JSON.stringify(existingValues) !== JSON.stringify(mergedValues);
+    const evidenceChanged = JSON.stringify(existing?.evidence || []) !== JSON.stringify(evidence);
+    const invalidateReviews = valuesChanged || evidenceChanged;
     const audit = {
       at: new Date(), userId: ctx.session.userId, userName: ctx.session.name,
       action: 'SAVE_DRAFT', details: `Saved ${template.title} (${template.id})`
@@ -148,15 +165,21 @@ export async function PUT(request: NextRequest, { params }: Ctx) {
     const submission = await RegulatorySubmissionModel.findOneAndUpdate(
       { assessmentId: ctx.assessment._id },
       {
-        $set: {
-          facilityId: ctx.assessment.facilityId, framework, templateId: template.id,
-          period: ctx.assessment.period, values: mergedValues, evidence,
-          status: existing?.status === 'RETURNED' ? 'RETURNED' : 'DRAFT'
-        },
-        $inc: { version: 1 },
-        $push: { auditTrail: audit },
-        $setOnInsert: { fieldReviews: [] }
-      },
+  $set: {
+    facilityId: ctx.assessment.facilityId,
+    framework,
+    templateId: template.id,
+    period: ctx.assessment.period,
+    values: mergedValues,
+    evidence,
+    status: existing?.status === 'RETURNED' ? 'RETURNED' : 'DRAFT',
+    fieldReviews: invalidateReviews
+      ? []
+      : (existing?.fieldReviews || [])
+  },
+  $inc: { version: 1 },
+  $push: { auditTrail: audit }
+},
       { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true }
     );
     return NextResponse.json({ success: true, submission });
@@ -191,6 +214,14 @@ export async function POST(request: NextRequest, { params }: Ctx) {
       action: 'SUBMIT', details: 'Submitted regulatory summary for review'
     });
     await submission.save();
+    try {
+      await Notification.create({
+        recipientRole: 'CONSULTANT', senderRole: 'CLIENT', senderName: ctx.session.name,
+        type: 'REGULATORY_SUBMITTED', title: `${submission.framework} summary sheet submitted`,
+        message: `${ctx.session.name} submitted ${template.title} for ${submission.facilityId} (${submission.period}).`,
+        facilityId: submission.facilityId, linkUrl: `/assessments/${ctx.assessment._id}`, isRead: false,
+      });
+    } catch (notificationError) { console.error('Regulatory submission notification failed:', notificationError); }
     return NextResponse.json({ success: true, submission });
   } catch (error) {
     console.error('Regulatory submit failed:', error);
@@ -201,7 +232,7 @@ export async function POST(request: NextRequest, { params }: Ctx) {
 export async function PATCH(request: NextRequest, { params }: Ctx) {
   try {
     const { id } = await params;
-    const ctx = await getAssessmentAndSession(request, id);
+    const ctx = await getAssessmentAndSession(request, id, true);
     if ('error' in ctx) return ctx.error;
     if (!authorizeRole(ctx.session, ['ADMIN','CONSULTANT'])) return jsonError('Only consultants and admins can manage regulatory requests and reviews',403);
     const body = await request.json();
@@ -218,6 +249,48 @@ export async function PATCH(request: NextRequest, { params }: Ctx) {
         { $set: { facilityId: ctx.assessment.facilityId, framework, templateId: template.id, period: ctx.assessment.period, status: 'REQUESTED', values: {}, evidence: [], fieldReviews: [], requestedAt: now, requestedBy: ctx.session.userId, requestedByName: ctx.session.name, requestMessage: String(body.message || '').slice(0,2000) }, $inc: { version: 1 }, $push: { auditTrail: { at: now, userId: ctx.session.userId, userName: ctx.session.name, action: 'REQUEST_DATA', details: `Requested ${template.title} from client` } } },
         { new: true, upsert: true, setDefaultsOnInsert: true }
       );
+      try {
+        // Target the client users belonging to this facility's company. This
+        // makes the request visible in the correct client account even when
+        // the user's authorizedFacilityIds were not manually populated.
+        const facility = await FacilityModel.findOne({ facilityId: ctx.assessment.facilityId })
+          .select('clientGroupId')
+          .lean();
+        const clientQuery: Record<string, unknown> = {
+          role: 'CLIENT',
+          status: { $ne: 'DISABLED' },
+          authorizedFacilityIds: ctx.assessment.facilityId,
+        };
+        if (facility?.clientGroupId) {
+          clientQuery.$or = [
+            { clientGroupId: facility.clientGroupId },
+            { authorizedFacilityIds: ctx.assessment.facilityId },
+          ];
+          delete clientQuery.authorizedFacilityIds;
+        }
+        const clientUsers = await UserModel.find(clientQuery).select('_id').lean();
+        const notificationBase = {
+          recipientRole: 'CLIENT' as const,
+          senderRole: 'CONSULTANT' as const,
+          senderName: ctx.session.name,
+          type: 'REGULATORY_DATA_REQUESTED' as const,
+          title: `${framework} data requested`,
+          message: `${ctx.session.name} requested ${template.title} for ${ctx.assessment.facilityId} (${ctx.assessment.period}). Open this notification to complete the requested summary sheet.`,
+          facilityId: ctx.assessment.facilityId,
+          linkUrl: `/portal/regulatory/${ctx.assessment._id}`,
+          isRead: false,
+        };
+        if (clientUsers.length) {
+          await Notification.insertMany(clientUsers.map((client: { _id: { toString(): string } }) => ({
+            ...notificationBase,
+            recipientUserId: client._id.toString(),
+          })));
+        } else {
+          // Role/facility-scoped fallback for installations where client user
+          // provisioning is still being completed.
+          await Notification.create(notificationBase);
+        }
+      } catch (notificationError) { console.error('Regulatory request notification failed:', notificationError); }
       return NextResponse.json({ success: true, submission, message: 'Regulatory data request sent to client.' });
     }
     if (!submission) return jsonError('Regulatory submission not found',404);
@@ -226,37 +299,144 @@ export async function PATCH(request: NextRequest, { params }: Ctx) {
       if (submission.status !== 'SUBMITTED') return jsonError('Only submitted reports can enter review',409);
       submission.status = 'UNDER_REVIEW';
       submission.auditTrail.push({ ...auditBase, action, details: 'Review started' });
-    } else if (action === 'VERIFY_FIELD' || action === 'REJECT_FIELD') {
-      if (!['SUBMITTED','UNDER_REVIEW','RETURNED'].includes(submission.status)) return jsonError('Report is not open for field review',409);
+    } else if (
+      action === 'VERIFY_FIELD' ||
+      action === 'REJECT_FIELD' ||
+      action === 'VERIFY_ALL'
+    ) {
+      if (!['SUBMITTED', 'UNDER_REVIEW'].includes(submission.status)) {
+        return jsonError('Report is not open for field review', 409);
+      }
+
       const template = getRegulatoryTemplate(submission.templateId);
-      const field = template?.sections.flatMap(s => s.fields).find(f => f.key === body.fieldKey);
-      if (!field) return jsonError('Unknown regulatory field',400);
-      const review = {
-        fieldKey: field.key, status: action === 'VERIFY_FIELD' ? 'VERIFIED' : 'REJECTED',
-        reviewedBy: ctx.session.userId, reviewedByName: ctx.session.name,
-        reviewedAt: new Date(), comments: String(body.comments || '').slice(0,2000)
-      };
-      const reviews = submission.fieldReviews as Array<Record<string,unknown>>;
-      const idx = reviews.findIndex(r => r.fieldKey === field.key);
-      if (idx >= 0) reviews[idx] = review; else reviews.push(review);
+      if (!template) return jsonError('Regulatory template not found', 404);
+
+      const inputFields = template.sections
+        .flatMap(section => section.fields)
+        .filter(field => field.input !== false);
+      const values = submission.values as Record<string, unknown>;
+      const reviews = [
+        ...((submission.fieldReviews || []) as Array<Record<string, any>>),
+      ];
+      const now = new Date();
+      const fieldHasValue = (field: typeof inputFields[number]) =>
+        field.columns.some(column => {
+          const key = column === 'VALUE' ? field.key : `${field.key}__${column}`;
+          const value = values[key];
+          return value !== undefined && value !== null && value !== '';
+        });
+      const eligibleFields = inputFields.filter(field => field.required || fieldHasValue(field));
+      const missingRequired = inputFields.filter(field =>
+        field.required && field.columns.every(column => {
+          const key = column === 'VALUE' ? field.key : `${field.key}__${column}`;
+          const value = values[key];
+          return value === undefined || value === null || value === '';
+        })
+      );
+
+      if (action === 'VERIFY_ALL') {
+        if (missingRequired.length) {
+          return NextResponse.json(
+            {
+              error: 'Complete all required fields before verifying the report.',
+              fields: missingRequired.map(field => field.label),
+            },
+            { status: 409 }
+          );
+        }
+        if (!eligibleFields.length) {
+          return jsonError('There are no populated input fields available to verify.', 409);
+        }
+        for (const field of eligibleFields) {
+          const review = {
+            fieldKey: field.key,
+            status: 'VERIFIED',
+            reviewedBy: ctx.session.userId,
+            reviewedByName: ctx.session.name,
+            reviewedAt: now,
+            comments: 'Verified as part of bulk verification.',
+          };
+          const index = reviews.findIndex(item => item.fieldKey === field.key);
+          if (index >= 0) reviews[index] = review;
+          else reviews.push(review);
+        }
+        submission.auditTrail.push({
+          ...auditBase,
+          action: 'VERIFY_ALL',
+          details: `Bulk verified ${eligibleFields.length} input fields.`,
+        });
+      } else {
+        const field = inputFields.find(item => item.key === body.fieldKey);
+        if (!field) return jsonError('Unknown or non-reviewable regulatory field', 400);
+        if (!fieldHasValue(field)) {
+          return jsonError('This field has no entered value and cannot be verified.', 409);
+        }
+        const review = {
+          fieldKey: field.key,
+          status: action === 'VERIFY_FIELD' ? 'VERIFIED' : 'REJECTED',
+          reviewedBy: ctx.session.userId,
+          reviewedByName: ctx.session.name,
+          reviewedAt: now,
+          comments: String(body.comments || '').slice(0, 2000),
+        };
+        const index = reviews.findIndex(item => item.fieldKey === field.key);
+        if (index >= 0) reviews[index] = review;
+        else reviews.push(review);
+        submission.auditTrail.push({
+          ...auditBase,
+          action,
+          details: `${field.label}: ${review.status}`,
+        });
+      }
+
       submission.fieldReviews = reviews as typeof submission.fieldReviews;
-      submission.status = 'UNDER_REVIEW';
-      submission.auditTrail.push({ ...auditBase, action, details: `${field.label}: ${review.status}` });
+      const allVerified = eligibleFields.length > 0 && eligibleFields.every(field =>
+        reviews.some(item => item.fieldKey === field.key && item.status === 'VERIFIED')
+      );
+      submission.status = allVerified ? 'VERIFIED' : 'UNDER_REVIEW';
+      if (allVerified) {
+        submission.auditTrail.push({
+          ...auditBase,
+          action: 'REPORT_VERIFIED',
+          details: 'All eligible input fields have been verified.',
+        });
+      }
     } else if (action === 'RETURN') {
-      if (!['SUBMITTED','UNDER_REVIEW'].includes(submission.status)) return jsonError('Only submitted or under-review reports can be returned',409);
+      if (!['SUBMITTED', 'UNDER_REVIEW', 'VERIFIED'].includes(submission.status)) return jsonError('Only submitted, under-review or verified reports can be returned',409);
       submission.status = 'RETURNED';
+      submission.fieldReviews = [];
       submission.auditTrail.push({ ...auditBase, action, details: String(body.comments || 'Returned for correction').slice(0,2000) });
     } else if (action === 'VERIFY_REPORT') {
-      if (submission.status !== 'UNDER_REVIEW') return jsonError('Start review before verifying the report',409);
+      if (!['SUBMITTED', 'UNDER_REVIEW'].includes(submission.status)) {
+        return jsonError('Report is not open for verification', 409);
+      }
       const template = getRegulatoryTemplate(submission.templateId);
-      const allFields = template?.sections.flatMap(s => s.fields).filter(f => f.input !== false) || [];
-      const reviews = submission.fieldReviews as Array<Record<string,unknown>>;
-      const pending = allFields.filter(f => !reviews.some(r => r.fieldKey === f.key && r.status === 'VERIFIED'));
-      if (pending.length) return NextResponse.json({ error: 'Verify all input fields before verifying the report', fields: pending.map(f => f.label) }, { status: 409 });
+      if (!template) return jsonError('Regulatory template not found', 404);
+      const fields = template.sections.flatMap(section => section.fields).filter(field => field.input !== false);
+      const values = submission.values as Record<string, unknown>;
+      const eligible = fields.filter(field => field.required || field.columns.some(column => {
+        const key = column === 'VALUE' ? field.key : `${field.key}__${column}`;
+        const value = values[key];
+        return value !== undefined && value !== null && value !== '';
+      }));
+      const reviews = (submission.fieldReviews || []) as Array<Record<string, unknown>>;
+      const pending = eligible.filter(field => !reviews.some(item => item.fieldKey === field.key && item.status === 'VERIFIED'));
+      const missing = fields.filter(field => field.required && field.columns.every(column => {
+        const key = column === 'VALUE' ? field.key : `${field.key}__${column}`;
+        const value = values[key];
+        return value === undefined || value === null || value === '';
+      }));
+      if (missing.length || pending.length) {
+        return NextResponse.json({
+          error: 'All required fields must be complete and all eligible fields must be verified.',
+          fields: [...new Set([...missing, ...pending].map(field => field.label))],
+        }, { status: 409 });
+      }
+      if (!eligible.length) return jsonError('There are no populated input fields available to verify.', 409);
       submission.status = 'VERIFIED';
-      submission.auditTrail.push({ ...auditBase, action, details: 'All input fields verified' });
+      submission.auditTrail.push({ ...auditBase, action, details: 'All eligible input fields verified' });
     } else if (action === 'APPROVE') {
-      if (ctx.session.role !== 'ADMIN') return jsonError('Only an admin can approve the final regulatory report',403);
+      if (!authorizeRole(ctx.session, ['ADMIN', 'CONSULTANT'])) return jsonError('Only a consultant or admin can approve the final regulatory report',403);
       if (submission.status !== 'VERIFIED') return jsonError('Verify the report before final approval',409);
       submission.status = 'APPROVED';
       submission.approvedAt = new Date();
@@ -267,6 +447,20 @@ export async function PATCH(request: NextRequest, { params }: Ctx) {
     }
     submission.version += 1;
     await submission.save();
+    if (action === 'APPROVE' || action === 'RETURN') {
+      try {
+        const approved = action === 'APPROVE';
+        await Notification.create({
+          recipientRole: 'CLIENT', senderRole: 'CONSULTANT', senderName: ctx.session.name,
+          type: approved ? 'REGULATORY_APPROVED' : 'REGULATORY_RETURNED',
+          title: approved ? `${submission.framework} summary sheet approved` : `${submission.framework} summary sheet returned for correction`,
+          message: approved
+            ? `${ctx.session.name} approved ${submission.templateId} for ${submission.facilityId} (${submission.period}). Approved values are now available in the compliance assessment.`
+            : `${ctx.session.name} returned ${submission.templateId} for ${submission.facilityId} (${submission.period}). ${String(body.comments || 'Please review the consultant feedback and correct the values.')}`,
+          facilityId: submission.facilityId, linkUrl: `/portal/regulatory/${ctx.assessment._id}`, isRead: false,
+        });
+      } catch (notificationError) { console.error('Regulatory review notification failed:', notificationError); }
+    }
     return NextResponse.json({ success: true, submission });
   } catch (error) {
     console.error('Regulatory review failed:', error);

@@ -110,18 +110,35 @@ export function RegulatoryMetricsPanel({ assessmentId, framework, period, facili
     finally { setBusy(false); }
   }
 
-  async function review(action: string, fieldKey?: string) {
+  async function review(action: string, fieldKey?: string, comments?: string) {
     setBusy(true); setMessage('');
     try {
+      const defaultComments = action === 'REJECT_FIELD'
+        ? 'Please review the supporting source and correct this value.'
+        : '';
       const res = await fetch(`/api/assessments/${encodeURIComponent(assessmentId)}/regulatory`, {
-        method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action,fieldKey,comments: action==='REJECT_FIELD'?'Please review the supporting source and correct this value.':''})
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, fieldKey, comments: comments ?? defaultComments }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || (data.fields ? data.fields.join(', ') : 'Review action failed'));
-      setStatus(data.submission.status); setReviews(data.submission.fieldReviews || []); setVersion(data.submission.version);
-      setMessage(`Action ${action.replaceAll('_',' ').toLowerCase()} completed.`);
-    } catch (e) { setMessage(e instanceof Error ? e.message : 'Review action failed'); }
-    finally { setBusy(false); }
+      if (!res.ok) {
+        const fieldList = Array.isArray(data.fields) ? ` ${data.fields.join(', ')}` : '';
+        throw new Error((data.error || 'Review action failed') + fieldList);
+      }
+      setStatus(data.submission.status);
+      setReviews(data.submission.fieldReviews || []);
+      setVersion(data.submission.version);
+      setMessage(
+        data.submission.status === 'VERIFIED'
+          ? 'Verification completed. All eligible fields are verified. The report is ready for final approval.'
+          : `Action ${action.replaceAll('_', ' ').toLowerCase()} completed.`
+      );
+    } catch (e) {
+      setMessage(e instanceof Error ? e.message : 'Review action failed');
+    } finally {
+      setBusy(false);
+    }
   }
 
   function exportWorkbook() {
@@ -158,7 +175,21 @@ export function RegulatoryMetricsPanel({ assessmentId, framework, period, facili
   if (loading) return <section className="rounded-xl border border-slate-200 dark:border-slate-700 p-6">Loading regulatory metrics…</section>;
   if (!templates.length) return <section className="rounded-xl border border-amber-300 p-5 text-sm">No regulatory template is configured for {framework}.</section>;
 
-  const reviewMap = new Map(reviews.map(r => [r.fieldKey,r]));
+  const reviewMap = new Map(reviews.map(r => [r.fieldKey, r]));
+  const reviewableFields = template
+    ? template.sections.flatMap(section => section.fields).filter(field => {
+        if (field.input === false) return false;
+        const hasValue = field.columns.some(column => {
+          const key = valueKey(field, column);
+          const value = values[key];
+          return value !== undefined && value !== null && value !== '';
+        });
+        return field.required || hasValue;
+      })
+    : [];
+  const verifiedCount = reviewableFields.filter(field => reviewMap.get(field.key)?.status === 'VERIFIED').length;
+  const rejectedCount = reviewableFields.filter(field => reviewMap.get(field.key)?.status === 'REJECTED').length;
+  const pendingCount = Math.max(0, reviewableFields.length - verifiedCount - rejectedCount);
   const canEdit = isClient;
   const locked = !['REQUESTED','DRAFT','RETURNED'].includes(status);
 
@@ -343,6 +374,15 @@ export function RegulatoryMetricsPanel({ assessmentId, framework, period, facili
 
       {message && <div className="mx-5 mt-4 rounded-lg bg-slate-100 dark:bg-slate-800 px-4 py-3 text-xs text-slate-700 dark:text-slate-200">{message}</div>}
 
+      {isReviewer && status !== 'NOT_REQUESTED' && status !== 'REQUESTED' && (
+        <div className="mx-5 mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border border-slate-200 dark:border-slate-700 px-4 py-3 text-xs">
+          <span className="font-semibold text-slate-700 dark:text-slate-200">Verification progress</span>
+          <span className="text-emerald-700 dark:text-emerald-400">Verified: {verifiedCount}/{reviewableFields.length}</span>
+          <span className="text-rose-700 dark:text-rose-400">Rejected: {rejectedCount}</span>
+          <span className="text-slate-500 dark:text-slate-400">Pending: {pendingCount}</span>
+        </div>
+      )}
+
       {isClient && status==='NOT_REQUESTED' && <div className="p-5 text-sm text-slate-600 dark:text-slate-300">No regulatory data request has been assigned to this facility yet. Your consultant will send the applicable summary sheet here.</div>}
       {isReviewer && status==='NOT_REQUESTED' && <div className="p-5 text-xs text-slate-500">Choose the applicable summary sheet above and send a data request to the client.</div>}
       {isReviewer && status==='REQUESTED' && <div className="px-5 pt-4 text-xs text-indigo-700 dark:text-indigo-300">Waiting for the client to complete this requested summary sheet.</div>}
@@ -396,11 +436,20 @@ export function RegulatoryMetricsPanel({ assessmentId, framework, period, facili
                         </td>;
                       })}
                       {isReviewer && <td className="px-3 py-2 min-w-36">
-                        <div className="text-[10px] mb-1 text-slate-500">{reviewState?.status || 'PENDING'}</div>
-                        <div className="flex gap-1">
-                          <button disabled={busy || !['SUBMITTED','UNDER_REVIEW','RETURNED'].includes(status)} onClick={()=>review('VERIFY_FIELD',field.key)} className="rounded bg-emerald-700 text-white px-2 py-1 text-[10px] disabled:opacity-40">Verify</button>
-                          <button disabled={busy || !['SUBMITTED','UNDER_REVIEW','RETURNED'].includes(status)} onClick={()=>review('REJECT_FIELD',field.key)} className="rounded bg-rose-700 text-white px-2 py-1 text-[10px] disabled:opacity-40">Reject</button>
-                        </div>
+                        {field.input === false ? (
+                          <span className="text-[10px] text-slate-400">Calculated</span>
+                        ) : (
+                          <>
+                            <div className={`text-[10px] mb-1 font-medium ${reviewState?.status === 'VERIFIED' ? 'text-emerald-600' : reviewState?.status === 'REJECTED' ? 'text-rose-600' : 'text-slate-500'}`}>
+                              {reviewState?.status || 'PENDING'}
+                            </div>
+                            <div className="flex gap-1">
+                              <button disabled={busy || !['SUBMITTED', 'UNDER_REVIEW'].includes(status)} onClick={() => review('VERIFY_FIELD', field.key)} className="rounded bg-emerald-700 text-white px-2 py-1 text-[10px] disabled:opacity-40">Verify</button>
+                              <button disabled={busy || !['SUBMITTED', 'UNDER_REVIEW'].includes(status)} onClick={() => review('REJECT_FIELD', field.key)} className="rounded bg-rose-700 text-white px-2 py-1 text-[10px] disabled:opacity-40">Reject</button>
+                            </div>
+                            {reviewState?.comments && <div className="mt-1 max-w-40 text-[10px] text-slate-500">{reviewState.comments}</div>}
+                          </>
+                        )}
                       </td>}
                     </tr>;
                   })}
@@ -423,28 +472,41 @@ export function RegulatoryMetricsPanel({ assessmentId, framework, period, facili
         {isReviewer && (
           <div className="flex flex-wrap gap-2.5 border-t border-slate-200 dark:border-slate-700 pt-4">
             <button
-              disabled={busy || status !== 'UNDER_REVIEW'}
-              onClick={() => review('VERIFY_REPORT')}
+              type="button"
+              disabled={busy || !['SUBMITTED', 'UNDER_REVIEW'].includes(status) || reviewableFields.length === 0}
+              onClick={() => {
+                const confirmed = window.confirm(
+                  `Verify all ${reviewableFields.length} eligible input fields? Make sure you have checked the submitted values and supporting evidence.`
+                );
+                if (confirmed) void review('VERIFY_ALL');
+              }}
               className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 px-4 py-2 text-xs font-semibold text-white disabled:opacity-40 transition-colors shadow-sm"
             >
-              Verify report
+              Verify All ({reviewableFields.length})
             </button>
             <button
-              disabled={busy || !['SUBMITTED', 'UNDER_REVIEW'].includes(status)}
-              onClick={() => review('RETURN')}
+              type="button"
+              disabled={busy || !['SUBMITTED', 'UNDER_REVIEW', 'VERIFIED'].includes(status)}
+              onClick={() => {
+                const reason = window.prompt('Enter the reason for returning this report for correction:');
+                if (reason && reason.trim()) void review('RETURN', undefined, reason.trim());
+              }}
               className="inline-flex items-center gap-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 px-4 py-2 text-xs font-semibold text-white disabled:opacity-40 transition-colors shadow-sm"
             >
               Return for correction
             </button>
-            {currentRole === 'ADMIN' && (
-              <button
-                disabled={busy || status !== 'VERIFIED'}
-                onClick={() => review('APPROVE')}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-blue-700 hover:bg-blue-800 px-4 py-2 text-xs font-semibold text-white disabled:opacity-40 transition-colors shadow-sm"
-              >
-                Final approval
-              </button>
-            )}
+            <button
+              type="button"
+              disabled={busy || status !== 'VERIFIED'}
+              onClick={() => {
+                if (window.confirm('Give final approval to this verified regulatory report?')) {
+                  void review('APPROVE');
+                }
+              }}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-blue-700 hover:bg-blue-800 px-4 py-2 text-xs font-semibold text-white disabled:opacity-40 transition-colors shadow-sm"
+            >
+              Final approval
+            </button>
           </div>
         )}
       </div>}

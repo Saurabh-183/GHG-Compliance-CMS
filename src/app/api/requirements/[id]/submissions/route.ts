@@ -12,6 +12,11 @@ import {
   VaultPlacementError,
 } from '@/lib/driveVaultServer';
 import { upsertClientSubmissionLink } from '@/lib/clientSubmissionLinkUpsert';
+import {
+  GOOGLE_DRIVE_FOLDER_URL,
+  GOOGLE_DRIVE_FOLDER_ID,
+  resolveComplianceVaultFolderUrl,
+} from '@/lib/gdrive';
 import { assertClientCanSubmitRequirement } from '@/lib/dataRequestDueDate';
 
 export async function POST(
