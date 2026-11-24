@@ -251,7 +251,7 @@ export function ChecklistDrivenRequestWizard({
   }
 
   return (
-    <section className="space-y-4 rounded-2xl border border-emerald-200 bg-white p-5 shadow-sm dark:border-emerald-900/40 dark:bg-slate-900/60">
+    <section className="space-y-4 rounded-xl border border-emerald-200 bg-white p-5 shadow-sm dark:border-emerald-900/40 dark:bg-slate-900/60">
       <header>
         <h2 className="text-base font-bold text-slate-900 dark:text-white">Checklist-driven data request</h2>
         <p className="mt-1 text-xs text-slate-500">

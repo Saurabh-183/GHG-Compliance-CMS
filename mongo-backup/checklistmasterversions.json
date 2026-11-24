@@ -1,0 +1,31 @@
+[
+  {
+    "_id": {
+      "$oid": "6b018af7d297dbf4164956cb"
+    },
+    "versionId": "2025-all-clients-v1",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795263222682"
+      }
+    },
+    "itemCount": {
+      "$numberInt": "32"
+    },
+    "label": "All Clients Data Checklist (imported)",
+    "publishedAt": {
+      "$date": {
+        "$numberLong": "1795263222682"
+      }
+    },
+    "sourceDocument": "Data-Checklist-All-Clients - Google Sheets (1).pdf",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795441059710"
+      }
+    }
+  }
+]

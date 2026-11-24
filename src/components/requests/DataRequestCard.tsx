@@ -31,13 +31,20 @@ export function DataRequestCard({
 
   const dueClass =
     urgency === 'overdue'
-      ? 'text-rose-600 dark:text-rose-400'
+      ? 'text-rose-600 dark:text-rose-400 font-bold'
       : urgency === 'soon'
-        ? 'text-amber-600 dark:text-amber-400'
+        ? 'text-amber-600 dark:text-amber-400 font-semibold'
         : 'text-slate-600 dark:text-slate-300';
 
+  const cardBorderClass =
+    urgency === 'overdue'
+      ? 'border-rose-500/80 ring-2 ring-rose-500/20 bg-rose-50/15 dark:bg-rose-950/20 hover:border-rose-500'
+      : urgency === 'soon'
+        ? 'border-amber-400/80 dark:border-amber-600/60 ring-1 ring-amber-400/20 bg-amber-50/10 dark:bg-amber-950/10 hover:border-amber-500'
+        : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 hover:border-emerald-300/60 dark:hover:border-emerald-800/60';
+
   return (
-    <article className="group rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 shadow-sm hover:shadow-lg hover:border-emerald-300/60 dark:hover:border-emerald-800/60 transition-all overflow-hidden flex flex-col">
+    <article className={`group rounded-xl border ${cardBorderClass} shadow-sm hover:shadow-lg transition-all overflow-hidden flex flex-col`}>
       <div className="h-1.5 bg-slate-100 dark:bg-slate-800">
         <div
           className="h-full bg-gradient-to-r from-emerald-600 to-teal-500 transition-all duration-500"
@@ -45,7 +52,7 @@ export function DataRequestCard({
         />
       </div>
 
-      <div className="p-5 flex flex-col flex-1 gap-4">
+      <div className="p-4 flex flex-col flex-1 gap-4">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
             <span className="inline-block text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 mb-1">
@@ -79,7 +86,16 @@ export function DataRequestCard({
           <div className={`flex items-center gap-1.5 ${dueClass}`}>
             <span className="text-slate-400">Due</span>
             {requirement.dueDate ? formatDate(requirement.dueDate) : '—'}
-            {urgency === 'overdue' && <span className="font-bold text-[9px] uppercase">Overdue</span>}
+            {urgency === 'overdue' && (
+              <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-rose-600 text-white shadow-2xs">
+                Overdue
+              </span>
+            )}
+            {urgency === 'soon' && (
+              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-amber-500 text-white shadow-2xs">
+                Due Soon
+              </span>
+            )}
           </div>
           {requirement.requestedByName && (
             <div className="flex items-center gap-1.5 text-slate-500 truncate">

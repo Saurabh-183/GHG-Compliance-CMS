@@ -1,7 +1,7 @@
 [
   {
     "_id": {
-      "$oid": "6ade76b2667ed7c3e0b3130e"
+      "$oid": "6afe993a62c738b0be61be01"
     },
     "facilityId": "TRIDENT_PAPER",
     "complianceType": "RCO",
@@ -139,7 +139,7 @@
       "$numberInt": "2"
     },
     "approvedBy": {
-      "$oid": "6ade76a9667ed7c3e0b3128a"
+      "$oid": "6afe993562c738b0be61bd57"
     },
     "approvedAt": {
       "$date": {
@@ -147,20 +147,20 @@
       }
     },
     "assignedConsultantId": {
-      "$oid": "6ade76a9667ed7c3e0b3128a"
+      "$oid": "6afe993562c738b0be61bd57"
     },
     "assignedReviewerId": {
-      "$oid": "6ade76a9667ed7c3e0b3128a"
+      "$oid": "6afe993562c738b0be61bd57"
     },
     "notes": "Approved historical assessment. Shortfall of 5.00 MU confirmed. Submission acknowledgment filed with PSERC.",
     "createdAt": {
       "$date": {
-        "$numberLong": "1792964274135"
+        "$numberLong": "1795070266535"
       }
     },
     "updatedAt": {
       "$date": {
-        "$numberLong": "1792964274135"
+        "$numberLong": "1795070266535"
       }
     },
     "__v": {
@@ -169,7 +169,7 @@
   },
   {
     "_id": {
-      "$oid": "6ade76b2667ed7c3e0b3130f"
+      "$oid": "6afe993a62c738b0be61be02"
     },
     "facilityId": "TRIDENT_PAPER",
     "complianceType": "RCO",
@@ -275,24 +275,3650 @@
       "$numberInt": "1"
     },
     "assignedConsultantId": {
-      "$oid": "6ade76a9667ed7c3e0b3128a"
+      "$oid": "6afe993562c738b0be61bd57"
     },
     "assignedReviewerId": {
-      "$oid": "6ade76a9667ed7c3e0b3128a"
+      "$oid": "6afe993562c738b0be61bd57"
     },
     "notes": "Ongoing current year assessment. Data collection for Q1 & Q2 in progress.",
     "createdAt": {
       "$date": {
-        "$numberLong": "1792964274217"
+        "$numberLong": "1795070266580"
       }
     },
     "updatedAt": {
       "$date": {
-        "$numberLong": "1792964274217"
+        "$numberLong": "1795070266580"
       }
     },
     "__v": {
       "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0194964665985cbf62fdea"
+    },
+    "facilityId": "ENG_GM_FABRICS",
+    "complianceType": "RCO",
+    "period": "FY2024-25",
+    "workflowStatus": "APPROVED",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": true,
+    "metrics": [
+      {
+        "key": "rco_total_consumption",
+        "name": "Total Electricity Consumed",
+        "value": "48,650",
+        "unit": "MWh",
+        "period": "FY2024-25",
+        "source": "Audited Utility Records (Google Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Client_Consumption_Sheets/ENG_GM_FABRICS_RCO_Model_v2.4.xlsx",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "rco_re_purchased",
+        "name": "Total Renewable Power Procured",
+        "value": "14,668",
+        "unit": "MWh",
+        "period": "FY2024-25",
+        "source": "Solar PPA Invoices (Google Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Renewables/ENG_GM_FABRICS_Solar_PPA_FY25-26.pdf",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "rco_achieved_pct",
+        "name": "Renewable Power Percentage Achieved",
+        "value": "30.15",
+        "unit": "%",
+        "period": "FY2024-25",
+        "source": "Compliance Model Determination",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "finalReportUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Final_Reports/ENG_GM_FABRICS_RCO_FY24-25_Approved_Report.pdf",
+      "submissionAckUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Regulatory_Ack/ENG_GM_FABRICS_SERC_RCO_Acknowledgement.pdf",
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Client_Consumption_Sheets/ENG_GM_FABRICS_RCO_Model_v2.4.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": "2026-11-21T12:54:46.557Z",
+    "updatedAt": "2026-11-21T12:54:46.557Z"
+  },
+  {
+    "_id": {
+      "$oid": "6b0194964665985cbf62fded"
+    },
+    "facilityId": "ENG_GM_FABRICS",
+    "complianceType": "PAT",
+    "period": "FY2024-25",
+    "workflowStatus": "APPROVED",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": true,
+    "metrics": [
+      {
+        "key": "pat_target_sec",
+        "name": "Target Specific Energy Consumption",
+        "value": "0.185",
+        "unit": "toe/T",
+        "period": "Cycle VII",
+        "source": "BEE Target Gazette",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "pat_achieved_sec",
+        "name": "Verified Specific Energy Consumption",
+        "value": "0.179",
+        "unit": "toe/T",
+        "period": "FY2024-25",
+        "source": "Form A M&V Audit Report (Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Final_Reports/ENG_GM_FABRICS_BEE_PAT_Cycle_VII_Report.pdf",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "finalReportUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Final_Reports/ENG_GM_FABRICS_BEE_PAT_Cycle_VII_Report.pdf",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": "2026-11-21T12:54:46.558Z",
+    "updatedAt": "2026-11-21T12:54:46.558Z"
+  },
+  {
+    "_id": {
+      "$oid": "6b0194964665985cbf62fdec"
+    },
+    "facilityId": "ENG_GM_FABRICS",
+    "complianceType": "RCO",
+    "period": "FY2026-27",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [],
+    "documentLinks": {
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": "2026-11-21T12:54:46.558Z",
+    "updatedAt": "2026-11-21T12:54:46.558Z"
+  },
+  {
+    "_id": {
+      "$oid": "6b0194964665985cbf62fdef"
+    },
+    "facilityId": "ENG_GM_FABRICS",
+    "complianceType": "CCTS",
+    "period": "FY2025-26",
+    "workflowStatus": "UNDER_REVIEW",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "ccts_baseline_scope1",
+        "name": "Scope 1 Stationary Combustion Baseline",
+        "value": "18,450",
+        "unit": "tCO2e",
+        "period": "FY2025-26",
+        "source": "Coal Lab GCV Analysis (Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Fuel_Certificates/ENG_GM_FABRICS_NABL_Coal_GCV_Q1.pdf",
+        "isProvisional": true,
+        "approvalStatus": "PENDING",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Production_Records/ENG_GM_FABRICS_SEC_Production_FY25-26.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": "2026-11-21T12:54:46.558Z",
+    "updatedAt": "2026-11-21T12:54:46.558Z"
+  },
+  {
+    "_id": {
+      "$oid": "6b0194964665985cbf62fdf1"
+    },
+    "facilityId": "ENG_GM_FABRICS",
+    "complianceType": "CEA",
+    "period": "FY2025-26",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "cea_q1_monthly_returns",
+        "name": "Q1 Section 74 Filing Status",
+        "value": "All Months Reconciled",
+        "unit": "Status",
+        "period": "FY2025-26",
+        "source": "Monthly Drive Bills",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/DISCOM_Utility_Bills"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": "2026-11-21T12:54:46.558Z",
+    "updatedAt": "2026-11-21T12:54:46.558Z"
+  },
+  {
+    "_id": {
+      "$oid": "6b0194964665985cbf62fdeb"
+    },
+    "facilityId": "ENG_GM_FABRICS",
+    "complianceType": "RCO",
+    "period": "FY2025-26",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "rco_target_mandate",
+        "name": "Statutory Mandated Target",
+        "value": "33.01",
+        "unit": "%",
+        "period": "FY2025-26",
+        "source": "SERC Gazette Notification",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "rco_q1_consumption",
+        "name": "Q1 Cumulative Electricity Consumption",
+        "value": "12,450",
+        "unit": "MWh",
+        "period": "FY2025-26",
+        "source": "Google Drive Monthly Logs",
+        "sourceUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Client_Consumption_Sheets/ENG_GM_FABRICS_FY25-26_Consumption_Log.xlsx",
+        "isProvisional": true,
+        "approvalStatus": "PENDING",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Client_Consumption_Sheets/ENG_GM_FABRICS_FY25-26_Draft_Model.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": "2026-11-21T12:54:46.557Z",
+    "updatedAt": "2026-11-21T12:54:46.557Z"
+  },
+  {
+    "_id": {
+      "$oid": "6b0194964665985cbf62fdf0"
+    },
+    "facilityId": "ENG_GM_FABRICS",
+    "complianceType": "CEA",
+    "period": "FY2024-25",
+    "workflowStatus": "APPROVED",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": true,
+    "metrics": [
+      {
+        "key": "cea_total_kwh_fy25",
+        "name": "Total Audited Grid Energy",
+        "value": "48,650,000",
+        "unit": "kWh",
+        "period": "FY2024-25",
+        "source": "DISCOM Verified Billing Invoices",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/DISCOM_Utility_Bills"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": "2026-11-21T12:54:46.558Z",
+    "updatedAt": "2026-11-21T12:54:46.558Z"
+  },
+  {
+    "_id": {
+      "$oid": "6b0194964665985cbf62fdee"
+    },
+    "facilityId": "ENG_GM_FABRICS",
+    "complianceType": "PAT",
+    "period": "FY2025-26",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "pat_target_sec_fy26",
+        "name": "Annual Baseline SEC Target",
+        "value": "0.178",
+        "unit": "toe/T",
+        "period": "FY2025-26",
+        "source": "BEE Monitoring Framework",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Production_Records/ENG_GM_FABRICS_SEC_Production_FY25-26.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": "2026-11-21T12:54:46.558Z",
+    "updatedAt": "2026-11-21T12:54:46.558Z"
+  },
+  {
+    "_id": {
+      "$oid": "6b01b171610bb0bcbc571373"
+    },
+    "facilityId": "NRAGARWAL_UNIT1",
+    "complianceType": "RCO",
+    "period": "FY2026-27",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [],
+    "documentLinks": {
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795273073212"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795273073212"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b01b171610bb0bcbc571378"
+    },
+    "facilityId": "NRAGARWAL_UNIT1",
+    "complianceType": "CEA",
+    "period": "FY2025-26",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "cea_q1_monthly_returns",
+        "name": "Q1 Section 74 Filing Status",
+        "value": "All Months Reconciled",
+        "unit": "Status",
+        "period": "FY2025-26",
+        "source": "Monthly Drive Bills",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/DISCOM_Utility_Bills"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795273073212"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795273073212"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b01b171610bb0bcbc571374"
+    },
+    "facilityId": "NRAGARWAL_UNIT1",
+    "complianceType": "PAT",
+    "period": "FY2024-25",
+    "workflowStatus": "APPROVED",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": true,
+    "metrics": [
+      {
+        "key": "pat_target_sec",
+        "name": "Target Specific Energy Consumption",
+        "value": "0.185",
+        "unit": "toe/T",
+        "period": "Cycle VII",
+        "source": "BEE Target Gazette",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "pat_achieved_sec",
+        "name": "Verified Specific Energy Consumption",
+        "value": "0.179",
+        "unit": "toe/T",
+        "period": "FY2024-25",
+        "source": "Form A M&V Audit Report (Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Final_Reports/NRAGARWAL_UNIT1_BEE_PAT_Cycle_VII_Report.pdf",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "finalReportUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Final_Reports/NRAGARWAL_UNIT1_BEE_PAT_Cycle_VII_Report.pdf",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795273073212"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795273073212"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b01b171610bb0bcbc571372"
+    },
+    "facilityId": "NRAGARWAL_UNIT1",
+    "complianceType": "RCO",
+    "period": "FY2025-26",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "rco_target_mandate",
+        "name": "Statutory Mandated Target",
+        "value": "33.01",
+        "unit": "%",
+        "period": "FY2025-26",
+        "source": "SERC Gazette Notification",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "rco_q1_consumption",
+        "name": "Q1 Cumulative Electricity Consumption",
+        "value": "12,450",
+        "unit": "MWh",
+        "period": "FY2025-26",
+        "source": "Google Drive Monthly Logs",
+        "sourceUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Client_Consumption_Sheets/NRAGARWAL_UNIT1_FY25-26_Consumption_Log.xlsx",
+        "isProvisional": true,
+        "approvalStatus": "PENDING",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Client_Consumption_Sheets/NRAGARWAL_UNIT1_FY25-26_Draft_Model.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795273073212"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795273073212"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b01b171610bb0bcbc571371"
+    },
+    "facilityId": "NRAGARWAL_UNIT1",
+    "complianceType": "RCO",
+    "period": "FY2024-25",
+    "workflowStatus": "APPROVED",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": true,
+    "metrics": [
+      {
+        "key": "rco_total_consumption",
+        "name": "Total Electricity Consumed",
+        "value": "48,650",
+        "unit": "MWh",
+        "period": "FY2024-25",
+        "source": "Audited Utility Records (Google Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Client_Consumption_Sheets/NRAGARWAL_UNIT1_RCO_Model_v2.4.xlsx",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "rco_re_purchased",
+        "name": "Total Renewable Power Procured",
+        "value": "14,668",
+        "unit": "MWh",
+        "period": "FY2024-25",
+        "source": "Solar PPA Invoices (Google Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Renewables/NRAGARWAL_UNIT1_Solar_PPA_FY25-26.pdf",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "rco_achieved_pct",
+        "name": "Renewable Power Percentage Achieved",
+        "value": "30.15",
+        "unit": "%",
+        "period": "FY2024-25",
+        "source": "Compliance Model Determination",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "finalReportUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Final_Reports/NRAGARWAL_UNIT1_RCO_FY24-25_Approved_Report.pdf",
+      "submissionAckUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Regulatory_Ack/NRAGARWAL_UNIT1_SERC_RCO_Acknowledgement.pdf",
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Client_Consumption_Sheets/NRAGARWAL_UNIT1_RCO_Model_v2.4.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795273073211"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795273073211"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b01b171610bb0bcbc571377"
+    },
+    "facilityId": "NRAGARWAL_UNIT1",
+    "complianceType": "CEA",
+    "period": "FY2024-25",
+    "workflowStatus": "APPROVED",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": true,
+    "metrics": [
+      {
+        "key": "cea_total_kwh_fy25",
+        "name": "Total Audited Grid Energy",
+        "value": "48,650,000",
+        "unit": "kWh",
+        "period": "FY2024-25",
+        "source": "DISCOM Verified Billing Invoices",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/DISCOM_Utility_Bills"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795273073212"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795273073212"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b01b171610bb0bcbc571375"
+    },
+    "facilityId": "NRAGARWAL_UNIT1",
+    "complianceType": "PAT",
+    "period": "FY2025-26",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "pat_target_sec_fy26",
+        "name": "Annual Baseline SEC Target",
+        "value": "0.178",
+        "unit": "toe/T",
+        "period": "FY2025-26",
+        "source": "BEE Monitoring Framework",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Production_Records/NRAGARWAL_UNIT1_SEC_Production_FY25-26.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795273073212"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795273073212"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b01b171610bb0bcbc571376"
+    },
+    "facilityId": "NRAGARWAL_UNIT1",
+    "complianceType": "CCTS",
+    "period": "FY2025-26",
+    "workflowStatus": "UNDER_REVIEW",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "ccts_baseline_scope1",
+        "name": "Scope 1 Stationary Combustion Baseline",
+        "value": "18,450",
+        "unit": "tCO2e",
+        "period": "FY2025-26",
+        "source": "Coal Lab GCV Analysis (Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Fuel_Certificates/NRAGARWAL_UNIT1_NABL_Coal_GCV_Q1.pdf",
+        "isProvisional": true,
+        "approvalStatus": "PENDING",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Production_Records/NRAGARWAL_UNIT1_SEC_Production_FY25-26.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795273073212"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795273073212"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b01b1dc610bb0bcbc57138f"
+    },
+    "facilityId": "PAPER_SILLVERTOAN_PAP",
+    "complianceType": "CEA",
+    "period": "FY2025-26",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "cea_q1_monthly_returns",
+        "name": "Q1 Section 74 Filing Status",
+        "value": "All Months Reconciled",
+        "unit": "Status",
+        "period": "FY2025-26",
+        "source": "Monthly Drive Bills",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/DISCOM_Utility_Bills"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795273180419"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795273180419"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b01b1dc610bb0bcbc571388"
+    },
+    "facilityId": "PAPER_SILLVERTOAN_PAP",
+    "complianceType": "RCO",
+    "period": "FY2024-25",
+    "workflowStatus": "APPROVED",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": true,
+    "metrics": [
+      {
+        "key": "rco_total_consumption",
+        "name": "Total Electricity Consumed",
+        "value": "48,650",
+        "unit": "MWh",
+        "period": "FY2024-25",
+        "source": "Audited Utility Records (Google Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Client_Consumption_Sheets/PAPER_SILLVERTOAN_PAP_RCO_Model_v2.4.xlsx",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "rco_re_purchased",
+        "name": "Total Renewable Power Procured",
+        "value": "14,668",
+        "unit": "MWh",
+        "period": "FY2024-25",
+        "source": "Solar PPA Invoices (Google Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Renewables/PAPER_SILLVERTOAN_PAP_Solar_PPA_FY25-26.pdf",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "rco_achieved_pct",
+        "name": "Renewable Power Percentage Achieved",
+        "value": "30.15",
+        "unit": "%",
+        "period": "FY2024-25",
+        "source": "Compliance Model Determination",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "finalReportUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Final_Reports/PAPER_SILLVERTOAN_PAP_RCO_FY24-25_Approved_Report.pdf",
+      "submissionAckUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Regulatory_Ack/PAPER_SILLVERTOAN_PAP_SERC_RCO_Acknowledgement.pdf",
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Client_Consumption_Sheets/PAPER_SILLVERTOAN_PAP_RCO_Model_v2.4.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795273180418"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795273180418"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b01b1dc610bb0bcbc571389"
+    },
+    "facilityId": "PAPER_SILLVERTOAN_PAP",
+    "complianceType": "RCO",
+    "period": "FY2025-26",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "rco_target_mandate",
+        "name": "Statutory Mandated Target",
+        "value": "33.01",
+        "unit": "%",
+        "period": "FY2025-26",
+        "source": "SERC Gazette Notification",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "rco_q1_consumption",
+        "name": "Q1 Cumulative Electricity Consumption",
+        "value": "12,450",
+        "unit": "MWh",
+        "period": "FY2025-26",
+        "source": "Google Drive Monthly Logs",
+        "sourceUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Client_Consumption_Sheets/PAPER_SILLVERTOAN_PAP_FY25-26_Consumption_Log.xlsx",
+        "isProvisional": true,
+        "approvalStatus": "PENDING",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Client_Consumption_Sheets/PAPER_SILLVERTOAN_PAP_FY25-26_Draft_Model.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795273180419"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795273180419"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b01b1dc610bb0bcbc57138e"
+    },
+    "facilityId": "PAPER_SILLVERTOAN_PAP",
+    "complianceType": "CEA",
+    "period": "FY2024-25",
+    "workflowStatus": "APPROVED",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": true,
+    "metrics": [
+      {
+        "key": "cea_total_kwh_fy25",
+        "name": "Total Audited Grid Energy",
+        "value": "48,650,000",
+        "unit": "kWh",
+        "period": "FY2024-25",
+        "source": "DISCOM Verified Billing Invoices",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/DISCOM_Utility_Bills"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795273180419"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795273180419"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b01b1dc610bb0bcbc57138d"
+    },
+    "facilityId": "PAPER_SILLVERTOAN_PAP",
+    "complianceType": "CCTS",
+    "period": "FY2025-26",
+    "workflowStatus": "UNDER_REVIEW",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "ccts_baseline_scope1",
+        "name": "Scope 1 Stationary Combustion Baseline",
+        "value": "18,450",
+        "unit": "tCO2e",
+        "period": "FY2025-26",
+        "source": "Coal Lab GCV Analysis (Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Fuel_Certificates/PAPER_SILLVERTOAN_PAP_NABL_Coal_GCV_Q1.pdf",
+        "isProvisional": true,
+        "approvalStatus": "PENDING",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Production_Records/PAPER_SILLVERTOAN_PAP_SEC_Production_FY25-26.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795273180419"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795273180419"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b01b1dc610bb0bcbc57138a"
+    },
+    "facilityId": "PAPER_SILLVERTOAN_PAP",
+    "complianceType": "RCO",
+    "period": "FY2026-27",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [],
+    "documentLinks": {
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795273180419"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795273180419"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b01b1dc610bb0bcbc57138b"
+    },
+    "facilityId": "PAPER_SILLVERTOAN_PAP",
+    "complianceType": "PAT",
+    "period": "FY2024-25",
+    "workflowStatus": "APPROVED",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": true,
+    "metrics": [
+      {
+        "key": "pat_target_sec",
+        "name": "Target Specific Energy Consumption",
+        "value": "0.185",
+        "unit": "toe/T",
+        "period": "Cycle VII",
+        "source": "BEE Target Gazette",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "pat_achieved_sec",
+        "name": "Verified Specific Energy Consumption",
+        "value": "0.179",
+        "unit": "toe/T",
+        "period": "FY2024-25",
+        "source": "Form A M&V Audit Report (Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Final_Reports/PAPER_SILLVERTOAN_PAP_BEE_PAT_Cycle_VII_Report.pdf",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "finalReportUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Final_Reports/PAPER_SILLVERTOAN_PAP_BEE_PAT_Cycle_VII_Report.pdf",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795273180419"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795273180419"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b01b1dc610bb0bcbc57138c"
+    },
+    "facilityId": "PAPER_SILLVERTOAN_PAP",
+    "complianceType": "PAT",
+    "period": "FY2025-26",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "pat_target_sec_fy26",
+        "name": "Annual Baseline SEC Target",
+        "value": "0.178",
+        "unit": "toe/T",
+        "period": "FY2025-26",
+        "source": "BEE Monitoring Framework",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Production_Records/PAPER_SILLVERTOAN_PAP_SEC_Production_FY25-26.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795273180419"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795273180419"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b03cf9bcf0f556cd9c170c9"
+    },
+    "facilityId": "PAPER_ABC_IMPEX",
+    "complianceType": "RCO",
+    "period": "FY2024-25",
+    "workflowStatus": "APPROVED",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": true,
+    "metrics": [
+      {
+        "key": "rco_total_consumption",
+        "name": "Total Electricity Consumed",
+        "value": "48,650",
+        "unit": "MWh",
+        "period": "FY2024-25",
+        "source": "Audited Utility Records (Google Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Client_Consumption_Sheets/PAPER_ABC_IMPEX_RCO_Model_v2.4.xlsx",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "rco_re_purchased",
+        "name": "Total Renewable Power Procured",
+        "value": "14,668",
+        "unit": "MWh",
+        "period": "FY2024-25",
+        "source": "Solar PPA Invoices (Google Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Renewables/PAPER_ABC_IMPEX_Solar_PPA_FY25-26.pdf",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "rco_achieved_pct",
+        "name": "Renewable Power Percentage Achieved",
+        "value": "30.15",
+        "unit": "%",
+        "period": "FY2024-25",
+        "source": "Compliance Model Determination",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "finalReportUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Final_Reports/PAPER_ABC_IMPEX_RCO_FY24-25_Approved_Report.pdf",
+      "submissionAckUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Regulatory_Ack/PAPER_ABC_IMPEX_SERC_RCO_Acknowledgement.pdf",
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Client_Consumption_Sheets/PAPER_ABC_IMPEX_RCO_Model_v2.4.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795411867544"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795411867544"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b03cf9bcf0f556cd9c170ca"
+    },
+    "facilityId": "PAPER_ABC_IMPEX",
+    "complianceType": "RCO",
+    "period": "FY2025-26",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "rco_target_mandate",
+        "name": "Statutory Mandated Target",
+        "value": "33.01",
+        "unit": "%",
+        "period": "FY2025-26",
+        "source": "SERC Gazette Notification",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "rco_q1_consumption",
+        "name": "Q1 Cumulative Electricity Consumption",
+        "value": "12,450",
+        "unit": "MWh",
+        "period": "FY2025-26",
+        "source": "Google Drive Monthly Logs",
+        "sourceUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Client_Consumption_Sheets/PAPER_ABC_IMPEX_FY25-26_Consumption_Log.xlsx",
+        "isProvisional": true,
+        "approvalStatus": "PENDING",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Client_Consumption_Sheets/PAPER_ABC_IMPEX_FY25-26_Draft_Model.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795411867545"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795411867545"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b03cf9bcf0f556cd9c170cd"
+    },
+    "facilityId": "PAPER_ABC_IMPEX",
+    "complianceType": "PAT",
+    "period": "FY2025-26",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "pat_target_sec_fy26",
+        "name": "Annual Baseline SEC Target",
+        "value": "0.178",
+        "unit": "toe/T",
+        "period": "FY2025-26",
+        "source": "BEE Monitoring Framework",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Production_Records/PAPER_ABC_IMPEX_SEC_Production_FY25-26.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795411867545"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795411867545"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b03cf9bcf0f556cd9c170ce"
+    },
+    "facilityId": "PAPER_ABC_IMPEX",
+    "complianceType": "CCTS",
+    "period": "FY2025-26",
+    "workflowStatus": "UNDER_REVIEW",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "ccts_baseline_scope1",
+        "name": "Scope 1 Stationary Combustion Baseline",
+        "value": "18,450",
+        "unit": "tCO2e",
+        "period": "FY2025-26",
+        "source": "Coal Lab GCV Analysis (Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Fuel_Certificates/PAPER_ABC_IMPEX_NABL_Coal_GCV_Q1.pdf",
+        "isProvisional": true,
+        "approvalStatus": "PENDING",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Production_Records/PAPER_ABC_IMPEX_SEC_Production_FY25-26.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795411867545"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795411867545"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b03cf9bcf0f556cd9c170cb"
+    },
+    "facilityId": "PAPER_ABC_IMPEX",
+    "complianceType": "RCO",
+    "period": "FY2026-27",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [],
+    "documentLinks": {
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795411867545"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795411867545"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b03cf9bcf0f556cd9c170d0"
+    },
+    "facilityId": "PAPER_ABC_IMPEX",
+    "complianceType": "CEA",
+    "period": "FY2025-26",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "cea_q1_monthly_returns",
+        "name": "Q1 Section 74 Filing Status",
+        "value": "All Months Reconciled",
+        "unit": "Status",
+        "period": "FY2025-26",
+        "source": "Monthly Drive Bills",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/DISCOM_Utility_Bills"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795411867546"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795411867546"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b03cf9bcf0f556cd9c170cf"
+    },
+    "facilityId": "PAPER_ABC_IMPEX",
+    "complianceType": "CEA",
+    "period": "FY2024-25",
+    "workflowStatus": "APPROVED",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": true,
+    "metrics": [
+      {
+        "key": "cea_total_kwh_fy25",
+        "name": "Total Audited Grid Energy",
+        "value": "48,650,000",
+        "unit": "kWh",
+        "period": "FY2024-25",
+        "source": "DISCOM Verified Billing Invoices",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/DISCOM_Utility_Bills"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795411867545"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795411867545"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b03cf9bcf0f556cd9c170cc"
+    },
+    "facilityId": "PAPER_ABC_IMPEX",
+    "complianceType": "PAT",
+    "period": "FY2024-25",
+    "workflowStatus": "APPROVED",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": true,
+    "metrics": [
+      {
+        "key": "pat_target_sec",
+        "name": "Target Specific Energy Consumption",
+        "value": "0.185",
+        "unit": "toe/T",
+        "period": "Cycle VII",
+        "source": "BEE Target Gazette",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "pat_achieved_sec",
+        "name": "Verified Specific Energy Consumption",
+        "value": "0.179",
+        "unit": "toe/T",
+        "period": "FY2024-25",
+        "source": "Form A M&V Audit Report (Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Final_Reports/PAPER_ABC_IMPEX_BEE_PAT_Cycle_VII_Report.pdf",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "finalReportUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Final_Reports/PAPER_ABC_IMPEX_BEE_PAT_Cycle_VII_Report.pdf",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795411867545"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795411867545"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b03e3d6cf0f556cd9c17363"
+    },
+    "facilityId": "TRIDENT_YARN",
+    "complianceType": "RCO",
+    "period": "FY2024-25",
+    "workflowStatus": "APPROVED",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": true,
+    "metrics": [
+      {
+        "key": "rco_total_consumption",
+        "name": "Total Electricity Consumed",
+        "value": "48,650",
+        "unit": "MWh",
+        "period": "FY2024-25",
+        "source": "Audited Utility Records (Google Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp/Client_Consumption_Sheets/TRIDENT_YARN_RCO_Model_v2.4.xlsx",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "rco_re_purchased",
+        "name": "Total Renewable Power Procured",
+        "value": "14,668",
+        "unit": "MWh",
+        "period": "FY2024-25",
+        "source": "Solar PPA Invoices (Google Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp/Renewables/TRIDENT_YARN_Solar_PPA_FY25-26.pdf",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "rco_achieved_pct",
+        "name": "Renewable Power Percentage Achieved",
+        "value": "30.15",
+        "unit": "%",
+        "period": "FY2024-25",
+        "source": "Compliance Model Determination",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "finalReportUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp/Final_Reports/TRIDENT_YARN_RCO_FY24-25_Approved_Report.pdf",
+      "submissionAckUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp/Regulatory_Ack/TRIDENT_YARN_SERC_RCO_Acknowledgement.pdf",
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp/Client_Consumption_Sheets/TRIDENT_YARN_RCO_Model_v2.4.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795417046486"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795417046486"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b03e3d6cf0f556cd9c17366"
+    },
+    "facilityId": "TRIDENT_YARN",
+    "complianceType": "PAT",
+    "period": "FY2024-25",
+    "workflowStatus": "APPROVED",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": true,
+    "metrics": [
+      {
+        "key": "pat_target_sec",
+        "name": "Target Specific Energy Consumption",
+        "value": "0.185",
+        "unit": "toe/T",
+        "period": "Cycle VII",
+        "source": "BEE Target Gazette",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "pat_achieved_sec",
+        "name": "Verified Specific Energy Consumption",
+        "value": "0.179",
+        "unit": "toe/T",
+        "period": "FY2024-25",
+        "source": "Form A M&V Audit Report (Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp/Final_Reports/TRIDENT_YARN_BEE_PAT_Cycle_VII_Report.pdf",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "finalReportUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp/Final_Reports/TRIDENT_YARN_BEE_PAT_Cycle_VII_Report.pdf",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795417046487"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795417046487"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b03e3d6cf0f556cd9c17367"
+    },
+    "facilityId": "TRIDENT_YARN",
+    "complianceType": "PAT",
+    "period": "FY2025-26",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "pat_target_sec_fy26",
+        "name": "Annual Baseline SEC Target",
+        "value": "0.178",
+        "unit": "toe/T",
+        "period": "FY2025-26",
+        "source": "BEE Monitoring Framework",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp/Production_Records/TRIDENT_YARN_SEC_Production_FY25-26.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795417046487"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795417046487"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b03e3d6cf0f556cd9c17368"
+    },
+    "facilityId": "TRIDENT_YARN",
+    "complianceType": "CCTS",
+    "period": "FY2025-26",
+    "workflowStatus": "UNDER_REVIEW",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "ccts_baseline_scope1",
+        "name": "Scope 1 Stationary Combustion Baseline",
+        "value": "18,450",
+        "unit": "tCO2e",
+        "period": "FY2025-26",
+        "source": "Coal Lab GCV Analysis (Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp/Fuel_Certificates/TRIDENT_YARN_NABL_Coal_GCV_Q1.pdf",
+        "isProvisional": true,
+        "approvalStatus": "PENDING",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp/Production_Records/TRIDENT_YARN_SEC_Production_FY25-26.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795417046487"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795417046487"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b03e3d6cf0f556cd9c1736a"
+    },
+    "facilityId": "TRIDENT_YARN",
+    "complianceType": "CEA",
+    "period": "FY2025-26",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "cea_q1_monthly_returns",
+        "name": "Q1 Section 74 Filing Status",
+        "value": "All Months Reconciled",
+        "unit": "Status",
+        "period": "FY2025-26",
+        "source": "Monthly Drive Bills",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp/DISCOM_Utility_Bills"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795417046487"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795417046487"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b03e3d6cf0f556cd9c17365"
+    },
+    "facilityId": "TRIDENT_YARN",
+    "complianceType": "RCO",
+    "period": "FY2026-27",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [],
+    "documentLinks": {
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795417046487"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795417046487"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b03e3d6cf0f556cd9c17369"
+    },
+    "facilityId": "TRIDENT_YARN",
+    "complianceType": "CEA",
+    "period": "FY2024-25",
+    "workflowStatus": "APPROVED",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": true,
+    "metrics": [
+      {
+        "key": "cea_total_kwh_fy25",
+        "name": "Total Audited Grid Energy",
+        "value": "48,650,000",
+        "unit": "kWh",
+        "period": "FY2024-25",
+        "source": "DISCOM Verified Billing Invoices",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp/DISCOM_Utility_Bills"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795417046487"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795417046487"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b03e3d6cf0f556cd9c17364"
+    },
+    "facilityId": "TRIDENT_YARN",
+    "complianceType": "RCO",
+    "period": "FY2025-26",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "rco_target_mandate",
+        "name": "Statutory Mandated Target",
+        "value": "33.01",
+        "unit": "%",
+        "period": "FY2025-26",
+        "source": "SERC Gazette Notification",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "rco_q1_consumption",
+        "name": "Q1 Cumulative Electricity Consumption",
+        "value": "12,450",
+        "unit": "MWh",
+        "period": "FY2025-26",
+        "source": "Google Drive Monthly Logs",
+        "sourceUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp/Client_Consumption_Sheets/TRIDENT_YARN_FY25-26_Consumption_Log.xlsx",
+        "isProvisional": true,
+        "approvalStatus": "PENDING",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp/Client_Consumption_Sheets/TRIDENT_YARN_FY25-26_Draft_Model.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795417046487"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795417046487"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b042d6e6ad596b3a91574d0"
+    },
+    "facilityId": "PAPER_ANAND_TRIPLEX",
+    "complianceType": "RCO",
+    "period": "FY2024-25",
+    "workflowStatus": "APPROVED",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": true,
+    "metrics": [
+      {
+        "key": "rco_total_consumption",
+        "name": "Total Electricity Consumed",
+        "value": "48,650",
+        "unit": "MWh",
+        "period": "FY2024-25",
+        "source": "Audited Utility Records (Google Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Client_Consumption_Sheets/PAPER_ANAND_TRIPLEX_RCO_Model_v2.4.xlsx",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "rco_re_purchased",
+        "name": "Total Renewable Power Procured",
+        "value": "14,668",
+        "unit": "MWh",
+        "period": "FY2024-25",
+        "source": "Solar PPA Invoices (Google Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Renewables/PAPER_ANAND_TRIPLEX_Solar_PPA_FY25-26.pdf",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "rco_achieved_pct",
+        "name": "Renewable Power Percentage Achieved",
+        "value": "30.15",
+        "unit": "%",
+        "period": "FY2024-25",
+        "source": "Compliance Model Determination",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "finalReportUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Final_Reports/PAPER_ANAND_TRIPLEX_RCO_FY24-25_Approved_Report.pdf",
+      "submissionAckUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Regulatory_Ack/PAPER_ANAND_TRIPLEX_SERC_RCO_Acknowledgement.pdf",
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Client_Consumption_Sheets/PAPER_ANAND_TRIPLEX_RCO_Model_v2.4.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795435886298"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795435886298"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b042d6e6ad596b3a91574d3"
+    },
+    "facilityId": "PAPER_ANAND_TRIPLEX",
+    "complianceType": "PAT",
+    "period": "FY2024-25",
+    "workflowStatus": "APPROVED",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": true,
+    "metrics": [
+      {
+        "key": "pat_target_sec",
+        "name": "Target Specific Energy Consumption",
+        "value": "0.185",
+        "unit": "toe/T",
+        "period": "Cycle VII",
+        "source": "BEE Target Gazette",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "pat_achieved_sec",
+        "name": "Verified Specific Energy Consumption",
+        "value": "0.179",
+        "unit": "toe/T",
+        "period": "FY2024-25",
+        "source": "Form A M&V Audit Report (Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Final_Reports/PAPER_ANAND_TRIPLEX_BEE_PAT_Cycle_VII_Report.pdf",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "finalReportUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Final_Reports/PAPER_ANAND_TRIPLEX_BEE_PAT_Cycle_VII_Report.pdf",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795435886299"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795435886299"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b042d6e6ad596b3a91574d2"
+    },
+    "facilityId": "PAPER_ANAND_TRIPLEX",
+    "complianceType": "RCO",
+    "period": "FY2026-27",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [],
+    "documentLinks": {
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795435886299"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795435886299"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b042d6e6ad596b3a91574d7"
+    },
+    "facilityId": "PAPER_ANAND_TRIPLEX",
+    "complianceType": "CEA",
+    "period": "FY2025-26",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "cea_q1_monthly_returns",
+        "name": "Q1 Section 74 Filing Status",
+        "value": "All Months Reconciled",
+        "unit": "Status",
+        "period": "FY2025-26",
+        "source": "Monthly Drive Bills",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/DISCOM_Utility_Bills"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795435886299"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795435886299"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b042d6e6ad596b3a91574d6"
+    },
+    "facilityId": "PAPER_ANAND_TRIPLEX",
+    "complianceType": "CEA",
+    "period": "FY2024-25",
+    "workflowStatus": "APPROVED",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": true,
+    "metrics": [
+      {
+        "key": "cea_total_kwh_fy25",
+        "name": "Total Audited Grid Energy",
+        "value": "48,650,000",
+        "unit": "kWh",
+        "period": "FY2024-25",
+        "source": "DISCOM Verified Billing Invoices",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/DISCOM_Utility_Bills"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795435886299"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795435886299"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b042d6e6ad596b3a91574d1"
+    },
+    "facilityId": "PAPER_ANAND_TRIPLEX",
+    "complianceType": "RCO",
+    "period": "FY2025-26",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "rco_target_mandate",
+        "name": "Statutory Mandated Target",
+        "value": "33.01",
+        "unit": "%",
+        "period": "FY2025-26",
+        "source": "SERC Gazette Notification",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "rco_q1_consumption",
+        "name": "Q1 Cumulative Electricity Consumption",
+        "value": "12,450",
+        "unit": "MWh",
+        "period": "FY2025-26",
+        "source": "Google Drive Monthly Logs",
+        "sourceUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Client_Consumption_Sheets/PAPER_ANAND_TRIPLEX_FY25-26_Consumption_Log.xlsx",
+        "isProvisional": true,
+        "approvalStatus": "PENDING",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Client_Consumption_Sheets/PAPER_ANAND_TRIPLEX_FY25-26_Draft_Model.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795435886299"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795435886299"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b042d6e6ad596b3a91574d4"
+    },
+    "facilityId": "PAPER_ANAND_TRIPLEX",
+    "complianceType": "PAT",
+    "period": "FY2025-26",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "pat_target_sec_fy26",
+        "name": "Annual Baseline SEC Target",
+        "value": "0.178",
+        "unit": "toe/T",
+        "period": "FY2025-26",
+        "source": "BEE Monitoring Framework",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Production_Records/PAPER_ANAND_TRIPLEX_SEC_Production_FY25-26.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795435886299"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795435886299"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b042d6e6ad596b3a91574d5"
+    },
+    "facilityId": "PAPER_ANAND_TRIPLEX",
+    "complianceType": "CCTS",
+    "period": "FY2025-26",
+    "workflowStatus": "UNDER_REVIEW",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "ccts_baseline_scope1",
+        "name": "Scope 1 Stationary Combustion Baseline",
+        "value": "18,450",
+        "unit": "tCO2e",
+        "period": "FY2025-26",
+        "source": "Coal Lab GCV Analysis (Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Fuel_Certificates/PAPER_ANAND_TRIPLEX_NABL_Coal_GCV_Q1.pdf",
+        "isProvisional": true,
+        "approvalStatus": "PENDING",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Production_Records/PAPER_ANAND_TRIPLEX_SEC_Production_FY25-26.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795435886299"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795435886299"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b04334d6ad596b3a91574e9"
+    },
+    "facilityId": "GENUS_AGARWAL",
+    "complianceType": "RCO",
+    "period": "FY2026-27",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [],
+    "documentLinks": {
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795437389241"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795437389241"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b04334d6ad596b3a91574ec"
+    },
+    "facilityId": "GENUS_AGARWAL",
+    "complianceType": "CCTS",
+    "period": "FY2025-26",
+    "workflowStatus": "UNDER_REVIEW",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "ccts_baseline_scope1",
+        "name": "Scope 1 Stationary Combustion Baseline",
+        "value": "18,450",
+        "unit": "tCO2e",
+        "period": "FY2025-26",
+        "source": "Coal Lab GCV Analysis (Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Fuel_Certificates/GENUS_AGARWAL_NABL_Coal_GCV_Q1.pdf",
+        "isProvisional": true,
+        "approvalStatus": "PENDING",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Production_Records/GENUS_AGARWAL_SEC_Production_FY25-26.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795437389242"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795437389242"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b04334d6ad596b3a91574ed"
+    },
+    "facilityId": "GENUS_AGARWAL",
+    "complianceType": "CEA",
+    "period": "FY2024-25",
+    "workflowStatus": "APPROVED",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": true,
+    "metrics": [
+      {
+        "key": "cea_total_kwh_fy25",
+        "name": "Total Audited Grid Energy",
+        "value": "48,650,000",
+        "unit": "kWh",
+        "period": "FY2024-25",
+        "source": "DISCOM Verified Billing Invoices",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/DISCOM_Utility_Bills"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795437389242"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795437389242"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b04334d6ad596b3a91574eb"
+    },
+    "facilityId": "GENUS_AGARWAL",
+    "complianceType": "PAT",
+    "period": "FY2025-26",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "pat_target_sec_fy26",
+        "name": "Annual Baseline SEC Target",
+        "value": "0.178",
+        "unit": "toe/T",
+        "period": "FY2025-26",
+        "source": "BEE Monitoring Framework",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Production_Records/GENUS_AGARWAL_SEC_Production_FY25-26.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795437389242"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795437389242"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b04334d6ad596b3a91574e7"
+    },
+    "facilityId": "GENUS_AGARWAL",
+    "complianceType": "RCO",
+    "period": "FY2024-25",
+    "workflowStatus": "APPROVED",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": true,
+    "metrics": [
+      {
+        "key": "rco_total_consumption",
+        "name": "Total Electricity Consumed",
+        "value": "48,650",
+        "unit": "MWh",
+        "period": "FY2024-25",
+        "source": "Audited Utility Records (Google Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Client_Consumption_Sheets/GENUS_AGARWAL_RCO_Model_v2.4.xlsx",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "rco_re_purchased",
+        "name": "Total Renewable Power Procured",
+        "value": "14,668",
+        "unit": "MWh",
+        "period": "FY2024-25",
+        "source": "Solar PPA Invoices (Google Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Renewables/GENUS_AGARWAL_Solar_PPA_FY25-26.pdf",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "rco_achieved_pct",
+        "name": "Renewable Power Percentage Achieved",
+        "value": "30.15",
+        "unit": "%",
+        "period": "FY2024-25",
+        "source": "Compliance Model Determination",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "finalReportUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Final_Reports/GENUS_AGARWAL_RCO_FY24-25_Approved_Report.pdf",
+      "submissionAckUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Regulatory_Ack/GENUS_AGARWAL_SERC_RCO_Acknowledgement.pdf",
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Client_Consumption_Sheets/GENUS_AGARWAL_RCO_Model_v2.4.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795437389241"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795437389241"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b04334d6ad596b3a91574ee"
+    },
+    "facilityId": "GENUS_AGARWAL",
+    "complianceType": "CEA",
+    "period": "FY2025-26",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "cea_q1_monthly_returns",
+        "name": "Q1 Section 74 Filing Status",
+        "value": "All Months Reconciled",
+        "unit": "Status",
+        "period": "FY2025-26",
+        "source": "Monthly Drive Bills",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/DISCOM_Utility_Bills"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795437389242"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795437389242"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b04334d6ad596b3a91574ea"
+    },
+    "facilityId": "GENUS_AGARWAL",
+    "complianceType": "PAT",
+    "period": "FY2024-25",
+    "workflowStatus": "APPROVED",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": true,
+    "metrics": [
+      {
+        "key": "pat_target_sec",
+        "name": "Target Specific Energy Consumption",
+        "value": "0.185",
+        "unit": "toe/T",
+        "period": "Cycle VII",
+        "source": "BEE Target Gazette",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "pat_achieved_sec",
+        "name": "Verified Specific Energy Consumption",
+        "value": "0.179",
+        "unit": "toe/T",
+        "period": "FY2024-25",
+        "source": "Form A M&V Audit Report (Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Final_Reports/GENUS_AGARWAL_BEE_PAT_Cycle_VII_Report.pdf",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "finalReportUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Final_Reports/GENUS_AGARWAL_BEE_PAT_Cycle_VII_Report.pdf",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795437389241"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795437389241"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b04334d6ad596b3a91574e8"
+    },
+    "facilityId": "GENUS_AGARWAL",
+    "complianceType": "RCO",
+    "period": "FY2025-26",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "rco_target_mandate",
+        "name": "Statutory Mandated Target",
+        "value": "33.01",
+        "unit": "%",
+        "period": "FY2025-26",
+        "source": "SERC Gazette Notification",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "rco_q1_consumption",
+        "name": "Q1 Cumulative Electricity Consumption",
+        "value": "12,450",
+        "unit": "MWh",
+        "period": "FY2025-26",
+        "source": "Google Drive Monthly Logs",
+        "sourceUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Client_Consumption_Sheets/GENUS_AGARWAL_FY25-26_Consumption_Log.xlsx",
+        "isProvisional": true,
+        "approvalStatus": "PENDING",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn/Client_Consumption_Sheets/GENUS_AGARWAL_FY25-26_Draft_Model.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795437389241"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795437389241"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0435a4ffea565ba402c6b6"
+    },
+    "facilityId": "TRIDENT_TEXTILES",
+    "complianceType": "PAT",
+    "period": "FY2024-25",
+    "workflowStatus": "APPROVED",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": true,
+    "metrics": [
+      {
+        "key": "pat_target_sec",
+        "name": "Target Specific Energy Consumption",
+        "value": "0.185",
+        "unit": "toe/T",
+        "period": "Cycle VII",
+        "source": "BEE Target Gazette",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "pat_achieved_sec",
+        "name": "Verified Specific Energy Consumption",
+        "value": "0.179",
+        "unit": "toe/T",
+        "period": "FY2024-25",
+        "source": "Form A M&V Audit Report (Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1PdaTMtxDLgm67Gau0nL7C5FETzzaKTdP/Final_Reports/TRIDENT_TEXTILES_BEE_PAT_Cycle_VII_Report.pdf",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "finalReportUrl": "https://drive.google.com/drive/folders/1PdaTMtxDLgm67Gau0nL7C5FETzzaKTdP/Final_Reports/TRIDENT_TEXTILES_BEE_PAT_Cycle_VII_Report.pdf",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1PdaTMtxDLgm67Gau0nL7C5FETzzaKTdP"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795437988140"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795437988140"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0435a4ffea565ba402c6b8"
+    },
+    "facilityId": "TRIDENT_TEXTILES",
+    "complianceType": "CCTS",
+    "period": "FY2025-26",
+    "workflowStatus": "UNDER_REVIEW",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "ccts_baseline_scope1",
+        "name": "Scope 1 Stationary Combustion Baseline",
+        "value": "18,450",
+        "unit": "tCO2e",
+        "period": "FY2025-26",
+        "source": "Coal Lab GCV Analysis (Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1PdaTMtxDLgm67Gau0nL7C5FETzzaKTdP/Fuel_Certificates/TRIDENT_TEXTILES_NABL_Coal_GCV_Q1.pdf",
+        "isProvisional": true,
+        "approvalStatus": "PENDING",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1PdaTMtxDLgm67Gau0nL7C5FETzzaKTdP/Production_Records/TRIDENT_TEXTILES_SEC_Production_FY25-26.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1PdaTMtxDLgm67Gau0nL7C5FETzzaKTdP"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795437988140"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795437988140"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0435a4ffea565ba402c6b3"
+    },
+    "facilityId": "TRIDENT_TEXTILES",
+    "complianceType": "RCO",
+    "period": "FY2024-25",
+    "workflowStatus": "APPROVED",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": true,
+    "metrics": [
+      {
+        "key": "rco_total_consumption",
+        "name": "Total Electricity Consumed",
+        "value": "48,650",
+        "unit": "MWh",
+        "period": "FY2024-25",
+        "source": "Audited Utility Records (Google Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1PdaTMtxDLgm67Gau0nL7C5FETzzaKTdP/Client_Consumption_Sheets/TRIDENT_TEXTILES_RCO_Model_v2.4.xlsx",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "rco_re_purchased",
+        "name": "Total Renewable Power Procured",
+        "value": "14,668",
+        "unit": "MWh",
+        "period": "FY2024-25",
+        "source": "Solar PPA Invoices (Google Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1PdaTMtxDLgm67Gau0nL7C5FETzzaKTdP/Renewables/TRIDENT_TEXTILES_Solar_PPA_FY25-26.pdf",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "rco_achieved_pct",
+        "name": "Renewable Power Percentage Achieved",
+        "value": "30.15",
+        "unit": "%",
+        "period": "FY2024-25",
+        "source": "Compliance Model Determination",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "finalReportUrl": "https://drive.google.com/drive/folders/1PdaTMtxDLgm67Gau0nL7C5FETzzaKTdP/Final_Reports/TRIDENT_TEXTILES_RCO_FY24-25_Approved_Report.pdf",
+      "submissionAckUrl": "https://drive.google.com/drive/folders/1PdaTMtxDLgm67Gau0nL7C5FETzzaKTdP/Regulatory_Ack/TRIDENT_TEXTILES_SERC_RCO_Acknowledgement.pdf",
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1PdaTMtxDLgm67Gau0nL7C5FETzzaKTdP/Client_Consumption_Sheets/TRIDENT_TEXTILES_RCO_Model_v2.4.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1PdaTMtxDLgm67Gau0nL7C5FETzzaKTdP"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795437988137"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795437988137"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0435a4ffea565ba402c6ba"
+    },
+    "facilityId": "TRIDENT_TEXTILES",
+    "complianceType": "CEA",
+    "period": "FY2025-26",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "cea_q1_monthly_returns",
+        "name": "Q1 Section 74 Filing Status",
+        "value": "All Months Reconciled",
+        "unit": "Status",
+        "period": "FY2025-26",
+        "source": "Monthly Drive Bills",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1PdaTMtxDLgm67Gau0nL7C5FETzzaKTdP/DISCOM_Utility_Bills"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795437988140"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795437988140"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0435a4ffea565ba402c6b4"
+    },
+    "facilityId": "TRIDENT_TEXTILES",
+    "complianceType": "RCO",
+    "period": "FY2025-26",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "rco_target_mandate",
+        "name": "Statutory Mandated Target",
+        "value": "33.01",
+        "unit": "%",
+        "period": "FY2025-26",
+        "source": "SERC Gazette Notification",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "rco_q1_consumption",
+        "name": "Q1 Cumulative Electricity Consumption",
+        "value": "12,450",
+        "unit": "MWh",
+        "period": "FY2025-26",
+        "source": "Google Drive Monthly Logs",
+        "sourceUrl": "https://drive.google.com/drive/folders/1PdaTMtxDLgm67Gau0nL7C5FETzzaKTdP/Client_Consumption_Sheets/TRIDENT_TEXTILES_FY25-26_Consumption_Log.xlsx",
+        "isProvisional": true,
+        "approvalStatus": "PENDING",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1PdaTMtxDLgm67Gau0nL7C5FETzzaKTdP/Client_Consumption_Sheets/TRIDENT_TEXTILES_FY25-26_Draft_Model.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1PdaTMtxDLgm67Gau0nL7C5FETzzaKTdP"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795437988139"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795437988139"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0435a4ffea565ba402c6b5"
+    },
+    "facilityId": "TRIDENT_TEXTILES",
+    "complianceType": "RCO",
+    "period": "FY2026-27",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [],
+    "documentLinks": {
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1PdaTMtxDLgm67Gau0nL7C5FETzzaKTdP"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795437988140"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795437988140"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0435a4ffea565ba402c6b7"
+    },
+    "facilityId": "TRIDENT_TEXTILES",
+    "complianceType": "PAT",
+    "period": "FY2025-26",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "pat_target_sec_fy26",
+        "name": "Annual Baseline SEC Target",
+        "value": "0.178",
+        "unit": "toe/T",
+        "period": "FY2025-26",
+        "source": "BEE Monitoring Framework",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1PdaTMtxDLgm67Gau0nL7C5FETzzaKTdP/Production_Records/TRIDENT_TEXTILES_SEC_Production_FY25-26.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1PdaTMtxDLgm67Gau0nL7C5FETzzaKTdP"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795437988140"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795437988140"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0435a4ffea565ba402c6b9"
+    },
+    "facilityId": "TRIDENT_TEXTILES",
+    "complianceType": "CEA",
+    "period": "FY2024-25",
+    "workflowStatus": "APPROVED",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": true,
+    "metrics": [
+      {
+        "key": "cea_total_kwh_fy25",
+        "name": "Total Audited Grid Energy",
+        "value": "48,650,000",
+        "unit": "kWh",
+        "period": "FY2024-25",
+        "source": "DISCOM Verified Billing Invoices",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1PdaTMtxDLgm67Gau0nL7C5FETzzaKTdP/DISCOM_Utility_Bills"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795437988140"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795437988140"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b05343362553b77b364e13c"
+    },
+    "facilityId": "ENG_ANJANI_SYNTHETICS",
+    "complianceType": "RCO",
+    "period": "FY2024-25",
+    "workflowStatus": "APPROVED",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": true,
+    "metrics": [
+      {
+        "key": "rco_total_consumption",
+        "name": "Total Electricity Consumed",
+        "value": "48,650",
+        "unit": "MWh",
+        "period": "FY2024-25",
+        "source": "Audited Utility Records (Google Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp/Client_Consumption_Sheets/ENG_ANJANI_SYNTHETICS_RCO_Model_v2.4.xlsx",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "rco_re_purchased",
+        "name": "Total Renewable Power Procured",
+        "value": "14,668",
+        "unit": "MWh",
+        "period": "FY2024-25",
+        "source": "Solar PPA Invoices (Google Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp/Renewables/ENG_ANJANI_SYNTHETICS_Solar_PPA_FY25-26.pdf",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "rco_achieved_pct",
+        "name": "Renewable Power Percentage Achieved",
+        "value": "30.15",
+        "unit": "%",
+        "period": "FY2024-25",
+        "source": "Compliance Model Determination",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "finalReportUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp/Final_Reports/ENG_ANJANI_SYNTHETICS_RCO_FY24-25_Approved_Report.pdf",
+      "submissionAckUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp/Regulatory_Ack/ENG_ANJANI_SYNTHETICS_SERC_RCO_Acknowledgement.pdf",
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp/Client_Consumption_Sheets/ENG_ANJANI_SYNTHETICS_RCO_Model_v2.4.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795503155503"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795503155503"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b05343362553b77b364e13d"
+    },
+    "facilityId": "ENG_ANJANI_SYNTHETICS",
+    "complianceType": "RCO",
+    "period": "FY2025-26",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "rco_target_mandate",
+        "name": "Statutory Mandated Target",
+        "value": "33.01",
+        "unit": "%",
+        "period": "FY2025-26",
+        "source": "SERC Gazette Notification",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "rco_q1_consumption",
+        "name": "Q1 Cumulative Electricity Consumption",
+        "value": "12,450",
+        "unit": "MWh",
+        "period": "FY2025-26",
+        "source": "Google Drive Monthly Logs",
+        "sourceUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp/Client_Consumption_Sheets/ENG_ANJANI_SYNTHETICS_FY25-26_Consumption_Log.xlsx",
+        "isProvisional": true,
+        "approvalStatus": "PENDING",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp/Client_Consumption_Sheets/ENG_ANJANI_SYNTHETICS_FY25-26_Draft_Model.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795503155506"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795503155506"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b05343362553b77b364e13e"
+    },
+    "facilityId": "ENG_ANJANI_SYNTHETICS",
+    "complianceType": "RCO",
+    "period": "FY2026-27",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [],
+    "documentLinks": {
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795503155507"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795503155507"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b05343362553b77b364e13f"
+    },
+    "facilityId": "ENG_ANJANI_SYNTHETICS",
+    "complianceType": "PAT",
+    "period": "FY2024-25",
+    "workflowStatus": "APPROVED",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": true,
+    "metrics": [
+      {
+        "key": "pat_target_sec",
+        "name": "Target Specific Energy Consumption",
+        "value": "0.185",
+        "unit": "toe/T",
+        "period": "Cycle VII",
+        "source": "BEE Target Gazette",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "key": "pat_achieved_sec",
+        "name": "Verified Specific Energy Consumption",
+        "value": "0.179",
+        "unit": "toe/T",
+        "period": "FY2024-25",
+        "source": "Form A M&V Audit Report (Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp/Final_Reports/ENG_ANJANI_SYNTHETICS_BEE_PAT_Cycle_VII_Report.pdf",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "finalReportUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp/Final_Reports/ENG_ANJANI_SYNTHETICS_BEE_PAT_Cycle_VII_Report.pdf",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795503155507"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795503155507"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b05343362553b77b364e140"
+    },
+    "facilityId": "ENG_ANJANI_SYNTHETICS",
+    "complianceType": "PAT",
+    "period": "FY2025-26",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "pat_target_sec_fy26",
+        "name": "Annual Baseline SEC Target",
+        "value": "0.178",
+        "unit": "toe/T",
+        "period": "FY2025-26",
+        "source": "BEE Monitoring Framework",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp/Production_Records/ENG_ANJANI_SYNTHETICS_SEC_Production_FY25-26.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795503155507"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795503155507"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b05343362553b77b364e141"
+    },
+    "facilityId": "ENG_ANJANI_SYNTHETICS",
+    "complianceType": "CCTS",
+    "period": "FY2025-26",
+    "workflowStatus": "UNDER_REVIEW",
+    "complianceOutcome": "PENDING_DETERMINATION",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "ccts_baseline_scope1",
+        "name": "Scope 1 Stationary Combustion Baseline",
+        "value": "18,450",
+        "unit": "tCO2e",
+        "period": "FY2025-26",
+        "source": "Coal Lab GCV Analysis (Drive)",
+        "sourceUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp/Fuel_Certificates/ENG_ANJANI_SYNTHETICS_NABL_Coal_GCV_Q1.pdf",
+        "isProvisional": true,
+        "approvalStatus": "PENDING",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "calculationWorkbookUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp/Production_Records/ENG_ANJANI_SYNTHETICS_SEC_Production_FY25-26.xlsx",
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795503155507"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795503155507"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b05343362553b77b364e142"
+    },
+    "facilityId": "ENG_ANJANI_SYNTHETICS",
+    "complianceType": "CEA",
+    "period": "FY2024-25",
+    "workflowStatus": "APPROVED",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": true,
+    "metrics": [
+      {
+        "key": "cea_total_kwh_fy25",
+        "name": "Total Audited Grid Energy",
+        "value": "48,650,000",
+        "unit": "kWh",
+        "period": "FY2024-25",
+        "source": "DISCOM Verified Billing Invoices",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp/DISCOM_Utility_Bills"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795503155507"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795503155507"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b05343362553b77b364e143"
+    },
+    "facilityId": "ENG_ANJANI_SYNTHETICS",
+    "complianceType": "CEA",
+    "period": "FY2025-26",
+    "workflowStatus": "DATA_COLLECTION",
+    "complianceOutcome": "COMPLIANT",
+    "isHistorical": false,
+    "metrics": [
+      {
+        "key": "cea_q1_monthly_returns",
+        "name": "Q1 Section 74 Filing Status",
+        "value": "All Months Reconciled",
+        "unit": "Status",
+        "period": "FY2025-26",
+        "source": "Monthly Drive Bills",
+        "isProvisional": false,
+        "approvalStatus": "APPROVED",
+        "version": {
+          "$numberInt": "1"
+        }
+      }
+    ],
+    "documentLinks": {
+      "evidenceFolderUrl": "https://drive.google.com/drive/folders/1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp/DISCOM_Utility_Bills"
+    },
+    "version": {
+      "$numberInt": "1"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795503155507"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795503155507"
+      }
     }
   }
 ]

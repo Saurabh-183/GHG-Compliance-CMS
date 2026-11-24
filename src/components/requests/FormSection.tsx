@@ -19,7 +19,7 @@ export function FormSection({
   step: number;
 }) {
   return (
-    <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
+    <section className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
       <button
         type="button"
         onClick={onToggle}

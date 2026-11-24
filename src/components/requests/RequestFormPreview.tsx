@@ -26,7 +26,7 @@ export function RequestFormPreview({
   const [previewData, setPreviewData] = React.useState<Record<string, unknown>>({});
 
   return (
-    <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 p-5 space-y-4 max-h-[70vh] overflow-y-auto">
+    <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 p-5 space-y-4 max-h-[70vh] overflow-y-auto">
       <p className="text-[10px] font-bold uppercase text-emerald-700">Client preview</p>
       <h4 className="text-sm font-bold text-slate-900 dark:text-white">{title || 'Request title'}</h4>
       <dl className="grid grid-cols-2 gap-2 text-[11px]">

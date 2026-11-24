@@ -194,12 +194,14 @@ export default function ComplianceCalendarPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Header with Title and Filters */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
-        <div className='p-4 rounded-lg broder border-gray-200 bg-white'>
+        <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2.5">
-            <CalendarIcon className="w-6 h-6 text-emerald-700 dark:text-emerald-400" />
+            <span className="flex items-center justify-center w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 shrink-0">
+              <CalendarIcon className="w-5 h-5" />
+            </span>
             Centralized Statutory Compliance Calendar
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 max-w-2xl leading-relaxed">
             One row per consultant data request with a due date (financial year = reporting period). Extend updates the same request for clients.
             {selectedGroup && (
               <span className="ml-2 inline-flex items-center gap-1 font-semibold text-emerald-700 dark:text-emerald-400">
@@ -246,13 +248,13 @@ export default function ComplianceCalendarPage() {
 
           {/* Quick Facility Search Input */}
           <div className="relative">
-            <Search className="w-3.5 h-3.5   absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <Search className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               placeholder="Search facility..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 pr-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white placeholder:  focus:outline-none focus:ring-1 focus:ring-emerald-500 w-44 sm:w-52"
+              className="pl-8 pr-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 w-44 sm:w-52 shadow-2xs"
             />
           </div>
         </div>

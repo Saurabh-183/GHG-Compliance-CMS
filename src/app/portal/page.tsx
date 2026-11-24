@@ -37,6 +37,10 @@ import {
   formatClientGroupDisplayName,
   pickClientGroupNameFromFacilities,
 } from '@/lib/clientGroupDisplay';
+import {
+  extractPortalDeadlineAlerts,
+  type DeadlineAlertItem,
+} from '@/lib/deadlineAlertsShared';
 
 export default function ClientPortalDashboard() {
   const { currentUser, currentRole, theme } = useAuth();
@@ -44,7 +48,9 @@ export default function ClientPortalDashboard() {
   const [data, setData] = useState<{
     facilities: IFacility[];
     openClarifications: IClarification[];
+    deadlineAlerts?: DeadlineAlertItem[];
   } | null>(null);
+  const [portalAlerts, setPortalAlerts] = useState<DeadlineAlertItem[]>([]);
   const [submissionFiles, setSubmissionFiles] = useState<ClientSubmittedDriveFileCard[]>([]);
   const [requestProgress, setRequestProgress] = useState(
     computePortalDataRequestPercentages([])
@@ -76,6 +82,9 @@ export default function ClientPortalDashboard() {
       if (res && res.ok) {
         const json = (await res.json()) as { data: typeof data };
         setData(json.data);
+        if (json.data?.deadlineAlerts && json.data.deadlineAlerts.length > 0) {
+          setPortalAlerts(json.data.deadlineAlerts);
+        }
       }
 
       const allowed = new Set(portalAllowListFromUser(currentUser));
@@ -89,9 +98,12 @@ export default function ClientPortalDashboard() {
         );
         setRequestProgress(computePortalDataRequestPercentages(scoped));
         setSubmissionFiles(listClientSubmittedDriveFiles(scoped));
+        const directAlerts = extractPortalDeadlineAlerts(scoped);
+        setPortalAlerts((prev) => (directAlerts.length > 0 ? directAlerts : prev));
       } else {
         setRequestProgress(computePortalDataRequestPercentages([]));
         setSubmissionFiles([]);
+        setPortalAlerts([]);
       }
     } catch (e) {
       console.error('Error fetching portal dashboard:', e);
@@ -288,6 +300,84 @@ export default function ClientPortalDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Critical Deadline Alert Banner (<= 5 Days or Overdue) */}
+      {portalAlerts.length > 0 && (
+        <div className="rounded-2xl border-2 border-rose-500 bg-rose-50 dark:bg-rose-950/60 p-5 sm:p-6 shadow-xl space-y-4 animate-fade-in">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-rose-600 text-white shadow-md shrink-0 animate-pulse">
+                <AlertTriangle className="w-5 h-5" />
+              </span>
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="text-base sm:text-lg font-black text-rose-950 dark:text-rose-100 tracking-tight">
+                    Urgent Compliance Deadlines ({portalAlerts.length})
+                  </h3>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-2xs">
+                    Due in &le; 5 Days or Past Due
+                  </span>
+                </div>
+                <p className="text-xs text-rose-800 dark:text-rose-300 mt-0.5 font-medium">
+                  The following requirements require immediate submission. Please upload your Google Drive evidence and complete submissions to prevent statutory compliance penalties.
+                </p>
+              </div>
+            </div>
+            <Link
+              href={`/portal/requests${buildPortalScopeQuery(selectedFacilityId, selectedPeriod)}`}
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-md transition-colors whitespace-nowrap self-start sm:self-center"
+            >
+              <span>View Data Requests</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pt-1">
+            {portalAlerts.slice(0, 6).map((alert) => (
+              <div
+                key={alert.id}
+                className="rounded-xl border border-rose-200 dark:border-rose-900/70 bg-white dark:bg-slate-900/90 p-4 shadow-sm space-y-2.5 flex flex-col justify-between"
+              >
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
+                      {alert.facilityId}
+                    </span>
+                    <span
+                      className={`px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wide ${
+                        alert.isOverdue
+                          ? 'bg-rose-600 text-white animate-pulse'
+                          : alert.isToday
+                            ? 'bg-rose-600 text-white'
+                            : 'bg-amber-600 text-white'
+                      }`}
+                    >
+                      {alert.isOverdue
+                        ? `${Math.abs(alert.daysRemaining)}d Overdue`
+                        : alert.isToday
+                          ? 'Due Today'
+                          : `Due in ${alert.daysRemaining} day${alert.daysRemaining === 1 ? '' : 's'}`}
+                    </span>
+                  </div>
+                  <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white line-clamp-2" title={alert.title}>
+                    {alert.title}
+                  </h4>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    Due Date: <strong className="text-slate-700 dark:text-slate-200">{new Date(alert.dueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</strong>
+                  </p>
+                </div>
+                <Link
+                  href={alert.linkUrl}
+                  className="inline-flex items-center justify-center gap-1.5 w-full py-2 rounded-lg bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 text-xs font-bold transition-colors border border-rose-200 dark:border-rose-800"
+                >
+                  <span>Submit Required Evidence</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Authorized Facilities Grid */}
       <div className="space-y-4">

@@ -2,12 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { Notification } from '@/models/Notification';
 import { getSessionFromRequest, isAuthorizedForFacility } from '@/lib/auth';
+import { syncClientDeadlineNotifications } from '@/lib/deadlineReminders';
 
 export async function GET(request: NextRequest) {
   const session = getSessionFromRequest(request);
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
     await connectToDatabase();
+
+    // Auto-generate deadline reminders for approaching (<= 5 days) and overdue items
+    if (session.role === 'CLIENT' || session.role === 'ADMIN') {
+      try {
+        await syncClientDeadlineNotifications(session);
+      } catch (syncErr) {
+        console.warn('Deadline reminder sync skipped:', syncErr);
+      }
+    }
 
     const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
 

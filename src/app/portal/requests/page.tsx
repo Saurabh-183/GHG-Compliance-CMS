@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { IDataRequirement, IFacility } from '@/types';
 import { PortalScopeSelectors } from '@/components/portal/PortalScopeSelectors';
@@ -15,11 +15,12 @@ import { formatDate } from '@/lib/utils';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import { notify } from '@/lib/notify';
 import { ClientRequirementSubmissionModal } from '@/components/portal/ClientRequirementSubmissionModal';
-import { LayoutGrid, List, RefreshCw, Search } from 'lucide-react';
+import { LayoutGrid, List, RefreshCw, Search, AlertTriangle } from 'lucide-react';
 import { FormControl, Select, MenuItem, SelectChangeEvent } from '@mui/material';
 import { useAuth } from '@/context/AuthContext';
+import { extractPortalDeadlineAlerts } from '@/lib/deadlineAlertsShared';
 
-export default function ClientRequestsPage() {
+function ClientRequestsContent() {
   const { theme } = useAuth();
   const isDark = theme === 'dark';
   const searchParams = useSearchParams();
@@ -133,6 +134,11 @@ export default function ClientRequestsPage() {
   );
 
   const stats = useMemo(() => computeRequestStats(filteredForStats), [filteredForStats]);
+
+  const urgentDeadlineAlerts = useMemo(
+    () => extractPortalDeadlineAlerts(requirements),
+    [requirements]
+  );
 
   const visibleRequirements = useMemo(
     () =>
@@ -299,6 +305,29 @@ export default function ClientRequestsPage() {
         </div>
       </div>
 
+      {urgentDeadlineAlerts.length > 0 && (
+        <div className="rounded-2xl border-2 border-rose-500 bg-rose-50 dark:bg-rose-950/60 p-4 sm:p-5 shadow-lg space-y-2 animate-fade-in">
+          <div className="flex items-center gap-3">
+            <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-rose-600 text-white font-bold shrink-0 animate-pulse">
+              <AlertTriangle className="w-4 h-4" />
+            </span>
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="font-extrabold text-sm sm:text-base text-rose-950 dark:text-rose-100">
+                  Urgent Deadlines: {urgentDeadlineAlerts.length} Submission{urgentDeadlineAlerts.length > 1 ? 's' : ''} Due Within 5 Days or Past Due
+                </h3>
+                <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-2xs">
+                  Critical Alert
+                </span>
+              </div>
+              <p className="text-xs text-rose-800 dark:text-rose-300 mt-0.5 font-medium">
+                The highlighted cards below require urgent submission before the statutory cutoff to avoid non-compliance notices.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {loadError && (
         <div role="alert" className="rounded-xl border border-rose-300 bg-rose-50 p-4 text-sm text-rose-800 dark:border-rose-900 dark:bg-rose-950/30">
           {loadError}
@@ -431,5 +460,13 @@ function ViewToggle({ view, onChange }: { view: 'cards' | 'table'; onChange: (v:
         <List className="w-4 h-4" />
       </button>
     </div>
+  );
+}
+
+export default function ClientRequestsPage() {
+  return (
+    <Suspense fallback={<CarbonCrunchLoader message="Loading your data requests…" />}>
+      <ClientRequestsContent />
+    </Suspense>
   );
 }

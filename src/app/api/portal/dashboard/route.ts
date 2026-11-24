@@ -8,6 +8,7 @@ import { ClarificationModel } from '@/models/Clarification';
 import { AssessmentModel } from '@/models/Assessment';
 import { CalendarItemModel } from '@/models/CalendarItem';
 import { getSessionFromRequest, isAuthorizedForFacility } from '@/lib/auth';
+import { extractPortalDeadlineAlerts } from '@/lib/deadlineReminders';
 import {
   authorizedFacilityIdsForPortal,
   dedupeFacilitiesById,
@@ -224,6 +225,7 @@ export async function GET(request: NextRequest) {
           ),
           regulatoryDueDate: toSafeIso(deadline.regulatoryDueDate),
         })),
+        deadlineAlerts: extractPortalDeadlineAlerts(pendingRequests as any),
       },
     });
   } catch (error) {

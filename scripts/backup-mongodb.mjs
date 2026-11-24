@@ -1,4 +1,6 @@
-﻿import mongoose from "mongoose";
+import dns from "node:dns";
+dns.setServers(["8.8.8.8", "1.1.1.1", "8.8.4.4"]);
+import mongoose from "mongoose";
 import { EJSON } from "bson";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";

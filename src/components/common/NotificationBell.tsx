@@ -115,10 +115,16 @@ export const NotificationBell: React.FC = () => {
         return <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />;
       case 'DATASET_REJECTED':
         return <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400" />;
+      case 'DEADLINE_REMINDER':
+        return <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400" />;
       default:
         return <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />;
     }
   };
+
+  const hasUrgentDeadlineAlerts = notifications.some(
+    (n) => !n.isRead && n.type === 'DEADLINE_REMINDER'
+  );
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -126,9 +132,13 @@ export const NotificationBell: React.FC = () => {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={`relative p-1.5 rounded-lg border transition-colors ${
-          isLight
-            ? 'bg-white text-slate-700 hover:text-emerald-700 hover:bg-slate-100 border-slate-300 shadow-2xs'
-            : 'bg-slate-800/90 text-slate-300 hover:text-emerald-400 hover:bg-slate-700 border-slate-700'
+          hasUrgentDeadlineAlerts
+            ? isLight
+              ? 'bg-rose-50 text-rose-700 hover:bg-rose-100 border-rose-300 shadow-2xs ring-2 ring-rose-400/40'
+              : 'bg-rose-950/40 text-rose-300 hover:bg-rose-900/40 border-rose-800 ring-2 ring-rose-500/40'
+            : isLight
+              ? 'bg-white text-slate-700 hover:text-emerald-700 hover:bg-slate-100 border-slate-300 shadow-2xs'
+              : 'bg-slate-800/90 text-slate-300 hover:text-emerald-400 hover:bg-slate-700 border-slate-700'
         }`}
         title="Audit & Compliance Notifications"
         aria-label="Notifications"
@@ -136,8 +146,10 @@ export const NotificationBell: React.FC = () => {
         <Bell className="w-4 h-4" />
         {unreadCount > 0 && (
           <span
-            className="notification-badge absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-700 text-[10px] font-semibold text-white shadow-sm"
-            style={isLight ? { color: '#FFFFFF' } : undefined}
+            className={`notification-badge absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold text-white shadow-sm ${
+              hasUrgentDeadlineAlerts ? 'bg-rose-600 animate-pulse ring-1 ring-rose-300' : 'bg-emerald-700'
+            }`}
+            style={{ color: '#FFFFFF' }}
           >
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
@@ -194,49 +206,119 @@ export const NotificationBell: React.FC = () => {
                 No notifications for your role.
               </div>
             ) : (
-              notifications.map((item) => (
-                <div
-                  key={item._id}
-                  onClick={() => handleMarkAsRead(item._id, item.linkUrl)}
-                  className={`p-3.5 cursor-pointer transition-colors space-y-1.5 ${
-                    isLight
-                      ? !item.isRead
-                        ? 'bg-emerald-50/50 border-l-2 border-emerald-600 hover:bg-emerald-50'
-                        : 'opacity-85 hover:bg-slate-50'
-                      : !item.isRead
-                        ? 'bg-slate-800/25 border-l-2 border-emerald-500 hover:bg-slate-800/50'
-                        : 'opacity-80 hover:bg-slate-800/50'
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className={`p-1 rounded shrink-0 ${isLight ? 'bg-slate-100' : 'bg-slate-800'}`}>
-                        {getTypeIcon(item.type)}
-                      </span>
-                      <span className={`font-semibold text-xs line-clamp-1 ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                        {item.title}
-                      </span>
+              notifications.map((item) => {
+                const isDeadlineAlert = item.type === 'DEADLINE_REMINDER';
+                return (
+                  <div
+                    key={item._id}
+                    onClick={() => handleMarkAsRead(item._id, item.linkUrl)}
+                    className={`p-3.5 cursor-pointer transition-colors space-y-1.5 ${
+                      isDeadlineAlert
+                        ? isLight
+                          ? !item.isRead
+                            ? 'bg-rose-50/95 border-l-4 border-rose-600 hover:bg-rose-100/90 shadow-2xs'
+                            : 'bg-rose-50/40 border-l-2 border-rose-300 opacity-90 hover:bg-rose-50/70'
+                          : !item.isRead
+                            ? 'bg-rose-950/45 border-l-4 border-rose-500 hover:bg-rose-900/40 shadow-2xs'
+                            : 'bg-rose-950/20 border-l-2 border-rose-800/80 opacity-80 hover:bg-rose-950/35'
+                        : isLight
+                          ? !item.isRead
+                            ? 'bg-emerald-50/50 border-l-2 border-emerald-600 hover:bg-emerald-50'
+                            : 'opacity-85 hover:bg-slate-50'
+                          : !item.isRead
+                            ? 'bg-slate-800/25 border-l-2 border-emerald-500 hover:bg-slate-800/50'
+                            : 'opacity-80 hover:bg-slate-800/50'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span
+                          className={`p-1 rounded shrink-0 ${
+                            isDeadlineAlert
+                              ? isLight
+                                ? 'bg-rose-100 text-rose-600'
+                                : 'bg-rose-900/60 text-rose-400'
+                              : isLight
+                                ? 'bg-slate-100'
+                                : 'bg-slate-800'
+                          }`}
+                        >
+                          {getTypeIcon(item.type)}
+                        </span>
+                        <div className="flex items-center gap-1.5 truncate">
+                          {isDeadlineAlert && (
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-rose-600 text-white shrink-0 shadow-2xs">
+                              Urgent Alert
+                            </span>
+                          )}
+                          <span
+                            className={`font-semibold text-xs line-clamp-1 ${
+                              isDeadlineAlert
+                                ? isLight
+                                  ? 'text-rose-950 font-bold'
+                                  : 'text-rose-100 font-bold'
+                                : isLight
+                                  ? 'text-slate-900'
+                                  : 'text-white'
+                            }`}
+                          >
+                            {item.title}
+                          </span>
+                        </div>
+                      </div>
+
+                      {!item.isRead && (
+                        <span
+                          className={`w-2 h-2 rounded-full shrink-0 mt-1 ${
+                            isDeadlineAlert ? 'bg-rose-600 animate-pulse' : 'bg-emerald-500'
+                          }`}
+                        ></span>
+                      )}
                     </div>
 
-                    {!item.isRead && (
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 mt-1"></span>
-                    )}
-                  </div>
+                    <p
+                      className={`text-[11px] line-clamp-2 pl-7 leading-relaxed ${
+                        isDeadlineAlert
+                          ? isLight
+                            ? 'text-rose-900/90 font-medium'
+                            : 'text-rose-200/90 font-medium'
+                          : isLight
+                            ? 'text-slate-600'
+                            : 'text-slate-300'
+                      }`}
+                    >
+                      {item.message}
+                    </p>
 
-                  <p className={`text-[11px] line-clamp-2 pl-7 ${isLight ? '  ' : ' '}`}>
-                    {item.message}
-                  </p>
-
-                  <div className="flex items-center justify-between text-[10px] text-slate-500 pl-7 pt-0.5 gap-2">
-                    <span className={`font-medium truncate max-w-[150px] ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
-                      From: {item.senderName}
-                    </span>
-                    <span className="font-mono text-[9px] text-slate-500 dark:text-slate-400 shrink-0">
-                      {formatDateTime(item.createdAt)}
-                    </span>
+                    <div className="flex items-center justify-between text-[10px] pl-7 pt-0.5 gap-2">
+                      <span
+                        className={`truncate max-w-[170px] ${
+                          isDeadlineAlert
+                            ? isLight
+                              ? 'text-rose-700 font-semibold'
+                              : 'text-rose-300 font-semibold'
+                            : isLight
+                              ? 'text-slate-600 font-medium'
+                              : 'text-slate-400 font-medium'
+                        }`}
+                      >
+                        From: {item.senderName}
+                      </span>
+                      <span
+                        className={`font-mono text-[9px] shrink-0 ${
+                          isDeadlineAlert
+                            ? isLight
+                              ? 'text-rose-600'
+                              : 'text-rose-400'
+                            : 'text-slate-500 dark:text-slate-400'
+                        }`}
+                      >
+                        {formatDateTime(item.createdAt)}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
 

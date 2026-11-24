@@ -1,50 +1,7 @@
 [
   {
     "_id": {
-      "$oid": "6ade76b3667ed7c3e0b3131f"
-    },
-    "facilityId": "TRIDENT_PAPER",
-    "complianceType": "CEA",
-    "reportingPeriod": "July 2025 Electricity Returns",
-    "regulatoryDueDate": {
-      "$date": {
-        "$numberLong": "1755216000000"
-      }
-    },
-    "internalDeadline": {
-      "$date": {
-        "$numberLong": "1754784000000"
-      }
-    },
-    "clientDataSubmissionDeadline": {
-      "$date": {
-        "$numberLong": "1754352000000"
-      }
-    },
-    "assignedConsultantId": {
-      "$oid": "6ade76a9667ed7c3e0b3128a"
-    },
-    "status": "UPCOMING",
-    "actualSubmissionDate": null,
-    "extensionHistory": [],
-    "isRecurringCEA": true,
-    "createdAt": {
-      "$date": {
-        "$numberLong": "1792964275247"
-      }
-    },
-    "updatedAt": {
-      "$date": {
-        "$numberLong": "1792964275247"
-      }
-    },
-    "__v": {
-      "$numberInt": "0"
-    }
-  },
-  {
-    "_id": {
-      "$oid": "6ade76b3667ed7c3e0b3131e"
+      "$oid": "6afe993a62c738b0be61be11"
     },
     "facilityId": "TRIDENT_PAPER",
     "complianceType": "CEA",
@@ -65,7 +22,7 @@
       }
     },
     "assignedConsultantId": {
-      "$oid": "6ade76a9667ed7c3e0b3128a"
+      "$oid": "6afe993562c738b0be61bd57"
     },
     "status": "COMPLETED",
     "actualSubmissionDate": {
@@ -77,12 +34,12 @@
     "isRecurringCEA": true,
     "createdAt": {
       "$date": {
-        "$numberLong": "1792964275247"
+        "$numberLong": "1795070266877"
       }
     },
     "updatedAt": {
       "$date": {
-        "$numberLong": "1792964275247"
+        "$numberLong": "1795070266877"
       }
     },
     "__v": {
@@ -91,41 +48,41 @@
   },
   {
     "_id": {
-      "$oid": "6ade76b3667ed7c3e0b31321"
+      "$oid": "6afe993a62c738b0be61be12"
     },
     "facilityId": "TRIDENT_PAPER",
-    "complianceType": "CCTS",
-    "reportingPeriod": "Baseline Boundary Finalization",
+    "complianceType": "CEA",
+    "reportingPeriod": "July 2025 Electricity Returns",
     "regulatoryDueDate": {
       "$date": {
-        "$numberLong": "1764460800000"
+        "$numberLong": "1755216000000"
       }
     },
     "internalDeadline": {
       "$date": {
-        "$numberLong": "1760486400000"
+        "$numberLong": "1754784000000"
       }
     },
     "clientDataSubmissionDeadline": {
       "$date": {
-        "$numberLong": "1759276800000"
+        "$numberLong": "1754352000000"
       }
     },
     "assignedConsultantId": {
-      "$oid": "6ade76a9667ed7c3e0b3128a"
+      "$oid": "6afe993562c738b0be61bd57"
     },
     "status": "UPCOMING",
     "actualSubmissionDate": null,
     "extensionHistory": [],
-    "isRecurringCEA": false,
+    "isRecurringCEA": true,
     "createdAt": {
       "$date": {
-        "$numberLong": "1792964275247"
+        "$numberLong": "1795070266877"
       }
     },
     "updatedAt": {
       "$date": {
-        "$numberLong": "1792964275247"
+        "$numberLong": "1795070266877"
       }
     },
     "__v": {
@@ -134,7 +91,7 @@
   },
   {
     "_id": {
-      "$oid": "6ade76b3667ed7c3e0b3131d"
+      "$oid": "6afe993a62c738b0be61be10"
     },
     "facilityId": "TRIDENT_PAPER",
     "complianceType": "RCO",
@@ -155,7 +112,7 @@
       }
     },
     "assignedConsultantId": {
-      "$oid": "6ade76a9667ed7c3e0b3128a"
+      "$oid": "6afe993562c738b0be61bd57"
     },
     "status": "PENDING",
     "actualSubmissionDate": null,
@@ -163,12 +120,12 @@
     "isRecurringCEA": false,
     "createdAt": {
       "$date": {
-        "$numberLong": "1792964275247"
+        "$numberLong": "1795070266876"
       }
     },
     "updatedAt": {
       "$date": {
-        "$numberLong": "1792964275247"
+        "$numberLong": "1795070266876"
       }
     },
     "__v": {
@@ -177,7 +134,7 @@
   },
   {
     "_id": {
-      "$oid": "6ade76b3667ed7c3e0b31320"
+      "$oid": "6afe993a62c738b0be61be13"
     },
     "facilityId": "TRIDENT_PAPER",
     "complianceType": "PAT",
@@ -198,7 +155,7 @@
       }
     },
     "assignedConsultantId": {
-      "$oid": "6ade76a9667ed7c3e0b3128a"
+      "$oid": "6afe993562c738b0be61bd57"
     },
     "status": "PENDING",
     "actualSubmissionDate": null,
@@ -226,12 +183,257 @@
     "isRecurringCEA": false,
     "createdAt": {
       "$date": {
-        "$numberLong": "1792964275250"
+        "$numberLong": "1795070266879"
       }
     },
     "updatedAt": {
       "$date": {
-        "$numberLong": "1792964275250"
+        "$numberLong": "1795070266879"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6afe993a62c738b0be61be14"
+    },
+    "facilityId": "TRIDENT_PAPER",
+    "complianceType": "CCTS",
+    "reportingPeriod": "Baseline Boundary Finalization",
+    "regulatoryDueDate": {
+      "$date": {
+        "$numberLong": "1764460800000"
+      }
+    },
+    "internalDeadline": {
+      "$date": {
+        "$numberLong": "1760486400000"
+      }
+    },
+    "clientDataSubmissionDeadline": {
+      "$date": {
+        "$numberLong": "1759276800000"
+      }
+    },
+    "assignedConsultantId": {
+      "$oid": "6afe993562c738b0be61bd57"
+    },
+    "status": "UPCOMING",
+    "actualSubmissionDate": null,
+    "extensionHistory": [],
+    "isRecurringCEA": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070266877"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070266877"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b01975081619b0668a140e8"
+    },
+    "facilityId": "TRIDENT_PAPER",
+    "complianceType": "PAT",
+    "reportingPeriod": "Cycle-II",
+    "regulatoryDueDate": {
+      "$date": {
+        "$numberLong": "1796083200000"
+      }
+    },
+    "internalDeadline": {
+      "$date": {
+        "$numberLong": "1795651200000"
+      }
+    },
+    "clientDataSubmissionDeadline": {
+      "$date": {
+        "$numberLong": "1795219200000"
+      }
+    },
+    "status": "EXTENDED",
+    "actualSubmissionDate": null,
+    "extensionHistory": [
+      {
+        "oldDate": {
+          "$date": {
+            "$numberLong": "1743379200000"
+          }
+        },
+        "newDate": {
+          "$date": {
+            "$numberLong": "1743638400000"
+          }
+        },
+        "reason": "update this ",
+        "notificationRef": "sdfasdfs",
+        "revisedAt": {
+          "$date": {
+            "$numberLong": "1795266384644"
+          }
+        }
+      },
+      {
+        "oldDate": {
+          "$date": {
+            "$numberLong": "1743638400000"
+          }
+        },
+        "newDate": {
+          "$date": {
+            "$numberLong": "1796083200000"
+          }
+        },
+        "reason": "i need it ",
+        "notificationRef": "bhejo ",
+        "revisedAt": {
+          "$date": {
+            "$numberLong": "1795267025032"
+          }
+        }
+      }
+    ],
+    "isRecurringCEA": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795266384729"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795267025042"
+      }
+    },
+    "__v": {
+      "$numberInt": "1"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b019c6a5dc412f64a005320"
+    },
+    "facilityId": "TRIDENT_PAPER",
+    "complianceType": "PAT",
+    "reportingPeriod": "FY2025-26",
+    "regulatoryDueDate": {
+      "$date": {
+        "$numberLong": "1796860800000"
+      }
+    },
+    "internalDeadline": {
+      "$date": {
+        "$numberLong": "1796428800000"
+      }
+    },
+    "clientDataSubmissionDeadline": {
+      "$date": {
+        "$numberLong": "1795996800000"
+      }
+    },
+    "status": "EXTENDED",
+    "actualSubmissionDate": null,
+    "extensionHistory": [
+      {
+        "oldDate": {
+          "$date": {
+            "$numberLong": "1796083200000"
+          }
+        },
+        "newDate": {
+          "$date": {
+            "$numberLong": "1796860800000"
+          }
+        },
+        "reason": "submit it ",
+        "notificationRef": "you have time ",
+        "revisedAt": {
+          "$date": {
+            "$numberLong": "1795267690583"
+          }
+        }
+      }
+    ],
+    "isRecurringCEA": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795267690584"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795267690584"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b03e520cf0f556cd9c17376"
+    },
+    "facilityId": "TRIDENT_PAPER",
+    "complianceType": "RCO",
+    "reportingPeriod": "FY2025-26",
+    "regulatoryDueDate": {
+      "$date": {
+        "$numberLong": "1798243200000"
+      }
+    },
+    "internalDeadline": {
+      "$date": {
+        "$numberLong": "1797811200000"
+      }
+    },
+    "clientDataSubmissionDeadline": {
+      "$date": {
+        "$numberLong": "1797379200000"
+      }
+    },
+    "status": "EXTENDED",
+    "actualSubmissionDate": null,
+    "extensionHistory": [
+      {
+        "oldDate": {
+          "$date": {
+            "$numberLong": "1798243200000"
+          }
+        },
+        "newDate": {
+          "$date": {
+            "$numberLong": "1798243200000"
+          }
+        },
+        "reason": "bhejo ",
+        "notificationRef": "done",
+        "revisedAt": {
+          "$date": {
+            "$numberLong": "1795417376420"
+          }
+        }
+      }
+    ],
+    "isRecurringCEA": false,
+    "dataRequirementId": {
+      "$oid": "6afec07197cef52ae172721f"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795417376422"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795417376422"
       }
     },
     "__v": {

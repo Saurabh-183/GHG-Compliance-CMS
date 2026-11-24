@@ -1,7 +1,7 @@
 [
   {
     "_id": {
-      "$oid": "6ade76b2667ed7c3e0b3131c"
+      "$oid": "6afe993a62c738b0be61be0f"
     },
     "facilityId": "TRIDENT_PAPER",
     "datasetId": {
@@ -26,7 +26,7 @@
     "status": "OPEN",
     "emailDraft": "Subject: Action Required: Clarification on June 2025 Grid Electricity Consumption for Trident Paper Complex\n\nDear Client Compliance Team,\n\nDuring our monthly regulatory compliance verification for Trident Paper Complex, we identified a discrepancy in the June 2025 data:\n\n- Parameter: Grid Electricity Consumption\n- Client Declared Value: 12,80,000 kWh\n- Evidence (DISCOM Bill) Value: 12,65,000 kWh\n- Identified Variance: 15,000 kWh (1.172%)\n\nPlease clarify the difference of 15,000 kWh between the June 2025 Grid Electricity Consumption Excel and the corresponding electricity bill. Kindly share a revised Excel or supporting justification via the Carbon Crunch Client Portal.\n\nBest regards,\nCarbon Crunch Compliance Verification Team\nsupport@carboncrunch.com",
     "raisedBy": {
-      "$oid": "6ade76a9667ed7c3e0b3128a"
+      "$oid": "6afe993562c738b0be61bd57"
     },
     "raisedByName": "Priya Sharma",
     "raisedAt": {
@@ -36,12 +36,12 @@
     },
     "createdAt": {
       "$date": {
-        "$numberLong": "1792964274934"
+        "$numberLong": "1795070266801"
       }
     },
     "updatedAt": {
       "$date": {
-        "$numberLong": "1792964274934"
+        "$numberLong": "1795070266801"
       }
     },
     "__v": {

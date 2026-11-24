@@ -13,7 +13,6 @@ import {
 } from '@/lib/driveVaultServer';
 import { upsertClientSubmissionLink } from '@/lib/clientSubmissionLinkUpsert';
 import { assertClientCanSubmitRequirement } from '@/lib/dataRequestDueDate';
-import { GOOGLE_DRIVE_FOLDER_URL, GOOGLE_DRIVE_FOLDER_ID, resolveComplianceVaultFolderUrl } from '@/lib/gdrive';
 
 export async function POST(
   request: NextRequest,

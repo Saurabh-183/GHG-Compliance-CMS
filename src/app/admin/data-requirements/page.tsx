@@ -126,7 +126,7 @@ export default function AdminDataRequirementsPage() {
 
   return (
     <div className="mx-auto max-w-[95vw] space-y-6 px-4 py-8">
-      <header className="p-4 rounded-lg border border-gray-200 flex flex-wrap items-start justify-between gap-4">
+      <header className="p-4 rounded-lg border border-slate-200 dark:border-slate-800 flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Data Requirement Configuration</h1>
           <p className="mt-1 max-w-3xl text-sm text-slate-500">

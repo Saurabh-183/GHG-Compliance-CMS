@@ -1,0 +1,267 @@
+[
+  {
+    "_id": {
+      "$oid": "6b040aefd297dbf41649631d"
+    },
+    "assessmentId": {
+      "$oid": "6b01b171610bb0bcbc571372"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "auditTrail": [
+      {
+        "at": {
+          "$date": {
+            "$numberLong": "1795427052227"
+          }
+        },
+        "userId": "6afe993562c738b0be61bd56",
+        "userName": "Saurabh Agnihotri",
+        "action": "REQUEST_DATA",
+        "details": "Requested RCO Compliance Data Reporting from client"
+      }
+    ],
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795427052229"
+      }
+    },
+    "evidence": [],
+    "facilityId": "NRAGARWAL_UNIT1",
+    "fieldReviews": [],
+    "framework": "RCO",
+    "period": "FY2025-26",
+    "requestMessage": "",
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795427052227"
+      }
+    },
+    "requestedBy": "6afe993562c738b0be61bd56",
+    "requestedByName": "Saurabh Agnihotri",
+    "status": "REQUESTED",
+    "templateId": "RCO_FORM_A_CPP_OPEN_ACCESS",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795427052229"
+      }
+    },
+    "values": {},
+    "version": {
+      "$numberInt": "1"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0415fbd297dbf416496395"
+    },
+    "assessmentId": {
+      "$oid": "6b03cf9bcf0f556cd9c170ca"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "auditTrail": [
+      {
+        "at": {
+          "$date": {
+            "$numberLong": "1795429883024"
+          }
+        },
+        "userId": "6afe993562c738b0be61bd56",
+        "userName": "Saurabh Agnihotri",
+        "action": "REQUEST_DATA",
+        "details": "Requested RCO Compliance Data Reporting from client"
+      }
+    ],
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795429883024"
+      }
+    },
+    "evidence": [],
+    "facilityId": "PAPER_ABC_IMPEX",
+    "fieldReviews": [],
+    "framework": "RCO",
+    "period": "FY2025-26",
+    "requestMessage": "",
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795429883024"
+      }
+    },
+    "requestedBy": "6afe993562c738b0be61bd56",
+    "requestedByName": "Saurabh Agnihotri",
+    "status": "REQUESTED",
+    "templateId": "RCO_FORM_A_CPP_OPEN_ACCESS",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795429883024"
+      }
+    },
+    "values": {},
+    "version": {
+      "$numberInt": "1"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b04325cd297dbf416496b89"
+    },
+    "assessmentId": {
+      "$oid": "6b03cf9bcf0f556cd9c170c9"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "auditTrail": [
+      {
+        "at": {
+          "$date": {
+            "$numberLong": "1795437147814"
+          }
+        },
+        "userId": "6afe993562c738b0be61bd57",
+        "userName": "Priya Sharma",
+        "action": "REQUEST_DATA",
+        "details": "Requested RCO Compliance Data Reporting from client"
+      }
+    ],
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795437147815"
+      }
+    },
+    "evidence": [],
+    "facilityId": "PAPER_ABC_IMPEX",
+    "fieldReviews": [],
+    "framework": "RCO",
+    "period": "FY2024-25",
+    "requestMessage": "",
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795437147814"
+      }
+    },
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "status": "REQUESTED",
+    "templateId": "RCO_FORM_A_CPP_OPEN_ACCESS",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795437147815"
+      }
+    },
+    "values": {},
+    "version": {
+      "$numberInt": "1"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b043e8dd297dbf416496c13"
+    },
+    "assessmentId": {
+      "$oid": "6afe993a62c738b0be61be01"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "auditTrail": [
+      {
+        "at": {
+          "$date": {
+            "$numberLong": "1795440269598"
+          }
+        },
+        "userId": "6afe993562c738b0be61bd56",
+        "userName": "Saurabh Agnihotri",
+        "action": "REQUEST_DATA",
+        "details": "Requested RCO Compliance Data Reporting from client"
+      }
+    ],
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795440269599"
+      }
+    },
+    "evidence": [],
+    "facilityId": "TRIDENT_PAPER",
+    "fieldReviews": [],
+    "framework": "RCO",
+    "period": "FY2024-25",
+    "requestMessage": "",
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795440269598"
+      }
+    },
+    "requestedBy": "6afe993562c738b0be61bd56",
+    "requestedByName": "Saurabh Agnihotri",
+    "status": "REQUESTED",
+    "templateId": "RCO_FORM_A_CPP_OPEN_ACCESS",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795440269599"
+      }
+    },
+    "values": {},
+    "version": {
+      "$numberInt": "1"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b053510e0805fc9e55bfc21"
+    },
+    "assessmentId": {
+      "$oid": "6b05343362553b77b364e13d"
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "auditTrail": [
+      {
+        "at": {
+          "$date": {
+            "$numberLong": "1795503377359"
+          }
+        },
+        "userId": "6afe993562c738b0be61bd57",
+        "userName": "Priya Sharma",
+        "action": "REQUEST_DATA",
+        "details": "Requested RCO Compliance Data Reporting from client"
+      }
+    ],
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795503377364"
+      }
+    },
+    "evidence": [],
+    "facilityId": "ENG_ANJANI_SYNTHETICS",
+    "fieldReviews": [],
+    "framework": "RCO",
+    "period": "FY2025-26",
+    "requestMessage": "",
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795503377359"
+      }
+    },
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "status": "REQUESTED",
+    "templateId": "RCO_FORM_A_CPP_OPEN_ACCESS",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795503377364"
+      }
+    },
+    "values": {},
+    "version": {
+      "$numberInt": "1"
+    }
+  }
+]
