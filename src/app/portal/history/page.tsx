@@ -2,11 +2,10 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import type { IAssessment } from '@/types';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { DriveLinkBadge } from '@/components/common/DriveLinkBadge';
 import { ClientRequirementSubmissionModal } from '@/components/portal/ClientRequirementSubmissionModal';
-import { formatDate, formatDateTime } from '@/lib/utils';
+import { formatDateTime } from '@/lib/utils';
 import { ShieldCheck, CheckCircle2, FileSpreadsheet, ArrowRight, RefreshCw } from 'lucide-react';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import type { IDataRequirement } from '@/types';
@@ -41,11 +40,10 @@ type ApprovedRequestRow = {
 
 type HistoryPayload = {
   approvedRequests: ApprovedRequestRow[];
-  approvedAssessments: IAssessment[];
 };
 
 export default function ClientHistoryPage() {
-  const [data, setData] = useState<HistoryPayload>({ approvedRequests: [], approvedAssessments: [] });
+  const [data, setData] = useState<HistoryPayload>({ approvedRequests: [] });
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
   const [viewReq, setViewReq] = useState<IDataRequirement | null>(null);
@@ -57,7 +55,7 @@ export default function ClientHistoryPage() {
       const res = await fetch('/api/portal/history', { cache: 'no-store', credentials: 'include' });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'Failed to load history');
-      setData(json.data || { approvedRequests: [], approvedAssessments: [] });
+      setData(json.data || { approvedRequests: [] });
     } catch (e) {
       setLoadError(e instanceof Error ? e.message : 'Failed to load history');
     } finally {
@@ -83,11 +81,11 @@ export default function ClientHistoryPage() {
   };
 
   if (loading) {
-    return <CarbonCrunchLoader message="Loading approved compliance records..." />;
+    return <CarbonCrunchLoader message="Loading approved data requests..." />;
   }
 
-  const { approvedRequests, approvedAssessments } = data;
-  const isEmpty = !approvedRequests.length && !approvedAssessments.length;
+  const { approvedRequests } = data;
+  const isEmpty = !approvedRequests.length;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -98,7 +96,7 @@ export default function ClientHistoryPage() {
             Approved History
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Consultant-verified data requests and official compliance filings for your facilities.
+            Data requests approved by a consultant for your facilities.
           </p>
         </div>
         <button
@@ -116,16 +114,13 @@ export default function ClientHistoryPage() {
 
       <div className="flex flex-wrap gap-3 text-xs">
         <span className="rounded-lg border bg-emerald-50 px-3 py-1.5 text-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
-          <strong>{approvedRequests.length}</strong> accepted data request{approvedRequests.length === 1 ? '' : 's'}
-        </span>
-        <span className="rounded-lg border bg-slate-50 px-3 py-1.5 dark:bg-slate-900">
-          <strong>{approvedAssessments.length}</strong> approved filing{approvedAssessments.length === 1 ? '' : 's'}
+          <strong>{approvedRequests.length}</strong> approved data request{approvedRequests.length === 1 ? '' : 's'}
         </span>
       </div>
 
       {isEmpty && !loadError && (
         <p className="py-16 text-center text-sm text-slate-500 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700">
-          No approved records yet. When your consultant accepts submitted data requests, they will appear here.
+          No consultant-approved data requests yet.
         </p>
       )}
 
@@ -133,7 +128,7 @@ export default function ClientHistoryPage() {
         <section className="space-y-4">
           <h2 className="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
             <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-            Accepted data requests
+            Approved data requests
           </h2>
           <div className="space-y-5">
             {approvedRequests.map((item) => (
@@ -238,64 +233,6 @@ export default function ClientHistoryPage() {
                       On record
                     </span>
                   </div>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {approvedAssessments.length > 0 && (
-        <section className="space-y-4">
-          <h2 className="text-sm font-bold text-slate-800 dark:text-slate-200">Approved compliance filings</h2>
-          <div className="space-y-6">
-            {approvedAssessments.map((item) => (
-              <article
-                key={item._id}
-                className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-6 shadow-sm space-y-5"
-              >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
-                  <div>
-                    <div className="flex items-center gap-2.5 flex-wrap">
-                      <span className="px-2 py-0.5 rounded font-mono font-bold text-xs bg-slate-100 text-emerald-800 border dark:bg-slate-800 dark:text-emerald-400">
-                        {item.facilityName || item.facilityId}
-                      </span>
-                      <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                        {item.complianceType} — {item.period}
-                      </h3>
-                    </div>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                      Approved version v{item.version}
-                      {item.approvedByName ? ` · ${item.approvedByName}` : ''}
-                      {item.approvedAt ? ` · ${formatDateTime(item.approvedAt)}` : ''}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <StatusBadge status={item.complianceOutcome} type="outcome" />
-                    <StatusBadge status={item.workflowStatus} type="workflow" />
-                  </div>
-                </div>
-
-                {item.metrics?.length > 0 && (
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    {item.metrics.map((m, idx) => (
-                      <div
-                        key={idx}
-                        className="p-3 rounded-lg bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800"
-                      >
-                        <div className="text-[11px] text-slate-500">{m.name}</div>
-                        <div className="text-sm font-bold text-emerald-700 dark:text-emerald-400 font-mono mt-0.5">
-                          {m.value} <span className="text-[10px] text-slate-500 font-normal">{m.unit}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center gap-3">
-                  <DriveLinkBadge url={item.documentLinks?.finalReportUrl} label="Final report" />
-                  <DriveLinkBadge url={item.documentLinks?.submissionAckUrl} label="Regulatory ack" />
-                  <DriveLinkBadge url={item.documentLinks?.calculationWorkbookUrl} label="Calculation model" />
                 </div>
               </article>
             ))}

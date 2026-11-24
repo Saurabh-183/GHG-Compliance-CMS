@@ -62,6 +62,7 @@ export interface IDataRequirementDocument extends Document {
   verificationStatus: VerificationStatus;
   reviewNote?: string;
   reviewedByName?: string;
+  approvedByRole?: 'ADMIN' | 'CONSULTANT';
   reviewedAt?: Date;
   requestedAt?: Date;
   dueDate?: Date;
@@ -267,6 +268,7 @@ const DataRequirementSchema = new Schema<IDataRequirementDocument>(
     },
     reviewNote: { type: String, trim: true },
     reviewedByName: { type: String, trim: true },
+    approvedByRole: { type: String, enum: ['ADMIN', 'CONSULTANT'] },
     reviewedAt: { type: Date },
     requestedAt: { type: Date },
     dueDate: { type: Date },

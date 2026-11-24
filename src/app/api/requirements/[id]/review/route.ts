@@ -59,6 +59,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
             : 'UNDER_REVIEW';
     requirement.verificationStatus = action === 'ACCEPT' ? 'APPROVED' : action === 'REJECT' ? 'REJECTED' : action === 'REQUEST_CHANGES' ? 'CLARIFICATION_REQUIRED' : 'UNDER_REVIEW';
     if (action === 'ACCEPT') {
+      requirement.approvedByRole = session!.role === 'CONSULTANT' ? 'CONSULTANT' : 'ADMIN';
       const latest = requirement.submissionHistory?.[requirement.submissionHistory.length - 1];
       if (latest?.structuredData) {
         requirement.latestStructuredData = latest.structuredData;
