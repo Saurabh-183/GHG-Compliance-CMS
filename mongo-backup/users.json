@@ -1,64 +1,78 @@
 [
   {
     "_id": {
-      "$oid": "6ade76a9667ed7c3e0b31289"
+      "$oid": "6afe993562c738b0be61bd56"
     },
     "name": "Saurabh Agnihotri",
     "email": "admin@carboncrunch.com",
-    "passwordHash": "$2b$10$BXsKXLzxXDV.so3tkDvCA.Pcfk80tFDld7vAAojLA75ELe2QIAadC",
+    "passwordHash": "$2b$12$MAxp6kmMYM9YRyjN2IvrLudHIYab3u7W92C9dtnvtL5hTI.44CMiu",
     "role": "ADMIN",
     "authorizedFacilityIds": [],
     "designation": "Principal Compliance Architect",
     "avatarUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces",
     "createdAt": {
       "$date": {
-        "$numberLong": "1792964265287"
+        "$numberLong": "1795070261286"
       }
     },
     "updatedAt": {
       "$date": {
-        "$numberLong": "1792964265287"
+        "$numberLong": "1795261210100"
       }
     },
     "__v": {
       "$numberInt": "0"
-    }
+    },
+    "mustChangePassword": false,
+    "passwordChangedAt": {
+      "$date": {
+        "$numberLong": "1795261210092"
+      }
+    },
+    "status": "ACTIVE"
   },
   {
     "_id": {
-      "$oid": "6ade76a9667ed7c3e0b3128a"
+      "$oid": "6afe993562c738b0be61bd57"
     },
     "name": "Priya Sharma",
     "email": "consultant@carboncrunch.com",
-    "passwordHash": "$2b$10$BXsKXLzxXDV.so3tkDvCA.Pcfk80tFDld7vAAojLA75ELe2QIAadC",
+    "passwordHash": "$2b$12$BBcMv2uG.BtRfQO56TRC4.ZGyve15xIKqN3YznURj/RP3n1dUfO/2",
     "role": "CONSULTANT",
     "authorizedFacilityIds": [],
     "designation": "Senior Energy & Carbon Compliance Lead",
     "avatarUrl": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop&crop=faces",
     "createdAt": {
       "$date": {
-        "$numberLong": "1792964265369"
+        "$numberLong": "1795070261332"
       }
     },
     "updatedAt": {
       "$date": {
-        "$numberLong": "1792964265369"
+        "$numberLong": "1795263555622"
       }
     },
     "__v": {
       "$numberInt": "0"
-    }
+    },
+    "mustChangePassword": false,
+    "passwordChangedAt": {
+      "$date": {
+        "$numberLong": "1795263555614"
+      }
+    },
+    "status": "ACTIVE"
   },
   {
     "_id": {
-      "$oid": "6ade76a9667ed7c3e0b3128c"
+      "$oid": "6afe993562c738b0be61bd59"
     },
     "name": "Vikram Singh",
     "email": "client@tridentindia.com",
-    "passwordHash": "$2b$10$BXsKXLzxXDV.so3tkDvCA.Pcfk80tFDld7vAAojLA75ELe2QIAadC",
+    "passwordHash": "$2b$10$riO2noVaGSozkh5svzkPJO0ukuoJT31d.Awwr.Oo4t7TfCStfvEte",
     "role": "CLIENT",
     "clientGroupId": {
-      "$oid": "6ade76a9667ed7c3e0b3128b"
+      "$oid": "6afe993562c738b0be61bd58"
     },
     "authorizedFacilityIds": [
       "TRIDENT_PAPER",
@@ -69,16 +83,1213 @@
     "avatarUrl": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces",
     "createdAt": {
       "$date": {
-        "$numberLong": "1792964265500"
+        "$numberLong": "1795070261406"
       }
     },
     "updatedAt": {
       "$date": {
-        "$numberLong": "1792964265500"
+        "$numberLong": "1795070261406"
       }
     },
     "__v": {
       "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173c9d297dbf41649566f"
+    },
+    "email": "abcimpex@clients.com",
+    "authorizedFacilityIds": [
+      "PAPER_ABC_IMPEX"
+    ],
+    "clientGroupId": {
+      "$oid": "671000000000000000000001"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257290702"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "ABC Impex",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257290702"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173c9d297dbf416495670"
+    },
+    "email": "anandtriplex@clients.com",
+    "authorizedFacilityIds": [
+      "PAPER_ANAND_TRIPLEX"
+    ],
+    "clientGroupId": {
+      "$oid": "671000000000000000000002"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257290756"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "Anand Triplex",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257290756"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173c9d297dbf416495671"
+    },
+    "email": "sillvertonindustries@clients.com",
+    "authorizedFacilityIds": [
+      "PAPER_SILLVERTON_IND"
+    ],
+    "clientGroupId": {
+      "$oid": "671000000000000000000003"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257290812"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "Sillverton Industries",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257290812"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173c9d297dbf416495672"
+    },
+    "email": "sillvertoanpapers@clients.com",
+    "authorizedFacilityIds": [
+      "PAPER_SILLVERTOAN_PAP"
+    ],
+    "clientGroupId": {
+      "$oid": "671000000000000000000004"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257290865"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "Sillvertoan Papers",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257290865"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173c9d297dbf416495673"
+    },
+    "email": "ultratechcement@clients.com",
+    "authorizedFacilityIds": [
+      "UTC_KOTPUTLI",
+      "UTC_ADITYA",
+      "UTC_JHARSUGDA",
+      "UTC_PALI",
+      "UTC_ROORKEE",
+      "UTC_VIKRAM",
+      "UTC_BELA",
+      "UTC_SIDHI",
+      "UTC_MAHIHAR",
+      "UTC_NATHDWARA",
+      "UTC_CUTTACK",
+      "UTC_INDIA_CEMENTS",
+      "UTC_DADRI",
+      "UTC_SIKANDERABAD",
+      "UTC_NARMADA",
+      "UTC_ALIGARH",
+      "UTC_TANDA",
+      "UTC_PANIPAT",
+      "UTC_PARLI",
+      "UTC_MADDALA",
+      "UTC_ARAKKONAM"
+    ],
+    "clientGroupId": {
+      "$oid": "66f000000000000000000010"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257290922"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "UltraTech Cement",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257290922"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173c9d297dbf416495674"
+    },
+    "email": "chiripalgroup@clients.com",
+    "authorizedFacilityIds": [
+      "CHIRIPAL_NANDAN_VRAJ",
+      "CHIRIPAL_NANDAN_PIPLAJ",
+      "CHIRIPAL_NANDAN_TERRY",
+      "CHIRIPAL_FABRIC_DIV",
+      "CHIRIPAL_QUALITY_EXIM",
+      "CHIRIPAL_VISHAL_FAB",
+      "CHIRIPAL_COTTON_MILL",
+      "CHIRIPAL_POLYFILMS"
+    ],
+    "clientGroupId": {
+      "$oid": "66f000000000000000000020"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257290979"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "Chiripal Group",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257290979"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173c9d297dbf416495675"
+    },
+    "email": "rcrungta@clients.com",
+    "authorizedFacilityIds": [
+      "RUNGTA_JHARKHAND_ISPAT",
+      "RUNGTA_MAA_CHINAMASTIKA",
+      "RUNGTA_BHRAMPUTRA",
+      "RUNGTA_CRACKERS"
+    ],
+    "clientGroupId": {
+      "$oid": "66f000000000000000000100"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257291035"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "RC Rungta",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257291035"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173c9d297dbf416495676"
+    },
+    "email": "nragarwal@clients.com",
+    "authorizedFacilityIds": [
+      "NRAGARWAL_UNIT1",
+      "NRAGARWAL_UNIT5"
+    ],
+    "clientGroupId": {
+      "$oid": "66f000000000000000000110"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257291090"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "N R Agarwal",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257291090"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cad297dbf416495677"
+    },
+    "email": "tridentgroup@clients.com",
+    "authorizedFacilityIds": [
+      "TRIDENT_PAPER",
+      "TRIDENT_YARN",
+      "TRIDENT_TEXTILES"
+    ],
+    "clientGroupId": {
+      "$oid": "6afe993562c738b0be61bd58"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257291149"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "Trident Group",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257291149"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cad297dbf416495678"
+    },
+    "email": "gmfabrics@clients.com",
+    "authorizedFacilityIds": [
+      "ENG_GM_FABRICS"
+    ],
+    "clientGroupId": {
+      "$oid": "671000000000000000000010"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257291207"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "GM Fabrics",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257291207"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cad297dbf416495679"
+    },
+    "email": "janisalespvtltd@clients.com",
+    "authorizedFacilityIds": [
+      "PAPER_JANI_SALES"
+    ],
+    "clientGroupId": {
+      "$oid": "671000000000000000000011"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257291268"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "Jani Sales Pvt Ltd",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257291268"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cad297dbf41649567a"
+    },
+    "email": "dypatilsugarmill@clients.com",
+    "authorizedFacilityIds": [
+      "SUGAR_DY_PATIL"
+    ],
+    "clientGroupId": {
+      "$oid": "671000000000000000000012"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257291321"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "DY Patil Sugar Mill",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257291321"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cad297dbf41649567b"
+    },
+    "email": "thoratsugarmill@clients.com",
+    "authorizedFacilityIds": [
+      "SUGAR_THORAT_MILL"
+    ],
+    "clientGroupId": {
+      "$oid": "671000000000000000000013"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257291377"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "Thorat Sugar Mill",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257291377"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cad297dbf41649567c"
+    },
+    "email": "maheshwarilogisticspaperdivision@clients.com",
+    "authorizedFacilityIds": [
+      "PAPER_MAHESHWARI"
+    ],
+    "clientGroupId": {
+      "$oid": "671000000000000000000014"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257291433"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "Maheshwari Logistics - Paper Division",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257291433"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cad297dbf41649567d"
+    },
+    "email": "gayatrishaktigroup@clients.com",
+    "authorizedFacilityIds": [
+      "GAYATRI_KHERANI",
+      "GAYATRI_UNIT1",
+      "GAYATRI_UNIT2",
+      "GAYATRI_JAINCORD",
+      "GAYATRI_MEHALI",
+      "GAYATRI_SAINSON",
+      "GAYATRI_NIKITA",
+      "GAYATRI_JANKI"
+    ],
+    "clientGroupId": {
+      "$oid": "66f000000000000000000070"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257291491"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "Gayatrishakti Group",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257291491"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cad297dbf41649567e"
+    },
+    "email": "bahlpapermills@clients.com",
+    "authorizedFacilityIds": [
+      "PAPER_BAHL_MILLS"
+    ],
+    "clientGroupId": {
+      "$oid": "671000000000000000000016"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257291549"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "Bahl Paper Mills",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257291549"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cad297dbf41649567f"
+    },
+    "email": "genusgroup@clients.com",
+    "authorizedFacilityIds": [
+      "GENUS_MUZ",
+      "GENUS_MBD",
+      "GENUS_BINDLAS",
+      "GENUS_TEHRI",
+      "GENUS_AGARWAL"
+    ],
+    "clientGroupId": {
+      "$oid": "66f000000000000000000080"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257291606"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "Genus Group",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257291606"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cad297dbf416495680"
+    },
+    "email": "devpriya@clients.com",
+    "authorizedFacilityIds": [
+      "DEVPRIYA_PAPERS",
+      "DEVPRIYA_INDUSTRIES",
+      "DEVPRIYA_PRODUCTS"
+    ],
+    "clientGroupId": {
+      "$oid": "66f000000000000000000090"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257291662"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "Dev Priya",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257291662"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cad297dbf416495681"
+    },
+    "email": "sangalpaperslimited@clients.com",
+    "authorizedFacilityIds": [
+      "PAPER_SANGAL"
+    ],
+    "clientGroupId": {
+      "$oid": "671000000000000000000019"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257291726"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "Sangal Papers Limited",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257291726"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cad297dbf416495682"
+    },
+    "email": "heromotocorp@clients.com",
+    "authorizedFacilityIds": [
+      "HERO_DHARUHERA",
+      "HERO_GURGAON",
+      "HERO_HARIDWAR",
+      "HERO_RAJASTHAN",
+      "HERO_GUJARAT"
+    ],
+    "clientGroupId": {
+      "$oid": "66f000000000000000000030"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257291778"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "Hero MotoCorp",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257291778"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cad297dbf416495683"
+    },
+    "email": "spngltd@clients.com",
+    "authorizedFacilityIds": [
+      "ENG_SPNG",
+      "ENG_GALVALIA"
+    ],
+    "clientGroupId": {
+      "$oid": "671000000000000000000021"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257291833"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "SPNG Ltd",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257291833"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cad297dbf416495684"
+    },
+    "email": "kicmetaliks@clients.com",
+    "authorizedFacilityIds": [
+      "ENG_KIC_METALIKS"
+    ],
+    "clientGroupId": {
+      "$oid": "671000000000000000000022"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257291890"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "KIC Metaliks",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257291890"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cad297dbf416495685"
+    },
+    "email": "jindalgroup@clients.com",
+    "authorizedFacilityIds": [
+      "JINDAL_CREATIONS",
+      "JINDAL_WORLDWIDE",
+      "JINDAL_YASH_EXPORTS",
+      "JINDAL_YASH_WEAVERS",
+      "JINDAL_GAYATRI_WEAV",
+      "JINDAL_AMITARA_WEAV",
+      "JINDAL_BHAGYLAXMI",
+      "JINDAL_PLANET_SPIN",
+      "JINDAL_BELAJ",
+      "JINDAL_NIHARIKA"
+    ],
+    "clientGroupId": {
+      "$oid": "66f000000000000000000040"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257291947"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "Jindal Group",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257291947"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cad297dbf416495686"
+    },
+    "email": "kajariaceramics@clients.com",
+    "authorizedFacilityIds": [
+      "KAJARIA_GAILPUR",
+      "KAJARIA_MALUTANA",
+      "KAJARIA_SIKANDERABAD",
+      "KAJARIA_SRIKALAHASTI"
+    ],
+    "clientGroupId": {
+      "$oid": "66f000000000000000000050"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257292006"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "Kajaria Ceramics",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257292006"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cad297dbf416495687"
+    },
+    "email": "anjanisynthetics@clients.com",
+    "authorizedFacilityIds": [
+      "ENG_ANJANI_SYNTHETICS"
+    ],
+    "clientGroupId": {
+      "$oid": "671000000000000000000025"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257292061"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "Anjani Synthetics",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257292061"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cbd297dbf416495688"
+    },
+    "email": "nobletech@clients.com",
+    "authorizedFacilityIds": [
+      "ENG_NOBLE_TECH"
+    ],
+    "clientGroupId": {
+      "$oid": "671000000000000000000026"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257292120"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "Noble Tech",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257292120"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cbd297dbf416495689"
+    },
+    "email": "himmatsingkalinnens@clients.com",
+    "authorizedFacilityIds": [
+      "ENG_HIMMATSINGKA"
+    ],
+    "clientGroupId": {
+      "$oid": "671000000000000000000027"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257292177"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "Himmatsingka Linnens",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257292177"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cbd297dbf41649568a"
+    },
+    "email": "jodhanipaper@clients.com",
+    "authorizedFacilityIds": [
+      "PAPER_JODHANI"
+    ],
+    "clientGroupId": {
+      "$oid": "671000000000000000000028"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257292231"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "Jodhani Paper",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257292231"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cbd297dbf41649568b"
+    },
+    "email": "menupaper@clients.com",
+    "authorizedFacilityIds": [
+      "PAPER_MENU"
+    ],
+    "clientGroupId": {
+      "$oid": "671000000000000000000029"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257292289"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "Menu Paper",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257292289"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cbd297dbf41649568c"
+    },
+    "email": "waveindustries@clients.com",
+    "authorizedFacilityIds": [
+      "WAVE_DHANAURA",
+      "WAVE_BIJNOR",
+      "WAVE_BULANDSHAHR",
+      "WAVE_AMROHA",
+      "WAVE_SAHARANPUR"
+    ],
+    "clientGroupId": {
+      "$oid": "66f000000000000000000060"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257292342"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "Wave Industries",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257292342"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cbd297dbf41649568d"
+    },
+    "email": "thegangakisansahkarichinimillslimitedmorna@clients.com",
+    "authorizedFacilityIds": [
+      "SUGAR_MORNA"
+    ],
+    "clientGroupId": {
+      "$oid": "671000000000000000000031"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257292397"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "The Ganga Kisan Sahkari Chini Mills Limited, Morna",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257292397"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cbd297dbf41649568e"
+    },
+    "email": "sarjoosahkarichinimillsltdbelrayankheri@clients.com",
+    "authorizedFacilityIds": [
+      "SUGAR_BELRAYAN"
+    ],
+    "clientGroupId": {
+      "$oid": "671000000000000000000032"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257292455"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "Sarjoo Sahkari Chini Mills Ltd., Belrayan Kheri",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257292455"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cbd297dbf41649568f"
+    },
+    "email": "thebagpathcoopsugarmillltdbagpath@clients.com",
+    "authorizedFacilityIds": [
+      "SUGAR_BAGPAT"
+    ],
+    "clientGroupId": {
+      "$oid": "671000000000000000000033"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257292513"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "The Bagpath Co-op Sugar Mill Ltd., Bagpath",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257292513"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cbd297dbf416495690"
+    },
+    "email": "ramalasahkarichinimillsltdramala@clients.com",
+    "authorizedFacilityIds": [
+      "SUGAR_RAMALA"
+    ],
+    "clientGroupId": {
+      "$oid": "671000000000000000000034"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257292579"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "Ramala Sahkari Chini Mills Ltd., Ramala",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257292579"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cbd297dbf416495691"
+    },
+    "email": "thekisansahakarichinnimillltdtilhar@clients.com",
+    "authorizedFacilityIds": [
+      "SUGAR_TILHAR"
+    ],
+    "clientGroupId": {
+      "$oid": "671000000000000000000035"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257292640"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "The Kisan Sahakari Chinni Mill Ltd., Tilhar",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257292640"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cbd297dbf416495692"
+    },
+    "email": "thekisansahakrichinnimillltdsampurnanagar@clients.com",
+    "authorizedFacilityIds": [
+      "SUGAR_SAMPURNANAGAR"
+    ],
+    "clientGroupId": {
+      "$oid": "671000000000000000000036"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257292697"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "The Kisan Sahakri Chinni Mill Ltd., Sampurnanagar",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257292697"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cbd297dbf416495693"
+    },
+    "email": "grisceramicspvtltd@clients.com",
+    "authorizedFacilityIds": [
+      "ENG_GRIS_CERAMICS"
+    ],
+    "clientGroupId": {
+      "$oid": "671000000000000000000037"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257292752"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "Gris Ceramics Pvt Ltd.",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257292752"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cbd297dbf416495694"
+    },
+    "email": "thekisansahakarichinnimillltdsnehroad@clients.com",
+    "authorizedFacilityIds": [
+      "SUGAR_SNEHROAD"
+    ],
+    "clientGroupId": {
+      "$oid": "671000000000000000000038"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257292810"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "The Kisan Sahakari Chinni Mill Ltd., Snehroad",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257292810"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cbd297dbf416495695"
+    },
+    "email": "shreerenukasugarmillslimited@clients.com",
+    "authorizedFacilityIds": [
+      "SUGAR_RENUKA"
+    ],
+    "clientGroupId": {
+      "$oid": "671000000000000000000039"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257292867"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "Shree Renuka Sugar Mills Limited",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257292867"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cbd297dbf416495696"
+    },
+    "email": "shravastikisansahkarichinimillslimitednanpara@clients.com",
+    "authorizedFacilityIds": [
+      "SUGAR_NANPARA"
+    ],
+    "clientGroupId": {
+      "$oid": "671000000000000000000040"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257292925"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "Shravasti Kisan Sahkari Chini Mills Limited, Nanpara",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257292925"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cbd297dbf416495697"
+    },
+    "email": "sahakarmaharshibhausahebthoratsahakarisakharkarkhanaltd@clients.com",
+    "authorizedFacilityIds": [
+      "SUGAR_THORAT_SAKHAR"
+    ],
+    "clientGroupId": {
+      "$oid": "671000000000000000000041"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257292986"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "Sahakarmaharshi Bhausaheb Thorat Sahakari Sakhar Karkhana Ltd.",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257292986"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0173cbd297dbf416495698"
+    },
+    "email": "kisansahkarichinnimillsltdsemikhera@clients.com",
+    "authorizedFacilityIds": [
+      "KISAN_SAHKARI_CHINNI_MILLS_LTD_SEMIKHERA"
+    ],
+    "clientGroupId": {
+      "$oid": "671000000000000000000042"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795257293039"
+      }
+    },
+    "designation": "Company Data Collection User",
+    "name": "Kisan Sahkari Chinni Mills Ltd, Semikhera",
+    "passwordHash": "$2b$12$s2m1xulX0F78xxHLutyxYeF89UBE2IWCJvvEAA/XZ9zPLsnkIR5xS",
+    "role": "CLIENT",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795257293039"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0185d204ed6cafdba88a62"
+    },
+    "name": "lokendra Singh",
+    "email": "lokendra@gmail.com",
+    "passwordHash": "$2b$12$mIYVYi/ZFibEbRYb4Nz6tODmCBA7QV2WD1yVrGhmN5y9.LEtQUtpq",
+    "role": "CLIENT",
+    "status": "ACTIVE",
+    "mustChangePassword": false,
+    "clientGroupId": {
+      "$oid": "6afe993562c738b0be61bd58"
+    },
+    "authorizedFacilityIds": [
+      "TRIDENT_PAPER",
+      "TRIDENT_YARN",
+      "TRIDENT_TEXTILES"
+    ],
+    "designation": "Auditor",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795261906167"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795262036647"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "passwordChangedAt": {
+      "$date": {
+        "$numberLong": "1795262036646"
+      }
     }
   }
 ]

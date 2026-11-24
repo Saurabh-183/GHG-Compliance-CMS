@@ -8,9 +8,23 @@ import { getSessionFromRequest, isAuthorizedForFacility, authorizeRole } from '@
 import { generateClarificationEmailDraft } from '@/lib/utils';
 
 export async function GET(request: NextRequest) {
+  const session = getSessionFromRequest(request);
+  if (!session) {
+    return NextResponse.json(
+      { success: false, error: 'Authentication required.' },
+      { status: 401 }
+    );
+  }
+
+  if (session.role !== 'ADMIN' && !session.authorizedFacilityIds?.length) {
+    return NextResponse.json(
+      { success: false, error: 'No facilities are assigned to your account.' },
+      { status: 403 }
+    );
+  }
+
   try {
     await connectToDatabase();
-    const session = getSessionFromRequest(request);
     const searchParams = request.nextUrl.searchParams;
     const facilityId = searchParams.get('facilityId');
     const status = searchParams.get('status');
@@ -22,8 +36,8 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
       query.facilityId = facilityId.toUpperCase();
-    } else if (session && session.role === 'CLIENT' && session.authorizedFacilityIds) {
-      query.facilityId = { $in: session.authorizedFacilityIds };
+    } else if (session && session.role !== 'ADMIN') {
+      query.facilityId = { $in: session.authorizedFacilityIds || [] };
     }
 
     if (status) query.status = status;
@@ -33,17 +47,7 @@ export async function GET(request: NextRequest) {
       .sort({ createdAt: -1 })
       .lean();
 
-    if (rawClarifications.length === 0 && !facilityId) {
-      const totalCount = await ClarificationModel.countDocuments();
-      if (totalCount === 0) {
-        const { seedDatabase } = await import('@/lib/seedData');
-        await seedDatabase();
-        rawClarifications = await ClarificationModel.find(query)
-          .populate('raisedBy', 'name email designation')
-          .sort({ createdAt: -1 })
-          .lean();
-      }
-    }
+    // Do not seed/reset persistent data from a read or login request.
 
     const clarifications = rawClarifications as unknown as (IClarificationDocument & { _id: { toString(): string } })[];
 
@@ -57,36 +61,8 @@ export async function GET(request: NextRequest) {
       })),
     });
   } catch (error) {
-    console.warn('Error fetching clarifications from DB, returning fallback demo clarification:', error);
-    const demoClarifications = [
-      {
-        _id: 'clar_demo_june_2025',
-        datasetId: '6adb9175b32c50edab95461f',
-        facilityId: 'TRIDENT_PAPER',
-        month: '2025-06',
-        metricKey: 'grid_electricity_consumption',
-        issueDescription:
-          'Declared monthly consumption (1,280,000 kWh) does not match DISCOM bill (1,265,000 kWh). Net variance: 15,000 kWh (1.186%). Official explanation and revised supporting bill required.',
-        raisedBy: 'Priya Sharma (Senior Energy & Carbon Compliance Lead)',
-        status: 'OPEN',
-        priority: 'HIGH',
-        createdAt: new Date().toISOString(),
-        conversationHistory: [
-          {
-            sender: 'Priya Sharma (Consultant)',
-            senderRole: 'CONSULTANT',
-            message:
-              'Discrepancy identified in June 2025 electricity records during RCO audit reconciliation. Please verify PSPCL bill statement.',
-            timestamp: new Date().toISOString(),
-          },
-        ],
-      },
-    ];
-
-    return NextResponse.json({
-      success: true,
-      data: demoClarifications,
-    });
+    console.error('Clarifications query failed:', error);
+    return NextResponse.json({ error: 'Unable to load clarifications.' }, { status: 503 });
   }
 }
 
@@ -112,6 +88,10 @@ export async function POST(request: NextRequest) {
     };
 
     const facility = await FacilityModel.findOne({ facilityId: body.facilityId.toUpperCase() });
+    if (!facility) return NextResponse.json({ error: 'Facility not found.' }, { status: 404 });
+    if (!isAuthorizedForFacility(session, facility.facilityId)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    const sourceDataset = await DatasetModel.findById(body.datasetId);
+    if (!sourceDataset || sourceDataset.facilityId !== facility.facilityId) return NextResponse.json({ error: 'Dataset does not belong to this facility.' }, { status: 400 });
     const facilityName = facility ? facility.name : body.facilityId;
     const variance = Math.abs(body.declaredValue - body.evidenceValue);
     const variancePercentage = body.declaredValue > 0 ? (variance / body.declaredValue) * 100 : 0;
@@ -174,21 +154,7 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    console.warn('Error raising clarification in DB, returning demo success:', error);
-    return NextResponse.json(
-      {
-        success: true,
-        message: 'Clarification raised and email draft generated successfully (Demo Mode)',
-        data: {
-          _id: 'clar_demo_' + Date.now(),
-          facilityId: body?.facilityId || 'TRIDENT_PAPER',
-          month: body?.month || '2025-06',
-          issueDescription: body?.issueDescription || 'Data clarification requested',
-          status: 'OPEN',
-          priority: 'HIGH',
-        },
-      },
-      { status: 201 }
-    );
+    console.error('Clarification creation failed:', error);
+    return NextResponse.json({ error: 'Unable to raise clarification.' }, { status: 500 });
   }
 }

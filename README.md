@@ -120,17 +120,10 @@ new CMS CC/
 | Respond to Clarifications with Revised Evidence | ❌ | ❌ | ❌ | ✅ |
 | **Access Unapproved Metrics / Internal Notes** | ✅ | ✅ | ✅ | **❌ Strictly Hidden** |
 
-### Pre-Seeded Test Accounts & Credentials
-All accounts are pre-seeded in the database with bcrypt-hashed passwords and signed JWT tokens:
+### Authentication and user accounts
 
-| Role | User Name | Email Address | Password | Designation / Organization |
-| :--- | :--- | :--- | :--- | :--- |
-| **CONSULTANT** | Priya Sharma | `consultant@carboncrunch.com` | `Demo@123` | Senior Energy & Carbon Consultant |
-| **REVIEWER** | Dr. Rajesh Nair | `reviewer@carboncrunch.com` | `Demo@123` | Chief Compliance Auditor & Reviewer |
-| **CLIENT** | Vikram Singh | `client@tridentindia.com` | `Demo@123` | Head of Regulatory Affairs & Sustainability, Trident Group |
-| **ADMIN** | Saurabh Agnihotri | `admin@carboncrunch.com` | `Demo@123` | Principal Compliance Architect |
+There are no built-in demo login credentials or role-switch buttons. All users authenticate against MongoDB with bcrypt-hashed passwords. An administrator creates accounts from **User Management**. Existing account passwords are not changed by the company/facility provisioning migration. For existing accounts with unknown passwords, use the local `account:reset-password` maintenance command described below.
 
-> **Authentication & Security Architecture**: Authentication is strictly enforced with signed HTTP-only cookies (`cc_auth_token`), Next.js Security Middleware route guards, and isolated role interfaces. To switch roles, click the **Log Out** button in the header and log in with the designated role credentials.
 
 ---
 
@@ -154,14 +147,13 @@ npm install
 ### 2. Seed the Database
 Populate all Trident Group demo data, multi-year compliances, reconciliation records, and June 2025 discrepancy:
 ```bash
-npm run seed
 ```
 
 ### 3. Start Development Server
 ```bash
 npm run dev
 ```
-Open **[http://localhost:3000](http://localhost:3000)** in your browser.
+Open **[http://localhost:3001](http://localhost:3001)** in your browser.
 
 ---
 
@@ -208,9 +200,31 @@ Follow these exact steps during your Monday morning review:
 - `POST /api/reports`
 - `POST /api/regulatory-submissions`
 - `GET /api/portal/dashboard`
-- `POST /api/seed` (1-click reseed)
 
 ---
 
 ## 9. License & Confidentiality
 Confidential and Proprietary. Developed for Carbon Crunch Compliance Systems.
+
+
+## Authentication and account administration
+
+All accounts authenticate against MongoDB using bcrypt password hashes. The browser session is an HTTP-only `cc_auth_token` cookie. There are no demo role-switch logins or development administrator bypasses. Set `JWT_SECRET` to a unique random value of at least 32 characters.
+
+### Bootstrap the first administrator
+
+Set `ADMIN_NAME`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD` in the private `.env` file (password must be at least 12 characters), then run `npm run admin:create`. This command refuses to overwrite an existing account. After the first administrator signs in, use **User Management** in the navigation to create administrator, consultant and client accounts.
+
+Consultant accounts must be assigned one or more active facility IDs. Client accounts are automatically assigned all active facilities in their selected company group. Newly created accounts are marked to change their temporary password; the current password-change API is available at `POST /api/auth/change-password` and requires `currentPassword` and `newPassword` (minimum 12 characters).
+
+Do not enable `ENABLE_DATABASE_SEED` on production. Do not commit `.env`, database backups, or real credentials.
+
+
+### Reset an existing administrator or consultant password
+
+For an existing account whose password is unknown, set `TARGET_EMAIL` and `NEW_PASSWORD` in the private `.env` file, then run `npm run account:reset-password`. This is a local database maintenance command; keep the new password private. It marks the account to change the temporary password on next login. Do not use it for bulk client password resets.
+
+
+### Require existing client accounts to change their current password
+
+The 42 company accounts have already been provisioned. To require those client users (including the existing Trident client) to change their current password at next login without changing any password hashes, run `npm run clients:require-password-change`. This sets only `mustChangePassword`.

@@ -1,65 +1,10 @@
 [
   {
     "_id": {
-      "$oid": "6ade76b3667ed7c3e0b31326"
-    },
-    "recipientRole": "ALL",
-    "senderRole": "SYSTEM",
-    "senderName": "Statutory Compliance Bot",
-    "type": "DEADLINE_EXTENDED",
-    "title": "Statutory Due Date Extension Logged",
-    "message": "BEE notified extension for PAT DC Assessment to 31-Oct-2025 (Ref: BEE/PAT-Ext/2025/19).",
-    "facilityId": "TRIDENT_PAPER",
-    "linkUrl": "/calendar",
-    "isRead": true,
-    "createdAt": {
-      "$date": {
-        "$numberLong": "1792791475525"
-      }
-    },
-    "updatedAt": {
-      "$date": {
-        "$numberLong": "1792791475525"
-      }
-    },
-    "__v": {
-      "$numberInt": "0"
-    }
-  },
-  {
-    "_id": {
-      "$oid": "6ade76b3667ed7c3e0b31324"
+      "$oid": "6afe993a62c738b0be61be16"
     },
     "recipientRole": "CONSULTANT",
-    "recipientUserId": "6ade76a9667ed7c3e0b3128a",
-    "senderRole": "CONSULTANT",
-    "senderName": "Priya Sharma (Consultant)",
-    "type": "REVIEW_REQUESTED",
-    "title": "Verification Sign-Off Ready",
-    "message": "Trident Paper FY2025-26 Grid Electricity Reconciliation v1 audited and ready for sign-off & lock.",
-    "facilityId": "TRIDENT_PAPER",
-    "linkUrl": "/approvals",
-    "isRead": false,
-    "createdAt": {
-      "$date": {
-        "$numberLong": "1792921075525"
-      }
-    },
-    "updatedAt": {
-      "$date": {
-        "$numberLong": "1792921075525"
-      }
-    },
-    "__v": {
-      "$numberInt": "0"
-    }
-  },
-  {
-    "_id": {
-      "$oid": "6ade76b3667ed7c3e0b31323"
-    },
-    "recipientRole": "CONSULTANT",
-    "recipientUserId": "6ade76a9667ed7c3e0b3128a",
+    "recipientUserId": "6afe993562c738b0be61bd57",
     "senderRole": "CLIENT",
     "senderName": "Vikram Singh (Trident Group)",
     "type": "EVIDENCE_SUBMITTED",
@@ -70,12 +15,12 @@
     "isRead": false,
     "createdAt": {
       "$date": {
-        "$numberLong": "1792946275525"
+        "$numberLong": "1795052266926"
       }
     },
     "updatedAt": {
       "$date": {
-        "$numberLong": "1792946275525"
+        "$numberLong": "1795052266926"
       }
     },
     "__v": {
@@ -84,26 +29,26 @@
   },
   {
     "_id": {
-      "$oid": "6ade76b3667ed7c3e0b31325"
+      "$oid": "6afe993a62c738b0be61be17"
     },
     "recipientRole": "CONSULTANT",
-    "recipientUserId": "6ade76a9667ed7c3e0b3128a",
+    "recipientUserId": "6afe993562c738b0be61bd57",
     "senderRole": "CONSULTANT",
-    "senderName": "Priya Sharma (Compliance Lead)",
-    "type": "DATASET_APPROVED",
-    "title": "Audit Sign-off Approved & Locked",
-    "message": "FY2024-25 RCO Compliance Assessment verified against PSERC regulations and approved.",
+    "senderName": "Priya Sharma (Consultant)",
+    "type": "REVIEW_REQUESTED",
+    "title": "Verification Sign-Off Ready",
+    "message": "Trident Paper FY2025-26 Grid Electricity Reconciliation v1 audited and ready for sign-off & lock.",
     "facilityId": "TRIDENT_PAPER",
-    "linkUrl": "/facilities/TRIDENT_PAPER",
-    "isRead": true,
+    "linkUrl": "/approvals",
+    "isRead": false,
     "createdAt": {
       "$date": {
-        "$numberLong": "1792877875525"
+        "$numberLong": "1795027066926"
       }
     },
     "updatedAt": {
       "$date": {
-        "$numberLong": "1792877875525"
+        "$numberLong": "1795027066926"
       }
     },
     "__v": {
@@ -112,10 +57,10 @@
   },
   {
     "_id": {
-      "$oid": "6ade76b3667ed7c3e0b31322"
+      "$oid": "6afe993a62c738b0be61be15"
     },
     "recipientRole": "CLIENT",
-    "recipientUserId": "6ade76a9667ed7c3e0b3128c",
+    "recipientUserId": "6afe993562c738b0be61bd59",
     "senderRole": "CONSULTANT",
     "senderName": "Priya Sharma (Senior Energy & Carbon Consultant)",
     "type": "CLARIFICATION_RAISED",
@@ -126,12 +71,984 @@
     "isRead": false,
     "createdAt": {
       "$date": {
-        "$numberLong": "1792957075525"
+        "$numberLong": "1795063066926"
       }
     },
     "updatedAt": {
       "$date": {
-        "$numberLong": "1792957075525"
+        "$numberLong": "1795063066926"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6afe9badb7214d24c8e86d16"
+    },
+    "recipientRole": "CLIENT",
+    "senderRole": "CONSULTANT",
+    "senderName": "Priya Sharma",
+    "type": "DATA_CHECKLIST_SHARED",
+    "title": "Data checklist updated — TRIDENT_PAPER",
+    "message": "Priya Sharma shared the facility data checklist. 28 item(s) due · 3 received.",
+    "facilityId": "TRIDENT_PAPER",
+    "linkUrl": "/portal/facilities/TRIDENT_PAPER",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070893625"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070893625"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6afec072581092fb330b522c"
+    },
+    "recipientRole": "CLIENT",
+    "senderRole": "CONSULTANT",
+    "senderName": "Priya Sharma",
+    "type": "DATA_CHECKLIST_SHARED",
+    "title": "New data request — Trident Paper Complex",
+    "message": "Priya Sharma published 31 new data request(s) for FY2025-26. 27 checklist item(s) due.",
+    "facilityId": "TRIDENT_PAPER",
+    "linkUrl": "/portal/requests",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795080306764"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795080306764"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0050223569b94c7613d4ea"
+    },
+    "recipientRole": "CLIENT",
+    "senderRole": "CONSULTANT",
+    "senderName": "Priya Sharma",
+    "type": "DATA_CHECKLIST_SHARED",
+    "title": "New data request — Anjani Synthetics",
+    "message": "Priya Sharma requested Energy Consumption — Anjani Synthetics (2025-26) (DR-2026-0T826K) for 2025-26. Open Data Requests to respond.",
+    "facilityId": "ENG_ANJANI_SYNTHETICS",
+    "linkUrl": "/portal/requests/6b0050223569b94c7613d4db",
+    "isRead": true,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795182626202"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795503536730"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0051483569b94c7613d4ee"
+    },
+    "recipientRole": "CONSULTANT",
+    "senderRole": "CLIENT",
+    "senderName": "Vikram Singh",
+    "type": "EVIDENCE_SUBMITTED",
+    "title": "New Client Evidence Submitted",
+    "message": "Vikram Singh submitted Google Drive document for \"OA Purchase Data / Bills\" (TRIDENT_PAPER). Vault: Client_Submissions/TRIDENT/TRIDENT_PAPER/FY2025-26/DISCOM_Utility_Bills",
+    "facilityId": "TRIDENT_PAPER",
+    "linkUrl": "/client-uploads",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795182920484"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795182920484"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0051483569b94c7613d4ef"
+    },
+    "recipientRole": "ADMIN",
+    "senderRole": "CLIENT",
+    "senderName": "Vikram Singh",
+    "type": "EVIDENCE_SUBMITTED",
+    "title": "Client document ingested to vault",
+    "message": "\"OA Purchase Data / Bills\" — indexed at Client_Submissions/TRIDENT/TRIDENT_PAPER/FY2025-26/DISCOM_Utility_Bills",
+    "facilityId": "TRIDENT_PAPER",
+    "linkUrl": "/client-uploads",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795182920599"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795182920599"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b017858ac4fb8c5226fb81d"
+    },
+    "recipientRole": "CONSULTANT",
+    "senderRole": "CLIENT",
+    "senderName": "Vikram Singh",
+    "type": "EVIDENCE_SUBMITTED",
+    "title": "New Client Evidence Submitted",
+    "message": "Vikram Singh submitted Google Drive document for \"Turbine Generation Log Books\" (TRIDENT_PAPER). Vault: Client_Submissions/TRIDENT/TRIDENT_PAPER/FY2025-26/Client_Consumption_Sheets",
+    "facilityId": "TRIDENT_PAPER",
+    "linkUrl": "/client-uploads",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795258456644"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795258456644"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b017858ac4fb8c5226fb81e"
+    },
+    "recipientRole": "ADMIN",
+    "senderRole": "CLIENT",
+    "senderName": "Vikram Singh",
+    "type": "EVIDENCE_SUBMITTED",
+    "title": "Client document ingested to vault",
+    "message": "\"Turbine Generation Log Books\" — indexed at Client_Submissions/TRIDENT/TRIDENT_PAPER/FY2025-26/Client_Consumption_Sheets",
+    "facilityId": "TRIDENT_PAPER",
+    "linkUrl": "/client-uploads",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795258456675"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795258456675"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0178a1ac4fb8c5226fb823"
+    },
+    "recipientRole": "CLIENT",
+    "senderRole": "CONSULTANT",
+    "senderName": "Priya Sharma",
+    "type": "EVIDENCE_SUBMITTED",
+    "title": "Request changes requested",
+    "message": "Priya Sharma updated Turbine Generation Log Books (6afec07197cef52ae172721c) to CHANGES REQUESTED. send direct document link",
+    "facilityId": "TRIDENT_PAPER",
+    "linkUrl": "/portal/requests/6afec07197cef52ae172721c",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795258529889"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795258529889"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0178c9ac4fb8c5226fb82b"
+    },
+    "recipientRole": "CONSULTANT",
+    "senderRole": "CLIENT",
+    "senderName": "Vikram Singh",
+    "type": "EVIDENCE_SUBMITTED",
+    "title": "New Client Evidence Submitted",
+    "message": "Vikram Singh submitted Google Drive document for \"Turbine Generation Log Books\" (TRIDENT_PAPER). Vault: Client_Submissions/TRIDENT/TRIDENT_PAPER/FY2025-26/Client_Consumption_Sheets",
+    "facilityId": "TRIDENT_PAPER",
+    "linkUrl": "/client-uploads",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795258569675"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795258569675"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0178c9ac4fb8c5226fb82c"
+    },
+    "recipientRole": "ADMIN",
+    "senderRole": "CLIENT",
+    "senderName": "Vikram Singh",
+    "type": "EVIDENCE_SUBMITTED",
+    "title": "Client document ingested to vault",
+    "message": "\"Turbine Generation Log Books\" — indexed at Client_Submissions/TRIDENT/TRIDENT_PAPER/FY2025-26/Client_Consumption_Sheets",
+    "facilityId": "TRIDENT_PAPER",
+    "linkUrl": "/client-uploads",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795258569710"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795258569710"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0178e8ac4fb8c5226fb834"
+    },
+    "recipientRole": "CLIENT",
+    "senderRole": "CONSULTANT",
+    "senderName": "Priya Sharma",
+    "type": "EVIDENCE_SUBMITTED",
+    "title": "Request accepted",
+    "message": "Priya Sharma updated Turbine Generation Log Books (6afec07197cef52ae172721c) to ACCEPTED.",
+    "facilityId": "TRIDENT_PAPER",
+    "linkUrl": "/portal/requests/6afec07197cef52ae172721c",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795258600995"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795258600995"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b01975181619b0668a140e9"
+    },
+    "recipientRole": "ALL",
+    "senderRole": "CONSULTANT",
+    "senderName": "Priya Sharma",
+    "type": "DEADLINE_EXTENDED",
+    "title": "Statutory Due Date Extension Logged",
+    "message": "PAT deadline for TRIDENT_PAPER (Cycle-II) extended to 3/4/2025. Linked data requests updated for the client portal.",
+    "facilityId": "TRIDENT_PAPER",
+    "linkUrl": "/portal/requests",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795266385028"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795266385028"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0199d15dc412f64a005317"
+    },
+    "recipientRole": "ALL",
+    "senderRole": "CONSULTANT",
+    "senderName": "Priya Sharma",
+    "type": "DEADLINE_EXTENDED",
+    "title": "Statutory Due Date Extension Logged",
+    "message": "PAT deadline for TRIDENT_PAPER (Cycle-II) extended to 1/12/2026. Linked data requests updated for the client portal.",
+    "facilityId": "TRIDENT_PAPER",
+    "linkUrl": "/portal/requests",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795267025268"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795267025268"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b019c275dc412f64a00531c"
+    },
+    "recipientRole": "CLIENT",
+    "senderRole": "CONSULTANT",
+    "senderName": "Priya Sharma",
+    "type": "DATA_CHECKLIST_SHARED",
+    "title": "New data request — Trident Group - Paper Division",
+    "message": "Priya Sharma requested Turbine Power Generation Data (DR-2026-1VF0IF) for FY2025-26. Open Data Requests to respond.",
+    "facilityId": "TRIDENT_PAPER",
+    "linkUrl": "/portal/requests/6b019c275dc412f64a005318",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795267623127"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795267623127"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b019c6a5dc412f64a005321"
+    },
+    "recipientRole": "ALL",
+    "senderRole": "CONSULTANT",
+    "senderName": "Priya Sharma",
+    "type": "DEADLINE_EXTENDED",
+    "title": "Statutory Due Date Extension Logged",
+    "message": "PAT deadline for TRIDENT_PAPER (FY2025-26) extended to 10/12/2026. Linked data requests updated for the client portal.",
+    "facilityId": "TRIDENT_PAPER",
+    "linkUrl": "/portal/requests",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795267690647"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795267690647"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b019de8a7d64fd1f209f93b"
+    },
+    "recipientRole": "CLIENT",
+    "senderRole": "CONSULTANT",
+    "senderName": "Priya Sharma",
+    "type": "DATA_CHECKLIST_SHARED",
+    "title": "New data request — Trident Group - Paper Division",
+    "message": "Priya Sharma requested Steam Enthalpy / Pressure / Temperature at All Extraction Points (DR-2026-7D43ON) for FY2025-26. Open Data Requests to respond.",
+    "facilityId": "TRIDENT_PAPER",
+    "linkUrl": "/portal/requests/6b019de7a7d64fd1f209f935",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795268072015"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795268072015"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b019f7073a47d47eba69000"
+    },
+    "recipientRole": "CONSULTANT",
+    "senderRole": "CLIENT",
+    "senderName": "Trident Group",
+    "type": "EVIDENCE_SUBMITTED",
+    "title": "New Client Evidence Submitted",
+    "message": "Trident Group submitted Google Drive document for \"DG Set Data\" (TRIDENT_PAPER). Vault: Client_Submissions/TRIDENT/TRIDENT_PAPER/FY2025-26/Client_Consumption_Sheets",
+    "facilityId": "TRIDENT_PAPER",
+    "linkUrl": "/client-uploads",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795268464641"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795268464641"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b019f7073a47d47eba69001"
+    },
+    "recipientRole": "ADMIN",
+    "senderRole": "CLIENT",
+    "senderName": "Trident Group",
+    "type": "EVIDENCE_SUBMITTED",
+    "title": "Client document ingested to vault",
+    "message": "\"DG Set Data\" — indexed at Client_Submissions/TRIDENT/TRIDENT_PAPER/FY2025-26/Client_Consumption_Sheets",
+    "facilityId": "TRIDENT_PAPER",
+    "linkUrl": "/client-uploads",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795268464669"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795268464669"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b01a2b3a7d64fd1f209f93f"
+    },
+    "recipientRole": "CONSULTANT",
+    "senderRole": "CLIENT",
+    "senderName": "Vikram Singh",
+    "type": "EVIDENCE_SUBMITTED",
+    "title": "New Client Evidence Submitted",
+    "message": "Vikram Singh submitted Google Drive document for \"Turbine Power Generation Data\" (TRIDENT_PAPER). Vault: Client_Submissions/TRIDENT/TRIDENT_PAPER/FY2025-26/Client_Consumption_Sheets",
+    "facilityId": "TRIDENT_PAPER",
+    "linkUrl": "/client-uploads",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795269299253"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795269299253"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b01a2b3a7d64fd1f209f940"
+    },
+    "recipientRole": "ADMIN",
+    "senderRole": "CLIENT",
+    "senderName": "Vikram Singh",
+    "type": "EVIDENCE_SUBMITTED",
+    "title": "Client document ingested to vault",
+    "message": "\"Turbine Power Generation Data\" — indexed at Client_Submissions/TRIDENT/TRIDENT_PAPER/FY2025-26/Client_Consumption_Sheets",
+    "facilityId": "TRIDENT_PAPER",
+    "linkUrl": "/client-uploads",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795269299297"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795269299297"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b01a3ea73a47d47eba69005"
+    },
+    "recipientRole": "CONSULTANT",
+    "senderRole": "CLIENT",
+    "senderName": "Trident Group",
+    "type": "EVIDENCE_SUBMITTED",
+    "title": "New Client Evidence Submitted",
+    "message": "Trident Group submitted Google Drive document for \"Auxiliary Power Generation\" (TRIDENT_PAPER). Vault: Client_Submissions/TRIDENT/TRIDENT_PAPER/FY2025-26/Client_Consumption_Sheets",
+    "facilityId": "TRIDENT_PAPER",
+    "linkUrl": "/client-uploads",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795269610512"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795269610512"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b01a3ea73a47d47eba69006"
+    },
+    "recipientRole": "ADMIN",
+    "senderRole": "CLIENT",
+    "senderName": "Trident Group",
+    "type": "EVIDENCE_SUBMITTED",
+    "title": "Client document ingested to vault",
+    "message": "\"Auxiliary Power Generation\" — indexed at Client_Submissions/TRIDENT/TRIDENT_PAPER/FY2025-26/Client_Consumption_Sheets",
+    "facilityId": "TRIDENT_PAPER",
+    "linkUrl": "/client-uploads",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795269610544"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795269610544"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b01ae01a8f92d07bbab2045"
+    },
+    "recipientRole": "CONSULTANT",
+    "senderRole": "CLIENT",
+    "senderName": "Trident Group",
+    "type": "EVIDENCE_SUBMITTED",
+    "title": "New Client Evidence Submitted",
+    "message": "Trident Group submitted Google Drive document for \"Turbine Running Hours / Detention Hours\" (TRIDENT_PAPER). Vault: Client_Submissions/TRIDENT/TRIDENT_PAPER/FY2025-26/Other_Evidence",
+    "facilityId": "TRIDENT_PAPER",
+    "linkUrl": "/client-uploads",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795272193971"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795272193971"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b01ae02a8f92d07bbab2046"
+    },
+    "recipientRole": "ADMIN",
+    "senderRole": "CLIENT",
+    "senderName": "Trident Group",
+    "type": "EVIDENCE_SUBMITTED",
+    "title": "Client document ingested to vault",
+    "message": "\"Turbine Running Hours / Detention Hours\" — indexed at Client_Submissions/TRIDENT/TRIDENT_PAPER/FY2025-26/Other_Evidence",
+    "facilityId": "TRIDENT_PAPER",
+    "linkUrl": "/client-uploads",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795272194006"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795272194006"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b03d5717b5052626e8a7682"
+    },
+    "recipientRole": "CONSULTANT",
+    "senderRole": "CLIENT",
+    "senderName": "Trident Group",
+    "type": "EVIDENCE_SUBMITTED",
+    "title": "New Client Evidence Submitted",
+    "message": "Trident Group submitted Google Drive document for \"Turbine Design Heat Rate and Feed Water Temperature\" (TRIDENT_PAPER). Vault: Client_Submissions/TRIDENT/TRIDENT_PAPER/FY2025-26/Other_Evidence",
+    "facilityId": "TRIDENT_PAPER",
+    "linkUrl": "/client-uploads",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795413361451"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795413361451"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b03d5717b5052626e8a7683"
+    },
+    "recipientRole": "ADMIN",
+    "senderRole": "CLIENT",
+    "senderName": "Trident Group",
+    "type": "EVIDENCE_SUBMITTED",
+    "title": "Client document ingested to vault",
+    "message": "\"Turbine Design Heat Rate and Feed Water Temperature\" — indexed at Client_Submissions/TRIDENT/TRIDENT_PAPER/FY2025-26/Other_Evidence",
+    "facilityId": "TRIDENT_PAPER",
+    "linkUrl": "/client-uploads",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795413361485"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795413361485"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b03e520cf0f556cd9c17377"
+    },
+    "recipientRole": "ALL",
+    "senderRole": "ADMIN",
+    "senderName": "Saurabh Agnihotri",
+    "type": "DEADLINE_EXTENDED",
+    "title": "Statutory Due Date Extension Logged",
+    "message": "RCO deadline for TRIDENT_PAPER (FY2025-26) extended to 26/12/2026. Linked data requests updated for the client portal.",
+    "facilityId": "TRIDENT_PAPER",
+    "linkUrl": "/portal/requests",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795417376507"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795417376507"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b041b610de855d0a921498e"
+    },
+    "recipientRole": "CONSULTANT",
+    "senderRole": "CLIENT",
+    "senderName": "Trident Group",
+    "type": "EVIDENCE_SUBMITTED",
+    "title": "New Client Evidence Submitted",
+    "message": "Trident Group submitted Google Drive document for \"Boiler SH Steam Pressure / Temperature / Enthalpy / Design & Operating Efficiency\" (TRIDENT_PAPER). Vault: Client_Submissions/TRIDENT/TRIDENT_PAPER/FY2025-26/Other_Evidence",
+    "facilityId": "TRIDENT_PAPER",
+    "linkUrl": "/client-uploads",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795431265557"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795431265557"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b041b610de855d0a921498f"
+    },
+    "recipientRole": "ADMIN",
+    "senderRole": "CLIENT",
+    "senderName": "Trident Group",
+    "type": "EVIDENCE_SUBMITTED",
+    "title": "Client document ingested to vault",
+    "message": "\"Boiler SH Steam Pressure / Temperature / Enthalpy / Design & Operating Efficiency\" — indexed at Client_Submissions/TRIDENT/TRIDENT_PAPER/FY2025-26/Other_Evidence",
+    "facilityId": "TRIDENT_PAPER",
+    "linkUrl": "/client-uploads",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795431265592"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795431265592"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b04235f6ad596b3a91574c4"
+    },
+    "recipientRole": "CLIENT",
+    "senderRole": "CONSULTANT",
+    "senderName": "Priya Sharma",
+    "type": "DATA_CHECKLIST_SHARED",
+    "title": "New data request — N R Agarwal Unit 1",
+    "message": "Priya Sharma requested Boiler Running Hours / Detention Hours (DR-2026-1R0BX9) for FY2025-26. Open Data Requests to respond.",
+    "facilityId": "NRAGARWAL_UNIT1",
+    "linkUrl": "/portal/requests/6b04235f6ad596b3a91574bf",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795433311190"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795433311190"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b042a99ffea565ba402c69c"
+    },
+    "recipientRole": "CONSULTANT",
+    "senderRole": "CLIENT",
+    "senderName": "N R Agarwal",
+    "type": "EVIDENCE_SUBMITTED",
+    "title": "New Client Evidence Submitted",
+    "message": "N R Agarwal submitted Google Drive document for \"Boiler Running Hours / Detention Hours\" (NRAGARWAL_UNIT1). Vault: Client_Submissions/NRAGARWAL/NRAGARWAL_UNIT1/FY2025-26/Other_Evidence",
+    "facilityId": "NRAGARWAL_UNIT1",
+    "linkUrl": "/client-uploads",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795435161752"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795435161752"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b042a99ffea565ba402c69d"
+    },
+    "recipientRole": "ADMIN",
+    "senderRole": "CLIENT",
+    "senderName": "N R Agarwal",
+    "type": "EVIDENCE_SUBMITTED",
+    "title": "Client document ingested to vault",
+    "message": "\"Boiler Running Hours / Detention Hours\" — indexed at Client_Submissions/NRAGARWAL/NRAGARWAL_UNIT1/FY2025-26/Other_Evidence",
+    "facilityId": "NRAGARWAL_UNIT1",
+    "linkUrl": "/client-uploads",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795435161785"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795435161785"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b042bee6ad596b3a91574c8"
+    },
+    "recipientRole": "CLIENT",
+    "senderRole": "CONSULTANT",
+    "senderName": "Priya Sharma",
+    "type": "DATA_CHECKLIST_SHARED",
+    "title": "New data request — N R Agarwal Unit 5",
+    "message": "Priya Sharma requested 1122 (DR-2026-XNA1UD) for FY2025-26. Open Data Requests to respond.",
+    "facilityId": "NRAGARWAL_UNIT5",
+    "linkUrl": "/portal/requests/6b042bee6ad596b3a91574c5",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795435502758"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795435502758"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b042c0cffea565ba402c6a3"
+    },
+    "recipientRole": "CONSULTANT",
+    "senderRole": "CLIENT",
+    "senderName": "N R Agarwal",
+    "type": "EVIDENCE_SUBMITTED",
+    "title": "New Client Evidence Submitted",
+    "message": "N R Agarwal submitted Google Drive document for \"1122\" (NRAGARWAL_UNIT5). Vault: Client_Submissions/NRAGARWAL/NRAGARWAL_UNIT5/FY2025-26/Other_Evidence",
+    "facilityId": "NRAGARWAL_UNIT5",
+    "linkUrl": "/client-uploads",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795435532800"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795435532800"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b042c0cffea565ba402c6a4"
+    },
+    "recipientRole": "ADMIN",
+    "senderRole": "CLIENT",
+    "senderName": "N R Agarwal",
+    "type": "EVIDENCE_SUBMITTED",
+    "title": "Client document ingested to vault",
+    "message": "\"1122\" — indexed at Client_Submissions/NRAGARWAL/NRAGARWAL_UNIT5/FY2025-26/Other_Evidence",
+    "facilityId": "NRAGARWAL_UNIT5",
+    "linkUrl": "/client-uploads",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795435532835"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795435532835"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b0430d66ad596b3a91574df"
+    },
+    "recipientRole": "CLIENT",
+    "senderRole": "CONSULTANT",
+    "senderName": "Priya Sharma",
+    "type": "EVIDENCE_SUBMITTED",
+    "title": "Request accepted",
+    "message": "Priya Sharma updated 1122 (DR-2026-XNA1UD) to ACCEPTED.",
+    "facilityId": "NRAGARWAL_UNIT5",
+    "linkUrl": "/portal/requests/6b042bee6ad596b3a91574c5",
+    "isRead": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795436758993"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795436758993"
       }
     },
     "__v": {

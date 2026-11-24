@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect, useState, useMemo } from 'react';
-import { ICalendarItem, IClientGroup, IFacility } from '@/types';
+import { ComplianceType, ICalendarItem, IClientGroup, IFacility } from '@/types';
+import type { CalendarViewRow } from '@/lib/complianceCalendarView';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import {
   Calendar as CalendarIcon,
@@ -20,12 +21,18 @@ import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import { notify } from '@/lib/notify';
 import { MOCK_CLIENT_GROUPS } from '@/lib/mockFallback';
 import { CompanySelectMui } from '@/components/dashboard/CompanySelectMui';
+import { MuiDatePicker } from '@/components/common/MuiDatePicker';
+import { useAuth } from '@/context/AuthContext';
 import {
   generateDeadlinesForFacilities,
   generateAllClientDeadlines,
 } from '@/lib/statutoryCalendar';
 
 export default function ComplianceCalendarPage() {
+  const { currentRole, currentUser } = useAuth();
+  const isAdmin = currentRole === 'ADMIN' || currentUser?.role === 'ADMIN';
+  const isConsultant = currentRole === 'CONSULTANT' || currentUser?.role === 'CONSULTANT';
+
   const [items, setItems] = useState<ICalendarItem[]>([]);
   const [groups, setGroups] = useState<IClientGroup[]>([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>('ALL');
@@ -41,13 +48,21 @@ export default function ComplianceCalendarPage() {
   const loadData = async () => {
     try {
       const [calRes, groupsRes] = await Promise.all([
-        fetch('/api/calendar').catch(() => null),
-        fetch('/api/client-groups').catch(() => null),
+        fetch('/api/calendar', { credentials: 'include', cache: 'no-store' }).catch(() => null),
+        fetch('/api/client-groups', { credentials: 'include', cache: 'no-store' }).catch(() => null),
       ]);
 
       if (calRes && calRes.ok) {
-        const json = (await calRes.json()) as { data: ICalendarItem[] };
-        setItems(json.data || []);
+        const json = (await calRes.json()) as { success?: boolean; data?: ICalendarItem[] };
+        if (json.success !== false) {
+          setItems(json.data || []);
+        } else {
+          notify.error('Could not load calendar from server');
+          setItems([]);
+        }
+      } else if (calRes) {
+        notify.error('Could not load compliance calendar');
+        setItems([]);
       }
 
       if (groupsRes && groupsRes.ok) {
@@ -85,6 +100,11 @@ export default function ComplianceCalendarPage() {
 
   const handleExtendDeadline = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isAdmin) {
+      notify.error('Admins do not have permission to extend due dates.');
+      setExtendingItem(null);
+      return;
+    }
     if (!extendingItem || !newDueDate || !extensionReason || !notificationRef) {
       notify.warning('Please fill in all extension fields');
       return;
@@ -94,6 +114,7 @@ export default function ComplianceCalendarPage() {
       const res = await fetch('/api/calendar', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           itemId: extendingItem._id,
           newDate: newDueDate,
@@ -102,14 +123,15 @@ export default function ComplianceCalendarPage() {
         }),
       });
       if (res.ok) {
-        notify.success(`Statutory deadline extended to ${newDueDate}`);
+        notify.success(`Due date updated — synced to data requests and client portal`);
         setExtendingItem(null);
         setNewDueDate('');
         setExtensionReason('');
         setNotificationRef('');
         await loadData();
       } else {
-        notify.error('Failed to record deadline extension');
+        const json = await res.json().catch(() => null);
+        notify.error(json?.error || 'Failed to record deadline extension');
       }
     } catch (err) {
       notify.error('Network error updating deadline');
@@ -139,48 +161,27 @@ export default function ComplianceCalendarPage() {
     return allFacilities.filter((f) => f.clientGroupId === selectedGroup._id);
   }, [selectedGroup, allFacilities]);
 
-  // Derive calendar items for the selected company or across all client groups
   const companyItems: ICalendarItem[] = useMemo(() => {
-    if (selectedGroup) {
-      // 1. Try finding DB items matching current facilities
-      const matchingDb = items.filter((item) =>
-        currentFacilities.some(
-          (f) =>
-            f.facilityId.toUpperCase() === item.facilityId.toUpperCase() ||
-            (item.facilityName &&
-              (f.name.toLowerCase().includes(item.facilityName.toLowerCase()) ||
-                item.facilityName.toLowerCase().includes(f.name.toLowerCase())))
-        )
-      );
-
-      if (matchingDb.length > 0) {
-        return matchingDb;
-      }
-
-      // 2. Generate comprehensive statutory deadlines for this company's facilities
-      return generateDeadlinesForFacilities(currentFacilities, { fullCoverage: true });
-    }
-
-    // When "ALL" is selected:
-    // If DB has items covering multiple facilities, use them
-    const uniqueFacilitiesInDb = new Set(items.map((i) => i.facilityId.toUpperCase()));
-    if (uniqueFacilitiesInDb.size > 2) {
-      return items;
-    }
-
-    // Otherwise, generate master multi-company statutory calendar
-    return generateAllClientDeadlines(activeGroups);
-  }, [selectedGroup, currentFacilities, items, activeGroups]);
+    if (!selectedGroup) return items;
+    const facilityIds = new Set(currentFacilities.map((f) => f.facilityId.toUpperCase()));
+    return items.filter((item) => facilityIds.has(item.facilityId.toUpperCase()));
+  }, [selectedGroup, currentFacilities, items]);
 
   // Apply compliance framework filter ('ALL', 'RCO', 'PAT', 'CCTS', 'CEA') and text search
   const filteredItems = useMemo(() => {
     return companyItems.filter((item) => {
-      const matchesFilter = filter === 'ALL' || item.complianceType === filter;
+      const row = item as CalendarViewRow;
+      const frameworks =
+        row.linkedFrameworks?.length ? row.linkedFrameworks : ([item.complianceType] as ComplianceType[]);
+      const matchesFilter = filter === 'ALL' || frameworks.includes(filter as ComplianceType);
+      const titleNeedle = row.requestTitle?.toLowerCase() || '';
       const matchesSearch =
         !searchQuery ||
         (item.facilityName && item.facilityName.toLowerCase().includes(searchQuery.toLowerCase())) ||
         (item.facilityId && item.facilityId.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (item.reportingPeriod && item.reportingPeriod.toLowerCase().includes(searchQuery.toLowerCase()));
+        (item.reportingPeriod && item.reportingPeriod.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        titleNeedle.includes(searchQuery.toLowerCase()) ||
+        (row.requestCode && row.requestCode.toLowerCase().includes(searchQuery.toLowerCase()));
       return matchesFilter && matchesSearch;
     });
   }, [companyItems, filter, searchQuery]);
@@ -190,16 +191,18 @@ export default function ComplianceCalendarPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Header with Title and Filters */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2.5">
-            <CalendarIcon className="w-6 h-6 text-emerald-700 dark:text-emerald-400" />
+            <span className="flex items-center justify-center w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 shrink-0">
+              <CalendarIcon className="w-5 h-5" />
+            </span>
             Centralized Statutory Compliance Calendar
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Tracking statutory due dates, internal review milestones, client submission cut-offs, and CEA recurring returns.
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 max-w-2xl leading-relaxed">
+            One row per consultant data request with a due date (financial year = reporting period). Extend updates the same request for clients.
             {selectedGroup && (
               <span className="ml-2 inline-flex items-center gap-1 font-semibold text-emerald-700 dark:text-emerald-400">
                 · Company View: <strong>{selectedGroup.name}</strong> ({currentFacilities.length} Operating Units)
@@ -208,44 +211,56 @@ export default function ComplianceCalendarPage() {
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          {/* MUI Company Filter Dropdown */}
-          <CompanySelectMui
-            groups={activeGroups}
-            selectedCompanyId={selectedCompanyId}
-            onCompanyChange={(id) => {
-              setSelectedCompanyId(id);
-              setSearchQuery('');
-            }}
-          />
+        <div className="flex flex-col gap-2.5 sm:items-end w-full lg:w-auto">
+          {/* Top Row: Company Filter Dropdown & Search Bar */}
+          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+            {/* MUI Company Filter Dropdown */}
+            <CompanySelectMui
+              groups={activeGroups}
+              selectedCompanyId={selectedCompanyId}
+              onCompanyChange={(id) => {
+                setSelectedCompanyId(id);
+                setSearchQuery('');
+              }}
+            />
 
-          {/* Compliance Framework Filter Pills */}
-          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-lg border border-slate-200 dark:border-slate-800">
-            {['ALL', 'RCO', 'PAT', 'CCTS', 'CEA'].map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setFilter(cat)}
-                className={`px-3 py-1 rounded text-xs font-semibold transition-colors ${
-                  filter === cat
-                    ? 'bg-emerald-700 text-white font-bold shadow-2xs'
-                    : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
+            {/* Quick Facility Search Input */}
+            <div className="relative">
+              <Search className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Search facility..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-8 pr-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 w-48 sm:w-60 shadow-2xs h-[38px]"
+              />
+            </div>
           </div>
 
-          {/* Quick Facility Search Input */}
-          <div className="relative">
-            <Search className="w-3.5 h-3.5   absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <input
-              type="text"
-              placeholder="Search facility..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 pr-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white placeholder:  focus:outline-none focus:ring-1 focus:ring-emerald-500 w-44 sm:w-52"
-            />
+          {/* Bottom Row: Compliance Framework Filter Pills aligned to the right */}
+          <div className="flex items-center justify-end w-full">
+            <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-lg border border-slate-200 dark:border-slate-800">
+              {['ALL', 'RCO', 'PAT', 'CCTS', 'CEA'].map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setFilter(cat)}
+                  className={`px-3 py-1 rounded text-xs font-semibold transition-colors ${
+                    filter === cat
+                      ? 'bg-emerald-700 text-white !text-white font-bold shadow-2xs'
+                      : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white'
+                  }`}
+                  style={filter === cat ? { color: '#FFFFFF' } : undefined}
+                >
+                  <span
+                    className={filter === cat ? 'text-white !text-white font-bold' : ''}
+                    style={filter === cat ? { color: '#FFFFFF' } : undefined}
+                  >
+                    {cat}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -296,7 +311,10 @@ export default function ComplianceCalendarPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-800/70 text-xs">
-              {filteredItems.map((item) => (
+              {filteredItems.map((item) => {
+                const row = item as CalendarViewRow;
+                const extraFrameworks = (row.linkedFrameworks || []).filter((c) => c !== item.complianceType);
+                return (
                 <tr key={item._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                   <td className="py-3.5 px-4">
                     <div className="font-semibold text-slate-900 dark:text-white">{item.facilityName}</div>
@@ -306,23 +324,39 @@ export default function ComplianceCalendarPage() {
                     <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-slate-100 text-emerald-800 border border-slate-300 dark:bg-slate-800 dark:text-emerald-400 dark:border-slate-700">
                       {item.complianceType}
                     </span>
+                    {extraFrameworks.map((c) => (
+                      <span
+                        key={c}
+                        className="ml-1 px-1.5 py-0.5 rounded text-[10px] bg-slate-50 text-slate-600 border border-slate-200 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-700"
+                      >
+                        {c}
+                      </span>
+                    ))}
                     {item.isRecurringCEA && (
                       <span className="ml-2 px-1.5 py-0.5 rounded text-[10px] bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700">
                         Monthly Recurring
                       </span>
                     )}
                   </td>
-                  <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300 font-mono">
-                    {item.reportingPeriod}
+                  <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300">
+                    <div className="font-mono text-xs">{item.reportingPeriod}</div>
+                    {row.requestTitle && (
+                      <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2" title={row.requestTitle}>
+                        {row.requestCode ? `${row.requestCode} · ` : ''}
+                        {row.requestTitle}
+                      </div>
+                    )}
                   </td>
                   <td className="py-3.5 px-4 text-slate-500 dark:text-slate-400 font-mono">
-                    {formatDate(item.clientDataSubmissionDeadline)}
+                    {row.hasDueDate ? formatDate(item.clientDataSubmissionDeadline) : '—'}
                   </td>
                   <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300 font-mono">
-                    {formatDate(item.internalDeadline)}
+                    {row.hasDueDate ? formatDate(item.internalDeadline) : '—'}
                   </td>
                   <td className="py-3.5 px-4 text-emerald-700 dark:text-emerald-400 font-mono font-semibold">
-                    {formatDate(item.regulatoryDueDate)}
+                    {row.hasDueDate ? formatDate(item.regulatoryDueDate) : (
+                      <span className="text-rose-600 dark:text-rose-400 text-[11px] font-sans">Set due date</span>
+                    )}
                     {item.extensionHistory && item.extensionHistory.length > 0 && (
                       <div className="text-[10px] text-amber-600 dark:text-amber-400 flex items-center gap-1 mt-0.5">
                         <History className="w-3 h-3" />
@@ -331,21 +365,62 @@ export default function ComplianceCalendarPage() {
                     )}
                   </td>
                   <td className="py-3.5 px-4 text-center">
-                    <StatusBadge status={item.status} size="sm" />
+                    <StatusBadge
+                      status={row.requestWorkflowStatus || row.requestSubmissionStatus || 'REQUESTED'}
+                      type="verification"
+                      size="sm"
+                    />
                   </td>
                   <td className="py-3.5 px-4 text-center">
-                    <button
-                      onClick={() => {
-                        setExtendingItem(item);
-                        setNewDueDate(item.regulatoryDueDate.split('T')[0]);
-                      }}
-                      className="px-2.5 py-1 text-[11px] rounded bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 dark:border-transparent transition-colors shadow-2xs font-medium"
-                    >
-                      Extend
-                    </button>
+                    {(() => {
+                      const isAccepted = row.requestWorkflowStatus === 'ACCEPTED' || row.requestWorkflowStatus === 'CLOSED';
+                      const canExtend = !isAdmin && isConsultant && !isAccepted;
+
+                      if (canExtend) {
+                        return (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setExtendingItem(item);
+                              setNewDueDate(
+                                row.hasDueDate && item.regulatoryDueDate
+                                  ? item.regulatoryDueDate.split('T')[0]
+                                  : ''
+                              );
+                            }}
+                            className="px-2.5 py-1 text-[11px] rounded bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 dark:border-transparent transition-colors shadow-2xs font-medium cursor-pointer"
+                          >
+                            {row.hasDueDate ? 'Extend due date' : 'Set due date'}
+                          </button>
+                        );
+                      }
+
+                      if (isAccepted) {
+                        return (
+                          <span className="text-[11px] text-slate-400 font-medium select-none" title="Submission accepted — due date locked">
+                            —
+                          </span>
+                        );
+                      }
+
+                      if (isAdmin) {
+                        return (
+                          <span className="text-[11px] text-slate-400 font-medium select-none" title="Admin view only — extensions reserved for consultants">
+                            —
+                          </span>
+                        );
+                      }
+
+                      return (
+                        <span className="text-[11px] text-slate-400 font-medium select-none">
+                          —
+                        </span>
+                      );
+                    })()}
                   </td>
                 </tr>
-              ))}
+              );
+              })}
               {filteredItems.length === 0 && (
                 <tr>
                   <td colSpan={8} className="py-12 text-center text-xs text-slate-500 dark:text-slate-400 ">
@@ -391,15 +466,11 @@ export default function ComplianceCalendarPage() {
 
             <form onSubmit={handleExtendDeadline} className="space-y-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                  New Statutory Due Date:
-                </label>
-                <input
-                  type="date"
-                  required
+                <MuiDatePicker
+                  label="New Statutory Due Date:"
                   value={newDueDate}
-                  onChange={(e) => setNewDueDate(e.target.value)}
-                  className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                  onChange={setNewDueDate}
+                  placeholder="dd-mm-yyyy"
                 />
               </div>
 

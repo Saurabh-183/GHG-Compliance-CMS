@@ -53,7 +53,7 @@ const isBeforeFoundingYear = (period: string) => {
             Facility Compliance Matrix — Multi-Year Status
           </h3>
           <p className="text-xs    dark:text-white mt-0.5">
-            Click any matrix cell to open the detailed compliance assessment, evidence records, and calculation workbooks.
+            Click a matrix cell to open the assessment, evidence records, and calculation workbooks. Client data requests and review feedback are tracked separately against each facility.
           </p>
         </div>
         <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 ">
@@ -80,24 +80,26 @@ const isBeforeFoundingYear = (period: string) => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 dark:divide-slate-800/80 text-xs">
-            {compliances.map((comp) => {
-              const info = complianceLabels[comp];
-              return (
-                <tr key={comp} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                  {/* Framework Info */}
-                  <td className="py-4 px-4 align-top">
-                    <div className="font-semibold text-slate-900 dark:text-white text-sm">{info.title}</div>
-                    <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{info.subtitle}</div>
-                  </td>
+            {compliances
+              .filter((comp) => comp !== 'CEA')
+              .map((comp) => {
+                const info = complianceLabels[comp];
+                if (!info) return null;
+                return (
+                  <tr key={comp}>
+                    {/* Framework Info */}
+                    <td className="py-4 px-4 align-top">
+                      <div className="font-semibold text-slate-900 dark:text-white text-sm">{info.title}</div>
+                      <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{info.subtitle}</div>
+                    </td>
 
                   {/* Matrix Cells */}
                   {periods.map((period) => {
               const cell = matrix[comp]?.[period];
-
 if (isBeforeFoundingYear(period) || !cell || !cell.isApplicable) {
                       return (
                         <td key={period} className="py-4 px-3 align-top text-center">
-                          <div className="p-3 rounded-lg bg-slate-100 dark:bg-slate-950/30 border border-slate-200 dark:border-slate-800/40 text-slate-500">
+                          <div className="p-3 rounded-lg bg-slate-100/70 dark:bg-slate-950/30 border border-slate-200 dark:border-slate-800/40 text-slate-400 dark:text-slate-500">
                             <span className="text-[11px] font-medium">— Not Applicable —</span>
                           </div>
                         </td>
@@ -106,12 +108,12 @@ if (isBeforeFoundingYear(period) || !cell || !cell.isApplicable) {
 
                     const targetAssessmentId = cell.assessmentId;
                     const cellContent = (
-                      <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 hover:border-emerald-500/50 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all cursor-pointer group flex flex-col items-center justify-center gap-2">
+                      <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 hover:border-emerald-600 dark:hover:border-emerald-500 hover:bg-white dark:hover:bg-slate-900 hover:shadow-md transition-all cursor-pointer group flex flex-col items-center justify-center gap-2">
                         <div className="flex items-center justify-between w-full">
-                          <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
+                          <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono font-medium group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
                             {period}
                           </span>
-                          <ArrowUpRight className="w-3.5 h-3.5   group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors" />
+                          <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
                         </div>
 
                         {/* Dual Status: Workflow + Compliance Outcome */}
@@ -125,11 +127,11 @@ if (isBeforeFoundingYear(period) || !cell || !cell.isApplicable) {
                     return (
                       <td key={period} className="py-3 px-3 align-top">
                         {targetAssessmentId ? (
-                          <Link href={`/assessments/${targetAssessmentId}`}>
+                          <Link href={`/assessments/${targetAssessmentId}`} className="block focus:outline-none">
                             {cellContent}
                           </Link>
                         ) : (
-                          <Link href={`/facilities/${facility.facilityId}`}>
+                          <Link href={`/facilities/${facility.facilityId}`} className="block focus:outline-none">
                             {cellContent}
                           </Link>
                         )}

@@ -1,0 +1,1513 @@
+[
+  {
+    "_id": {
+      "$oid": "6afe9ba097cef52ae172705b"
+    },
+    "facilityId": "TRIDENT_PAPER",
+    "period": "FY2025-26",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "consultantNotes": "Hi this is notes from consultant side......",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070880503"
+      }
+    },
+    "items": [
+      {
+        "itemKey": "CTO_CTE_CCA",
+        "label": "CTO / CTE / CCA",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "masterRequirementId": "REQ-001",
+        "sourceColumnLabel": "CTO / CTE / CCA",
+        "categoryKey": "ENVIRONMENTAL_APPROVALS",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "1"
+        },
+        "_id": {
+          "$oid": "6b0415c96ad596b3a915747a"
+        }
+      },
+      {
+        "itemKey": "GCV_EXT_FOSSIL",
+        "label": "External GCV Certificate – Fossil Fuels",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "masterRequirementId": "REQ-002",
+        "sourceColumnLabel": "GCV Certificate — External Fossil Fuels",
+        "categoryKey": "FUEL_ANALYSIS",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "2"
+        },
+        "_id": {
+          "$oid": "6b0415c96ad596b3a915747b"
+        }
+      },
+      {
+        "itemKey": "GCV_EXT_NON_FOSSIL",
+        "label": "External GCV Certificate – Non-Fossil Fuels",
+        "status": "RECEIVED",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "masterRequirementId": "REQ-003",
+        "sourceColumnLabel": "GCV Certificate — External Non-Fossil Fuels",
+        "categoryKey": "FUEL_ANALYSIS",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "3"
+        },
+        "_id": {
+          "$oid": "6b0415c96ad596b3a915747c"
+        }
+      },
+      {
+        "itemKey": "GCV_INT_BOMB",
+        "label": "Internal GCV Bomb Calorimeter Reading",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "masterRequirementId": "REQ-004",
+        "sourceColumnLabel": "GCV Internal — Bomb Calorimeter Reading (NCV)",
+        "categoryKey": "FUEL_ANALYSIS",
+        "specialInstruction": "GCV not needed when checklist marks explicit exemption.",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "4"
+        },
+        "_id": {
+          "$oid": "6b0415c96ad596b3a915747d"
+        }
+      },
+      {
+        "itemKey": "ULTIMATE_ANALYSIS",
+        "label": "Ultimate Analysis – Carbon Content / NCV – Fossil Fuels",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "masterRequirementId": "REQ-005",
+        "sourceColumnLabel": "Ultimate Analysis (Carbon Content) — Fossil Fuels",
+        "categoryKey": "FUEL_ANALYSIS",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "5"
+        },
+        "_id": {
+          "$oid": "6b0415c96ad596b3a915747e"
+        }
+      },
+      {
+        "itemKey": "PROXIMATE_ANALYSIS",
+        "label": "Proximate Analysis – Moisture / Fixed Carbon – Fossil Fuels",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "masterRequirementId": "REQ-006",
+        "sourceColumnLabel": "Proximate Analysis (Moisture, Fixed Carbon)",
+        "categoryKey": "FUEL_ANALYSIS",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "6"
+        },
+        "_id": {
+          "$oid": "6b0415c96ad596b3a915747f"
+        }
+      },
+      {
+        "itemKey": "PROD_MONTH_ALL",
+        "label": "Month-wise Production – All Products",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "masterRequirementId": "REQ-007",
+        "sourceColumnLabel": "Production — Month-wise Data (All Products)",
+        "categoryKey": "PRODUCTION",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "7"
+        },
+        "_id": {
+          "$oid": "6b0415c96ad596b3a9157480"
+        }
+      },
+      {
+        "itemKey": "PROD_MONTH_MACHINE",
+        "label": "Month-wise Production – Per Machine",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "masterRequirementId": "REQ-008",
+        "sourceColumnLabel": "Production — Month-wise Per Machine Data",
+        "categoryKey": "PRODUCTION",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "8"
+        },
+        "_id": {
+          "$oid": "6b0415c96ad596b3a9157481"
+        }
+      },
+      {
+        "itemKey": "PROCESS_FLOW",
+        "label": "Process Flow Diagram",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "masterRequirementId": "REQ-009",
+        "sourceColumnLabel": "Process Flow Diagram",
+        "categoryKey": "PRODUCTION",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "9"
+        },
+        "_id": {
+          "$oid": "6b0415c96ad596b3a9157482"
+        }
+      },
+      {
+        "itemKey": "INTERMEDIATE_PROD",
+        "label": "Intermediate Product Production Data",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "masterRequirementId": "REQ-010",
+        "sourceColumnLabel": "Intermediate Product Production Data",
+        "categoryKey": "PRODUCTION",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "10"
+        },
+        "_id": {
+          "$oid": "6b0415c96ad596b3a9157483"
+        }
+      },
+      {
+        "itemKey": "INTERMEDIATE_SALE",
+        "label": "Intermediate Product Sale Data",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "masterRequirementId": "REQ-011",
+        "sourceColumnLabel": "Intermediate Product Sale Data",
+        "categoryKey": "PRODUCTION",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "11"
+        },
+        "_id": {
+          "$oid": "6b0415c96ad596b3a9157484"
+        }
+      },
+      {
+        "itemKey": "BOILER_STEAM_LOG",
+        "label": "Boiler Steam Generation Logbooks",
+        "status": "RECEIVED",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "masterRequirementId": "REQ-012",
+        "sourceColumnLabel": "Boiler Steam Generation Log Books",
+        "categoryKey": "BOILER_STEAM",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "12"
+        },
+        "_id": {
+          "$oid": "6b0415c96ad596b3a9157485"
+        }
+      },
+      {
+        "itemKey": "BOILER_HOURS",
+        "label": "Boiler Running Hours / Detention Hours",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "masterRequirementId": "REQ-013",
+        "sourceColumnLabel": "Boiler Running Hours / Detention Hours",
+        "categoryKey": "BOILER_STEAM",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "13"
+        },
+        "_id": {
+          "$oid": "6b0415c96ad596b3a9157486"
+        }
+      },
+      {
+        "itemKey": "BOILER_STEAM_PARAMS",
+        "label": "Boiler SH Steam Pressure / Temperature / Enthalpy / Efficiency",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "masterRequirementId": "REQ-014",
+        "sourceColumnLabel": "Boiler SH Steam Pressure / Temperature / Enthalpy / Design & Operating Efficiency",
+        "categoryKey": "BOILER_STEAM",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "14"
+        },
+        "_id": {
+          "$oid": "6b0415c96ad596b3a9157487"
+        }
+      },
+      {
+        "itemKey": "BOILER_FUEL",
+        "label": "Per Boiler Fuel Consumption Data",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "masterRequirementId": "REQ-015",
+        "sourceColumnLabel": "Per Boiler Fuel Consumption Data",
+        "categoryKey": "BOILER_STEAM",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "15"
+        },
+        "_id": {
+          "$oid": "6b0415c96ad596b3a9157488"
+        }
+      },
+      {
+        "itemKey": "STEAM_CONSUMPTION",
+        "label": "Steam Consumption Across Units",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "masterRequirementId": "REQ-016",
+        "sourceColumnLabel": "Steam Consumption Across Units",
+        "categoryKey": "BOILER_STEAM",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "16"
+        },
+        "_id": {
+          "$oid": "6b0415c96ad596b3a9157489"
+        }
+      },
+      {
+        "itemKey": "TURBINE_GEN_LOG",
+        "label": "Turbine Generation Logbooks",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "masterRequirementId": "REQ-017",
+        "sourceColumnLabel": "Turbine Generation Log Books",
+        "categoryKey": "TURBINE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "17"
+        },
+        "_id": {
+          "$oid": "6b0415c96ad596b3a915748a"
+        }
+      },
+      {
+        "itemKey": "TURBINE_EXTRACTION",
+        "label": "Turbine Extraction Point Steam Data",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "masterRequirementId": "REQ-018",
+        "sourceColumnLabel": "Turbine Extraction Point Steam Data",
+        "categoryKey": "TURBINE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "18"
+        },
+        "_id": {
+          "$oid": "6b0415c96ad596b3a915748b"
+        }
+      },
+      {
+        "itemKey": "TURBINE_POWER",
+        "label": "Turbine Power Generation Data",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "masterRequirementId": "REQ-019",
+        "sourceColumnLabel": "Turbine Power Generation Data",
+        "categoryKey": "TURBINE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "19"
+        },
+        "_id": {
+          "$oid": "6b0415c96ad596b3a915748c"
+        }
+      },
+      {
+        "itemKey": "AUX_POWER",
+        "label": "Auxiliary Power Consumption",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "masterRequirementId": "REQ-020",
+        "sourceColumnLabel": "Auxiliary Power Generation",
+        "categoryKey": "TURBINE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "20"
+        },
+        "_id": {
+          "$oid": "6b0415c96ad596b3a915748d"
+        }
+      },
+      {
+        "itemKey": "TURBINE_HOURS",
+        "label": "Turbine Running Hours / Detention Hours",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "masterRequirementId": "REQ-021",
+        "sourceColumnLabel": "Turbine Running Hours / Detention Hours",
+        "categoryKey": "TURBINE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "21"
+        },
+        "_id": {
+          "$oid": "6b0415c96ad596b3a915748e"
+        }
+      },
+      {
+        "itemKey": "TURBINE_HEAT_RATE",
+        "label": "Turbine Design Heat Rate and Feed Water Temperature",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "masterRequirementId": "REQ-022",
+        "sourceColumnLabel": "Turbine Design Heat Rate and Feed Water Temperature",
+        "categoryKey": "TURBINE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "22"
+        },
+        "_id": {
+          "$oid": "6b0415c96ad596b3a915748f"
+        }
+      },
+      {
+        "itemKey": "TURBINE_ENTHALPY",
+        "label": "Steam Enthalpy / Pressure / Temperature at All Extraction Points",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "masterRequirementId": "REQ-023",
+        "sourceColumnLabel": "Steam Enthalpy / Pressure / Temperature at all Extraction Points (Turbine)",
+        "categoryKey": "TURBINE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "23"
+        },
+        "_id": {
+          "$oid": "6b0415c96ad596b3a9157490"
+        }
+      },
+      {
+        "itemKey": "TURBINE_OA_PURCHASE",
+        "label": "OA Purchase (Turbine)",
+        "status": "NEEDS_VERIFICATION",
+        "applicability": "NEEDS_VERIFICATION",
+        "importedApplicability": "NEEDS_VERIFICATION",
+        "masterRequirementId": "REQ-024",
+        "sourceColumnLabel": "OA Purchase (Turbine)",
+        "categoryKey": "TURBINE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "24"
+        },
+        "_id": {
+          "$oid": "6b0415c96ad596b3a9157491"
+        }
+      },
+      {
+        "itemKey": "GRID_BILLS",
+        "label": "Grid Bills",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "masterRequirementId": "REQ-025",
+        "sourceColumnLabel": "Grid Bills",
+        "categoryKey": "ELECTRICITY_POWER",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "25"
+        },
+        "_id": {
+          "$oid": "6b0415c96ad596b3a9157492"
+        }
+      },
+      {
+        "itemKey": "OA_PURCHASE",
+        "label": "OA Purchase Data / Bills",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "masterRequirementId": "REQ-026",
+        "sourceColumnLabel": "OA Purchase Data / Bills",
+        "categoryKey": "ELECTRICITY_POWER",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "26"
+        },
+        "_id": {
+          "$oid": "6b0415c96ad596b3a9157493"
+        }
+      },
+      {
+        "itemKey": "DG_SET",
+        "label": "DG Set Data",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "masterRequirementId": "REQ-027",
+        "sourceColumnLabel": "DG Set Data",
+        "categoryKey": "ELECTRICITY_POWER",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "27"
+        },
+        "_id": {
+          "$oid": "6b0415c96ad596b3a9157494"
+        }
+      },
+      {
+        "itemKey": "INTERMEDIATE_PURCHASE",
+        "label": "Intermediate Product Purchase Data",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "27"
+        },
+        "_id": {
+          "$oid": "6b01914c4665985cbf62fdb5"
+        }
+      },
+      {
+        "itemKey": "POWER_PER_MACHINE",
+        "label": "Power Consumption Data Per Machine",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "masterRequirementId": "REQ-028",
+        "sourceColumnLabel": "Power Consumption Data Per Machine",
+        "categoryKey": "ELECTRICITY_POWER",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "28"
+        },
+        "_id": {
+          "$oid": "6b0415c96ad596b3a9157496"
+        }
+      },
+      {
+        "itemKey": "FUEL_PURCHASE",
+        "label": "Fuel Purchase Data",
+        "status": "RECEIVED",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "masterRequirementId": "REQ-029",
+        "sourceColumnLabel": "Fuel Purchase Bills",
+        "categoryKey": "FUEL_STOCK",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "29"
+        },
+        "_id": {
+          "$oid": "6b0415c96ad596b3a9157497"
+        }
+      },
+      {
+        "itemKey": "FUEL_STOCK",
+        "label": "Fuel Stock Data",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "masterRequirementId": "REQ-030",
+        "sourceColumnLabel": "Fuel Stock Data",
+        "categoryKey": "FUEL_STOCK",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "30"
+        },
+        "_id": {
+          "$oid": "6b0415c96ad596b3a9157498"
+        }
+      },
+      {
+        "itemKey": "MACHINERY_LIST",
+        "label": "Machinery / Equipment List (Monitoring Plan)",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "masterRequirementId": "REQ-031",
+        "sourceColumnLabel": "Machinery / Equipment List (Monitoring Plan)",
+        "categoryKey": "EQUIPMENT_MONITORING",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "31"
+        },
+        "_id": {
+          "$oid": "6b0415c96ad596b3a9157499"
+        }
+      },
+      {
+        "itemKey": "CALIBRATION_CERTS",
+        "label": "Calibration Certificates for Equipment (Monitoring Plan)",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "masterRequirementId": "REQ-032",
+        "sourceColumnLabel": "Calibration Certificates for Equipment (Monitoring Plan)",
+        "categoryKey": "EQUIPMENT_MONITORING",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "32"
+        },
+        "_id": {
+          "$oid": "6b0415c96ad596b3a915749a"
+        }
+      }
+    ],
+    "lastUpdatedByName": "Saurabh Agnihotri",
+    "sharedWithClient": true,
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795429833432"
+      }
+    },
+    "sharedAt": {
+      "$date": {
+        "$numberLong": "1795080306693"
+      }
+    },
+    "sharedByName": "Priya Sharma",
+    "facilityName": "Trident Paper Complex"
+  },
+  {
+    "_id": {
+      "$oid": "6b03d8a1d297dbf416495e86"
+    },
+    "period": "FY2025-26",
+    "facilityId": "NRAGARWAL_UNIT1",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "consultantNotes": "",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795414174229"
+      }
+    },
+    "facilityName": "N R Agarwal Unit 1",
+    "items": [
+      {
+        "itemKey": "CTO_CTE_CCA",
+        "label": "CTO / CTE / CCA",
+        "status": "RECEIVED",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "1"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c17297"
+        }
+      },
+      {
+        "itemKey": "GCV_EXT_FOSSIL",
+        "label": "GCV Certificate — External Fossil Fuels",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "2"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c17298"
+        }
+      },
+      {
+        "itemKey": "GCV_EXT_NON_FOSSIL",
+        "label": "GCV Certificate — External Non-Fossil Fuels",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "3"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c17299"
+        }
+      },
+      {
+        "itemKey": "GCV_INT_BOMB",
+        "label": "GCV Internal — Bomb Calorimeter Reading (NCV)",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "4"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c1729a"
+        }
+      },
+      {
+        "itemKey": "ULTIMATE_ANALYSIS",
+        "label": "Ultimate Analysis (Carbon Content) — Fossil Fuels",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "5"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c1729b"
+        }
+      },
+      {
+        "itemKey": "PROXIMATE_ANALYSIS",
+        "label": "Proximate Analysis (Moisture, Fixed Carbon)",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "6"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c1729c"
+        }
+      },
+      {
+        "itemKey": "PROD_MONTH_ALL",
+        "label": "Production — Month-wise Data (All Products)",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "7"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c1729d"
+        }
+      },
+      {
+        "itemKey": "PROD_MONTH_MACHINE",
+        "label": "Production — Month-wise Per Machine Data",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "8"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c1729e"
+        }
+      },
+      {
+        "itemKey": "PROCESS_FLOW",
+        "label": "Process Flow Diagram",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "9"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c1729f"
+        }
+      },
+      {
+        "itemKey": "BOILER_STEAM_LOG",
+        "label": "Boiler Steam Generation Log Books",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "10"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172a0"
+        }
+      },
+      {
+        "itemKey": "BOILER_HOURS",
+        "label": "Boiler Running Hours / Detention Hours",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "11"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172a1"
+        }
+      },
+      {
+        "itemKey": "BOILER_STEAM_PARAMS",
+        "label": "Boiler SH Steam Pressure / Temperature / Enthalpy / Design & Operating Efficiency",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "12"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172a2"
+        }
+      },
+      {
+        "itemKey": "BOILER_FUEL",
+        "label": "Per Boiler Fuel Consumption Data",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "13"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172a3"
+        }
+      },
+      {
+        "itemKey": "STEAM_CONSUMPTION",
+        "label": "Steam Consumption Across Units",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "14"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172a4"
+        }
+      },
+      {
+        "itemKey": "TURBINE_GEN_LOG",
+        "label": "Turbine Generation Log Books",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "15"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172a5"
+        }
+      },
+      {
+        "itemKey": "TURBINE_EXTRACTION",
+        "label": "Turbine Extraction Point Steam Data",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "16"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172a6"
+        }
+      },
+      {
+        "itemKey": "TURBINE_POWER",
+        "label": "Turbine Power Generation Data",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "17"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172a7"
+        }
+      },
+      {
+        "itemKey": "AUX_POWER",
+        "label": "Auxiliary Power Generation",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "18"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172a8"
+        }
+      },
+      {
+        "itemKey": "TURBINE_HOURS",
+        "label": "Turbine Running Hours / Detention Hours",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "19"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172a9"
+        }
+      },
+      {
+        "itemKey": "TURBINE_HEAT_RATE",
+        "label": "Turbine Design Heat Rate and Feed Water Temperature",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "20"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172aa"
+        }
+      },
+      {
+        "itemKey": "TURBINE_ENTHALPY",
+        "label": "Steam Enthalpy / Pressure / Temperature at all Extraction Points (Turbine)",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "21"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172ab"
+        }
+      },
+      {
+        "itemKey": "GRID_BILLS",
+        "label": "Grid Bills",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "22"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172ac"
+        }
+      },
+      {
+        "itemKey": "OA_PURCHASE",
+        "label": "OA Purchase Data / Bills",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "23"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172ad"
+        }
+      },
+      {
+        "itemKey": "DG_SET",
+        "label": "DG Set Data",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "24"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172ae"
+        }
+      },
+      {
+        "itemKey": "POWER_PER_MACHINE",
+        "label": "Power Consumption Data Per Machine",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "25"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172af"
+        }
+      },
+      {
+        "itemKey": "INTERMEDIATE_SALE",
+        "label": "Intermediate Product Sale Data",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "26"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172b0"
+        }
+      },
+      {
+        "itemKey": "INTERMEDIATE_PURCHASE",
+        "label": "Intermediate Product Purchase Data",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "27"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172b1"
+        }
+      },
+      {
+        "itemKey": "FUEL_PURCHASE",
+        "label": "Fuel Purchase Bills",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "28"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172b2"
+        }
+      },
+      {
+        "itemKey": "FUEL_STOCK",
+        "label": "Fuel Stock Data",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "29"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172b3"
+        }
+      },
+      {
+        "itemKey": "MACHINERY_LIST",
+        "label": "Machinery / Equipment List (Monitoring Plan)",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "30"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172b4"
+        }
+      },
+      {
+        "itemKey": "CALIBRATION_CERTS",
+        "label": "Calibration Certificates for Equipment (Monitoring Plan)",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "31"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172b5"
+        }
+      }
+    ],
+    "lastUpdatedByName": "Saurabh Agnihotri",
+    "sharedWithClient": false,
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795414247801"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b03d8a1d297dbf416495e87"
+    },
+    "facilityId": "PAPER_ABC_IMPEX",
+    "period": "FY2025-26",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "consultantNotes": "",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795414174361"
+      }
+    },
+    "facilityName": "ABC Impex",
+    "items": [
+      {
+        "itemKey": "CTO_CTE_CCA",
+        "label": "CTO / CTE / CCA",
+        "status": "NOT_REQUIRED",
+        "applicability": "NOT_REQUIRED",
+        "importedApplicability": "NOT_REQUIRED",
+        "notes": "pjopo",
+        "sortOrder": {
+          "$numberInt": "1"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172d5"
+        }
+      },
+      {
+        "itemKey": "GCV_EXT_FOSSIL",
+        "label": "GCV Certificate — External Fossil Fuels",
+        "status": "RECEIVED",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "2"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172d6"
+        }
+      },
+      {
+        "itemKey": "GCV_EXT_NON_FOSSIL",
+        "label": "GCV Certificate — External Non-Fossil Fuels",
+        "status": "RECEIVED",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "3"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172d7"
+        }
+      },
+      {
+        "itemKey": "GCV_INT_BOMB",
+        "label": "GCV Internal — Bomb Calorimeter Reading (NCV)",
+        "status": "RECEIVED",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "4"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172d8"
+        }
+      },
+      {
+        "itemKey": "ULTIMATE_ANALYSIS",
+        "label": "Ultimate Analysis (Carbon Content) — Fossil Fuels",
+        "status": "RECEIVED",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "5"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172d9"
+        }
+      },
+      {
+        "itemKey": "PROXIMATE_ANALYSIS",
+        "label": "Proximate Analysis (Moisture, Fixed Carbon)",
+        "status": "RECEIVED",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "6"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172da"
+        }
+      },
+      {
+        "itemKey": "PROD_MONTH_ALL",
+        "label": "Production — Month-wise Data (All Products)",
+        "status": "RECEIVED",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "7"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172db"
+        }
+      },
+      {
+        "itemKey": "PROD_MONTH_MACHINE",
+        "label": "Production — Month-wise Per Machine Data",
+        "status": "RECEIVED",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "8"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172dc"
+        }
+      },
+      {
+        "itemKey": "PROCESS_FLOW",
+        "label": "Process Flow Diagram",
+        "status": "RECEIVED",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "9"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172dd"
+        }
+      },
+      {
+        "itemKey": "BOILER_STEAM_LOG",
+        "label": "Boiler Steam Generation Log Books",
+        "status": "RECEIVED",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "10"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172de"
+        }
+      },
+      {
+        "itemKey": "BOILER_HOURS",
+        "label": "Boiler Running Hours / Detention Hours",
+        "status": "RECEIVED",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "11"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172df"
+        }
+      },
+      {
+        "itemKey": "BOILER_STEAM_PARAMS",
+        "label": "Boiler SH Steam Pressure / Temperature / Enthalpy / Design & Operating Efficiency",
+        "status": "RECEIVED",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "12"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172e0"
+        }
+      },
+      {
+        "itemKey": "BOILER_FUEL",
+        "label": "Per Boiler Fuel Consumption Data",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "13"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172e1"
+        }
+      },
+      {
+        "itemKey": "STEAM_CONSUMPTION",
+        "label": "Steam Consumption Across Units",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "14"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172e2"
+        }
+      },
+      {
+        "itemKey": "TURBINE_GEN_LOG",
+        "label": "Turbine Generation Log Books",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "15"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172e3"
+        }
+      },
+      {
+        "itemKey": "TURBINE_EXTRACTION",
+        "label": "Turbine Extraction Point Steam Data",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "16"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172e4"
+        }
+      },
+      {
+        "itemKey": "TURBINE_POWER",
+        "label": "Turbine Power Generation Data",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "17"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172e5"
+        }
+      },
+      {
+        "itemKey": "AUX_POWER",
+        "label": "Auxiliary Power Generation",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "18"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172e6"
+        }
+      },
+      {
+        "itemKey": "TURBINE_HOURS",
+        "label": "Turbine Running Hours / Detention Hours",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "19"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172e7"
+        }
+      },
+      {
+        "itemKey": "TURBINE_HEAT_RATE",
+        "label": "Turbine Design Heat Rate and Feed Water Temperature",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "20"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172e8"
+        }
+      },
+      {
+        "itemKey": "TURBINE_ENTHALPY",
+        "label": "Steam Enthalpy / Pressure / Temperature at all Extraction Points (Turbine)",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "21"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172e9"
+        }
+      },
+      {
+        "itemKey": "GRID_BILLS",
+        "label": "Grid Bills",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "22"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172ea"
+        }
+      },
+      {
+        "itemKey": "OA_PURCHASE",
+        "label": "OA Purchase Data / Bills",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "23"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172eb"
+        }
+      },
+      {
+        "itemKey": "DG_SET",
+        "label": "DG Set Data",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "24"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172ec"
+        }
+      },
+      {
+        "itemKey": "POWER_PER_MACHINE",
+        "label": "Power Consumption Data Per Machine",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "25"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172ed"
+        }
+      },
+      {
+        "itemKey": "INTERMEDIATE_SALE",
+        "label": "Intermediate Product Sale Data",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "26"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172ee"
+        }
+      },
+      {
+        "itemKey": "INTERMEDIATE_PURCHASE",
+        "label": "Intermediate Product Purchase Data",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "27"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172ef"
+        }
+      },
+      {
+        "itemKey": "FUEL_PURCHASE",
+        "label": "Fuel Purchase Bills",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "28"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172f0"
+        }
+      },
+      {
+        "itemKey": "FUEL_STOCK",
+        "label": "Fuel Stock Data",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "29"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172f1"
+        }
+      },
+      {
+        "itemKey": "MACHINERY_LIST",
+        "label": "Machinery / Equipment List (Monitoring Plan)",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "30"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172f2"
+        }
+      },
+      {
+        "itemKey": "CALIBRATION_CERTS",
+        "label": "Calibration Certificates for Equipment (Monitoring Plan)",
+        "status": "DUE",
+        "applicability": "APPLICABLE",
+        "importedApplicability": "APPLICABLE",
+        "notes": "",
+        "sortOrder": {
+          "$numberInt": "31"
+        },
+        "_id": {
+          "$oid": "6b03d8e7cf0f556cd9c172f3"
+        }
+      }
+    ],
+    "lastUpdatedByName": "Saurabh Agnihotri",
+    "sharedWithClient": false,
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795414247948"
+      }
+    }
+  }
+]

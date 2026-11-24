@@ -1,152 +1,349 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import type { ComplianceType, IDataRequirement, IAssessment } from '@/types';
-import { StatusBadge } from '@/components/common/StatusBadge';
-import { DriveLinkBadge } from '@/components/common/DriveLinkBadge';
-import { ChevronRight, FileSpreadsheet, Plus, RefreshCw, Send } from 'lucide-react';
-import { formatDate } from '@/lib/utils';
-
-const COMPLIANCES: ComplianceType[] = ['RCO', 'PAT', 'CCTS', 'CEA'];
+import { COMPLIANCE_PERIODS } from '@/lib/complianceMatrixData';
+import { buildAssessmentId } from '@/lib/assessmentIds';
+import type { IDataRequirement, IAssessment } from '@/types';
+import { DataRequestStatsBar } from '@/components/requests/DataRequestStatsBar';
+import { ChecklistDrivenRequestWizard } from '@/components/requests/ChecklistDrivenRequestWizard';
+import { RequirementsReviewTable } from '@/components/requests/RequirementsReviewTable';
+import { matchesQuickFilter } from '@/lib/dataRequestDisplay';
+import { computeRequestStats } from '@/lib/requestStats';
+import { ChevronRight, ExternalLink, FileSpreadsheet, Plus, RefreshCw, ChevronDown } from 'lucide-react';
+import { Select, MenuItem, FormControl, SelectChangeEvent } from '@mui/material';
+import { useAuth } from '@/context/AuthContext';
 
 export default function AssessmentDataPage() {
+  const { theme } = useAuth();
+  const isDark = theme === 'dark';
   const params = useParams();
+  const router = useRouter();
   const assessmentId = params.assessmentId as string;
+
   const [assessment, setAssessment] = useState<IAssessment | null>(null);
   const [requirements, setRequirements] = useState<IDataRequirement[]>([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [showForm, setShowForm] = useState(false);
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [category, setCategory] = useState<'COMMON_ENERGY' | 'COMPLIANCE_SPECIFIC'>('COMMON_ENERGY');
-  const [linkedCompliances, setLinkedCompliances] = useState<ComplianceType[]>([]);
-  const [dueDate, setDueDate] = useState('');
-  const [monthlyFrequency, setMonthlyFrequency] = useState(false);
-  const [reportingMonths, setReportingMonths] = useState('');
+  const [quickFilter, setQuickFilter] = useState('all');
+  const [frameworkOnly, setFrameworkOnly] = useState(false);
+  const [showCreate, setShowCreate] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!assessmentId) return;
+
     setLoading(true);
     setError('');
+
     try {
-      const assessmentResponse = await fetch(`/api/assessments/${assessmentId}`, { cache: 'no-store', credentials: 'include' });
+      const assessmentResponse = await fetch(`/api/assessments/${encodeURIComponent(assessmentId)}`, {
+        cache: 'no-store',
+        credentials: 'include',
+      });
       const assessmentPayload = await assessmentResponse.json().catch(() => null);
-      if (!assessmentResponse.ok || !assessmentPayload?.data) throw new Error(assessmentPayload?.error || 'Unable to load assessment details.');
+      if (!assessmentResponse.ok || !assessmentPayload?.data) {
+        throw new Error(assessmentPayload?.error || 'Unable to load assessment details.');
+      }
+
       const currentAssessment = assessmentPayload.data as IAssessment;
       setAssessment(currentAssessment);
-      setLinkedCompliances((current) => current.length ? current : [currentAssessment.complianceType]);
-      const query = new URLSearchParams({ facilityId: currentAssessment.facilityId, period: currentAssessment.period });
-      const requirementsResponse = await fetch(`/api/requirements?${query.toString()}`, { cache: 'no-store', credentials: 'include' });
+
+      const query = new URLSearchParams({
+        facilityId: currentAssessment.facilityId,
+        period: currentAssessment.period,
+      });
+
+      const requirementsResponse = await fetch(`/api/requirements?${query.toString()}`, {
+        cache: 'no-store',
+        credentials: 'include',
+      });
+
       const requirementsPayload = await requirementsResponse.json().catch(() => null);
-      if (!requirementsResponse.ok) throw new Error(requirementsPayload?.error || 'Unable to load client submissions.');
+      if (!requirementsResponse.ok) {
+        throw new Error(requirementsPayload?.error || 'Unable to load data requests.');
+      }
+
       setRequirements(Array.isArray(requirementsPayload?.data) ? requirementsPayload.data : []);
     } catch (loadError) {
-      console.error('Error loading consultant data checklist:', loadError);
-      setError(loadError instanceof Error ? loadError.message : 'Unable to load client submissions.');
+      console.error('Error loading assessment data requests:', loadError);
+      setError(loadError instanceof Error ? loadError.message : 'Unable to load data requests.');
     } finally {
       setLoading(false);
     }
   }, [assessmentId]);
 
-  useEffect(() => { void loadData(); }, [loadData]);
+  useEffect(() => {
+    void loadData();
+  }, [loadData]);
 
-  const summary = useMemo(() => ({
-    total: requirements.length,
-    requested: requirements.filter((item) => item.submissionStatus === 'REQUESTED').length,
-    received: requirements.filter((item) => item.submissionStatus === 'RECEIVED' || item.submissionStatus === 'PARTIALLY_RECEIVED').length,
-    approved: requirements.filter((item) => item.verificationStatus === 'APPROVED').length,
-  }), [requirements]);
+  const periodScopedRequirements = useMemo(() => {
+    return requirements.filter((req) => {
+      if (frameworkOnly && assessment) {
+        if (!req.linkedCompliances?.includes(assessment.complianceType)) return false;
+      }
+      return true;
+    });
+  }, [requirements, frameworkOnly, assessment]);
 
-  const createRequest = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!assessment) return;
-    setSaving(true); setError(''); setSuccess('');
-    try {
-      const months = reportingMonths.split(',').map((month) => month.trim()).filter(Boolean);
-      const response = await fetch('/api/requirements', {
-        method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          facilityId: assessment.facilityId,
-          period: assessment.period,
-          title: title.trim(), description: description.trim(), category,
-          linkedCompliances, dueDate: dueDate || undefined,
-          monthlyFrequency, reportingMonths: monthlyFrequency ? months : [],
-        }),
-      });
-      const payload = await response.json().catch(() => null);
-      if (!response.ok) throw new Error(payload?.error || 'Unable to create data request.');
-      setTitle(''); setDescription(''); setDueDate(''); setMonthlyFrequency(false); setReportingMonths('');
-      setShowForm(false); setSuccess('Data request created and made visible in the authorized client portal.');
-      await loadData();
-    } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : 'Unable to create data request.');
-    } finally { setSaving(false); }
-  };
+  const stats = useMemo(
+    () => computeRequestStats(periodScopedRequirements),
+    [periodScopedRequirements]
+  );
 
-  if (loading) return <div className="mx-auto max-w-7xl px-4 py-16 text-center text-xs text-slate-500">Loading Data Collection Checklist...</div>;
+  const visibleRequirements = useMemo(() => {
+    return periodScopedRequirements.filter((req) => {
+      if (quickFilter !== 'all' && !matchesQuickFilter(req, quickFilter)) return false;
+      return true;
+    });
+  }, [periodScopedRequirements, quickFilter]);
+
+  const orgLabel = requirements[0]?.clientGroupName;
+
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-8xl px-4 py-16 text-center text-xs text-slate-500">
+        Loading data requests for this assessment…
+      </div>
+    );
+  }
+
+  if (!assessment && error) {
+    return (
+      <div className="mx-auto max-w-8xl px-4 py-16">
+        <div role="alert" className="rounded-lg border border-rose-300 bg-rose-50 p-4 text-sm text-rose-800">
+          {error}
+        </div>
+        <button
+          type="button"
+          onClick={() => void loadData()}
+          className="mt-4 inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2 text-xs font-semibold text-white"
+        >
+          <RefreshCw className="h-3.5 w-3.5" />
+          Try again
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-      <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-        <Link href={`/facilities/${assessment?.facilityId || ''}`} className="hover:text-emerald-600">{assessment?.facilityName || assessment?.facilityId || 'Facility'}</Link>
-        <ChevronRight className="w-3 h-3" />
-        <Link href={`/assessments/${assessmentId}`}>Assessment</Link>
-        <ChevronRight className="w-3 h-3" />
-        <span className="font-semibold text-slate-900 dark:text-white">Data Collection</span>
-      </div>
+    <div className="mx-auto max-w-8xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+      <nav className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+        <Link
+          href={`/facilities/${encodeURIComponent(assessment?.facilityId || '')}`}
+          className="hover:text-emerald-600"
+        >
+          {assessment?.facilityName || assessment?.facilityId}
+        </Link>
+        <ChevronRight className="h-3 w-3" />
+        <Link href={`/assessments/${encodeURIComponent(assessmentId)}`}>Assessment</Link>
+        <ChevronRight className="h-3 w-3" />
+        <span className="font-semibold text-slate-900 dark:text-white">Data requests</span>
+      </nav>
 
-      <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 shadow-sm">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/70">
+        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
           <div>
-            <div className="flex items-center gap-2"><FileSpreadsheet className="w-5 h-5 text-emerald-600" /><h1 className="text-xl font-bold text-slate-900 dark:text-white">Data requests · {assessment?.period}</h1></div>
-            <p className="mt-1 text-xs text-slate-500">{assessment?.facilityName || assessment?.facilityId} · {assessment?.complianceType}</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <FileSpreadsheet className="h-5 w-5 text-emerald-600" />
+              <h1 className="text-xl font-bold text-slate-900 dark:text-white">
+                Data requests · {assessment?.period || '—'}
+              </h1>
+            </div>
+            <p className="mt-1 text-xs text-slate-500">
+              {orgLabel ? `${orgLabel} · ` : ''}
+              {assessment?.facilityName || assessment?.facilityId} · Assessment framework{' '}
+              <span className="font-mono font-bold">{assessment?.complianceType}</span>
+            </p>
+            {assessment && (
+              <div className="mt-3 inline-flex flex-wrap items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+                <span className="font-semibold">Data collection year</span>
+                <FormControl size="small" sx={{ minWidth: 130 }}>
+                  <Select
+                    value={assessment.period}
+                    onChange={(e: SelectChangeEvent) => {
+                      const nextPeriod = e.target.value;
+                      const nextId = buildAssessmentId(
+                        assessment.facilityId,
+                        assessment.complianceType,
+                        nextPeriod
+                      );
+                      if (nextId !== assessmentId) {
+                        router.push(`/assessments/${encodeURIComponent(nextId)}/data`);
+                      }
+                    }}
+                    IconComponent={() => (
+                      <ChevronDown
+                        className="w-4 h-4 pointer-events-none"
+                        style={{ color: isDark ? '#94A3B8' : '#64748B', marginRight: 8 }}
+                      />
+                    )}
+                    sx={{
+                      height: 34,
+                      fontSize: '12px',
+                      fontFamily: 'monospace',
+                      fontWeight: 600,
+                      borderRadius: '8px',
+                      backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                      color: isDark ? '#FFFFFF' : '#0F172A',
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
+                      },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: isDark ? '#34D399' : '#059669',
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: isDark ? '#34D399' : '#059669',
+                        borderWidth: '1.5px',
+                      },
+                      '& .MuiSelect-select': {
+                        py: '5px',
+                        px: '10px',
+                      },
+                    }}
+                    MenuProps={{
+                      slotProps: {
+                        paper: {
+                          sx: {
+                            mt: 0.5,
+                            borderRadius: '8px',
+                            backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                            color: isDark ? '#FFFFFF' : '#0F172A',
+                            border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0'}`,
+                            boxShadow: isDark
+                              ? '0 10px 25px -5px rgba(0, 0, 0, 0.6)'
+                              : '0 10px 25px -5px rgba(16, 185, 129, 0.12)',
+                            '& .MuiList-root': { py: '4px' },
+                          },
+                        },
+                      },
+                    }}
+                  >
+                    {COMPLIANCE_PERIODS.map((fy) => (
+                      <MenuItem
+                        key={fy}
+                        value={fy}
+                        sx={{
+                          fontSize: '12px',
+                          fontFamily: 'monospace',
+                          fontWeight: assessment.period === fy ? 600 : 400,
+                          py: 0.75,
+                          px: 1.5,
+                          borderRadius: '6px',
+                          mx: 0.5,
+                          my: 0.25,
+                          '&.Mui-selected': {
+                            backgroundColor: isDark ? 'rgba(52, 211, 153, 0.15)' : 'rgba(16, 185, 129, 0.1)',
+                            color: isDark ? '#34D399' : '#059669',
+                          },
+                        }}
+                      >
+                        {fy}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <span className="text-[10px] text-slate-400">
+                  Switches assessment year, stats, and client request list together.
+                </span>
+              </div>
+            )}
           </div>
+
           <div className="flex flex-wrap gap-2">
-            <button onClick={() => void loadData()} className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold"><RefreshCw className="w-3.5 h-3.5" /> Refresh</button>
-            <button onClick={() => setShowForm((value) => !value)} className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-600"><Plus className="w-3.5 h-3.5" /> Create data request</button>
+            <button
+              type="button"
+              onClick={() => void loadData()}
+              className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold"
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              Refresh
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowCreate((v) => !v)}
+              className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-600"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              {showCreate ? 'Hide create form' : 'Create data request'}
+            </button>
+            <Link
+              href="/data-review"
+              className="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold hover:bg-slate-50"
+            >
+              Data review <ExternalLink className="h-3 w-3" />
+            </Link>
           </div>
         </div>
-        <div className="mt-5 grid grid-cols-2 md:grid-cols-4 gap-3">
-          {[['Total requests', summary.total], ['Awaiting client', summary.requested], ['Received', summary.received], ['Approved', summary.approved]].map(([label, value]) => (
-            <div key={label} className="rounded-xl bg-slate-50 dark:bg-slate-800/70 p-3"><div className="text-xl font-bold text-slate-900 dark:text-white">{value}</div><div className="text-[11px] text-slate-500">{label}</div></div>
-          ))}
+
+        <div className="mt-5">
+          <DataRequestStatsBar
+            stats={stats}
+            totalFallback={periodScopedRequirements.length}
+            activeQuickFilter={quickFilter}
+            onQuickFilter={setQuickFilter}
+          />
         </div>
+
+        <label className="mt-4 inline-flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+          <input
+            type="checkbox"
+            checked={frameworkOnly}
+            onChange={(e) => setFrameworkOnly(e.target.checked)}
+            className="accent-emerald-700"
+          />
+          Show only requests linked to {assessment?.complianceType}
+        </label>
       </section>
 
-      {error && <div role="alert" className="rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm text-rose-800">{error}</div>}
-      {success && <div role="status" className="rounded-lg border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-800">{success}</div>}
-
-      {showForm && (
-        <form onSubmit={createRequest} className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-4">
-          <div><h2 className="font-bold text-slate-900 dark:text-white">Create a request for the client</h2><p className="text-xs text-slate-500 mt-1">The request will appear in the client portal after it is saved.</p></div>
-          <div className="grid md:grid-cols-2 gap-4">
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">Requirement title<input required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Monthly grid electricity bills" className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent px-3 py-2 text-sm" /></label>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">Requirement category<select value={category} onChange={(e) => setCategory(e.target.value as typeof category)} className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent px-3 py-2 text-sm"><option value="COMMON_ENERGY">Common energy</option><option value="COMPLIANCE_SPECIFIC">Compliance specific</option></select></label>
-          </div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">Instructions / description<textarea required value={description} onChange={(e) => setDescription(e.target.value)} rows={3} placeholder="Explain exactly what the client needs to submit, including units and supporting evidence." className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent px-3 py-2 text-sm" /></label>
-          <fieldset><legend className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">Linked compliances</legend><div className="flex flex-wrap gap-3">{COMPLIANCES.map((code) => <label key={code} className="inline-flex items-center gap-1.5 text-xs"><input type="checkbox" checked={linkedCompliances.includes(code)} onChange={(e) => setLinkedCompliances((current) => e.target.checked ? [...current, code] : current.filter((item) => item !== code))} />{code}</label>)}</div></fieldset>
-          <div className="grid md:grid-cols-2 gap-4">
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">Client submission deadline<input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} min={new Date().toISOString().slice(0, 10)} className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent px-3 py-2 text-sm" /></label>
-            <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300 mt-5"><input type="checkbox" checked={monthlyFrequency} onChange={(e) => setMonthlyFrequency(e.target.checked)} /> Monthly reporting requirement</label>
-          </div>
-          {monthlyFrequency && <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">Reporting months (comma-separated, YYYY-MM)<input value={reportingMonths} onChange={(e) => setReportingMonths(e.target.value)} placeholder="2025-04, 2025-05, 2025-06" className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent px-3 py-2 text-sm" /></label>}
-          {linkedCompliances.length === 0 && <p className="text-xs text-rose-600">Select at least one compliance.</p>}
-          <div className="flex justify-end gap-2"><button type="button" onClick={() => setShowForm(false)} className="rounded-lg border px-4 py-2 text-xs font-semibold">Cancel</button><button disabled={saving || linkedCompliances.length === 0} className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2 text-xs font-semibold text-white disabled:opacity-50"><Send className="w-3.5 h-3.5" />{saving ? 'Creating…' : 'Create and send request'}</button></div>
-        </form>
+      {error && (
+        <div role="alert" className="rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm text-rose-800">
+          {error}
+        </div>
       )}
 
-      <section className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-5 space-y-3">
-        <h2 className="text-sm font-bold text-slate-900 dark:text-white">Requirements and client submissions</h2>
-        <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
-          <table className="w-full text-left text-xs"><thead className="bg-slate-50 dark:bg-slate-950 text-[10px] uppercase text-slate-500"><tr><th className="p-3">Requirement</th><th className="p-3">Compliance</th><th className="p-3">Submission</th><th className="p-3">Verification</th><th className="p-3">Evidence</th><th className="p-3">Due date</th><th className="p-3">Action</th></tr></thead>
-            <tbody className="divide-y divide-slate-200 dark:divide-slate-800">{requirements.map((req) => <tr key={req._id} className="align-top"><td className="p-3 min-w-52"><div className="font-semibold text-slate-900 dark:text-white">{req.title}</div><div className="mt-1 text-[11px] text-slate-500">{req.description}</div></td><td className="p-3"><div className="flex flex-wrap gap-1">{req.linkedCompliances?.map((code) => <span key={code} className="rounded bg-slate-100 dark:bg-slate-800 px-1.5 py-1 font-mono">{code}</span>)}</div></td><td className="p-3"><StatusBadge status={req.submissionStatus} size="sm" /></td><td className="p-3"><StatusBadge status={req.verificationStatus} size="sm" /></td><td className="p-3 min-w-48">{req.submittedDriveLinks?.length ? req.submittedDriveLinks.map((link, index) => <div key={`${link.url}-${index}`} className="mb-2"><DriveLinkBadge url={link.url} label={link.description || 'Client evidence'} billDetails={link.billDetails} utilityConnectionSnapshot={link.utilityConnectionSnapshot} facilityId={req.facilityId} /><div className="mt-1 text-[10px] text-slate-500">{link.submittedBy} · {link.submittedAt ? formatDate(link.submittedAt) : ''}</div></div>) : <span className="italic text-slate-400">Awaiting client</span>}</td><td className="p-3 whitespace-nowrap">{req.dueDate ? formatDate(req.dueDate) : '—'}</td><td className="p-3">{req.datasetId ? <Link href={`/datasets/${req.datasetId}/verify`} className="rounded bg-emerald-50 text-emerald-800 px-2 py-1 font-semibold">Review dataset</Link> : <span className="text-slate-400">Evidence review</span>}</td></tr>)}
-              {requirements.length === 0 && <tr><td colSpan={7} className="p-10 text-center text-slate-500">No requests yet. Create a request above or publish the facility checklist to generate requests.</td></tr>}</tbody></table>
-        </div>
+      {showCreate && assessment && (
+        <ChecklistDrivenRequestWizard
+          key={`${assessment.facilityId}-${assessment.period}`}
+          facilityId={assessment.facilityId}
+          facilityName={assessment.facilityName}
+          period={assessment.period}
+          onPeriodChange={(nextPeriod) => {
+            const nextId = buildAssessmentId(
+              assessment.facilityId,
+              assessment.complianceType,
+              nextPeriod
+            );
+            if (nextId !== assessmentId) {
+              router.push(`/assessments/${encodeURIComponent(nextId)}/data`);
+            }
+          }}
+          onSent={() => void loadData()}
+        />
+      )}
+
+      <section className="space-y-3 rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900/60">
+        <h2 className="text-sm font-bold text-slate-900 dark:text-white">
+          Client data review
+          <span className="ml-2 text-xs font-normal text-slate-500">
+            ({visibleRequirements.length} requests · {assessment?.facilityId} · {assessment?.period})
+          </span>
+        </h2>
+        <p className="text-[11px] text-slate-500">
+          Same layout as the Data Review workspace — scoped to this facility and data collection year.
+        </p>
+
+        <RequirementsReviewTable
+          requirements={visibleRequirements}
+          hideFacilityColumn
+          showWorkflowFilter
+          emptyMessage={
+            requirements.length === 0
+              ? 'No requests for this facility and period. Create one above or publish the facility checklist.'
+              : 'No requests match the current filter.'
+          }
+          onReviewed={() => void loadData()}
+        />
       </section>
     </div>
   );

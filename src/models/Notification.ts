@@ -8,7 +8,12 @@ export type NotificationType =
   | 'DATASET_APPROVED'
   | 'DATASET_REJECTED'
   | 'DEADLINE_EXTENDED'
-  | 'DATA_CHECKLIST_SHARED';
+  | 'DATA_CHECKLIST_SHARED'
+  | 'DEADLINE_REMINDER'
+  | 'REGULATORY_DATA_REQUESTED'
+  | 'REGULATORY_SUBMITTED'
+  | 'REGULATORY_APPROVED'
+  | 'REGULATORY_RETURNED';
 
 export interface INotification extends Document {
   recipientRole: 'CONSULTANT' | 'CLIENT' | 'ADMIN' | 'ALL';
@@ -21,6 +26,7 @@ export interface INotification extends Document {
   facilityId?: string;
   linkUrl: string;
   isRead: boolean;
+  readAt?: Date;
   createdAt: Date;
 }
 
@@ -50,6 +56,11 @@ const NotificationSchema: Schema = new Schema(
         'DATASET_REJECTED',
         'DEADLINE_EXTENDED',
         'DATA_CHECKLIST_SHARED',
+        'REGULATORY_DATA_REQUESTED',
+        'REGULATORY_SUBMITTED',
+        'REGULATORY_APPROVED',
+        'REGULATORY_RETURNED',
+        'DEADLINE_REMINDER',
       ],
     },
     title: { type: String, required: true },
@@ -57,12 +68,13 @@ const NotificationSchema: Schema = new Schema(
     facilityId: { type: String },
     linkUrl: { type: String, required: true },
     isRead: { type: Boolean, default: false },
+    readAt: { type: Date },
     createdAt: { type: Date, default: Date.now },
   },
   { timestamps: true }
 );
 
-NotificationSchema.index({ recipientRole: 1, isRead: 1, createdAt: -1 });
+NotificationSchema.index({ recipientRole: 1, isRead: 1, readAt: 1, createdAt: -1 });
 
 export const Notification: Model<INotification> =
   mongoose.models.Notification || mongoose.model<INotification>('Notification', NotificationSchema);

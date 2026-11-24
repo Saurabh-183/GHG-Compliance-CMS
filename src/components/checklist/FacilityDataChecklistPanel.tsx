@@ -15,15 +15,18 @@ import {
 import type { ComplianceType, DataChecklistItemStatus, IFacilityDataChecklist, IFacilityDataChecklistItem } from '@/types';
 import { DEFAULT_CHECKLIST_PERIOD } from '@/lib/facilityDataChecklistTemplate';
 import { notify } from '@/lib/notify';
+import { Checkbox } from '@mui/material';
+import { useAuth } from '@/context/AuthContext';
 import { ChecklistStatusSelectMui } from './ChecklistStatusSelectMui';
 
 type Mode = 'internal' | 'client';
 
 const STATUS_OPTIONS: { value: DataChecklistItemStatus; label: string }[] = [
-  { value: 'DUE', label: 'Due' },
+  { value: 'DUE', label: 'Applicable / Due' },
   { value: 'RECEIVED', label: 'Received' },
   { value: 'NOT_APPLICABLE', label: 'Not Applicable' },
   { value: 'NOT_REQUIRED', label: 'Not Required' },
+  { value: 'NEEDS_VERIFICATION', label: 'Needs Verification' },
 ];
 
 function statusPill(status: DataChecklistItemStatus) {
@@ -35,6 +38,8 @@ function statusPill(status: DataChecklistItemStatus) {
     case 'NOT_APPLICABLE':
     case 'NOT_REQUIRED':
       return 'bg-slate-100 text-slate-600 border-slate-300 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700';
+    case 'NEEDS_VERIFICATION':
+      return 'bg-violet-100 text-violet-900 border-violet-300 dark:bg-violet-950/40 dark:text-violet-200';
     default:
       return 'bg-slate-100 text-slate-600';
   }
@@ -55,6 +60,8 @@ export function FacilityDataChecklistPanel({
   period = DEFAULT_CHECKLIST_PERIOD,
   className = '',
 }: FacilityDataChecklistPanelProps) {
+  const { theme } = useAuth();
+  const isDark = theme === 'dark';
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [sending, setSending] = useState(false);
@@ -333,47 +340,34 @@ export function FacilityDataChecklistPanel({
           )}
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2.5">
           <button
             type="button"
             onClick={downloadPdf}
             disabled={downloading}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-800 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-60"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-60 transition-colors shadow-2xs"
           >
-            {downloading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+            {downloading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />}
             Download PDF
           </button>
+
           {canEdit && (
             <>
               <button
                 type="button"
                 onClick={() => void save()}
                 disabled={saving || !dirty}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-white disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 disabled:opacity-50 transition-colors shadow-2xs"
               >
-                {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />}
                 Save
               </button>
-              <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-600 dark:text-slate-300">
-                <span className="font-semibold">Link requests to:</span>
-                {(['RCO', 'PAT', 'CCTS', 'CEA'] as ComplianceType[]).map((code) => (
-                  <label key={code} className="inline-flex items-center gap-1 rounded-md border border-slate-300 dark:border-slate-700 px-2 py-1">
-                    <input
-                      type="checkbox"
-                      checked={linkedCompliances.includes(code)}
-                      onChange={(event) => setLinkedCompliances((current) => event.target.checked
-                        ? [...current, code]
-                        : current.filter((item) => item !== code))}
-                    />
-                    {code}
-                  </label>
-                ))}
-              </div>
+
               <button
                 type="button"
                 onClick={sendToClient}
                 disabled={sending}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold bg-emerald-700 hover:bg-emerald-600 text-white disabled:opacity-60"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-emerald-700 hover:bg-emerald-800 text-white disabled:opacity-60 transition-colors shadow-sm"
               >
                 {sending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
                 Send to Client
@@ -382,6 +376,63 @@ export function FacilityDataChecklistPanel({
           )}
         </div>
       </div>
+
+      {canEdit && (
+        <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 mr-0.5">
+              Link requests to:
+            </span>
+            {(['RCO', 'PAT', 'CCTS'] as ComplianceType[]).map((code) => {
+              const isChecked = linkedCompliances.includes(code);
+              return (
+                <label
+                  key={code}
+                  className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium cursor-pointer transition-colors ${
+                    isChecked
+                      ? 'border-emerald-500 bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-700 shadow-2xs'
+                      : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/60'
+                  }`}
+                >
+                  <Checkbox
+                    checked={isChecked}
+                    onChange={(event) =>
+                      setLinkedCompliances((current) =>
+                        event.target.checked
+                          ? [...current, code]
+                          : current.filter((item) => item !== code)
+                      )
+                    }
+                    size="small"
+                    sx={{
+                      padding: 0,
+                      color: isDark ? '#64748B' : '#94A3B8',
+                      '&.Mui-checked': {
+                        color: isDark ? '#34D399' : '#059669',
+                      },
+                    }}
+                  />
+                  <span className="font-mono text-xs font-semibold">{code}</span>
+                </label>
+              );
+            })}
+          </div>
+
+          <div className="text-[11px] text-slate-500 dark:text-slate-400">
+            {dirty ? (
+              <span className="text-amber-600 dark:text-amber-400 font-semibold inline-flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                Unsaved changes
+              </span>
+            ) : checklist?.lastUpdatedByName ? (
+              <span>
+                Last saved by {checklist.lastUpdatedByName}
+                {checklist.updatedAt ? ` · ${new Date(checklist.updatedAt).toLocaleString()}` : ''}
+              </span>
+            ) : null}
+          </div>
+        </div>
+      )}
 
       {serverStaleHint && (
         <div className="flex flex-wrap items-center justify-between gap-2 text-xs p-3 rounded-lg border border-sky-300 dark:border-sky-800 bg-sky-50 dark:bg-sky-950/40 text-sky-900 dark:text-sky-200">
@@ -396,12 +447,6 @@ export function FacilityDataChecklistPanel({
         </div>
       )}
 
-      {checklist?.lastUpdatedByName && (
-        <p className="text-[11px] text-slate-500 dark:text-slate-400">
-          Last saved by {checklist.lastUpdatedByName}
-          {checklist.updatedAt ? ` · ${new Date(checklist.updatedAt).toLocaleString()}` : ''}
-        </p>
-      )}
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
         <div className="p-3 rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/30">

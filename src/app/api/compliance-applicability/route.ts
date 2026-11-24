@@ -11,7 +11,9 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const facilityId = searchParams.get('facilityId');
 
-    const query: { facilityId?: string } = {};
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const query: { facilityId?: string | { $in: string[] } } = {};
+    if (!facilityId && session.role !== 'ADMIN') query.facilityId = { $in: session.authorizedFacilityIds || [] };
     if (facilityId) {
       if (!isAuthorizedForFacility(session, facilityId)) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -31,7 +33,7 @@ export async function GET(request: NextRequest) {
         data: records.map((r) => ({
           ...r,
           _id: r._id.toString(),
-          deadline: r.deadline ? r.deadline.toISOString() : null,
+          deadline: r.deadline ? (r.deadline instanceof Date ? r.deadline.toISOString() : (() => { const d = new Date(String(r.deadline)); return isNaN(d.getTime()) ? String(r.deadline) : d.toISOString(); })()) : null,
         })),
       });
     }
@@ -50,16 +52,8 @@ export async function GET(request: NextRequest) {
       data: [],
     });
   } catch (error) {
-    console.warn('Error fetching compliance applicability from DB, returning fallback records:', error);
-    const searchParams = request.nextUrl.searchParams;
-    const reqFacility = searchParams.get('facilityId');
-    if (reqFacility) {
-      const { generateFacilityApplicabilities } = await import('@/lib/complianceMatrixData');
-      const generated = generateFacilityApplicabilities(reqFacility);
-      return NextResponse.json({ success: true, data: generated });
-    }
-    const { MOCK_APPLICABILITY } = await import('@/lib/mockFallback');
-    return NextResponse.json({ success: true, data: MOCK_APPLICABILITY });
+    console.error('Compliance applicability query failed:', error);
+    return NextResponse.json({ error: 'Unable to load compliance applicability.' }, { status: 503 });
   }
 }
 
@@ -94,6 +88,8 @@ export async function POST(request: NextRequest) {
       notes?: string;
     };
 
+    if (!isAuthorizedForFacility(session, body.facilityId)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
     const doc = await ComplianceApplicabilityModel.findOneAndUpdate(
       {
         facilityId: body.facilityId.toUpperCase(),
@@ -114,11 +110,7 @@ export async function POST(request: NextRequest) {
       data: doc,
     });
   } catch (error) {
-    console.warn('Error saving compliance applicability in DB, returning demo success:', error);
-    return NextResponse.json({
-      success: true,
-      message: 'Compliance applicability saved successfully (Demo Mode)',
-      data: body,
-    });
+    console.error('Compliance applicability save failed:', error);
+    return NextResponse.json({ error: 'Unable to save compliance applicability.' }, { status: 500 });
   }
 }

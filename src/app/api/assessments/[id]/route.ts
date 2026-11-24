@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import { connectToDatabase } from '@/lib/db';
 import { AssessmentModel } from '@/models/Assessment';
+import { getClientFacilityIds } from '@/lib/clientFacilityAccess';
 import { getSessionFromRequest, isAuthorizedForFacility, authorizeRole } from '@/lib/auth';
 
 export async function GET(
@@ -27,21 +28,20 @@ export async function GET(
     }
 
     if (!assessment) {
-      const { generateFacilityAssessments } = await import('@/lib/complianceMatrixData');
-      const parts = id.replace(/^asm_/, '').split('_');
-      let facilityId = 'TRIDENT_PAPER';
-      if (parts.length >= 3) {
-        facilityId = parts.slice(0, parts.length - 2).join('_').toUpperCase();
-      }
-      const generated = generateFacilityAssessments(facilityId);
-      assessment = generated.find((a) => a._id.toLowerCase() === id.toLowerCase()) || generated[0];
+      const { resolveAssessmentById } = await import('@/lib/complianceMatrixData');
+      assessment = resolveAssessmentById(id) as typeof assessment;
     }
 
     if (!assessment) {
       return NextResponse.json({ error: 'Assessment not found' }, { status: 404 });
     }
 
-    if (!isAuthorizedForFacility(session, assessment.facilityId)) {
+    let facilityAuthorized = isAuthorizedForFacility(session, assessment.facilityId);
+    if (!facilityAuthorized && session?.role === 'CLIENT' && session.clientGroupId) {
+      const companyFacilityIds = await getClientFacilityIds(session.clientGroupId);
+      facilityAuthorized = companyFacilityIds.includes(assessment.facilityId.toUpperCase());
+    }
+    if (!facilityAuthorized) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -78,14 +78,11 @@ export async function GET(
   } catch (error) {
     console.warn('Error fetching assessment from DB, returning fallback assessment:', error);
     const { id } = await params;
-    const { generateFacilityAssessments } = await import('@/lib/complianceMatrixData');
-    const parts = id.replace(/^asm_/, '').split('_');
-    let facilityId = 'TRIDENT_PAPER';
-    if (parts.length >= 3) {
-      facilityId = parts.slice(0, parts.length - 2).join('_').toUpperCase();
+    const { resolveAssessmentById } = await import('@/lib/complianceMatrixData');
+    const fallback = resolveAssessmentById(id);
+    if (!fallback) {
+      return NextResponse.json({ error: 'Assessment not found' }, { status: 404 });
     }
-    const generated = generateFacilityAssessments(facilityId);
-    const fallback = generated.find((a) => a._id.toLowerCase() === id.toLowerCase()) || generated[0];
     return NextResponse.json({ success: true, data: fallback });
   }
 }
@@ -102,6 +99,9 @@ export async function PATCH(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    const existing = await AssessmentModel.findById(id);
+    if (!existing) return NextResponse.json({ error: 'Assessment not found' }, { status: 404 });
+    if (!isAuthorizedForFacility(session, existing.facilityId)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     const body = (await request.json()) as Record<string, unknown>;
 
     // Increment version when updating assessment records
@@ -120,10 +120,7 @@ export async function PATCH(
       data: updated,
     });
   } catch (error) {
-    console.warn('Error updating assessment in DB, returning demo success:', error);
-    return NextResponse.json({
-      success: true,
-      message: 'Assessment updated successfully (Demo Mode)',
-    });
+    console.error('Assessment update failed:', error);
+    return NextResponse.json({ error: 'Unable to update assessment.' }, { status: 500 });
   }
 }

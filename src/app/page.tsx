@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { useAuth } from '@/context/AuthContext';
 import {
   ShieldCheck,
   Building2,
@@ -18,8 +17,6 @@ import {
 } from 'lucide-react';
 
 export default function HomePage() {
-  const { currentRole, switchRole } = useAuth();
-
   const acceptanceSteps = [
     {
       step: '1-2',
@@ -72,7 +69,7 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
+    <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
       {/* Hero Banner */}
       <div className="relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/80 p-8 sm:p-12 shadow-xl">
         <div className="max-w-3xl space-y-4">
@@ -112,7 +109,6 @@ export default function HomePage() {
 
             <Link
               href="/portal"
-              onClick={() => switchRole('CLIENT')}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-white font-semibold text-sm border border-slate-300 dark:border-slate-700 transition-colors shadow-sm"
             >
               <span>Launch Client Portal</span>
@@ -141,7 +137,6 @@ export default function HomePage() {
             <Link
               key={index}
               href={item.link}
-              onClick={() => switchRole(item.role as any)}
               className="group p-5 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 hover:border-emerald-500/40 transition-all flex flex-col justify-between shadow-md"
             >
               <div className="space-y-2.5">
@@ -162,7 +157,7 @@ export default function HomePage() {
               </div>
 
               <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-800/80 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
-                <span>Switch to <strong>{item.role}</strong> & Test</span>
+                <span>Open module</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </div>
             </Link>

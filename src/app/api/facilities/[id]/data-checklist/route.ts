@@ -75,6 +75,12 @@ export async function PUT(
       itemKey: item.itemKey || `custom_${index}`,
       label: (item.label || '').trim() || 'Untitled item',
       status: item.status || 'DUE',
+      applicability: item.applicability,
+      importedApplicability: item.importedApplicability,
+      masterRequirementId: item.masterRequirementId,
+      sourceColumnLabel: item.sourceColumnLabel,
+      categoryKey: item.categoryKey,
+      specialInstruction: item.specialInstruction,
       notes: item.notes || '',
       sortOrder: typeof item.sortOrder === 'number' ? item.sortOrder : index + 1,
     }));

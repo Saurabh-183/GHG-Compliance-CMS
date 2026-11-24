@@ -29,7 +29,47 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
       ? 'px-2 py-0.5 text-xs whitespace-nowrap shrink-0'
       : 'px-2.5 py-1 text-xs font-medium whitespace-nowrap shrink-0';
 
-  // Workflow Status styling
+  // Client submission status (data request collection)
+  if (type === 'submission') {
+    switch (status) {
+      case 'RECEIVED':
+        return (
+          <span className={`inline-flex items-center rounded-full border cc-badge-success ${sizeClasses}`}>
+            <span className="w-1.5 h-1.5 rounded-full mr-1.5 cc-dot"></span>
+            Received
+          </span>
+        );
+      case 'PARTIALLY_RECEIVED':
+        return (
+          <span className={`inline-flex items-center rounded-full border cc-badge-warning ${sizeClasses}`}>
+            <span className="w-1.5 h-1.5 rounded-full mr-1.5 cc-dot"></span>
+            Partially Received
+          </span>
+        );
+      case 'REQUESTED':
+        return (
+          <span className={`inline-flex items-center rounded-full border cc-badge-info ${sizeClasses}`}>
+            <span className="w-1.5 h-1.5 rounded-full mr-1.5 cc-dot"></span>
+            Awaiting Client
+          </span>
+        );
+      case 'NOT_REQUESTED':
+        return (
+          <span className={`inline-flex items-center rounded-full border cc-badge-neutral ${sizeClasses}`}>
+            <span className="w-1.5 h-1.5 rounded-full mr-1.5 cc-dot"></span>
+            Not Requested
+          </span>
+        );
+      default:
+        return (
+          <span className={`inline-flex items-center rounded-full border cc-badge-neutral ${sizeClasses}`}>
+            {String(status).replaceAll('_', ' ')}
+          </span>
+        );
+    }
+  }
+
+  // Workflow Status styling (assessment lifecycle)
   if (type === 'workflow' || ['NOT_STARTED', 'DATA_COLLECTION', 'UNDER_REVIEW', 'APPROVED', 'SUBMITTED'].includes(status)) {
     switch (status) {
       case 'APPROVED':
@@ -134,7 +174,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
   }
 
   // Verification status
-  if (['CLARIFICATION_REQUIRED', 'AWAITING_APPROVAL', 'EVIDENCE_PENDING'].includes(status)) {
+  if (['CLARIFICATION_REQUIRED', 'AWAITING_APPROVAL', 'EVIDENCE_PENDING', 'UNDER_REVIEW', 'APPROVED', 'ACCEPTED', 'REJECTED', 'NOT_STARTED', 'REQUESTED', 'IN_PROGRESS', 'SUBMITTED', 'RESUBMITTED', 'CHANGES_REQUESTED', 'CLOSED', 'DRAFT'].includes(status)) {
     switch (status) {
       case 'CLARIFICATION_REQUIRED':
         return (
@@ -154,6 +194,29 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
             Evidence Pending
           </span>
         );
+      case 'UNDER_REVIEW':
+        return <span className={`inline-flex items-center rounded-full border cc-badge-warning ${sizeClasses}`}>Under Consultant Review</span>;
+      case 'APPROVED':
+      case 'ACCEPTED':
+        return <span className={`inline-flex items-center rounded-full border cc-badge-success ${sizeClasses}`}>Accepted</span>;
+      case 'DRAFT':
+        return <span className={`inline-flex items-center rounded-full border cc-badge-neutral ${sizeClasses}`}>Draft</span>;
+      case 'REJECTED':
+        return <span className={`inline-flex items-center rounded-full border cc-badge-error ${sizeClasses}`}>Returned for Correction</span>;
+      case 'NOT_STARTED':
+        return <span className={`inline-flex items-center rounded-full border cc-badge-neutral ${sizeClasses}`}>Not Reviewed</span>;
+      case 'REQUESTED':
+        return <span className={`inline-flex items-center rounded-full border cc-badge-info ${sizeClasses}`}>Requested</span>;
+      case 'IN_PROGRESS':
+        return <span className={`inline-flex items-center rounded-full border cc-badge-warning ${sizeClasses}`}>In Progress</span>;
+      case 'SUBMITTED':
+        return <span className={`inline-flex items-center rounded-full border cc-badge-info ${sizeClasses}`}>Submitted</span>;
+      case 'RESUBMITTED':
+        return <span className={`inline-flex items-center rounded-full border cc-badge-info ${sizeClasses}`}>Resubmitted</span>;
+      case 'CHANGES_REQUESTED':
+        return <span className={`inline-flex items-center rounded-full border cc-badge-error ${sizeClasses}`}>Changes Requested</span>;
+      case 'CLOSED':
+        return <span className={`inline-flex items-center rounded-full border cc-badge-neutral ${sizeClasses}`}>Closed</span>;
     }
   }
 

@@ -12,7 +12,6 @@ import {
   CheckCircle2,
   ArrowRight,
   TrendingUp,
-  Clock,
 } from 'lucide-react';
 import {
   ICalendarItem,
@@ -25,9 +24,14 @@ import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import { MOCK_CLIENT_GROUPS } from '@/lib/mockFallback';
 import { CompanySelectMui } from '@/components/dashboard/CompanySelectMui';
 import { FacilitySelectMui } from '@/components/dashboard/FacilitySelectMui';
-import { ClientUploadsPanel } from '@/components/uploads/ClientUploadsPanel';
+import { ClientSubmissionsReviewTable } from '@/components/uploads/ClientSubmissionsReviewTable';
 import { generateDeadlinesForFacilities } from '@/lib/statutoryCalendar';
 import { FacilityDataChecklistPanel } from '@/components/checklist/FacilityDataChecklistPanel';
+import {
+  facilityIdsCsv,
+  flattenGroupFacilities,
+  resolveCompanyScope,
+} from '@/lib/clientGroupFacilities';
 
 export default function DashboardPage() {
   const { currentRole, currentUser } = useAuth();
@@ -89,25 +93,12 @@ export default function DashboardPage() {
     loadData();
   }, []);
 
-  // Find the currently selected company group.
-  const selectedGroup = groups.find(
-    (group) =>
-      group._id === selectedCompanyId ||
-      group.code === selectedCompanyId
+  const allFacilities = flattenGroupFacilities(groups);
+  const { selectedGroup, currentFacilities } = resolveCompanyScope(
+    selectedCompanyId,
+    groups
   );
-
-  // Collect all facilities across all client groups.
-  const allFacilities: IFacility[] = groups.flatMap(
-    (group) => group.facilities || []
-  );
-
-  const currentFacilities: IFacility[] = selectedGroup
-    ? selectedGroup.facilities?.length
-      ? selectedGroup.facilities
-      : allFacilities.filter(
-          (facility) => facility.clientGroupId === selectedGroup._id
-        )
-    : allFacilities;
+  const scopedFacilityIdsCsv = selectedGroup ? facilityIdsCsv(currentFacilities) : undefined;
 
   // Filter calendar deadlines for the selected company.
   useEffect(() => {
@@ -160,16 +151,13 @@ export default function DashboardPage() {
   const totalUnitsCount = allFacilities.length || 109;
 
   const isTridentSelected =
-    !selectedGroup ||
-    selectedGroup.code === 'TRI' ||
-    selectedGroup.name.toLowerCase().includes('trident');
-
-  const openClarifications = clarifications.filter(
-    (item) => item.status === 'OPEN'
-  ).length;
+    !!selectedGroup &&
+    (selectedGroup.code === 'TRI' ||
+      selectedGroup.code === 'TRIDENT' ||
+      selectedGroup.name.toLowerCase().includes('trident'));
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Workspace Welcome & Company Dropdown Selector */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
         <div>
@@ -196,7 +184,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Dynamic Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Assigned Facilities */}
         <div className="p-5 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm">
           <div className="flex items-center justify-between">
@@ -242,70 +230,6 @@ export default function DashboardPage() {
 
           <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
             RCO, PAT, CCTS, CEA Returns
-          </div>
-        </div>
-
-        {/* Open Clarifications */}
-        <div className="p-5 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
-              Open Clarifications
-            </span>
-
-            <AlertTriangle
-              className={`w-4 h-4 ${
-                isTridentSelected
-                  ? 'text-rose-600 dark:text-rose-400'
-                  : 'text-emerald-600 dark:text-emerald-400'
-              }`}
-            />
-          </div>
-
-          <div
-            className={`text-2xl font-bold mt-2 ${
-              isTridentSelected
-                ? 'text-rose-700 dark:text-rose-400'
-                : 'text-slate-900 dark:text-white'
-            }`}
-          >
-            {isTridentSelected
-              ? `${openClarifications || 1} Discrepancy`
-              : '0 Discrepancy'}
-          </div>
-
-          <div
-            className={`text-[11px] mt-1 ${
-              isTridentSelected
-                ? 'text-rose-800 dark:text-rose-400/80'
-                : 'text-emerald-700 dark:text-emerald-400'
-            }`}
-          >
-            {isTridentSelected
-              ? 'June 2025 Grid kWh Mismatch'
-              : 'All facility records reconciled'}
-          </div>
-        </div>
-
-        {/* Upcoming Filings */}
-        <div className="p-5 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
-              Upcoming Filings
-            </span>
-            <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-          </div>
-
-          <div className="text-2xl font-bold text-slate-900 dark:text-white mt-2">
-            {selectedGroup
-              ? displayCalendarItems.length
-              : calendarItems.filter((item) => item.status === 'PENDING')
-                  .length || 4}
-          </div>
-
-          <div className="text-[11px] text-amber-700 dark:text-amber-400 mt-1">
-            {selectedGroup
-              ? `Statutory Cycles for ${selectedGroup.name.split(' ')[0]}`
-              : 'Next due: July CEA Filing'}
           </div>
         </div>
       </div>
@@ -376,7 +300,7 @@ export default function DashboardPage() {
 
           <Link
             href={`/clients/${selectedGroup._id}`}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#17365D] hover:bg-[#102947] dark:bg-[#A56F63] dark:hover:bg-[#8C594E] !text-white text-xs font-bold transition-all shadow-sm shrink-0"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#17365D] hover:bg-[#102947] dark:bg-emerald-700 dark:hover:bg-emerald-800 !text-white text-xs font-bold transition-all shadow-sm shrink-0"
             style={{ color: '#FFFFFF' }}
           >
             <span>View {selectedGroup.name} Directory</span>
@@ -385,15 +309,36 @@ export default function DashboardPage() {
         </div>
       ) : null}
 
-      {/* Client uploads from portal → compliance vault */}
-      <ClientUploadsPanel
-        compact
-        facilityId={
-          selectedGroup && currentFacilities.length === 1
-            ? currentFacilities[0].facilityId
-            : undefined
-        }
-      />
+      {/* Client submissions — same mapping as Data Review (live Drive uploads) */}
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-5 shadow-sm space-y-4">
+        <div>
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+            Client submissions for review
+          </h3>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+            Mapped from client portal uploads — same list as{' '}
+            <Link href="/data-review" className="text-emerald-700 dark:text-emerald-400 hover:underline">
+              Data Review
+            </Link>
+            . Use{' '}
+            <Link href="/client-uploads" className="text-emerald-700 dark:text-emerald-400 hover:underline">
+              Client Drive Vault
+            </Link>{' '}
+            for vault path and monthly mapping.
+          </p>
+        </div>
+        <ClientSubmissionsReviewTable
+          compact
+          showWorkflowFilter={false}
+          clientGroupId={selectedGroup?._id?.toString()}
+          facilityIds={scopedFacilityIdsCsv}
+          facilityId={
+            selectedGroup && currentFacilities.length === 1
+              ? currentFacilities[0].facilityId
+              : undefined
+          }
+        />
+      </div>
 
       {/* Upcoming Deadlines & Registered Facilities */}
       {selectedGroup && checklistFacility && (

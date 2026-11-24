@@ -1,67 +1,85 @@
 [
   {
     "_id": {
-      "$oid": "6ade76b2667ed7c3e0b31310"
+      "$oid": "6afe993a62c738b0be61be03"
     },
     "facilityId": "TRIDENT_PAPER",
     "period": "FY2025-26",
-    "title": "Monthly Grid Electricity Invoices & Consumption Log",
+    "title": "Monthly Grid Electricity Invoices & Consumption Logs",
     "category": "COMMON_ENERGY",
     "linkedCompliances": [
       "RCO",
+      "PAT",
       "CCTS",
-      "PAT"
+      "CEA"
     ],
-    "description": "DISCOM monthly electricity bills (PSPCL 66kV feeder) and plant internal Excel log for April 2025 to March 2026.",
+    "description": "Monthly HT electricity bills and internal sub-metering logs synced directly from Google Drive repository.",
     "isApplicable": true,
     "submissionStatus": "RECEIVED",
     "verificationStatus": "UNDER_REVIEW",
-    "requestedAt": {
-      "$date": {
-        "$numberLong": "1746057600000"
-      }
-    },
-    "dueDate": {
-      "$date": {
-        "$numberLong": "1752969600000"
-      }
-    },
+    "requestedAt": "2025-05-01T00:00:00.000Z",
+    "dueDate": "2025-07-20T00:00:00.000Z",
     "submittedDriveLinks": [
       {
         "url": "https://drive.google.com/file/d/7G8H9I0J1K2L_Trident_Paper_Grid_Consumption_FY25-26_Q1.xlsx/view",
-        "submittedAt": {
-          "$date": {
-            "$numberLong": "1752157200000"
-          }
-        },
+        "submittedAt": "2025-07-10T14:20:00.000Z",
         "submittedBy": "Vikram Singh (Client)",
         "description": "Client month-wise grid consumption Excel (Apr-Jun 2025)",
-        "_id": {
-          "$oid": "6ade76b2667ed7c3e0b31311"
-        }
+        "mappingStatus": "PENDING",
+        "billDetails": {
+          "invoiceNumber": "",
+          "billingFrom": "",
+          "billingTo": "",
+          "consumptionKwh": null,
+          "billAmount": null
+        },
+        "_id": "6afe993a62c738b0be61be04",
+        "vaultFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn",
+        "vaultTargetFolderId": "1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
       },
       {
         "url": "https://drive.google.com/drive/folders/8H9I0J1K2L3M_PSPCL_DISCOM_Bills_Q1_2025",
-        "submittedAt": {
-          "$date": {
-            "$numberLong": "1752314700000"
-          }
-        },
+        "submittedAt": "2025-07-12T10:05:00.000Z",
         "submittedBy": "Vikram Singh (Client)",
         "description": "Scanned official PSPCL electricity bills for Apr, May, Jun 2025",
+        "mappingStatus": "PENDING",
+        "billDetails": {
+          "invoiceNumber": "",
+          "billingFrom": "",
+          "billingTo": "",
+          "consumptionKwh": null,
+          "billAmount": null
+        },
+        "_id": "6afe993a62c738b0be61be05",
+        "vaultFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn",
+        "vaultTargetFolderId": "1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+      },
+      {
+        "url": "https://drive.google.com/drive/folders/1SELIwBlpzaCYrr2kjAJ_3WUK51dupIY_",
+        "submittedAt": {
+          "$date": {
+            "$numberLong": "1795497273987"
+          }
+        },
+        "submittedBy": "Priya Sharma",
+        "description": "Google Drive Master Repository (Trident Group - Paper Division Compliance Vault)",
+        "mappingStatus": "PENDING",
+        "billDetails": {
+          "invoiceNumber": "",
+          "billingFrom": "",
+          "billingTo": "",
+          "consumptionKwh": null,
+          "billAmount": null
+        },
         "_id": {
-          "$oid": "6ade76b2667ed7c3e0b31312"
+          "$oid": "6b051d399db8d2e30493fce8"
         }
       }
     ],
-    "createdAt": {
-      "$date": {
-        "$numberLong": "1792964274276"
-      }
-    },
+    "createdAt": "2026-11-19T06:37:46.636Z",
     "updatedAt": {
       "$date": {
-        "$numberLong": "1792964274685"
+        "$numberLong": "1795497273988"
       }
     },
     "__v": {
@@ -73,7 +91,7 @@
   },
   {
     "_id": {
-      "$oid": "6ade76b2667ed7c3e0b31315"
+      "$oid": "6afe993a62c738b0be61be08"
     },
     "facilityId": "TRIDENT_PAPER",
     "period": "FY2025-26",
@@ -100,12 +118,12 @@
     "submittedDriveLinks": [],
     "createdAt": {
       "$date": {
-        "$numberLong": "1792964274332"
+        "$numberLong": "1795070266680"
       }
     },
     "updatedAt": {
       "$date": {
-        "$numberLong": "1792964274332"
+        "$numberLong": "1795070266680"
       }
     },
     "__v": {
@@ -114,7 +132,7 @@
   },
   {
     "_id": {
-      "$oid": "6ade76b2667ed7c3e0b31313"
+      "$oid": "6afe993a62c738b0be61be06"
     },
     "facilityId": "TRIDENT_PAPER",
     "period": "FY2025-26",
@@ -127,48 +145,36 @@
     "isApplicable": true,
     "submissionStatus": "PARTIALLY_RECEIVED",
     "verificationStatus": "EVIDENCE_PENDING",
-    "requestedAt": {
-      "$date": {
-        "$numberLong": "1746057600000"
-      }
-    },
-    "dueDate": {
-      "$date": {
-        "$numberLong": "1755216000000"
-      }
-    },
+    "requestedAt": "2025-05-01T00:00:00.000Z",
+    "dueDate": "2025-08-15T00:00:00.000Z",
     "submittedDriveLinks": [
       {
         "url": "https://drive.google.com/file/d/9I0J1K2L3M4N_Solar_Gen_Log_Q1.xlsx/view",
-        "submittedAt": {
-          "$date": {
-            "$numberLong": "1752485400000"
-          }
-        },
+        "submittedAt": "2025-07-14T09:30:00.000Z",
         "submittedBy": "Vikram Singh (Client)",
         "description": "On-site 5MW solar roof generation log for Q1",
-        "_id": {
-          "$oid": "6ade76b2667ed7c3e0b31314"
-        }
+        "mappingStatus": "PENDING",
+        "billDetails": {
+          "invoiceNumber": "",
+          "billingFrom": "",
+          "billingTo": "",
+          "consumptionKwh": null,
+          "billAmount": null
+        },
+        "_id": "6afe993a62c738b0be61be07",
+        "vaultFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn",
+        "vaultTargetFolderId": "1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
       }
     ],
-    "createdAt": {
-      "$date": {
-        "$numberLong": "1792964274334"
-      }
-    },
-    "updatedAt": {
-      "$date": {
-        "$numberLong": "1792964274334"
-      }
-    },
+    "createdAt": "2026-11-19T06:37:46.681Z",
+    "updatedAt": "2026-11-19T06:37:46.681Z",
     "__v": {
       "$numberInt": "0"
     }
   },
   {
     "_id": {
-      "$oid": "6ade76b2667ed7c3e0b31316"
+      "$oid": "6afe993a62c738b0be61be09"
     },
     "facilityId": "TRIDENT_PAPER",
     "period": "FY2025-26",
@@ -182,39 +188,2059 @@
     "isApplicable": true,
     "submissionStatus": "RECEIVED",
     "verificationStatus": "UNDER_REVIEW",
-    "requestedAt": {
-      "$date": {
-        "$numberLong": "1747267200000"
-      }
-    },
-    "dueDate": {
-      "$date": {
-        "$numberLong": "1753920000000"
-      }
-    },
+    "requestedAt": "2025-05-15T00:00:00.000Z",
+    "dueDate": "2025-07-31T00:00:00.000Z",
     "submittedDriveLinks": [
       {
         "url": "https://drive.google.com/file/d/0J1K2L3M4N5O_Production_Records_FY25-26_Q1.xlsx/view",
-        "submittedAt": {
-          "$date": {
-            "$numberLong": "1752684300000"
-          }
-        },
+        "submittedAt": "2025-07-16T16:45:00.000Z",
         "submittedBy": "Vikram Singh (Client)",
         "description": "Certified production ledger by Plant Head",
+        "mappingStatus": "PENDING",
+        "billDetails": {
+          "invoiceNumber": "",
+          "billingFrom": "",
+          "billingTo": "",
+          "consumptionKwh": null,
+          "billAmount": null
+        },
+        "_id": "6afe993a62c738b0be61be0a",
+        "vaultFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn",
+        "vaultTargetFolderId": "1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+      }
+    ],
+    "createdAt": "2026-11-19T06:37:46.681Z",
+    "updatedAt": "2026-11-19T06:37:46.681Z",
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6afec07097cef52ae172720e"
+    },
+    "facilityId": "TRIDENT_PAPER",
+    "period": "FY2025-26",
+    "sourceChecklistItemKey": "CHECKLIST:CTO_CTE_CCA",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "category": "COMPLIANCE_SPECIFIC",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795080304599"
+      }
+    },
+    "description": "Please submit CTO / CTE / CCA for FY2025-26. Provide the supporting Google Drive document link and any applicable source records.",
+    "isApplicable": true,
+    "linkedCompliances": [
+      "RCO"
+    ],
+    "monthlyFrequency": false,
+    "reportingMonths": [],
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795080304599"
+      }
+    },
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "submissionStatus": "REQUESTED",
+    "submittedDriveLinks": [],
+    "title": "CTO / CTE / CCA",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795080304599"
+      }
+    },
+    "verificationStatus": "NOT_STARTED"
+  },
+  {
+    "_id": {
+      "$oid": "6afec07097cef52ae172720f"
+    },
+    "sourceChecklistItemKey": "CHECKLIST:GCV_EXT_FOSSIL",
+    "period": "FY2025-26",
+    "facilityId": "TRIDENT_PAPER",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "category": "COMMON_ENERGY",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795080304694"
+      }
+    },
+    "description": "Please submit GCV Certificate — External Fossil Fuels for FY2025-26. Provide the supporting Google Drive document link and any applicable source records.",
+    "isApplicable": true,
+    "linkedCompliances": [
+      "RCO"
+    ],
+    "monthlyFrequency": false,
+    "reportingMonths": [],
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795080304694"
+      }
+    },
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "submissionStatus": "REQUESTED",
+    "submittedDriveLinks": [],
+    "title": "GCV Certificate — External Fossil Fuels",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795080304694"
+      }
+    },
+    "verificationStatus": "NOT_STARTED"
+  },
+  {
+    "_id": {
+      "$oid": "6afec07097cef52ae1727210"
+    },
+    "sourceChecklistItemKey": "CHECKLIST:GCV_EXT_NON_FOSSIL",
+    "facilityId": "TRIDENT_PAPER",
+    "period": "FY2025-26",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "category": "COMMON_ENERGY",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795080304793"
+      }
+    },
+    "description": "Please submit GCV Certificate — External Non-Fossil Fuels for FY2025-26. Provide the supporting Google Drive document link and any applicable source records.",
+    "isApplicable": true,
+    "linkedCompliances": [
+      "RCO"
+    ],
+    "monthlyFrequency": false,
+    "reportingMonths": [],
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795080304793"
+      }
+    },
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "submissionStatus": "REQUESTED",
+    "submittedDriveLinks": [],
+    "title": "GCV Certificate — External Non-Fossil Fuels",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795080304793"
+      }
+    },
+    "verificationStatus": "NOT_STARTED"
+  },
+  {
+    "_id": {
+      "$oid": "6afec07097cef52ae1727211"
+    },
+    "sourceChecklistItemKey": "CHECKLIST:GCV_INT_BOMB",
+    "facilityId": "TRIDENT_PAPER",
+    "period": "FY2025-26",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "category": "COMPLIANCE_SPECIFIC",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795080304851"
+      }
+    },
+    "description": "Please submit GCV Internal — Bomb Calorimeter Reading (NCV) for FY2025-26. Provide the supporting Google Drive document link and any applicable source records.",
+    "isApplicable": true,
+    "linkedCompliances": [
+      "RCO"
+    ],
+    "monthlyFrequency": false,
+    "reportingMonths": [],
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795080304850"
+      }
+    },
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "submissionStatus": "REQUESTED",
+    "submittedDriveLinks": [],
+    "title": "GCV Internal — Bomb Calorimeter Reading (NCV)",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795080304851"
+      }
+    },
+    "verificationStatus": "NOT_STARTED"
+  },
+  {
+    "_id": {
+      "$oid": "6afec07197cef52ae1727212"
+    },
+    "sourceChecklistItemKey": "CHECKLIST:ULTIMATE_ANALYSIS",
+    "facilityId": "TRIDENT_PAPER",
+    "period": "FY2025-26",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "category": "COMMON_ENERGY",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795080304929"
+      }
+    },
+    "description": "Please submit Ultimate Analysis (Carbon Content) — Fossil Fuels for FY2025-26. Provide the supporting Google Drive document link and any applicable source records.",
+    "isApplicable": true,
+    "linkedCompliances": [
+      "RCO"
+    ],
+    "monthlyFrequency": false,
+    "reportingMonths": [],
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795080304929"
+      }
+    },
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "submissionStatus": "REQUESTED",
+    "submittedDriveLinks": [],
+    "title": "Ultimate Analysis (Carbon Content) — Fossil Fuels",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795080304929"
+      }
+    },
+    "verificationStatus": "NOT_STARTED"
+  },
+  {
+    "_id": {
+      "$oid": "6afec07197cef52ae1727213"
+    },
+    "facilityId": "TRIDENT_PAPER",
+    "period": "FY2025-26",
+    "sourceChecklistItemKey": "CHECKLIST:PROXIMATE_ANALYSIS",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "category": "COMPLIANCE_SPECIFIC",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795080305007"
+      }
+    },
+    "description": "Please submit Proximate Analysis (Moisture, Fixed Carbon) for FY2025-26. Provide the supporting Google Drive document link and any applicable source records.",
+    "isApplicable": true,
+    "linkedCompliances": [
+      "RCO"
+    ],
+    "monthlyFrequency": false,
+    "reportingMonths": [],
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795080305007"
+      }
+    },
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "submissionStatus": "REQUESTED",
+    "submittedDriveLinks": [],
+    "title": "Proximate Analysis (Moisture, Fixed Carbon)",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795080305007"
+      }
+    },
+    "verificationStatus": "NOT_STARTED"
+  },
+  {
+    "_id": {
+      "$oid": "6afec07197cef52ae1727214"
+    },
+    "sourceChecklistItemKey": "CHECKLIST:PROD_MONTH_ALL",
+    "facilityId": "TRIDENT_PAPER",
+    "period": "FY2025-26",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "category": "COMMON_ENERGY",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795080305109"
+      }
+    },
+    "description": "Please submit Production — Month-wise Data (All Products) for FY2025-26. Provide the supporting Google Drive document link and any applicable source records.",
+    "isApplicable": true,
+    "linkedCompliances": [
+      "RCO"
+    ],
+    "monthlyFrequency": false,
+    "reportingMonths": [],
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795080305109"
+      }
+    },
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "submissionStatus": "REQUESTED",
+    "submittedDriveLinks": [],
+    "title": "Production — Month-wise Data (All Products)",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795080305109"
+      }
+    },
+    "verificationStatus": "NOT_STARTED"
+  },
+  {
+    "_id": {
+      "$oid": "6afec07197cef52ae1727215"
+    },
+    "sourceChecklistItemKey": "CHECKLIST:PROD_MONTH_MACHINE",
+    "period": "FY2025-26",
+    "facilityId": "TRIDENT_PAPER",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "category": "COMMON_ENERGY",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795080305189"
+      }
+    },
+    "description": "Please submit Production — Month-wise Per Machine Data for FY2025-26. Provide the supporting Google Drive document link and any applicable source records.",
+    "isApplicable": true,
+    "linkedCompliances": [
+      "RCO"
+    ],
+    "monthlyFrequency": false,
+    "reportingMonths": [],
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795080305189"
+      }
+    },
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "submissionStatus": "REQUESTED",
+    "submittedDriveLinks": [],
+    "title": "Production — Month-wise Per Machine Data",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795080305189"
+      }
+    },
+    "verificationStatus": "NOT_STARTED"
+  },
+  {
+    "_id": {
+      "$oid": "6afec07197cef52ae1727216"
+    },
+    "sourceChecklistItemKey": "CHECKLIST:PROCESS_FLOW",
+    "facilityId": "TRIDENT_PAPER",
+    "period": "FY2025-26",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "category": "COMPLIANCE_SPECIFIC",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795080305238"
+      }
+    },
+    "description": "Please submit Process Flow Diagram for FY2025-26. Provide the supporting Google Drive document link and any applicable source records.",
+    "isApplicable": true,
+    "linkedCompliances": [
+      "RCO"
+    ],
+    "monthlyFrequency": false,
+    "reportingMonths": [],
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795080305238"
+      }
+    },
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "submissionStatus": "REQUESTED",
+    "submittedDriveLinks": [],
+    "title": "Process Flow Diagram",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795080305238"
+      }
+    },
+    "verificationStatus": "NOT_STARTED"
+  },
+  {
+    "_id": {
+      "$oid": "6afec07197cef52ae1727217"
+    },
+    "sourceChecklistItemKey": "CHECKLIST:BOILER_STEAM_LOG",
+    "period": "FY2025-26",
+    "facilityId": "TRIDENT_PAPER",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "category": "COMPLIANCE_SPECIFIC",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795080305299"
+      }
+    },
+    "description": "Please submit Boiler Steam Generation Log Books for FY2025-26. Provide the supporting Google Drive document link and any applicable source records.",
+    "isApplicable": true,
+    "linkedCompliances": [
+      "RCO"
+    ],
+    "monthlyFrequency": false,
+    "reportingMonths": [],
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795080305299"
+      }
+    },
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "submissionStatus": "REQUESTED",
+    "submittedDriveLinks": [],
+    "title": "Boiler Steam Generation Log Books",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795080305299"
+      }
+    },
+    "verificationStatus": "NOT_STARTED"
+  },
+  {
+    "_id": {
+      "$oid": "6afec07197cef52ae1727218"
+    },
+    "facilityId": "TRIDENT_PAPER",
+    "period": "FY2025-26",
+    "sourceChecklistItemKey": "CHECKLIST:BOILER_HOURS",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "category": "COMPLIANCE_SPECIFIC",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795080305428"
+      }
+    },
+    "description": "Please submit Boiler Running Hours / Detention Hours for FY2025-26. Provide the supporting Google Drive document link and any applicable source records.",
+    "isApplicable": true,
+    "linkedCompliances": [
+      "RCO"
+    ],
+    "monthlyFrequency": false,
+    "reportingMonths": [],
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795080305428"
+      }
+    },
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "submissionStatus": "REQUESTED",
+    "submittedDriveLinks": [],
+    "title": "Boiler Running Hours / Detention Hours",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795080305428"
+      }
+    },
+    "verificationStatus": "NOT_STARTED"
+  },
+  {
+    "_id": {
+      "$oid": "6afec07197cef52ae1727219"
+    },
+    "sourceChecklistItemKey": "CHECKLIST:BOILER_STEAM_PARAMS",
+    "period": "FY2025-26",
+    "facilityId": "TRIDENT_PAPER",
+    "__v": {
+      "$numberInt": "1"
+    },
+    "category": "COMPLIANCE_SPECIFIC",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795080305479"
+      }
+    },
+    "description": "Please submit Boiler SH Steam Pressure / Temperature / Enthalpy / Design & Operating Efficiency for FY2025-26. Provide the supporting Google Drive document link and any applicable source records.",
+    "isApplicable": true,
+    "linkedCompliances": [
+      "RCO"
+    ],
+    "monthlyFrequency": false,
+    "reportingMonths": [],
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795080305479"
+      }
+    },
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "submissionStatus": "RECEIVED",
+    "submittedDriveLinks": [
+      {
+        "url": "https://drive.google.com/file/d/1KpYzvPAdnfU5P1Zbf7iWpow8BzFe3rnI/view",
+        "submittedAt": {
+          "$date": {
+            "$numberLong": "1795431265489"
+          }
+        },
+        "submittedBy": "Trident Group",
+        "description": "Client submission via portal",
+        "sourceUrl": "https://docs.google.com/spreadsheets/d/18ofjINebKzlYbW64qIQ_JD_L1-3V2DluvfVNlhvjjps/edit",
+        "vaultUrl": "https://drive.google.com/file/d/1KpYzvPAdnfU5P1Zbf7iWpow8BzFe3rnI/view",
+        "vaultFolderUrl": "https://drive.google.com/drive/folders/1rq504N7adPDi3Olqpm9O5f9hZ0ij2Snq",
+        "vaultFolderPath": "Client_Submissions/TRIDENT/TRIDENT_PAPER/FY2025-26/Other_Evidence",
+        "vaultCategory": "Other_Evidence",
+        "driveFileId": "18ofjINebKzlYbW64qIQ_JD_L1-3V2DluvfVNlhvjjps",
+        "vaultFileId": "1KpYzvPAdnfU5P1Zbf7iWpow8BzFe3rnI",
+        "vaultTargetFolderId": "1PdaTMtxDLgm67Gau0nL7C5FETzzaKTdP",
+        "fileName": "2026-11-23_Boiler_SH_Steam_Pressure_Temperature_Enthalpy_De_document",
+        "mappingStatus": "PENDING",
+        "ingestionMode": "DRIVE_API_COPIED",
+        "billDetails": {
+          "invoiceNumber": "",
+          "billingFrom": "",
+          "billingTo": "",
+          "consumptionKwh": null,
+          "billAmount": null
+        },
         "_id": {
-          "$oid": "6ade76b2667ed7c3e0b31317"
+          "$oid": "6b041b610de855d0a921498b"
         }
       }
     ],
+    "title": "Boiler SH Steam Pressure / Temperature / Enthalpy / Design & Operating Efficiency",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795432326154"
+      }
+    },
+    "verificationStatus": "UNDER_REVIEW",
+    "allowPartialSubmission": true,
+    "fieldReviews": [],
+    "history": [
+      {
+        "status": "SUBMITTED",
+        "changedAt": {
+          "$date": {
+            "$numberLong": "1795431265498"
+          }
+        },
+        "changedBy": "Trident Group",
+        "_id": {
+          "$oid": "6b041b610de855d0a921498d"
+        }
+      }
+    ],
+    "priority": "MEDIUM",
+    "requiredDocumentSpecs": [],
+    "requiredDocuments": [],
+    "requiredFields": [],
+    "requirementItemStatus": "PENDING",
+    "submissionHistory": [
+      {
+        "version": {
+          "$numberInt": "1"
+        },
+        "submittedAt": {
+          "$date": {
+            "$numberLong": "1795431265497"
+          }
+        },
+        "submittedBy": "Trident Group",
+        "driveLinkIndexes": [
+          {
+            "$numberInt": "0"
+          }
+        ],
+        "_id": {
+          "$oid": "6b041b610de855d0a921498c"
+        }
+      }
+    ],
+    "submissionVersion": {
+      "$numberInt": "1"
+    },
+    "workflowStatus": "SUBMITTED",
+    "dueDate": {
+      "$date": {
+        "$numberLong": "1752969600000"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6afec07197cef52ae172721a"
+    },
+    "facilityId": "TRIDENT_PAPER",
+    "period": "FY2025-26",
+    "sourceChecklistItemKey": "CHECKLIST:BOILER_FUEL",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "category": "COMMON_ENERGY",
     "createdAt": {
       "$date": {
-        "$numberLong": "1792964274334"
+        "$numberLong": "1795080305524"
+      }
+    },
+    "description": "Please submit Per Boiler Fuel Consumption Data for FY2025-26. Provide the supporting Google Drive document link and any applicable source records.",
+    "isApplicable": true,
+    "linkedCompliances": [
+      "RCO"
+    ],
+    "monthlyFrequency": false,
+    "reportingMonths": [],
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795080305524"
+      }
+    },
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "submissionStatus": "REQUESTED",
+    "submittedDriveLinks": [],
+    "title": "Per Boiler Fuel Consumption Data",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795080305524"
+      }
+    },
+    "verificationStatus": "NOT_STARTED"
+  },
+  {
+    "_id": {
+      "$oid": "6afec07197cef52ae172721b"
+    },
+    "sourceChecklistItemKey": "CHECKLIST:STEAM_CONSUMPTION",
+    "facilityId": "TRIDENT_PAPER",
+    "period": "FY2025-26",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "category": "COMPLIANCE_SPECIFIC",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795080305581"
+      }
+    },
+    "description": "Please submit Steam Consumption Across Units for FY2025-26. Provide the supporting Google Drive document link and any applicable source records.",
+    "isApplicable": true,
+    "linkedCompliances": [
+      "RCO"
+    ],
+    "monthlyFrequency": false,
+    "reportingMonths": [],
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795080305581"
+      }
+    },
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "submissionStatus": "REQUESTED",
+    "submittedDriveLinks": [],
+    "title": "Steam Consumption Across Units",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795080305581"
+      }
+    },
+    "verificationStatus": "NOT_STARTED"
+  },
+  {
+    "_id": {
+      "$oid": "6afec07197cef52ae172721c"
+    },
+    "sourceChecklistItemKey": "CHECKLIST:TURBINE_GEN_LOG",
+    "facilityId": "TRIDENT_PAPER",
+    "period": "FY2025-26",
+    "__v": {
+      "$numberInt": "4"
+    },
+    "category": "COMPLIANCE_SPECIFIC",
+    "createdAt": "2026-11-19T09:25:05.648Z",
+    "description": "Please submit Turbine Generation Log Books for FY2025-26. Provide the supporting Google Drive document link and any applicable source records.",
+    "isApplicable": true,
+    "linkedCompliances": [
+      "RCO"
+    ],
+    "monthlyFrequency": false,
+    "reportingMonths": [],
+    "requestedAt": "2026-11-19T09:25:05.648Z",
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "submissionStatus": "RECEIVED",
+    "submittedDriveLinks": [
+      {
+        "url": "https://docs.google.com/spreadsheets/d/12ZZuValyMP4hg0BrWBC0Bk-SBsum7qHaLg-5sD0V6r4/edit",
+        "submittedAt": "2026-11-21T10:56:09.614Z",
+        "submittedBy": "Vikram Singh",
+        "description": "hello",
+        "sourceUrl": "https://docs.google.com/spreadsheets/d/12ZZuValyMP4hg0BrWBC0Bk-SBsum7qHaLg-5sD0V6r4/edit",
+        "vaultUrl": "https://docs.google.com/spreadsheets/d/12ZZuValyMP4hg0BrWBC0Bk-SBsum7qHaLg-5sD0V6r4/edit",
+        "vaultFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn",
+        "vaultFolderPath": "Client_Submissions/TRIDENT/TRIDENT_PAPER/FY2025-26/Client_Consumption_Sheets",
+        "vaultCategory": "Client_Consumption_Sheets",
+        "driveFileId": "12ZZuValyMP4hg0BrWBC0Bk-SBsum7qHaLg-5sD0V6r4",
+        "vaultTargetFolderId": "1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn",
+        "fileName": "2026-11-21_Turbine_Generation_Log_Books_document",
+        "mappingStatus": "VERIFIED",
+        "ingestionMode": "VAULT_INDEXED",
+        "billDetails": {
+          "invoiceNumber": "",
+          "billingFrom": "",
+          "billingTo": "",
+          "consumptionKwh": null,
+          "billAmount": null
+        },
+        "_id": "6b0178c9ac4fb8c5226fb828",
+        "mappedAt": "2026-11-21T10:56:40.958Z",
+        "mappedBy": "Priya Sharma"
+      }
+    ],
+    "title": "Turbine Generation Log Books",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795420160478"
+      }
+    },
+    "verificationStatus": "APPROVED",
+    "allowPartialSubmission": true,
+    "fieldReviews": [],
+    "history": [
+      {
+        "status": "SUBMITTED",
+        "changedAt": "2026-11-21T10:54:16.584Z",
+        "changedBy": "Vikram Singh",
+        "_id": "6b017858ac4fb8c5226fb81c"
+      },
+      {
+        "status": "CHANGES_REQUESTED",
+        "changedAt": "2026-11-21T10:55:29.848Z",
+        "changedBy": "Priya Sharma",
+        "comment": "send direct document link",
+        "_id": "6b0178a1ac4fb8c5226fb822"
+      },
+      {
+        "status": "RESUBMITTED",
+        "changedAt": "2026-11-21T10:56:09.620Z",
+        "changedBy": "Vikram Singh",
+        "_id": "6b0178c9ac4fb8c5226fb82a"
+      },
+      {
+        "status": "ACCEPTED",
+        "changedAt": "2026-11-21T10:56:40.957Z",
+        "changedBy": "Priya Sharma",
+        "_id": "6b0178e8ac4fb8c5226fb833"
+      }
+    ],
+    "priority": "MEDIUM",
+    "requiredDocumentSpecs": [],
+    "requiredDocuments": [],
+    "requiredFields": [],
+    "requirementItemStatus": "ACCEPTED",
+    "submissionHistory": [
+      {
+        "version": {
+          "$numberInt": "1"
+        },
+        "submittedAt": "2026-11-21T10:54:16.582Z",
+        "submittedBy": "Vikram Singh",
+        "driveLinkIndexes": [
+          {
+            "$numberInt": "0"
+          }
+        ],
+        "_id": "6b017858ac4fb8c5226fb81b"
+      },
+      {
+        "version": {
+          "$numberInt": "2"
+        },
+        "submittedAt": "2026-11-21T10:56:09.617Z",
+        "submittedBy": "Vikram Singh",
+        "driveLinkIndexes": [
+          {
+            "$numberInt": "0"
+          }
+        ],
+        "_id": "6b0178c9ac4fb8c5226fb829"
+      }
+    ],
+    "submissionVersion": {
+      "$numberInt": "2"
+    },
+    "workflowStatus": "ACCEPTED",
+    "reviewedAt": "2026-11-21T10:56:40.957Z",
+    "reviewedByName": "Priya Sharma",
+    "dueDate": {
+      "$date": {
+        "$numberLong": "1752969600000"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6afec07197cef52ae172721d"
+    },
+    "sourceChecklistItemKey": "CHECKLIST:TURBINE_EXTRACTION",
+    "period": "FY2025-26",
+    "facilityId": "TRIDENT_PAPER",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "category": "COMPLIANCE_SPECIFIC",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795080305714"
+      }
+    },
+    "description": "Please submit Turbine Extraction Point Steam Data for FY2025-26. Provide the supporting Google Drive document link and any applicable source records.",
+    "isApplicable": true,
+    "linkedCompliances": [
+      "RCO"
+    ],
+    "monthlyFrequency": false,
+    "reportingMonths": [],
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795080305714"
+      }
+    },
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "submissionStatus": "REQUESTED",
+    "submittedDriveLinks": [],
+    "title": "Turbine Extraction Point Steam Data",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795430063289"
+      }
+    },
+    "verificationStatus": "NOT_STARTED",
+    "dueDate": {
+      "$date": {
+        "$numberLong": "1752969600000"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6afec07197cef52ae172721e"
+    },
+    "sourceChecklistItemKey": "CHECKLIST:TURBINE_POWER",
+    "facilityId": "TRIDENT_PAPER",
+    "period": "FY2025-26",
+    "__v": {
+      "$numberInt": "1"
+    },
+    "category": "COMMON_ENERGY",
+    "createdAt": "2026-11-19T09:25:05.773Z",
+    "description": "Please submit Turbine Power Generation Data for FY2025-26. Provide the supporting Google Drive document link and any applicable source records.",
+    "isApplicable": true,
+    "linkedCompliances": [
+      "RCO"
+    ],
+    "monthlyFrequency": false,
+    "reportingMonths": [],
+    "requestedAt": "2026-11-19T09:25:05.773Z",
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "submissionStatus": "RECEIVED",
+    "submittedDriveLinks": [
+      {
+        "url": "https://docs.google.com/spreadsheets/d/12ZZuValyMP4hg0BrWBC0Bk-SBsum7qHaLg-5sD0V6r4/edit",
+        "submittedAt": "2026-11-21T13:54:59.193Z",
+        "submittedBy": "Vikram Singh",
+        "description": "bhejo",
+        "sourceUrl": "https://docs.google.com/spreadsheets/d/12ZZuValyMP4hg0BrWBC0Bk-SBsum7qHaLg-5sD0V6r4/edit",
+        "vaultUrl": "https://docs.google.com/spreadsheets/d/12ZZuValyMP4hg0BrWBC0Bk-SBsum7qHaLg-5sD0V6r4/edit",
+        "vaultFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn",
+        "vaultFolderPath": "Client_Submissions/TRIDENT/TRIDENT_PAPER/FY2025-26/Client_Consumption_Sheets",
+        "vaultCategory": "Client_Consumption_Sheets",
+        "driveFileId": "12ZZuValyMP4hg0BrWBC0Bk-SBsum7qHaLg-5sD0V6r4",
+        "vaultTargetFolderId": "1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn",
+        "fileName": "2026-11-21_Turbine_Power_Generation_Data_document",
+        "mappingStatus": "PENDING",
+        "ingestionMode": "VAULT_INDEXED",
+        "billDetails": {
+          "invoiceNumber": "",
+          "billingFrom": "",
+          "billingTo": "",
+          "consumptionKwh": null,
+          "billAmount": null
+        },
+        "_id": "6b01a2b3a7d64fd1f209f93c"
+      }
+    ],
+    "title": "Turbine Power Generation Data",
+    "updatedAt": "2026-11-21T13:54:59.208Z",
+    "verificationStatus": "UNDER_REVIEW",
+    "allowPartialSubmission": true,
+    "fieldReviews": [],
+    "history": [
+      {
+        "status": "SUBMITTED",
+        "changedAt": "2026-11-21T13:54:59.201Z",
+        "changedBy": "Vikram Singh",
+        "_id": "6b01a2b3a7d64fd1f209f93e"
+      }
+    ],
+    "priority": "MEDIUM",
+    "requiredDocumentSpecs": [],
+    "requiredDocuments": [],
+    "requiredFields": [],
+    "requirementItemStatus": "PENDING",
+    "submissionHistory": [
+      {
+        "version": {
+          "$numberInt": "1"
+        },
+        "submittedAt": "2026-11-21T13:54:59.200Z",
+        "submittedBy": "Vikram Singh",
+        "driveLinkIndexes": [
+          {
+            "$numberInt": "0"
+          }
+        ],
+        "_id": "6b01a2b3a7d64fd1f209f93d"
+      }
+    ],
+    "submissionVersion": {
+      "$numberInt": "1"
+    },
+    "workflowStatus": "SUBMITTED"
+  },
+  {
+    "_id": {
+      "$oid": "6afec07197cef52ae172721f"
+    },
+    "sourceChecklistItemKey": "CHECKLIST:AUX_POWER",
+    "facilityId": "TRIDENT_PAPER",
+    "period": "FY2025-26",
+    "__v": {
+      "$numberInt": "1"
+    },
+    "category": "COMMON_ENERGY",
+    "createdAt": "2026-11-19T09:25:05.872Z",
+    "description": "Please submit Auxiliary Power Generation for FY2025-26. Provide the supporting Google Drive document link and any applicable source records.",
+    "isApplicable": true,
+    "linkedCompliances": [
+      "RCO"
+    ],
+    "monthlyFrequency": false,
+    "reportingMonths": [],
+    "requestedAt": "2026-11-19T09:25:05.872Z",
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "submissionStatus": "RECEIVED",
+    "submittedDriveLinks": [
+      {
+        "url": "https://docs.google.com/spreadsheets/d/12ZZuValyMP4hg0BrWBC0Bk-SBsum7qHaLg-5sD0V6r4/edit",
+        "submittedAt": "2026-11-21T14:00:10.442Z",
+        "submittedBy": "Trident Group",
+        "description": "mm",
+        "sourceUrl": "https://docs.google.com/spreadsheets/d/12ZZuValyMP4hg0BrWBC0Bk-SBsum7qHaLg-5sD0V6r4/edit",
+        "vaultUrl": "https://docs.google.com/spreadsheets/d/12ZZuValyMP4hg0BrWBC0Bk-SBsum7qHaLg-5sD0V6r4/edit",
+        "vaultFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn",
+        "vaultFolderPath": "Client_Submissions/TRIDENT/TRIDENT_PAPER/FY2025-26/Client_Consumption_Sheets",
+        "vaultCategory": "Client_Consumption_Sheets",
+        "driveFileId": "12ZZuValyMP4hg0BrWBC0Bk-SBsum7qHaLg-5sD0V6r4",
+        "vaultTargetFolderId": "1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn",
+        "fileName": "2026-11-21_Auxiliary_Power_Generation_document",
+        "mappingStatus": "PENDING",
+        "ingestionMode": "VAULT_INDEXED",
+        "billDetails": {
+          "invoiceNumber": "",
+          "billingFrom": "",
+          "billingTo": "",
+          "consumptionKwh": null,
+          "billAmount": null
+        },
+        "_id": "6b01a3ea73a47d47eba69002"
+      }
+    ],
+    "title": "Auxiliary Power Generation",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795417376079"
+      }
+    },
+    "verificationStatus": "UNDER_REVIEW",
+    "allowPartialSubmission": true,
+    "fieldReviews": [],
+    "history": [
+      {
+        "status": "SUBMITTED",
+        "changedAt": "2026-11-21T14:00:10.451Z",
+        "changedBy": "Trident Group",
+        "_id": "6b01a3ea73a47d47eba69004"
+      }
+    ],
+    "priority": "MEDIUM",
+    "requiredDocumentSpecs": [],
+    "requiredDocuments": [],
+    "requiredFields": [],
+    "requirementItemStatus": "PENDING",
+    "submissionHistory": [
+      {
+        "version": {
+          "$numberInt": "1"
+        },
+        "submittedAt": "2026-11-21T14:00:10.450Z",
+        "submittedBy": "Trident Group",
+        "driveLinkIndexes": [
+          {
+            "$numberInt": "0"
+          }
+        ],
+        "_id": "6b01a3ea73a47d47eba69003"
+      }
+    ],
+    "submissionVersion": {
+      "$numberInt": "1"
+    },
+    "workflowStatus": "SUBMITTED",
+    "dueDate": {
+      "$date": {
+        "$numberLong": "1798243200000"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6afec07297cef52ae1727220"
+    },
+    "sourceChecklistItemKey": "CHECKLIST:TURBINE_HOURS",
+    "facilityId": "TRIDENT_PAPER",
+    "period": "FY2025-26",
+    "__v": {
+      "$numberInt": "2"
+    },
+    "category": "COMPLIANCE_SPECIFIC",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795080306098"
+      }
+    },
+    "description": "Please submit Turbine Running Hours / Detention Hours for FY2025-26. Provide the supporting Google Drive document link and any applicable source records.",
+    "isApplicable": true,
+    "linkedCompliances": [
+      "RCO"
+    ],
+    "monthlyFrequency": false,
+    "reportingMonths": [],
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795080306098"
+      }
+    },
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "submissionStatus": "RECEIVED",
+    "submittedDriveLinks": [
+      {
+        "url": "https://docs.google.com/spreadsheets/d/12ZZuValyMP4hg0BrWBC0Bk-SBsum7qHaLg-5sD0V6r4/edit",
+        "submittedAt": {
+          "$date": {
+            "$numberLong": "1795272193894"
+          }
+        },
+        "submittedBy": "Trident Group",
+        "description": "11mm",
+        "sourceUrl": "https://docs.google.com/spreadsheets/d/12ZZuValyMP4hg0BrWBC0Bk-SBsum7qHaLg-5sD0V6r4/edit",
+        "vaultUrl": "https://docs.google.com/spreadsheets/d/12ZZuValyMP4hg0BrWBC0Bk-SBsum7qHaLg-5sD0V6r4/edit",
+        "vaultFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn",
+        "vaultFolderPath": "Client_Submissions/TRIDENT/TRIDENT_PAPER/FY2025-26/Other_Evidence",
+        "vaultCategory": "Other_Evidence",
+        "driveFileId": "12ZZuValyMP4hg0BrWBC0Bk-SBsum7qHaLg-5sD0V6r4",
+        "vaultTargetFolderId": "1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn",
+        "fileName": "2026-11-21_Turbine_Running_Hours_Detention_Hours_document",
+        "mappingStatus": "VERIFIED",
+        "ingestionMode": "VAULT_INDEXED",
+        "billDetails": {
+          "invoiceNumber": "",
+          "billingFrom": "",
+          "billingTo": "",
+          "consumptionKwh": null,
+          "billAmount": null
+        },
+        "_id": {
+          "$oid": "6b01ae01a8f92d07bbab2042"
+        },
+        "mappedAt": {
+          "$date": {
+            "$numberLong": "1795411769309"
+          }
+        },
+        "mappedBy": "Saurabh Agnihotri"
+      }
+    ],
+    "title": "Turbine Running Hours / Detention Hours",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795419992871"
+      }
+    },
+    "verificationStatus": "APPROVED",
+    "allowPartialSubmission": true,
+    "fieldReviews": [],
+    "history": [
+      {
+        "status": "SUBMITTED",
+        "changedAt": {
+          "$date": {
+            "$numberLong": "1795272193907"
+          }
+        },
+        "changedBy": "Trident Group",
+        "_id": {
+          "$oid": "6b01ae01a8f92d07bbab2044"
+        }
+      },
+      {
+        "status": "ACCEPTED",
+        "changedAt": {
+          "$date": {
+            "$numberLong": "1795411769296"
+          }
+        },
+        "changedBy": "Saurabh Agnihotri",
+        "_id": {
+          "$oid": "6b03cf39cf0f556cd9c170b9"
+        }
+      }
+    ],
+    "priority": "MEDIUM",
+    "requiredDocumentSpecs": [],
+    "requiredDocuments": [],
+    "requiredFields": [],
+    "requirementItemStatus": "ACCEPTED",
+    "submissionHistory": [
+      {
+        "version": {
+          "$numberInt": "1"
+        },
+        "submittedAt": {
+          "$date": {
+            "$numberLong": "1795272193906"
+          }
+        },
+        "submittedBy": "Trident Group",
+        "driveLinkIndexes": [
+          {
+            "$numberInt": "0"
+          }
+        ],
+        "_id": {
+          "$oid": "6b01ae01a8f92d07bbab2043"
+        }
+      }
+    ],
+    "submissionVersion": {
+      "$numberInt": "1"
+    },
+    "workflowStatus": "ACCEPTED",
+    "reviewedAt": {
+      "$date": {
+        "$numberLong": "1795411769296"
+      }
+    },
+    "reviewedByName": "Saurabh Agnihotri",
+    "dueDate": {
+      "$date": {
+        "$numberLong": "1752969600000"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6afec07297cef52ae1727221"
+    },
+    "sourceChecklistItemKey": "CHECKLIST:TURBINE_HEAT_RATE",
+    "period": "FY2025-26",
+    "facilityId": "TRIDENT_PAPER",
+    "__v": {
+      "$numberInt": "1"
+    },
+    "category": "COMPLIANCE_SPECIFIC",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795080306190"
+      }
+    },
+    "description": "Please submit Turbine Design Heat Rate and Feed Water Temperature for FY2025-26. Provide the supporting Google Drive document link and any applicable source records.",
+    "isApplicable": true,
+    "linkedCompliances": [
+      "RCO"
+    ],
+    "monthlyFrequency": false,
+    "reportingMonths": [],
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795080306190"
+      }
+    },
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "submissionStatus": "RECEIVED",
+    "submittedDriveLinks": [
+      {
+        "url": "https://docs.google.com/spreadsheets/d/12ZZuValyMP4hg0BrWBC0Bk-SBsum7qHaLg-5sD0V6r4/edit",
+        "submittedAt": {
+          "$date": {
+            "$numberLong": "1795413361199"
+          }
+        },
+        "submittedBy": "Trident Group",
+        "description": "23/11/2026 Today at 11:25 AM",
+        "sourceUrl": "https://docs.google.com/spreadsheets/d/12ZZuValyMP4hg0BrWBC0Bk-SBsum7qHaLg-5sD0V6r4/edit",
+        "vaultUrl": "https://docs.google.com/spreadsheets/d/12ZZuValyMP4hg0BrWBC0Bk-SBsum7qHaLg-5sD0V6r4/edit",
+        "vaultFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn",
+        "vaultFolderPath": "Client_Submissions/TRIDENT/TRIDENT_PAPER/FY2025-26/Other_Evidence",
+        "vaultCategory": "Other_Evidence",
+        "driveFileId": "12ZZuValyMP4hg0BrWBC0Bk-SBsum7qHaLg-5sD0V6r4",
+        "vaultTargetFolderId": "1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn",
+        "fileName": "2026-11-23_Turbine_Design_Heat_Rate_and_Feed_Water_Temperat_document",
+        "mappingStatus": "PENDING",
+        "ingestionMode": "VAULT_INDEXED",
+        "billDetails": {
+          "invoiceNumber": "",
+          "billingFrom": "",
+          "billingTo": "",
+          "consumptionKwh": null,
+          "billAmount": null
+        },
+        "_id": {
+          "$oid": "6b03d5717b5052626e8a767f"
+        }
+      }
+    ],
+    "title": "Turbine Design Heat Rate and Feed Water Temperature",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795419508807"
+      }
+    },
+    "verificationStatus": "UNDER_REVIEW",
+    "allowPartialSubmission": true,
+    "fieldReviews": [],
+    "history": [
+      {
+        "status": "SUBMITTED",
+        "changedAt": {
+          "$date": {
+            "$numberLong": "1795413361356"
+          }
+        },
+        "changedBy": "Trident Group",
+        "_id": {
+          "$oid": "6b03d5717b5052626e8a7681"
+        }
+      }
+    ],
+    "priority": "MEDIUM",
+    "requiredDocumentSpecs": [],
+    "requiredDocuments": [],
+    "requiredFields": [],
+    "requirementItemStatus": "PENDING",
+    "submissionHistory": [
+      {
+        "version": {
+          "$numberInt": "1"
+        },
+        "submittedAt": {
+          "$date": {
+            "$numberLong": "1795413361354"
+          }
+        },
+        "submittedBy": "Trident Group",
+        "driveLinkIndexes": [
+          {
+            "$numberInt": "0"
+          }
+        ],
+        "_id": {
+          "$oid": "6b03d5717b5052626e8a7680"
+        }
+      }
+    ],
+    "submissionVersion": {
+      "$numberInt": "1"
+    },
+    "workflowStatus": "SUBMITTED",
+    "dueDate": {
+      "$date": {
+        "$numberLong": "1752969600000"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6afec07297cef52ae1727222"
+    },
+    "sourceChecklistItemKey": "CHECKLIST:TURBINE_ENTHALPY",
+    "facilityId": "TRIDENT_PAPER",
+    "period": "FY2025-26",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "category": "COMPLIANCE_SPECIFIC",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795080306233"
+      }
+    },
+    "description": "Please submit Steam Enthalpy / Pressure / Temperature at all Extraction Points (Turbine) for FY2025-26. Provide the supporting Google Drive document link and any applicable source records.",
+    "isApplicable": true,
+    "linkedCompliances": [
+      "RCO"
+    ],
+    "monthlyFrequency": false,
+    "reportingMonths": [],
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795080306232"
+      }
+    },
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "submissionStatus": "REQUESTED",
+    "submittedDriveLinks": [],
+    "title": "Steam Enthalpy / Pressure / Temperature at all Extraction Points (Turbine)",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795080306233"
+      }
+    },
+    "verificationStatus": "NOT_STARTED"
+  },
+  {
+    "_id": {
+      "$oid": "6afec07297cef52ae1727223"
+    },
+    "facilityId": "TRIDENT_PAPER",
+    "period": "FY2025-26",
+    "sourceChecklistItemKey": "CHECKLIST:GRID_BILLS",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "category": "COMMON_ENERGY",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795080306386"
+      }
+    },
+    "description": "Please submit Grid Bills for FY2025-26. Provide the supporting Google Drive document link and any applicable source records.",
+    "isApplicable": true,
+    "linkedCompliances": [
+      "RCO"
+    ],
+    "monthlyFrequency": false,
+    "reportingMonths": [],
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795080306386"
+      }
+    },
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "submissionStatus": "REQUESTED",
+    "submittedDriveLinks": [],
+    "title": "Grid Bills",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795080306386"
+      }
+    },
+    "verificationStatus": "NOT_STARTED"
+  },
+  {
+    "_id": {
+      "$oid": "6afec07297cef52ae1727224"
+    },
+    "sourceChecklistItemKey": "CHECKLIST:OA_PURCHASE",
+    "facilityId": "TRIDENT_PAPER",
+    "period": "FY2025-26",
+    "__v": {
+      "$numberInt": "1"
+    },
+    "category": "COMMON_ENERGY",
+    "createdAt": "2026-11-19T09:25:06.419Z",
+    "description": "Please submit OA Purchase Data / Bills for FY2025-26. Provide the supporting Google Drive document link and any applicable source records.",
+    "isApplicable": true,
+    "linkedCompliances": [
+      "RCO"
+    ],
+    "monthlyFrequency": false,
+    "reportingMonths": [],
+    "requestedAt": "2026-11-19T09:25:06.419Z",
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "submissionStatus": "RECEIVED",
+    "submittedDriveLinks": [
+      {
+        "url": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn",
+        "submittedAt": "2026-11-20T13:55:20.354Z",
+        "submittedBy": "Vikram Singh",
+        "description": "Ansh",
+        "sourceUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn",
+        "vaultUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn",
+        "vaultFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn",
+        "vaultFolderPath": "Client_Submissions/TRIDENT/TRIDENT_PAPER/FY2025-26/DISCOM_Utility_Bills",
+        "vaultCategory": "DISCOM_Utility_Bills",
+        "driveFolderId": "1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn",
+        "fileName": "2026-11-20_OA_Purchase_Data_Bills_folder",
+        "mappingStatus": "PENDING",
+        "ingestionMode": "VAULT_INDEXED",
+        "billDetails": {
+          "invoiceNumber": "",
+          "billingFrom": "",
+          "billingTo": "",
+          "consumptionKwh": null,
+          "billAmount": null
+        },
+        "_id": "6b0051483569b94c7613d4eb",
+        "vaultTargetFolderId": "1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn"
+      }
+    ],
+    "title": "OA Purchase Data / Bills",
+    "updatedAt": "2026-11-20T13:55:20.380Z",
+    "verificationStatus": "UNDER_REVIEW",
+    "allowPartialSubmission": true,
+    "brsrPrinciples": [],
+    "fieldReviews": [],
+    "history": [
+      {
+        "status": "SUBMITTED",
+        "changedAt": "2026-11-20T13:55:20.373Z",
+        "changedBy": "Vikram Singh",
+        "comment": "this is the test only....",
+        "_id": "6b0051483569b94c7613d4ed"
+      }
+    ],
+    "priority": "MEDIUM",
+    "requiredDocumentSpecs": [],
+    "requiredDocuments": [],
+    "requiredFields": [],
+    "submissionHistory": [
+      {
+        "version": {
+          "$numberInt": "1"
+        },
+        "submittedAt": "2026-11-20T13:55:20.372Z",
+        "submittedBy": "Vikram Singh",
+        "comment": "this is the test only....",
+        "driveLinkIndexes": [
+          {
+            "$numberInt": "0"
+          }
+        ],
+        "_id": "6b0051483569b94c7613d4ec"
+      }
+    ],
+    "submissionVersion": {
+      "$numberInt": "1"
+    },
+    "workflowStatus": "SUBMITTED"
+  },
+  {
+    "_id": {
+      "$oid": "6afec07297cef52ae1727225"
+    },
+    "sourceChecklistItemKey": "CHECKLIST:DG_SET",
+    "facilityId": "TRIDENT_PAPER",
+    "period": "FY2025-26",
+    "__v": {
+      "$numberInt": "1"
+    },
+    "category": "COMMON_ENERGY",
+    "createdAt": "2026-11-19T09:25:06.452Z",
+    "description": "Please submit DG Set Data for FY2025-26. Provide the supporting Google Drive document link and any applicable source records.",
+    "isApplicable": true,
+    "linkedCompliances": [
+      "RCO"
+    ],
+    "monthlyFrequency": false,
+    "reportingMonths": [],
+    "requestedAt": "2026-11-19T09:25:06.452Z",
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "submissionStatus": "RECEIVED",
+    "submittedDriveLinks": [
+      {
+        "url": "https://docs.google.com/spreadsheets/d/12ZZuValyMP4hg0BrWBC0Bk-SBsum7qHaLg-5sD0V6r4/edit",
+        "submittedAt": "2026-11-21T13:41:04.569Z",
+        "submittedBy": "Trident Group",
+        "description": "ff",
+        "sourceUrl": "https://docs.google.com/spreadsheets/d/12ZZuValyMP4hg0BrWBC0Bk-SBsum7qHaLg-5sD0V6r4/edit",
+        "vaultUrl": "https://docs.google.com/spreadsheets/d/12ZZuValyMP4hg0BrWBC0Bk-SBsum7qHaLg-5sD0V6r4/edit",
+        "vaultFolderUrl": "https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn",
+        "vaultFolderPath": "Client_Submissions/TRIDENT/TRIDENT_PAPER/FY2025-26/Client_Consumption_Sheets",
+        "vaultCategory": "Client_Consumption_Sheets",
+        "driveFileId": "12ZZuValyMP4hg0BrWBC0Bk-SBsum7qHaLg-5sD0V6r4",
+        "vaultTargetFolderId": "1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn",
+        "fileName": "2026-11-21_DG_Set_Data_document",
+        "mappingStatus": "PENDING",
+        "ingestionMode": "VAULT_INDEXED",
+        "billDetails": {
+          "invoiceNumber": "",
+          "billingFrom": "",
+          "billingTo": "",
+          "consumptionKwh": null,
+          "billAmount": null
+        },
+        "_id": "6b019f7073a47d47eba68ffd"
+      }
+    ],
+    "title": "DG Set Data",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795420862775"
+      }
+    },
+    "verificationStatus": "UNDER_REVIEW",
+    "allowPartialSubmission": true,
+    "fieldReviews": [],
+    "history": [
+      {
+        "status": "SUBMITTED",
+        "changedAt": "2026-11-21T13:41:04.574Z",
+        "changedBy": "Trident Group",
+        "_id": "6b019f7073a47d47eba68fff"
+      }
+    ],
+    "priority": "MEDIUM",
+    "requiredDocumentSpecs": [],
+    "requiredDocuments": [],
+    "requiredFields": [],
+    "requirementItemStatus": "PENDING",
+    "submissionHistory": [
+      {
+        "version": {
+          "$numberInt": "1"
+        },
+        "submittedAt": "2026-11-21T13:41:04.574Z",
+        "submittedBy": "Trident Group",
+        "driveLinkIndexes": [
+          {
+            "$numberInt": "0"
+          }
+        ],
+        "_id": "6b019f7073a47d47eba68ffe"
+      }
+    ],
+    "submissionVersion": {
+      "$numberInt": "1"
+    },
+    "workflowStatus": "SUBMITTED",
+    "dueDate": {
+      "$date": {
+        "$numberLong": "1752969600000"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6afec07297cef52ae1727226"
+    },
+    "sourceChecklistItemKey": "CHECKLIST:POWER_PER_MACHINE",
+    "facilityId": "TRIDENT_PAPER",
+    "period": "FY2025-26",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "category": "COMMON_ENERGY",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795080306482"
+      }
+    },
+    "description": "Please submit Power Consumption Data Per Machine for FY2025-26. Provide the supporting Google Drive document link and any applicable source records.",
+    "isApplicable": true,
+    "linkedCompliances": [
+      "RCO"
+    ],
+    "monthlyFrequency": false,
+    "reportingMonths": [],
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795080306482"
+      }
+    },
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "submissionStatus": "REQUESTED",
+    "submittedDriveLinks": [],
+    "title": "Power Consumption Data Per Machine",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795080306482"
+      }
+    },
+    "verificationStatus": "NOT_STARTED"
+  },
+  {
+    "_id": {
+      "$oid": "6afec07297cef52ae1727227"
+    },
+    "sourceChecklistItemKey": "CHECKLIST:INTERMEDIATE_SALE",
+    "period": "FY2025-26",
+    "facilityId": "TRIDENT_PAPER",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "category": "COMPLIANCE_SPECIFIC",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795080306512"
+      }
+    },
+    "description": "Please submit Intermediate Product Sale Data for FY2025-26. Provide the supporting Google Drive document link and any applicable source records.",
+    "isApplicable": true,
+    "linkedCompliances": [
+      "RCO"
+    ],
+    "monthlyFrequency": false,
+    "reportingMonths": [],
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795080306512"
+      }
+    },
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "submissionStatus": "REQUESTED",
+    "submittedDriveLinks": [],
+    "title": "Intermediate Product Sale Data",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795080306512"
+      }
+    },
+    "verificationStatus": "NOT_STARTED"
+  },
+  {
+    "_id": {
+      "$oid": "6afec07297cef52ae1727228"
+    },
+    "facilityId": "TRIDENT_PAPER",
+    "period": "FY2025-26",
+    "sourceChecklistItemKey": "CHECKLIST:INTERMEDIATE_PURCHASE",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "category": "COMPLIANCE_SPECIFIC",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795080306540"
+      }
+    },
+    "description": "Please submit Intermediate Product Purchase Data for FY2025-26. Provide the supporting Google Drive document link and any applicable source records.",
+    "isApplicable": true,
+    "linkedCompliances": [
+      "RCO"
+    ],
+    "monthlyFrequency": false,
+    "reportingMonths": [],
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795080306540"
+      }
+    },
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "submissionStatus": "REQUESTED",
+    "submittedDriveLinks": [],
+    "title": "Intermediate Product Purchase Data",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795080306540"
+      }
+    },
+    "verificationStatus": "NOT_STARTED"
+  },
+  {
+    "_id": {
+      "$oid": "6afec07297cef52ae1727229"
+    },
+    "sourceChecklistItemKey": "CHECKLIST:FUEL_PURCHASE",
+    "facilityId": "TRIDENT_PAPER",
+    "period": "FY2025-26",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "category": "COMMON_ENERGY",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795080306569"
+      }
+    },
+    "description": "Please submit Fuel Purchase Bills for FY2025-26. Provide the supporting Google Drive document link and any applicable source records.",
+    "isApplicable": true,
+    "linkedCompliances": [
+      "RCO"
+    ],
+    "monthlyFrequency": false,
+    "reportingMonths": [],
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795080306569"
+      }
+    },
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "submissionStatus": "REQUESTED",
+    "submittedDriveLinks": [],
+    "title": "Fuel Purchase Bills",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795080306569"
+      }
+    },
+    "verificationStatus": "NOT_STARTED"
+  },
+  {
+    "_id": {
+      "$oid": "6afec07297cef52ae172722a"
+    },
+    "sourceChecklistItemKey": "CHECKLIST:FUEL_STOCK",
+    "facilityId": "TRIDENT_PAPER",
+    "period": "FY2025-26",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "category": "COMMON_ENERGY",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795080306601"
+      }
+    },
+    "description": "Please submit Fuel Stock Data for FY2025-26. Provide the supporting Google Drive document link and any applicable source records.",
+    "isApplicable": true,
+    "linkedCompliances": [
+      "RCO"
+    ],
+    "monthlyFrequency": false,
+    "reportingMonths": [],
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795080306600"
+      }
+    },
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "submissionStatus": "REQUESTED",
+    "submittedDriveLinks": [],
+    "title": "Fuel Stock Data",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795080306601"
+      }
+    },
+    "verificationStatus": "NOT_STARTED"
+  },
+  {
+    "_id": {
+      "$oid": "6afec07297cef52ae172722b"
+    },
+    "sourceChecklistItemKey": "CHECKLIST:MACHINERY_LIST",
+    "facilityId": "TRIDENT_PAPER",
+    "period": "FY2025-26",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "category": "COMPLIANCE_SPECIFIC",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795080306633"
+      }
+    },
+    "description": "Please submit Machinery / Equipment List (Monitoring Plan) for FY2025-26. Provide the supporting Google Drive document link and any applicable source records.",
+    "isApplicable": true,
+    "linkedCompliances": [
+      "RCO"
+    ],
+    "monthlyFrequency": false,
+    "reportingMonths": [],
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795080306633"
+      }
+    },
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "submissionStatus": "REQUESTED",
+    "submittedDriveLinks": [],
+    "title": "Machinery / Equipment List (Monitoring Plan)",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795080306633"
+      }
+    },
+    "verificationStatus": "NOT_STARTED"
+  },
+  {
+    "_id": {
+      "$oid": "6afec07297cef52ae172722c"
+    },
+    "sourceChecklistItemKey": "CHECKLIST:CALIBRATION_CERTS",
+    "facilityId": "TRIDENT_PAPER",
+    "period": "FY2025-26",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "category": "COMPLIANCE_SPECIFIC",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795080306664"
+      }
+    },
+    "description": "Please submit Calibration Certificates for Equipment (Monitoring Plan) for FY2025-26. Provide the supporting Google Drive document link and any applicable source records.",
+    "isApplicable": true,
+    "linkedCompliances": [
+      "RCO"
+    ],
+    "monthlyFrequency": false,
+    "reportingMonths": [],
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795080306664"
+      }
+    },
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "submissionStatus": "REQUESTED",
+    "submittedDriveLinks": [],
+    "title": "Calibration Certificates for Equipment (Monitoring Plan)",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795080306664"
+      }
+    },
+    "verificationStatus": "NOT_STARTED"
+  },
+  {
+    "_id": {
+      "$oid": "6b0050223569b94c7613d4db"
+    },
+    "facilityId": "ENG_ANJANI_SYNTHETICS",
+    "requestId": "DR-2026-0T826K",
+    "period": "2025-26",
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "monthlyFrequency": false,
+    "reportingMonths": [],
+    "title": "Energy Consumption — Anjani Synthetics (2025-26)",
+    "category": "COMPLIANCE_SPECIFIC",
+    "linkedCompliances": [
+      "PAT",
+      "RCO"
+    ],
+    "description": "Upload electricity bills for each reporting month. Enter consumption in kWh. Ensure invoice number and billing cycle are visible. Share Excel or Google Drive links with view access.",
+    "purpose": "Required to calculate the facility's annual grid electricity consumption and Scope 2 GHG emissions for BRSR and energy compliance.",
+    "dataCategory": "Energy Consumption",
+    "brsrPrinciples": [],
+    "reportingFrequency": "ANNUAL",
+    "reportingPeriodStart": "2026-03",
+    "reportingPeriodEnd": "2026-03",
+    "requiredDocumentSpecs": [
+      {
+        "name": "Electricity Bill",
+        "description": "Official DISCOM bill PDF",
+        "required": true,
+        "acceptedFileTypes": [
+          "Excel files only"
+        ],
+        "_id": {
+          "$oid": "6b0050223569b94c7613d4dc"
+        }
+      },
+      {
+        "name": "Monthly Consumption Excel",
+        "description": "Month-wise kWh summary",
+        "required": true,
+        "acceptedFileTypes": [
+          "Excel files only"
+        ],
+        "_id": {
+          "$oid": "6b0050223569b94c7613d4dd"
+        }
+      },
+      {
+        "name": "Renewable Energy Certificate",
+        "description": "If applicable",
+        "required": false,
+        "acceptedFileTypes": [
+          "Excel files only"
+        ],
+        "_id": {
+          "$oid": "6b0050223569b94c7613d4de"
+        }
+      }
+    ],
+    "submissionFormat": "Google Drive link",
+    "allowPartialSubmission": true,
+    "priority": "MEDIUM",
+    "requiredFields": [
+      {
+        "key": "electricity_provider",
+        "label": "Electricity Provider",
+        "type": "TEXT",
+        "required": true,
+        "options": [],
+        "_id": {
+          "$oid": "6b0050223569b94c7613d4df"
+        }
+      },
+      {
+        "key": "consumer_account_number",
+        "label": "Consumer Account Number",
+        "type": "TEXT",
+        "required": true,
+        "options": [],
+        "_id": {
+          "$oid": "6b0050223569b94c7613d4e0"
+        }
+      },
+      {
+        "key": "consumer_name",
+        "label": "Consumer Name",
+        "type": "TEXT",
+        "required": true,
+        "options": [],
+        "_id": {
+          "$oid": "6b0050223569b94c7613d4e1"
+        }
+      },
+      {
+        "key": "meter_number",
+        "label": "Meter Number",
+        "type": "TEXT",
+        "required": true,
+        "options": [],
+        "_id": {
+          "$oid": "6b0050223569b94c7613d4e2"
+        }
+      },
+      {
+        "key": "bill_invoice_number",
+        "label": "Bill Invoice Number",
+        "type": "TEXT",
+        "required": true,
+        "options": [],
+        "_id": {
+          "$oid": "6b0050223569b94c7613d4e3"
+        }
+      },
+      {
+        "key": "billing_cycle",
+        "label": "Billing Cycle",
+        "type": "TEXT",
+        "required": true,
+        "options": [],
+        "_id": {
+          "$oid": "6b0050223569b94c7613d4e4"
+        }
+      },
+      {
+        "key": "contract_demand",
+        "label": "Contract Demand",
+        "type": "TEXT",
+        "required": true,
+        "options": [],
+        "_id": {
+          "$oid": "6b0050223569b94c7613d4e5"
+        }
+      },
+      {
+        "key": "billed_active_energy_kwh",
+        "label": "Billed Active Energy (kWh)",
+        "type": "NUMBER",
+        "required": true,
+        "options": [],
+        "unit": "kWh",
+        "_id": {
+          "$oid": "6b0050223569b94c7613d4e6"
+        }
+      },
+      {
+        "key": "total_bill_amount_inr",
+        "label": "Total Bill Amount (INR)",
+        "type": "NUMBER",
+        "required": true,
+        "options": [],
+        "unit": "INR",
+        "_id": {
+          "$oid": "6b0050223569b94c7613d4e7"
+        }
+      },
+      {
+        "key": "renewable_electricity_consumption",
+        "label": "Renewable Electricity Consumption",
+        "type": "NUMBER",
+        "required": false,
+        "options": [],
+        "unit": "kWh",
+        "_id": {
+          "$oid": "6b0050223569b94c7613d4e8"
+        }
+      }
+    ],
+    "requiredDocuments": [
+      "Electricity Bill",
+      "Monthly Consumption Excel",
+      "Renewable Energy Certificate"
+    ],
+    "submissionInstructions": "Upload electricity bills for each reporting month. Enter consumption in kWh. Ensure invoice number and billing cycle are visible. Share Excel or Google Drive links with view access.",
+    "workflowStatus": "REQUESTED",
+    "history": [
+      {
+        "status": "REQUESTED",
+        "changedAt": {
+          "$date": {
+            "$numberLong": "1795182626105"
+          }
+        },
+        "changedBy": "Priya Sharma",
+        "_id": {
+          "$oid": "6b0050223569b94c7613d4e9"
+        }
+      }
+    ],
+    "submissionVersion": {
+      "$numberInt": "0"
+    },
+    "isApplicable": true,
+    "submissionStatus": "REQUESTED",
+    "verificationStatus": "NOT_STARTED",
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795182626105"
+      }
+    },
+    "fieldReviews": [],
+    "submissionHistory": [],
+    "submittedDriveLinks": [],
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795182626146"
       }
     },
     "updatedAt": {
       "$date": {
-        "$numberLong": "1792964274334"
+        "$numberLong": "1795182626146"
       }
     },
     "__v": {
@@ -223,52 +2249,760 @@
   },
   {
     "_id": {
-      "$oid": "6ade771809ca67dcd526101a"
+      "$oid": "6b019c275dc412f64a005318"
     },
-    "facilityId": "NRAGARWAL_UNIT1",
+    "facilityId": "TRIDENT_PAPER",
+    "requestId": "DR-2026-1VF0IF",
+    "masterRequirementId": "REQ-019",
+    "requirementItemStatus": "PENDING",
     "period": "FY2025-26",
-    "category": "COMMON_ENERGY",
-    "__v": {
-      "$numberInt": "0"
-    },
-    "createdAt": {
-      "$date": {
-        "$numberLong": "1792964375774"
-      }
-    },
-    "datasetId": {
-      "$oid": "6ade7717667ed7c3e0b31327"
-    },
-    "description": "Monthly HT electricity bills and internal sub-metering logs synced directly from Google Drive repository.",
-    "isApplicable": true,
-    "linkedCompliances": [
-      "RCO",
-      "PAT",
-      "CCTS",
-      "CEA"
+    "sourceChecklistItemKey": "TURBINE_POWER",
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "monthlyFrequency": true,
+    "reportingMonths": [
+      "2026-05",
+      "2026-06",
+      "2026-07"
     ],
-    "submissionStatus": "RECEIVED",
-    "submittedDriveLinks": [
+    "title": "Turbine Power Generation Data",
+    "category": "COMPLIANCE_SPECIFIC",
+    "linkedCompliances": [
+      "PAT"
+    ],
+    "description": "Gross and net power generation from turbines.",
+    "purpose": "Gross and net power generation from turbines.",
+    "dataCategory": "Turbine Data",
+    "reportingFrequency": "MONTHLY",
+    "reportingPeriodStart": "2026-05",
+    "reportingPeriodEnd": "2026-07",
+    "requiredDocumentSpecs": [],
+    "submissionFormat": "Google Drive link",
+    "allowPartialSubmission": true,
+    "priority": "MEDIUM",
+    "requiredFields": [
       {
-        "url": "https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7",
-        "submittedAt": {
-          "$date": {
-            "$numberLong": "1792964375774"
-          }
-        },
-        "submittedBy": "Saurabh Agnihotri",
-        "description": "Google Drive Master Repository (Carbon Crunch · Compliance Documents & Evidence Vault)",
+        "key": "turbineId",
+        "label": "Turbine ID",
+        "type": "TEXT",
+        "required": true,
+        "options": [],
         "_id": {
-          "$oid": "6ade7717667ed7c3e0b31329"
+          "$oid": "6b019c275dc412f64a005319"
+        }
+      },
+      {
+        "key": "powerGenerated",
+        "label": "Power generated",
+        "type": "DECIMAL",
+        "required": true,
+        "options": [],
+        "unit": "kWh",
+        "_id": {
+          "$oid": "6b019c275dc412f64a00531a"
         }
       }
     ],
-    "title": "Monthly Grid Electricity Invoices & Consumption Logs",
-    "updatedAt": {
+    "requiredDocuments": [],
+    "submissionInstructions": "Gross and net power generation from turbines.",
+    "workflowStatus": "REQUESTED",
+    "history": [
+      {
+        "status": "REQUESTED",
+        "changedAt": {
+          "$date": {
+            "$numberLong": "1795267623051"
+          }
+        },
+        "changedBy": "Priya Sharma",
+        "_id": {
+          "$oid": "6b019c275dc412f64a00531b"
+        }
+      }
+    ],
+    "submissionVersion": {
+      "$numberInt": "0"
+    },
+    "isApplicable": true,
+    "submissionStatus": "REQUESTED",
+    "verificationStatus": "NOT_STARTED",
+    "requestedAt": {
       "$date": {
-        "$numberLong": "1792964375774"
+        "$numberLong": "1795267623051"
       }
     },
-    "verificationStatus": "UNDER_REVIEW"
+    "dueDate": {
+      "$date": {
+        "$numberLong": "1796860800000"
+      }
+    },
+    "fieldReviews": [],
+    "submissionHistory": [],
+    "submittedDriveLinks": [],
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795267623063"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795267690518"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b019de7a7d64fd1f209f935"
+    },
+    "facilityId": "TRIDENT_PAPER",
+    "requestId": "DR-2026-7D43ON",
+    "masterRequirementId": "REQ-023",
+    "requirementItemStatus": "PENDING",
+    "period": "FY2025-26",
+    "sourceChecklistItemKey": "TURBINE_ENTHALPY",
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "monthlyFrequency": true,
+    "reportingMonths": [
+      "2026-07",
+      "2026-08"
+    ],
+    "title": "Steam Enthalpy / Pressure / Temperature at All Extraction Points",
+    "category": "COMPLIANCE_SPECIFIC",
+    "linkedCompliances": [
+      "PAT"
+    ],
+    "description": "Thermodynamic parameters at each turbine extraction point.",
+    "purpose": "Thermodynamic parameters at each turbine extraction point.",
+    "dataCategory": "Turbine Data",
+    "reportingFrequency": "MONTHLY",
+    "reportingPeriodStart": "2026-07",
+    "reportingPeriodEnd": "2026-08",
+    "requiredDocumentSpecs": [],
+    "submissionFormat": "Google Drive link",
+    "allowPartialSubmission": true,
+    "priority": "MEDIUM",
+    "requiredFields": [
+      {
+        "key": "extractionPoint",
+        "label": "Extraction point",
+        "type": "TEXT",
+        "required": true,
+        "options": [],
+        "_id": {
+          "$oid": "6b019de7a7d64fd1f209f936"
+        }
+      },
+      {
+        "key": "pressure",
+        "label": "Pressure",
+        "type": "DECIMAL",
+        "required": true,
+        "options": [],
+        "_id": {
+          "$oid": "6b019de7a7d64fd1f209f937"
+        }
+      },
+      {
+        "key": "temperature",
+        "label": "Temperature",
+        "type": "DECIMAL",
+        "required": true,
+        "options": [],
+        "_id": {
+          "$oid": "6b019de7a7d64fd1f209f938"
+        }
+      },
+      {
+        "key": "enthalpy",
+        "label": "Enthalpy",
+        "type": "DECIMAL",
+        "required": true,
+        "options": [],
+        "_id": {
+          "$oid": "6b019de7a7d64fd1f209f939"
+        }
+      }
+    ],
+    "requiredDocuments": [],
+    "submissionInstructions": "Thermodynamic parameters at each turbine extraction point.",
+    "workflowStatus": "REQUESTED",
+    "history": [
+      {
+        "status": "REQUESTED",
+        "changedAt": {
+          "$date": {
+            "$numberLong": "1795268071957"
+          }
+        },
+        "changedBy": "Priya Sharma",
+        "_id": {
+          "$oid": "6b019de7a7d64fd1f209f93a"
+        }
+      }
+    ],
+    "submissionVersion": {
+      "$numberInt": "0"
+    },
+    "isApplicable": true,
+    "submissionStatus": "REQUESTED",
+    "verificationStatus": "NOT_STARTED",
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795268071957"
+      }
+    },
+    "dueDate": {
+      "$date": {
+        "$numberLong": "1795824000000"
+      }
+    },
+    "fieldReviews": [],
+    "submissionHistory": [],
+    "submittedDriveLinks": [],
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795268071979"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795268071979"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b019eb373a47d47eba68ff6"
+    },
+    "facilityId": "TRIDENT_PAPER",
+    "requestId": "DR-2026-K7YZ0K",
+    "masterRequirementId": "REQ-012",
+    "requirementItemStatus": "PENDING",
+    "period": "FY2025-26",
+    "sourceChecklistItemKey": "BOILER_STEAM_LOG",
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "monthlyFrequency": true,
+    "reportingMonths": [
+      "2026-01",
+      "2026-02",
+      "2026-03",
+      "2026-04",
+      "2026-05",
+      "2026-06",
+      "2026-07",
+      "2026-08",
+      "2026-09",
+      "2026-10",
+      "2026-11",
+      "2026-12"
+    ],
+    "title": "Boiler Steam Generation Logbooks",
+    "category": "COMPLIANCE_SPECIFIC",
+    "linkedCompliances": [
+      "RCO"
+    ],
+    "description": "Daily / shift boiler steam generation logbooks.",
+    "purpose": "Daily / shift boiler steam generation logbooks.",
+    "dataCategory": "Boiler and Steam Data",
+    "reportingFrequency": "MONTHLY",
+    "reportingPeriodStart": "2026-01",
+    "reportingPeriodEnd": "2026-12",
+    "requiredDocumentSpecs": [
+      {
+        "name": "Boiler logbook",
+        "description": "Upload an .xlsx file to Google Drive and share the link (view access for consultant).",
+        "required": true,
+        "acceptedFileTypes": [
+          "XLSX"
+        ],
+        "_id": {
+          "$oid": "6b019eb373a47d47eba68ff7"
+        }
+      }
+    ],
+    "submissionFormat": "Google Drive link",
+    "allowPartialSubmission": true,
+    "priority": "MEDIUM",
+    "requiredFields": [
+      {
+        "key": "boilerId",
+        "label": "Boiler ID",
+        "type": "TEXT",
+        "required": true,
+        "options": [],
+        "_id": {
+          "$oid": "6b019eb373a47d47eba68ff8"
+        }
+      },
+      {
+        "key": "steamGeneration",
+        "label": "Steam generation",
+        "type": "DECIMAL",
+        "required": true,
+        "options": [],
+        "_id": {
+          "$oid": "6b019eb373a47d47eba68ff9"
+        }
+      },
+      {
+        "key": "reportingPeriod",
+        "label": "Reporting period",
+        "type": "TEXT",
+        "required": true,
+        "options": [],
+        "_id": {
+          "$oid": "6b019eb373a47d47eba68ffa"
+        }
+      }
+    ],
+    "requiredDocuments": [
+      "Boiler logbook"
+    ],
+    "submissionInstructions": "Daily / shift boiler steam generation logbooks.",
+    "workflowStatus": "REQUESTED",
+    "history": [
+      {
+        "status": "REQUESTED",
+        "changedAt": {
+          "$date": {
+            "$numberLong": "1795268275854"
+          }
+        },
+        "changedBy": "Priya Sharma",
+        "_id": {
+          "$oid": "6b019eb373a47d47eba68ffb"
+        }
+      }
+    ],
+    "submissionVersion": {
+      "$numberInt": "0"
+    },
+    "isApplicable": true,
+    "submissionStatus": "REQUESTED",
+    "verificationStatus": "NOT_STARTED",
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795268275854"
+      }
+    },
+    "fieldReviews": [],
+    "submissionHistory": [],
+    "submittedDriveLinks": [],
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795268275875"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795268275875"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b04235f6ad596b3a91574bf"
+    },
+    "facilityId": "NRAGARWAL_UNIT1",
+    "requestId": "DR-2026-1R0BX9",
+    "masterRequirementId": "REQ-013",
+    "requirementItemStatus": "PENDING",
+    "period": "FY2025-26",
+    "sourceChecklistItemKey": "BOILER_HOURS",
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "monthlyFrequency": true,
+    "reportingMonths": [
+      "2026-01",
+      "2026-02",
+      "2026-03"
+    ],
+    "title": "Boiler Running Hours / Detention Hours",
+    "category": "COMPLIANCE_SPECIFIC",
+    "linkedCompliances": [
+      "PAT"
+    ],
+    "description": "Operating and detention hours for each boiler.",
+    "purpose": "Operating and detention hours for each boiler.",
+    "dataCategory": "Boiler and Steam Data",
+    "reportingFrequency": "MONTHLY",
+    "reportingPeriodStart": "2026-01",
+    "reportingPeriodEnd": "2026-03",
+    "requiredDocumentSpecs": [],
+    "submissionFormat": "Google Drive link",
+    "allowPartialSubmission": true,
+    "priority": "MEDIUM",
+    "requiredFields": [
+      {
+        "key": "boilerId",
+        "label": "Boiler ID",
+        "type": "TEXT",
+        "required": true,
+        "options": [],
+        "_id": {
+          "$oid": "6b04235f6ad596b3a91574c0"
+        }
+      },
+      {
+        "key": "runningHours",
+        "label": "Running hours",
+        "type": "DECIMAL",
+        "required": true,
+        "options": [],
+        "_id": {
+          "$oid": "6b04235f6ad596b3a91574c1"
+        }
+      },
+      {
+        "key": "detentionHours",
+        "label": "Detention hours",
+        "type": "DECIMAL",
+        "required": false,
+        "options": [],
+        "_id": {
+          "$oid": "6b04235f6ad596b3a91574c2"
+        }
+      }
+    ],
+    "requiredDocuments": [],
+    "submissionInstructions": "Operating and detention hours for each boiler.",
+    "workflowStatus": "SUBMITTED",
+    "history": [
+      {
+        "status": "REQUESTED",
+        "changedAt": {
+          "$date": {
+            "$numberLong": "1795433311111"
+          }
+        },
+        "changedBy": "Priya Sharma",
+        "_id": {
+          "$oid": "6b04235f6ad596b3a91574c3"
+        }
+      },
+      {
+        "status": "SUBMITTED",
+        "changedAt": {
+          "$date": {
+            "$numberLong": "1795435161708"
+          }
+        },
+        "changedBy": "N R Agarwal",
+        "_id": {
+          "$oid": "6b042a99ffea565ba402c69b"
+        }
+      }
+    ],
+    "submissionVersion": {
+      "$numberInt": "1"
+    },
+    "isApplicable": true,
+    "submissionStatus": "PARTIALLY_RECEIVED",
+    "verificationStatus": "UNDER_REVIEW",
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795433311111"
+      }
+    },
+    "dueDate": {
+      "$date": {
+        "$numberLong": "1795996800000"
+      }
+    },
+    "fieldReviews": [],
+    "submissionHistory": [
+      {
+        "version": {
+          "$numberInt": "1"
+        },
+        "submittedAt": {
+          "$date": {
+            "$numberLong": "1795435161707"
+          }
+        },
+        "submittedBy": "N R Agarwal",
+        "driveLinkIndexes": [
+          {
+            "$numberInt": "0"
+          }
+        ],
+        "structuredData": {
+          "boilerId": "235235",
+          "runningHours": {
+            "$numberInt": "12"
+          },
+          "detentionHours": {
+            "$numberInt": "1"
+          }
+        },
+        "_id": {
+          "$oid": "6b042a99ffea565ba402c69a"
+        }
+      }
+    ],
+    "submittedDriveLinks": [
+      {
+        "url": "https://drive.google.com/file/d/1dunwBDDH3SR_qUrAdLlEyXwl02NJvaWc/view",
+        "submittedAt": {
+          "$date": {
+            "$numberLong": "1795435161693"
+          }
+        },
+        "submittedBy": "N R Agarwal",
+        "description": "Client submission via portal",
+        "sourceUrl": "https://docs.google.com/spreadsheets/d/18ofjINebKzlYbW64qIQ_JD_L1-3V2DluvfVNlhvjjps/edit",
+        "vaultUrl": "https://drive.google.com/file/d/1dunwBDDH3SR_qUrAdLlEyXwl02NJvaWc/view",
+        "vaultFolderUrl": "https://drive.google.com/drive/folders/1ZCLl6FzQ_I1vY_nA6ff7rxd2sW4ik7kZ",
+        "vaultFolderPath": "Client_Submissions/NRAGARWAL/NRAGARWAL_UNIT1/FY2025-26/Other_Evidence",
+        "vaultCategory": "Other_Evidence",
+        "driveFileId": "18ofjINebKzlYbW64qIQ_JD_L1-3V2DluvfVNlhvjjps",
+        "vaultFileId": "1dunwBDDH3SR_qUrAdLlEyXwl02NJvaWc",
+        "vaultTargetFolderId": "1PdaTMtxDLgm67Gau0nL7C5FETzzaKTdP",
+        "fileName": "2026-11-23_Boiler_Running_Hours_Detention_Hours_document",
+        "mappingStatus": "PENDING",
+        "mappedMonth": "2026-01",
+        "ingestionMode": "DRIVE_API_COPIED",
+        "billDetails": {
+          "invoiceNumber": "",
+          "billingFrom": "",
+          "billingTo": "",
+          "consumptionKwh": null,
+          "billAmount": null
+        },
+        "_id": {
+          "$oid": "6b042a99ffea565ba402c699"
+        }
+      }
+    ],
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795433311134"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795435161715"
+      }
+    },
+    "__v": {
+      "$numberInt": "1"
+    },
+    "latestStructuredData": {
+      "boilerId": "235235",
+      "runningHours": {
+        "$numberInt": "12"
+      },
+      "detentionHours": {
+        "$numberInt": "1"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6b042bee6ad596b3a91574c5"
+    },
+    "facilityId": "NRAGARWAL_UNIT5",
+    "requestId": "DR-2026-XNA1UD",
+    "requirementItemStatus": "ACCEPTED",
+    "period": "FY2025-26",
+    "requestedBy": "6afe993562c738b0be61bd57",
+    "requestedByName": "Priya Sharma",
+    "monthlyFrequency": false,
+    "reportingMonths": [],
+    "title": "1122",
+    "category": "COMPLIANCE_SPECIFIC",
+    "linkedCompliances": [
+      "PAT",
+      "RCO"
+    ],
+    "description": "mm",
+    "purpose": "nn",
+    "dataCategory": "REGXBGHYB",
+    "reportingFrequency": "ANNUAL",
+    "requiredDocumentSpecs": [],
+    "submissionFormat": "Google Drive link",
+    "allowPartialSubmission": true,
+    "priority": "MEDIUM",
+    "requiredFields": [
+      {
+        "key": "sjd",
+        "label": "Sjd",
+        "type": "TEXT",
+        "required": false,
+        "options": [],
+        "unit": "—",
+        "_id": {
+          "$oid": "6b042bee6ad596b3a91574c6"
+        }
+      }
+    ],
+    "requiredDocuments": [],
+    "submissionInstructions": "mm",
+    "workflowStatus": "ACCEPTED",
+    "history": [
+      {
+        "status": "REQUESTED",
+        "changedAt": {
+          "$date": {
+            "$numberLong": "1795435502691"
+          }
+        },
+        "changedBy": "Priya Sharma",
+        "_id": {
+          "$oid": "6b042bee6ad596b3a91574c7"
+        }
+      },
+      {
+        "status": "SUBMITTED",
+        "changedAt": {
+          "$date": {
+            "$numberLong": "1795435532760"
+          }
+        },
+        "changedBy": "N R Agarwal",
+        "_id": {
+          "$oid": "6b042c0cffea565ba402c6a2"
+        }
+      },
+      {
+        "status": "ACCEPTED",
+        "changedAt": {
+          "$date": {
+            "$numberLong": "1795436758919"
+          }
+        },
+        "changedBy": "Priya Sharma",
+        "_id": {
+          "$oid": "6b0430d66ad596b3a91574de"
+        }
+      }
+    ],
+    "submissionVersion": {
+      "$numberInt": "1"
+    },
+    "isApplicable": true,
+    "submissionStatus": "RECEIVED",
+    "verificationStatus": "APPROVED",
+    "requestedAt": {
+      "$date": {
+        "$numberLong": "1795435502691"
+      }
+    },
+    "dueDate": {
+      "$date": {
+        "$numberLong": "1795824000000"
+      }
+    },
+    "fieldReviews": [
+      {
+        "fieldKey": "sjd",
+        "status": "VERIFIED",
+        "reviewedBy": "Priya Sharma",
+        "reviewedAt": {
+          "$date": {
+            "$numberLong": "1795436758919"
+          }
+        },
+        "_id": {
+          "$oid": "6b0430d66ad596b3a91574dd"
+        }
+      }
+    ],
+    "submissionHistory": [
+      {
+        "version": {
+          "$numberInt": "1"
+        },
+        "submittedAt": {
+          "$date": {
+            "$numberLong": "1795435532760"
+          }
+        },
+        "submittedBy": "N R Agarwal",
+        "driveLinkIndexes": [
+          {
+            "$numberInt": "0"
+          }
+        ],
+        "structuredData": {
+          "sjd": "sdgdas"
+        },
+        "_id": {
+          "$oid": "6b042c0cffea565ba402c6a1"
+        }
+      }
+    ],
+    "submittedDriveLinks": [
+      {
+        "url": "https://drive.google.com/file/d/15NNHHAAsX7PBAvIFDAeS9yWBy3cgHKtn/view",
+        "submittedAt": {
+          "$date": {
+            "$numberLong": "1795435532757"
+          }
+        },
+        "submittedBy": "N R Agarwal",
+        "description": "Client submission via portal",
+        "sourceUrl": "https://docs.google.com/spreadsheets/d/18ofjINebKzlYbW64qIQ_JD_L1-3V2DluvfVNlhvjjps/edit",
+        "vaultUrl": "https://drive.google.com/file/d/15NNHHAAsX7PBAvIFDAeS9yWBy3cgHKtn/view",
+        "vaultFolderUrl": "https://drive.google.com/drive/folders/1U778Yog0AxgyCl5Yu3bIPRXuo_yYSQ2b",
+        "vaultFolderPath": "Client_Submissions/NRAGARWAL/NRAGARWAL_UNIT5/FY2025-26/Other_Evidence",
+        "vaultCategory": "Other_Evidence",
+        "driveFileId": "18ofjINebKzlYbW64qIQ_JD_L1-3V2DluvfVNlhvjjps",
+        "vaultFileId": "15NNHHAAsX7PBAvIFDAeS9yWBy3cgHKtn",
+        "vaultTargetFolderId": "1PdaTMtxDLgm67Gau0nL7C5FETzzaKTdP",
+        "fileName": "2026-11-23_1122_document",
+        "mappingStatus": "VERIFIED",
+        "ingestionMode": "DRIVE_API_COPIED",
+        "billDetails": {
+          "invoiceNumber": "",
+          "billingFrom": "",
+          "billingTo": "",
+          "consumptionKwh": null,
+          "billAmount": null
+        },
+        "_id": {
+          "$oid": "6b042c0cffea565ba402c6a0"
+        },
+        "mappedAt": {
+          "$date": {
+            "$numberLong": "1795436758932"
+          }
+        },
+        "mappedBy": "Priya Sharma"
+      }
+    ],
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795435502695"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795436758938"
+      }
+    },
+    "__v": {
+      "$numberInt": "2"
+    },
+    "latestStructuredData": {
+      "sjd": "sdgdas"
+    },
+    "reviewedAt": {
+      "$date": {
+        "$numberLong": "1795436758919"
+      }
+    },
+    "reviewedByName": "Priya Sharma"
   }
 ]

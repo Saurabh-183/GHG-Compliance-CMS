@@ -6,59 +6,47 @@ import { ComplianceApplicabilityModel } from '@/models/ComplianceApplicability';
 import { getSessionFromRequest, authorizeRole } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
+  const session = getSessionFromRequest(request);
+  if (!session) {
+    return NextResponse.json(
+      { success: false, error: 'Authentication required.' },
+      { status: 401 }
+    );
+  }
+
+  if (session.role === 'CLIENT' && !session.clientGroupId) {
+    return NextResponse.json(
+      { success: false, error: 'Your account is not assigned to a client group.' },
+      { status: 403 }
+    );
+  }
+
   try {
     await connectToDatabase();
 
-    const session = getSessionFromRequest(request);
-
-    const query =
-      session?.role === 'CLIENT' && session.clientGroupId
-        ? { _id: session.clientGroupId }
-        : {};
+    let query: Record<string, unknown> = {};
+    if (session.role === 'CLIENT' && session.clientGroupId) query = { _id: session.clientGroupId };
+    else if (session.role === 'CONSULTANT') {
+      const assigned = session.authorizedFacilityIds || [];
+      if (!assigned.length) return NextResponse.json({ success: true, data: [] });
+      const assignedFacilities = await FacilityModel.find({ facilityId: { $in: assigned } }).select('clientGroupId').lean();
+      query = { _id: { $in: [...new Set(assignedFacilities.map((f) => f.clientGroupId.toString()))] } };
+    }
 
     let groups = await ClientGroupModel.find(query)
       .sort({ name: 1 })
       .lean();
 
-    if (groups.length === 0 && (!session || session.role !== 'CLIENT')) {
-      const totalCount = await ClientGroupModel.countDocuments();
-      if (totalCount === 0) {
-        const { seedDatabase } = await import('@/lib/seedData');
-        await seedDatabase();
-        groups = await ClientGroupModel.find(query).sort({ name: 1 }).lean();
-      }
-    }
+    // Do not seed/reset persistent data from a read or login request.
 
-    if (groups.length === 0) {
-      const { MOCK_CLIENT_GROUPS, MOCK_FACILITIES } = await import('@/lib/mockFallback');
-      const filteredMock =
-        session?.role === 'CLIENT' && session.clientGroupId
-          ? MOCK_CLIENT_GROUPS.filter((g) => g._id === session.clientGroupId)
-          : MOCK_CLIENT_GROUPS;
+    if (groups.length === 0) return NextResponse.json({ success: true, data: [] });
 
-      const fallbackData = filteredMock.map((group) => {
-        const facilities = MOCK_FACILITIES.filter((f) => f.clientGroupId === group._id);
-        return {
-          ...group,
-          _id: group._id.toString(),
-          totalFacilitiesCount: facilities.length,
-          activeCompliancesCount: facilities.length > 0 ? 3 : 0,
-          facilities: facilities.map((facility) => ({
-            ...facility,
-            _id: facility._id ? facility._id.toString() : 'fac_' + facility.facilityId.toLowerCase(),
-            clientGroupId: facility.clientGroupId ? facility.clientGroupId.toString() : group._id.toString(),
-          })),
-        };
-      });
-
-      return NextResponse.json({ success: true, data: fallbackData });
-    }
 
     const data = await Promise.all(
       groups.map(async (group) => {
-        const facilities = await FacilityModel.find({
-          clientGroupId: group._id,
-        })
+        const facilityQuery: Record<string, unknown> = { clientGroupId: group._id };
+        if (session.role !== 'ADMIN') facilityQuery.facilityId = { $in: session.authorizedFacilityIds || [] };
+        const facilities = await FacilityModel.find(facilityQuery)
           .sort({ name: 1 })
           .lean();
 
@@ -87,24 +75,8 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ success: true, data });
   } catch (error) {
-    console.warn('Failed to fetch client groups from DB, returning fallback mock data:', error);
-    const { MOCK_CLIENT_GROUPS, MOCK_FACILITIES } = await import('@/lib/mockFallback');
-    const fallbackData = MOCK_CLIENT_GROUPS.map((group) => {
-      const facilities = MOCK_FACILITIES.filter((f) => f.clientGroupId === group._id);
-      return {
-        ...group,
-        _id: group._id.toString(),
-        totalFacilitiesCount: facilities.length,
-        activeCompliancesCount: facilities.length > 0 ? 3 : 0,
-        facilities: facilities.map((facility) => ({
-          ...facility,
-          _id: facility._id ? facility._id.toString() : 'fac_' + facility.facilityId.toLowerCase(),
-          clientGroupId: facility.clientGroupId ? facility.clientGroupId.toString() : group._id.toString(),
-        })),
-      };
-    });
-
-    return NextResponse.json({ success: true, data: fallbackData });
+    console.error('Client group query failed:', error);
+    return NextResponse.json({ error: 'Unable to load client groups.' }, { status: 503 });
   }
 }
 export async function POST(request: NextRequest) {
@@ -117,10 +89,6 @@ export async function POST(request: NextRequest) {
         { status: 403 }
       );
     }
-console.log({
-  companyCount: await ClientGroupModel.countDocuments(),
-  facilityCount: await FacilityModel.countDocuments(),
-});
     const body = (await request.json()) as {
       name: string;
       code: string;
@@ -135,19 +103,7 @@ console.log({
       { status: 201 }
     );
   } catch (error) {
-    console.warn('Error creating client group in DB, returning demo fallback:', error);
-    return NextResponse.json(
-      {
-        success: true,
-        message: 'Client Group created (Demo Mode)',
-        data: {
-          _id: 'grp_demo_' + Date.now(),
-          name: 'Demo Client Group',
-          code: 'DEMO',
-          status: 'ACTIVE',
-        },
-      },
-      { status: 201 }
-    );
+    console.error('Client group creation failed:', error);
+    return NextResponse.json({ error: 'Unable to create client group.' }, { status: 500 });
   }
 }

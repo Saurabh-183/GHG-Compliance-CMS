@@ -2,33 +2,86 @@ import { IDataset, IMonthlyRecord, ReconciliationResult } from '@/types';
 
 /**
  * Google Drive Client & Integration SDK
- * Connects directly to the corporate Google Drive compliance repository:
- * https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7
+ * Corporate compliance vault (client submissions root):
+ * https://drive.google.com/drive/folders/1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn
  */
 
-export const GOOGLE_DRIVE_FOLDER_URL =
+/** Previous demo vaults — migrated responses still pointing here are redirected. */
+export const LEGACY_GOOGLE_DRIVE_FOLDER_ID = '1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7';
+export const PREVIOUS_INTERIM_VAULT_ID = '1WFdUyzskoKDu9YRRSuxfs5eXfwy98SMp';
+
+export const DEFAULT_GOOGLE_DRIVE_FOLDER_ID = '1hzkYdbEXRvlKOhyfMp3Pc3rfijGAoimn';
+
+export const DEFAULT_GOOGLE_DRIVE_FOLDER_URL = `https://drive.google.com/drive/folders/${DEFAULT_GOOGLE_DRIVE_FOLDER_ID}`;
+
+const rawFolderUrl =
   process.env.NEXT_PUBLIC_GDRIVE_FOLDER_URL ||
   process.env.GDRIVE_FOLDER_URL ||
-  'https://drive.google.com/drive/folders/1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7';
+  DEFAULT_GOOGLE_DRIVE_FOLDER_URL;
 
-export const GOOGLE_DRIVE_FOLDER_ID =
+export const GOOGLE_DRIVE_FOLDER_URL =
+  rawFolderUrl &&
+  (rawFolderUrl.includes(LEGACY_GOOGLE_DRIVE_FOLDER_ID) ||
+    rawFolderUrl.includes(PREVIOUS_INTERIM_VAULT_ID) ||
+    /\/folders\/1oIObLXY/i.test(rawFolderUrl))
+    ? DEFAULT_GOOGLE_DRIVE_FOLDER_URL
+    : (rawFolderUrl || DEFAULT_GOOGLE_DRIVE_FOLDER_URL);
+
+const rawFolderId =
   process.env.NEXT_PUBLIC_GDRIVE_FOLDER_ID ||
   process.env.GDRIVE_FOLDER_ID ||
-  (GOOGLE_DRIVE_FOLDER_URL.match(/\/folders\/([a-zA-Z0-9_-]+)/)?.[1] || '1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7');
+  (GOOGLE_DRIVE_FOLDER_URL.match(/\/folders\/([a-zA-Z0-9_-]+)/)?.[1] || DEFAULT_GOOGLE_DRIVE_FOLDER_ID);
+
+export const GOOGLE_DRIVE_FOLDER_ID =
+  rawFolderId === LEGACY_GOOGLE_DRIVE_FOLDER_ID ||
+  rawFolderId === PREVIOUS_INTERIM_VAULT_ID ||
+  /1oIObLXY/i.test(rawFolderId)
+    ? DEFAULT_GOOGLE_DRIVE_FOLDER_ID
+    : rawFolderId;
+
+/** Use stored facility folder URL unless it still references a retired vault. */
+export function resolveComplianceVaultFolderUrl(storedUrl?: string | null): string {
+  const trimmed = storedUrl?.trim();
+  if (!trimmed) return GOOGLE_DRIVE_FOLDER_URL;
+  if (
+    trimmed.includes(LEGACY_GOOGLE_DRIVE_FOLDER_ID) ||
+    trimmed.includes(PREVIOUS_INTERIM_VAULT_ID) ||
+    /\/folders\/1oIObLXY/i.test(trimmed) ||
+    /1WFdU/i.test(trimmed)
+  ) {
+    return GOOGLE_DRIVE_FOLDER_URL;
+  }
+  return trimmed;
+}
+
+/** Rewrites any stored link that still embeds a retired vault folder id. */
+export function rewriteLegacyVaultUrlsInText(url?: string | null): string {
+  let text = url?.trim() ?? '';
+  if (!text) return '';
+  if (text.includes(LEGACY_GOOGLE_DRIVE_FOLDER_ID) || /1oIObLXY/i.test(text)) {
+    text = text.replace(/1oIObLXY[a-zA-Z0-9_\-]+/gi, DEFAULT_GOOGLE_DRIVE_FOLDER_ID);
+  }
+  if (text.includes(PREVIOUS_INTERIM_VAULT_ID) || /1WFdU/i.test(text)) {
+    text = text.replace(/1WFdU[a-zA-Z0-9_\-]+/gi, DEFAULT_GOOGLE_DRIVE_FOLDER_ID);
+  }
+  return text;
+}
 
 export interface IDriveFileMetadata {
   id: string;
   name: string;
   mimeType: string;
-  category: 'GRID_ELECTRICITY' | 'RENEWABLE_PURCHASE' | 'FUEL_CONSUMPTION' | 'PRODUCTION' | 'STATUTORY_FILING';
+  category: 'GRID_ELECTRICITY' | 'RENEWABLE_PURCHASE' | 'FUEL_CONSUMPTION' | 'PRODUCTION' | 'STATUTORY_FILING' | 'OTHER_EVIDENCE';
   month?: string;
   url: string;
   downloadUrl: string;
   sizeBytes?: number;
   lastModified?: string;
+  financialYear?: string;
+  drivePath?: string;
 }
 
-// Pre-indexed Drive repository assets available in folder 1oIObLXY-cBpYGO6CIOnk_Ax4R4Y8SSE7
+// Pre-indexed Drive repository assets (compliance vault folder)
 export const DRIVE_REPOSITORY_FILES: IDriveFileMetadata[] = [
   {
     id: 'DRV_PSPCL_2025_04',

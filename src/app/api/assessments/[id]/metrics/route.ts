@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import mongoose from 'mongoose';
 import { connectToDatabase } from '@/lib/db';
 import { AssessmentModel } from '@/models/Assessment';
-import { getSessionFromRequest, authorizeRole } from '@/lib/auth';
+import { getSessionFromRequest, authorizeRole, isAuthorizedForFacility } from '@/lib/auth';
 import { IMetricValue } from '@/types';
 
 export async function POST(
@@ -21,14 +22,33 @@ export async function POST(
       return NextResponse.json({ error: 'Invalid metrics payload' }, { status: 400 });
     }
 
-    const assessment = await AssessmentModel.findById(id);
+    let assessment: any = null;
+    if (mongoose.isValidObjectId(id)) {
+      assessment = await AssessmentModel.findById(id);
+    }
+    if (!assessment) {
+      assessment = await AssessmentModel.findOne({ _id: id });
+    }
+    if (!assessment) {
+      const { parseAssessmentId } = await import('@/lib/assessmentIds');
+      const parsed = parseAssessmentId(id);
+      if (parsed) {
+        assessment = await AssessmentModel.findOne({
+          facilityId: parsed.facilityId,
+          complianceType: parsed.complianceType,
+          period: parsed.period,
+        });
+      }
+    }
     if (!assessment) {
       return NextResponse.json({ error: 'Assessment not found' }, { status: 404 });
     }
 
+    if (!isAuthorizedForFacility(session, assessment.facilityId)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
     // Merge or append metrics with versioning
     const existingMetricsMap = new Map<string, IMetricValue>();
-    assessment.metrics.forEach((m) => existingMetricsMap.set(m.key, m));
+    (assessment.metrics || []).forEach((m: IMetricValue) => existingMetricsMap.set(m.key, m));
 
     body.metrics.forEach((newM) => {
       const existing = existingMetricsMap.get(newM.key);
@@ -49,10 +69,7 @@ export async function POST(
       data: assessment,
     });
   } catch (error) {
-    console.warn('Error saving metrics in DB, returning demo success:', error);
-    return NextResponse.json({
-      success: true,
-      message: 'Metrics recorded and versioned successfully (Demo Mode)',
-    });
+    console.error('Metrics update failed:', error);
+    return NextResponse.json({ error: 'Unable to save metrics.' }, { status: 500 });
   }
 }

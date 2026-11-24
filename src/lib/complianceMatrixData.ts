@@ -6,6 +6,7 @@ import {
   WorkflowStatus,
 } from '@/types';
 import { GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
+import { buildAssessmentId, parseAssessmentId } from '@/lib/assessmentIds';
 
 /**
  * Standard Multi-Year Frameworks and Reporting Periods
@@ -46,6 +47,7 @@ function preferWorkflowStatus(
 
   return rankNext >= rankCurrent ? next : current;
 }
+
 
 /**
  * Generates Statutory Compliance Applicability records for any facility.
@@ -316,6 +318,23 @@ export function generateFacilityAssessments(
       updatedAt: new Date().toISOString(),
     },
     {
+      _id: buildAssessmentId(cleanId, 'RCO', 'FY2026-27'),
+      facilityId: cleanId,
+      facilityName: displayName,
+      complianceType: 'RCO',
+      period: 'FY2026-27',
+      workflowStatus: 'DATA_COLLECTION',
+      complianceOutcome: 'PENDING_DETERMINATION',
+      isHistorical: false,
+      version: 1,
+      documentLinks: {
+        evidenceFolderUrl: baseDrive,
+      },
+      metrics: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    {
       _id: `asm_${cleanId.toLowerCase()}_pat_fy2425`,
       facilityId: cleanId,
       complianceType: 'PAT',
@@ -537,7 +556,7 @@ export function buildMultiYearComplianceMatrix(
       const assessmentId =
         assessmentMap.get(`${comp}_${app.period}`) ||
         assessmentMap.get(`${comp}_${matchedPeriod}`) ||
-        `asm_${cleanId.toLowerCase()}_${comp.toLowerCase()}_${matchedPeriod.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+        buildAssessmentId(cleanId, comp, matchedPeriod);
 
       matrix[comp][matchedPeriod] = {
         period: matchedPeriod,
@@ -579,5 +598,38 @@ export function buildMultiYearComplianceMatrix(
   });
 
   return { matrix, applicabilities, assessments };
+}
+
+/** Resolve assessment by URL id — never fall back to a different FY. */
+export function resolveAssessmentById(id: string, facilityName?: string): IAssessment | null {
+  const parsed = parseAssessmentId(id);
+  if (!parsed) return null;
+
+  const assessments = generateFacilityAssessments(parsed.facilityId, facilityName);
+  const exact = assessments.find((a) => a._id.toLowerCase() === id.toLowerCase());
+  if (exact) return exact;
+
+  const canonicalId = buildAssessmentId(parsed.facilityId, parsed.complianceType, parsed.period);
+  const canonical = assessments.find((a) => a._id.toLowerCase() === canonicalId.toLowerCase());
+  if (canonical) {
+    return { ...canonical, _id: id };
+  }
+
+  const displayName = facilityName || parsed.facilityId.replace(/_/g, ' ');
+  return {
+    _id: id,
+    facilityId: parsed.facilityId,
+    facilityName: displayName,
+    complianceType: parsed.complianceType,
+    period: parsed.period,
+    workflowStatus: 'DATA_COLLECTION',
+    complianceOutcome: 'PENDING_DETERMINATION',
+    isHistorical: false,
+    version: 1,
+    documentLinks: { evidenceFolderUrl: GOOGLE_DRIVE_FOLDER_URL },
+    metrics: [],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
 }
 

@@ -1,14 +1,10 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import { StatusBadge } from '@/components/common/StatusBadge';
-import { DriveLinkBadge } from '@/components/common/DriveLinkBadge';
 import { ExcelImportModal } from '@/components/compliance/ExcelImportModal';
-import { DriveConnectionModal } from '@/components/common/DriveConnectionModal';
 import {
-  ShieldCheck,
   Building2,
   FileSpreadsheet,
   AlertTriangle,
@@ -18,60 +14,139 @@ import {
   Download,
   TrendingUp,
   CheckCheck,
+  CalendarRange,
 } from 'lucide-react';
-import { formatDate } from '@/lib/utils';
-import { GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
-import { IFacility, IDataRequirement, IClarification } from '@/types';
+import { FormControl, Select, MenuItem, SelectChangeEvent } from '@mui/material';
+import { IDataRequirement, IFacility, IClarification } from '@/types';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
+import { computePortalDataRequestPercentages } from '@/lib/requestStats';
+import {
+  type ClientSubmittedDriveFileCard,
+  listClientSubmittedDriveFiles,
+} from '@/lib/clientMonthlyEvidenceRows';
+import {
+  buildPortalScopeQuery,
+  dedupeFacilitiesById,
+  portalAllowListFromUser,
+  readPortalPeriod,
+  writePortalScope,
+  PORTAL_PERIOD_OPTIONS,
+} from '@/lib/portalScope';
+import {
+  formatClientGroupDisplayName,
+  pickClientGroupNameFromFacilities,
+} from '@/lib/clientGroupDisplay';
+import {
+  extractPortalDeadlineAlerts,
+  type DeadlineAlertItem,
+} from '@/lib/deadlineAlertsShared';
 
 export default function ClientPortalDashboard() {
-  const { currentUser, currentRole } = useAuth();
+  const { currentUser, currentRole, theme } = useAuth();
+  const isDark = theme === 'dark';
   const [data, setData] = useState<{
     facilities: IFacility[];
-    pendingRequests: IDataRequirement[];
     openClarifications: IClarification[];
-    approvedHistory: Array<{
-      _id: string;
-      facilityId: string;
-      complianceType: string;
-      period: string;
-      complianceOutcome: string;
-      documentLinks: { finalReportUrl?: string; submissionAckUrl?: string };
-    }>;
+    deadlineAlerts?: DeadlineAlertItem[];
   } | null>(null);
-  const [driveFiles, setDriveFiles] = useState<any[]>([]);
+  const [portalAlerts, setPortalAlerts] = useState<DeadlineAlertItem[]>([]);
+  const [submissionFiles, setSubmissionFiles] = useState<ClientSubmittedDriveFileCard[]>([]);
+  const [requestProgress, setRequestProgress] = useState(
+    computePortalDataRequestPercentages([])
+  );
   const [loading, setLoading] = useState(true);
   const [isExcelModalOpen, setIsExcelModalOpen] = useState(false);
-  const [isDriveModalOpen, setIsDriveModalOpen] = useState(false);
+  const [selectedFacilityId, setSelectedFacilityId] = useState(() => {
+    if (typeof window === 'undefined') return '';
+    return sessionStorage.getItem('portalSelectedFacilityId') || '';
+  });
+  const [selectedPeriod, setSelectedPeriod] = useState(() => readPortalPeriod());
+  const hasLoadedOnceRef = useRef(false);
+
+  const loadPortal = useCallback(async (period?: string) => {
+    try {
+      if (!hasLoadedOnceRef.current) setLoading(true);
+      const periodQs = period?.trim()
+        ? `?period=${encodeURIComponent(period.trim())}`
+        : '';
+      const reqQs = period?.trim()
+        ? `?period=${encodeURIComponent(period.trim())}`
+        : '';
+      const [res, reqRes] = await Promise.all([
+        fetch(`/api/portal/dashboard${periodQs}`, { cache: 'no-store', credentials: 'include' }).catch(() => null),
+        fetch(`/api/requirements${reqQs}`, { cache: 'no-store', credentials: 'include' }).catch(() => null),
+      ]);
+
+      if (res && res.ok) {
+        const json = (await res.json()) as { data: typeof data };
+        setData(json.data);
+        if (json.data?.deadlineAlerts && json.data.deadlineAlerts.length > 0) {
+          setPortalAlerts(json.data.deadlineAlerts);
+        }
+      }
+
+      const allowed = new Set(portalAllowListFromUser(currentUser));
+      if (reqRes && reqRes.ok) {
+        const reqJson = (await reqRes.json()) as { data?: IDataRequirement[] };
+        const scoped = (reqJson.data || []).filter(
+          (r) =>
+            allowed.has(r.facilityId?.toUpperCase()) &&
+            (!period?.trim() || r.period === period.trim()) &&
+            r.isApplicable !== false
+        );
+        setRequestProgress(computePortalDataRequestPercentages(scoped));
+        setSubmissionFiles(listClientSubmittedDriveFiles(scoped));
+        const directAlerts = extractPortalDeadlineAlerts(scoped);
+        setPortalAlerts((prev) => (directAlerts.length > 0 ? directAlerts : prev));
+      } else {
+        setRequestProgress(computePortalDataRequestPercentages([]));
+        setSubmissionFiles([]);
+        setPortalAlerts([]);
+      }
+    } catch (e) {
+      console.error('Error fetching portal dashboard:', e);
+    } finally {
+      hasLoadedOnceRef.current = true;
+      setLoading(false);
+    }
+  }, [currentUser]);
 
   useEffect(() => {
-    async function loadPortal() {
-      try {
-        const [res, filesRes] = await Promise.all([
-          fetch('/api/portal/dashboard').catch(() => null),
-          fetch('/api/drive/files').catch(() => null),
-        ]);
+    void loadPortal(selectedPeriod);
+  }, [loadPortal, selectedPeriod]);
 
-        if (res && res.ok) {
-          const json = (await res.json()) as { data: typeof data };
-          setData(json.data);
-        }
-        if (filesRes && filesRes.ok) {
-          const fJson = await filesRes.json();
-          if (fJson.data?.files) {
-            setDriveFiles(fJson.data.files);
-          }
-        }
-      } catch (e) {
-        console.error('Error fetching portal dashboard:', e);
-      } finally {
-        setLoading(false);
-      }
+  useEffect(() => {
+    if (!data?.facilities?.length) return;
+    const known = data.facilities.some((f) => f.facilityId === selectedFacilityId);
+    if (!known) {
+      setSelectedFacilityId(data.facilities[0].facilityId);
     }
-    loadPortal();
-  }, []);
+  }, [data?.facilities, selectedFacilityId]);
 
-  if (loading) {
+  useEffect(() => {
+    if (selectedFacilityId && selectedPeriod) {
+      writePortalScope(selectedFacilityId, selectedPeriod);
+    }
+  }, [selectedFacilityId, selectedPeriod]);
+
+  const facilities = useMemo(() => {
+    const allowed = new Set(portalAllowListFromUser(currentUser));
+    return dedupeFacilitiesById(
+      (data?.facilities || []).filter((f) => allowed.has(f.facilityId.toUpperCase()))
+    );
+  }, [data?.facilities, currentUser]);
+
+  const facilityLineSummary = useMemo(() => {
+    if (!facilities.length) return '—';
+    const labels = facilities.map((f) => {
+      const cat = f.category?.trim();
+      if (cat) return cat.split(/[·,]/)[0]?.trim() || cat;
+      return f.name;
+    });
+    return [...new Set(labels)].slice(0, 4).join(', ');
+  }, [facilities]);
+
+  if (loading && !data) {
     return <CarbonCrunchLoader message="Loading Client Compliance Portal..." />;
   }
 
@@ -100,35 +175,51 @@ export default function ClientPortalDashboard() {
     );
   }
 
-  const facilities = data?.facilities || [];
-  const pendingRequests = data?.pendingRequests || [];
   const openClarifications = data?.openClarifications || [];
-  const history = data?.approvedHistory || [];
-  const primaryFacilityId = facilities[0]?.facilityId || 'TRIDENT_PAPER';
-  const clientOrgName =
-    currentUser?.clientGroupId ||
-    facilities[0]?.clientGroupName ||
-    'Client Organization';
+  const openActionClarifications = openClarifications.filter((c) => c.status === 'OPEN');
+  const primaryOpenClarification = openActionClarifications[0] || openClarifications[0];
+  const {
+    dataGivenPercentage,
+    dataMatchedPercentage,
+    givenCount,
+    matchedCount,
+    auditedCount,
+    total: requestTotal,
+  } = requestProgress;
+  const primaryFacilityId = selectedFacilityId || facilities[0]?.facilityId || 'TRIDENT_PAPER';
+  const clientOrgName = formatClientGroupDisplayName({
+    clientGroupName:
+      pickClientGroupNameFromFacilities(facilities) || currentUser?.clientGroupName,
+    clientGroupId: currentUser?.clientGroupId,
+  });
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Client Group Overview Hero */}
-      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-6 sm:p-8 shadow-sm dark:shadow-xl">
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-6 sm:p-8 dark:shadow-xl">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-wider mb-2">
               Authorized Client Organization
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              {clientOrgName === 'TRIDENT' ? 'Trident Group' : clientOrgName} — Compliance Portal
+              {clientOrgName} — Compliance Portal
             </h1>
             <p className="text-xs text-slate-600 dark:text-slate-300 mt-1.5 leading-relaxed max-w-3xl">
               Welcome, <strong className="text-emerald-700 dark:text-emerald-400">{currentUser?.name || 'Vikram Singh'}</strong> ({currentUser?.designation || 'Head of Regulatory Affairs'}).
-              Direct visibility into authorized facilities, outstanding data submissions, Google Drive repository evidence, and verified historical reports.
+              Direct visibility into authorized facilities, outstanding data submissions, submitted evidence, and verified historical reports.
             </p>
           </div>
 
           <div className="flex flex-row flex-wrap items-center gap-2.5 shrink-0 self-start md:self-center">
+            <Link
+              href="/portal/regulatory"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-700 text-white !text-white font-semibold text-xs shadow-sm transition-colors whitespace-nowrap"
+              style={{ color: '#FFFFFF' }}
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5 text-white !text-white" style={{ stroke: '#FFFFFF', color: '#FFFFFF' }} />
+              <span className="text-white !text-white font-semibold" style={{ color: '#FFFFFF' }}>Regulatory Requests</span>
+            </Link>
             <button
               onClick={() => setIsExcelModalOpen(true)}
               className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs shadow-sm transition-colors whitespace-nowrap"
@@ -137,13 +228,6 @@ export default function ClientPortalDashboard() {
               <span>Compliance Excel Templates</span>
             </button>
 
-            <button
-              onClick={() => setIsDriveModalOpen(true)}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-white border border-slate-300 dark:border-slate-700 font-semibold text-xs shadow-xs transition-colors whitespace-nowrap"
-            >
-              <Folder className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-              <span>Drive Evidence Vault</span>
-            </button>
           </div>
         </div>
 
@@ -154,8 +238,12 @@ export default function ClientPortalDashboard() {
               <span className="font-semibold uppercase tracking-wider text-[10px]">Data Given</span>
               <TrendingUp className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             </div>
-            <div className="text-xl font-extrabold text-slate-900 dark:text-white">100%</div>
-            <p className="text-[11px] text-slate-500">12/12 months submitted by your units</p>
+            <div className="text-xl font-extrabold text-slate-900 dark:text-white">{dataGivenPercentage}%</div>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              {requestTotal > 0
+                ? `${givenCount} of ${requestTotal} consultant requests submitted (${selectedPeriod}) across ${facilities.length} unit(s)`
+                : `No data requests for ${selectedPeriod} yet`}
+            </p>
           </div>
 
           <div className="p-3.5 rounded-md bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 space-y-1">
@@ -163,8 +251,14 @@ export default function ClientPortalDashboard() {
               <span className="font-semibold uppercase tracking-wider text-[10px]">Data Matched</span>
               <CheckCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             </div>
-            <div className="text-xl font-extrabold text-slate-900 dark:text-white">75.0%</div>
-            <p className="text-[11px] text-slate-500">3 of 4 audited months verified</p>
+            <div className="text-xl font-extrabold text-slate-900 dark:text-white">{dataMatchedPercentage}%</div>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              {auditedCount > 0
+                ? `${matchedCount} of ${auditedCount} submitted requests accepted by consultant`
+                : requestTotal > 0
+                  ? 'No submissions under consultant review yet'
+                  : '—'}
+            </p>
           </div>
 
           <div className="p-3.5 rounded-md bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 space-y-1">
@@ -172,8 +266,12 @@ export default function ClientPortalDashboard() {
               <span className="font-semibold uppercase tracking-wider text-[10px]">Operating Facilities</span>
               <Building2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             </div>
-            <div className="text-xl font-bold text-slate-900 dark:text-white">{facilities.length} Units</div>
-            <p className="text-[11px] text-slate-500">Paper, Yarn, Home Textiles</p>
+            <div className="text-xl font-bold text-slate-900 dark:text-white">
+              {facilities.length} Unit{facilities.length === 1 ? '' : 's'}
+            </div>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate" title={facilityLineSummary}>
+              {facilityLineSummary}
+            </p>
           </div>
 
           <div className="p-3.5 rounded-md bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 space-y-1">
@@ -181,56 +279,199 @@ export default function ClientPortalDashboard() {
               <span className="font-semibold uppercase tracking-wider text-[10px]">Action Items</span>
               <AlertTriangle className="w-3.5 h-3.5 text-rose-500 dark:text-rose-400" />
             </div>
-            <div className="text-xl font-bold text-rose-600 dark:text-rose-400">{openClarifications.length} Query</div>
-            <p className="text-[11px] text-slate-500">June 2025 PSPCL Bill Clarification</p>
+            <div
+              className={`text-xl font-bold ${
+                openActionClarifications.length > 0
+                  ? 'text-rose-600 dark:text-rose-400'
+                  : 'text-slate-900 dark:text-white'
+              }`}
+            >
+              {openActionClarifications.length}{' '}
+              {openActionClarifications.length === 1 ? 'Query' : 'Queries'}
+            </div>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2">
+              {primaryOpenClarification
+                ? `${primaryOpenClarification.month || ''} ${primaryOpenClarification.parameter || 'Clarification'}`.trim()
+                : openClarifications.length > 0
+                  ? 'Awaiting consultant review on your responses'
+                  : 'No open clarification queries'}
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Action Required: Discrepancy & Clarification Response */}
-      {openClarifications.length > 0 && (
-        <div className="rounded-lg bg-white dark:bg-slate-800 border border-rose-300 dark:border-rose-500/40 p-5 shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <div className="p-2 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 mt-0.5">
-              <AlertTriangle className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-sm font-semibold text-rose-700 dark:text-rose-400">
-                  Regulatory Query / Clarification Raised by Carbon Crunch
-                </h3>
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-300 dark:bg-rose-500/20 dark:text-rose-300 dark:border-rose-500/30">
-                  Action Required
-                </span>
+      {/* Critical Deadline Alert Banner (<= 5 Days or Overdue) */}
+      {portalAlerts.length > 0 && (
+        <div className="rounded-2xl border-2 border-rose-500 bg-rose-50 dark:bg-rose-950/60 p-5 sm:p-6 shadow-xl space-y-4 animate-fade-in">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-rose-600 text-white shadow-md shrink-0 animate-pulse">
+                <AlertTriangle className="w-5 h-5" />
+              </span>
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="text-base sm:text-lg font-black text-rose-950 dark:text-rose-100 tracking-tight">
+                    Urgent Compliance Deadlines ({portalAlerts.length})
+                  </h3>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-2xs">
+                    Due in &le; 5 Days or Past Due
+                  </span>
+                </div>
+                <p className="text-xs text-rose-800 dark:text-rose-300 mt-0.5 font-medium">
+                  The following requirements require immediate submission. Please upload your Google Drive evidence and complete submissions to prevent statutory compliance penalties.
+                </p>
               </div>
-              <p className="text-xs text-slate-700 dark:text-slate-300 mt-2">
-                Consultant flagged a 15,000 kWh variance between your June 2025 Excel and electricity bill. Please provide explanation or revised bill.
-              </p>
             </div>
+            <Link
+              href={`/portal/requests${buildPortalScopeQuery(selectedFacilityId, selectedPeriod)}`}
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-md transition-colors whitespace-nowrap self-start sm:self-center"
+            >
+              <span>View Data Requests</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
 
-          <Link
-            href="/portal/submissions"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition-all shadow-md shrink-0"
-          >
-            <span>Respond with Revised Link</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pt-1">
+            {portalAlerts.slice(0, 6).map((alert) => (
+              <div
+                key={alert.id}
+                className="rounded-xl border border-rose-200 dark:border-rose-900/70 bg-white dark:bg-slate-900/90 p-4 shadow-sm space-y-2.5 flex flex-col justify-between"
+              >
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
+                      {alert.facilityId}
+                    </span>
+                    <span
+                      className={`px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wide ${
+                        alert.isOverdue
+                          ? 'bg-rose-600 text-white animate-pulse'
+                          : alert.isToday
+                            ? 'bg-rose-600 text-white'
+                            : 'bg-amber-600 text-white'
+                      }`}
+                    >
+                      {alert.isOverdue
+                        ? `${Math.abs(alert.daysRemaining)}d Overdue`
+                        : alert.isToday
+                          ? 'Due Today'
+                          : `Due in ${alert.daysRemaining} day${alert.daysRemaining === 1 ? '' : 's'}`}
+                    </span>
+                  </div>
+                  <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white line-clamp-2" title={alert.title}>
+                    {alert.title}
+                  </h4>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    Due Date: <strong className="text-slate-700 dark:text-slate-200">{new Date(alert.dueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</strong>
+                  </p>
+                </div>
+                <Link
+                  href={alert.linkUrl}
+                  className="inline-flex items-center justify-center gap-1.5 w-full py-2 rounded-lg bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 text-xs font-bold transition-colors border border-rose-200 dark:border-rose-800"
+                >
+                  <span>Submit Required Evidence</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
       {/* Authorized Facilities Grid */}
       <div className="space-y-4">
-        <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-          <Building2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-          Your Authorized Operating Facilities
-        </h2>
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+          <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <Building2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            Your Authorized Operating Facilities
+          </h2>
+          <div className="flex flex-wrap items-center gap-2.5 text-xs">
+            <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+              <CalendarRange className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <span className="font-semibold whitespace-nowrap">Financial year</span>
+              <FormControl size="small" sx={{ minWidth: 130 }}>
+                <Select
+                  value={selectedPeriod}
+                  onChange={(e: SelectChangeEvent) => setSelectedPeriod(e.target.value)}
+                  sx={{
+                    height: 36,
+                    fontSize: '12px',
+                    fontFamily: 'monospace',
+                    fontWeight: 600,
+                    borderRadius: '8px',
+                    backgroundColor: isDark ? '#020617' : '#FFFFFF',
+                    color: isDark ? '#FFFFFF' : '#0F172A',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDark ? '#34D399' : '#059669',
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDark ? '#34D399' : '#059669',
+                      borderWidth: '1.5px',
+                    },
+                    '& .MuiSelect-select': {
+                      py: '6px',
+                      px: '12px',
+                    },
+                  }}
+                  MenuProps={{
+                    slotProps: {
+                      paper: {
+                        sx: {
+                          mt: 0.5,
+                          maxHeight: 280,
+                          borderRadius: '8px',
+                          backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                          color: isDark ? '#FFFFFF' : '#0F172A',
+                          border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0'}`,
+                          boxShadow: isDark
+                            ? '0 10px 25px -5px rgba(0, 0, 0, 0.6)'
+                            : '0 10px 25px -5px rgba(16, 185, 129, 0.12)',
+                          '& .MuiList-root': { py: '4px' },
+                        },
+                      },
+                    },
+                  }}
+                >
+                  {PORTAL_PERIOD_OPTIONS.map((fy) => (
+                    <MenuItem key={fy} value={fy} sx={{ fontSize: '12px', fontFamily: 'monospace' }}>
+                      {fy}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
+            <Link
+              href={`/portal/requests${buildPortalScopeQuery(selectedFacilityId, selectedPeriod)}`}
+              className="inline-flex items-center gap-1.5 h-[36px] rounded-lg bg-emerald-700 hover:bg-emerald-800 px-3.5 font-semibold text-white transition-colors shadow-2xs"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5" />
+              Data Requests
+            </Link>
+          </div>
+        </div>
+        <p className="text-[11px] text-slate-500 dark:text-slate-400">
+          Select a facility card below, then open <strong>Data Requests</strong> for that unit and year. Approved filings
+          are on <Link href="/portal/history" className="text-emerald-700 dark:text-emerald-400 hover:underline">Approved History</Link>.
+        </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {facilities.map((facility) => (
             <div
               key={facility._id}
-              className="rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-5 shadow-sm flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-all"
+              role="button"
+              tabIndex={0}
+              onClick={() => setSelectedFacilityId(facility.facilityId)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') setSelectedFacilityId(facility.facilityId);
+              }}
+              className={`rounded-md border bg-white dark:bg-slate-900/60 p-5 shadow-sm flex flex-col justify-between transition-all cursor-pointer ${
+                selectedFacilityId === facility.facilityId
+                  ? 'border-emerald-500 ring-2 ring-emerald-500/30'
+                  : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+              }`}
             >
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
@@ -260,168 +501,41 @@ export default function ClientPortalDashboard() {
         </div>
       </div>
 
-      {/* Outstanding Data Requests Table */}
-      <div className="rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-6 shadow-md space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <FileSpreadsheet className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-              Outstanding Compliance Data Requests
-            </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Submit monthly energy logs, utility bills, and fuel lab test reports by attaching Google Drive URLs.
-            </p>
-          </div>
-          <Link
-            href="/portal/requests"
-            className="text-xs text-emerald-700 dark:text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-300 font-semibold flex items-center gap-1"
-          >
-            <span>View All ({pendingRequests.length})</span>
-            <ArrowRight className="w-3 h-3" />
-          </Link>
-        </div>
-
-        <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
-          <table className="w-full text-left border-collapse text-xs">
-            <thead>
-              <tr className="bg-slate-50 dark:bg-slate-950/80 text-slate-700 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 text-[11px] font-semibold uppercase tracking-wider">
-                <th className="py-3 px-4">Facility</th>
-                <th className="py-3 px-4">Requirement</th>
-                <th className="py-3 px-4">Compliances</th>
-                <th className="py-3 px-4">Due Date</th>
-                <th className="py-3 px-4 text-center">Submission Status</th>
-                <th className="py-3 px-4 text-center">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
-              {pendingRequests.map((req) => (
-                <tr key={req._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
-                  <td className="py-3 px-4 font-mono font-medium text-slate-900 dark:text-white">{req.facilityId}</td>
-                  <td className="py-3 px-4">
-                    <div className="font-semibold text-slate-900 dark:text-white">{req.title}</div>
-                    <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{req.description}</div>
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="flex items-center gap-1">
-                      {req.linkedCompliances.map((c) => (
-                        <span key={c} className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-[10px]">
-                          {c}
-                        </span>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="py-3 px-4 font-mono text-slate-600 dark:text-slate-300">{formatDate(req.dueDate)}</td>
-                  <td className="py-3 px-4 text-center">
-                    <StatusBadge status={req.submissionStatus} type="submission" size="sm" />
-                  </td>
-                  <td className="py-3 px-4 text-center">
-                    <Link
-                      href="/portal/requests"
-                      className="inline-flex items-center gap-1 px-3 py-1 rounded bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-[11px] transition-colors"
-                    >
-                      <Folder className="w-3 h-3" />
-                      <span>Attach Drive URL</span>
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Approved Historical Assessments & Reports */}
-      <div className="rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-6 shadow-md space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-              Released & Approved Compliance Filings
-            </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Official filings and submission acknowledgements certified by Carbon Crunch auditor.
-            </p>
-          </div>
-          <Link
-            href="/portal/history"
-            className="text-xs text-emerald-700 dark:text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-300 font-semibold flex items-center gap-1"
-          >
-            <span>View All History</span>
-            <ArrowRight className="w-3 h-3" />
-          </Link>
-        </div>
-
-        <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
-          <table className="w-full text-left border-collapse text-xs">
-            <thead>
-              <tr className="bg-slate-50 dark:bg-slate-950/80 text-slate-700 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 text-[11px] font-semibold uppercase tracking-wider">
-                <th className="py-3 px-4">Facility</th>
-                <th className="py-3 px-4">Compliance Type</th>
-                <th className="py-3 px-4">Period</th>
-                <th className="py-3 px-4 text-center">Obligation Outcome</th>
-                <th className="py-3 px-4">Final Report</th>
-                <th className="py-3 px-4">Regulatory Acknowledgement</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
-              {history.map((h) => (
-                <tr key={h._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
-                  <td className="py-3 px-4 font-mono font-medium text-slate-900 dark:text-white">{h.facilityId}</td>
-                  <td className="py-3 px-4 font-semibold text-slate-900 dark:text-white">{h.complianceType}</td>
-                  <td className="py-3 px-4 font-mono text-slate-600 dark:text-slate-300">{h.period}</td>
-                  <td className="py-3 px-4 text-center">
-                    <StatusBadge status={h.complianceOutcome} type="outcome" size="sm" />
-                  </td>
-                  <td className="py-3 px-4">
-                    <DriveLinkBadge url={h.documentLinks?.finalReportUrl} label="Executive Report" />
-                  </td>
-                  <td className="py-3 px-4">
-                    <DriveLinkBadge url={h.documentLinks?.submissionAckUrl} label="Regulator Ack" />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Google Drive Evidence Vault Repository Files */}
-      {driveFiles.length > 0 && (
+      {submissionFiles.length > 0 && (
         <div className="rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-6 shadow-xl space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <Folder className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                Google Drive Corporate Compliance Vault ({driveFiles.length} Documents)
+                Submitted evidence across your units ({submissionFiles.length})
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Official invoices, energy sheets, and certificates residing directly in the Google Drive compliance repository.
+                Documents submitted through this portal for {selectedPeriod}. Click a card to open the file.
               </p>
             </div>
-            <a
-              href={process.env.NEXT_PUBLIC_GDRIVE_FOLDER_URL || GOOGLE_DRIVE_FOLDER_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-2 py-1 text-xs font-semibold rounded-md text-blue-600 border border-blue-600/60 hover:bg-blue-600 hover:text-white transition-colors self-start sm:self-center"
+            <Link
+              href={`/portal/requests${buildPortalScopeQuery(selectedFacilityId, selectedPeriod)}`}
+              className="inline-flex items-center gap-1.5 px-2 py-1 text-xs font-semibold rounded-md text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 hover:bg-emerald-50 dark:hover:bg-emerald-950 transition-colors self-start sm:self-center"
             >
-              <span>Browse Google Drive Folder</span>
-              <ExternalLink className="w-3 h-3" />
-            </a>
+              <span>Data Requests</span>
+              <ArrowRight className="w-3 h-3" />
+            </Link>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">
-            {driveFiles.slice(0, 9).map((f: any) => (
-              <div
+            {submissionFiles.map((f) => (
+              <a
                 key={f.id}
-                className="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/70 hover:border-emerald-500/50 transition-all flex flex-col justify-between gap-3 text-xs"
+                href={f.url}
+                className="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/70 hover:border-emerald-500/50 transition-all flex flex-col justify-between gap-3 text-xs cursor-pointer"
               >
                 <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 truncate max-w-[55%]">
                       {f.category.replace(/_/g, ' ')}
                     </span>
                     {f.month && (
-                      <span className="text-[10px] font-mono text-emerald-700 dark:text-emerald-400 font-bold">
+                      <span className="text-[10px] font-mono text-emerald-700 dark:text-emerald-400 font-bold shrink-0">
                         {f.month}
                       </span>
                     )}
@@ -429,37 +543,26 @@ export default function ClientPortalDashboard() {
                   <div className="text-xs font-bold text-slate-900 dark:text-white truncate" title={f.name}>
                     {f.name}
                   </div>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                    {f.mimeType.includes('pdf') ? 'Audited PDF Bill / Certificate' : 'Client Consumption Excel Sheet'}
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2" title={f.requestTitle}>
+                    {f.requestTitle}
+                    {f.requestId ? ` · ${f.requestId}` : ''}
                   </p>
                 </div>
 
-                <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs">
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400">
-                    {f.sizeBytes ? `${Math.round(f.sizeBytes / 1024)} KB` : 'Drive Asset'}
+                <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs gap-2">
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                    {f.submittedBy || 'Client upload'}
                   </span>
-                  <a
-                    href={f.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-emerald-700 dark:text-emerald-400 hover:underline font-semibold inline-flex items-center gap-1 text-[11px]"
-                  >
-                    <span>Open in Drive</span>
+                  <span className="text-emerald-700 dark:text-emerald-400 font-semibold inline-flex items-center gap-1 text-[11px] shrink-0">
+                    <span>Open file</span>
                     <ExternalLink className="w-3 h-3" />
-                  </a>
+                  </span>
                 </div>
-              </div>
+              </a>
             ))}
           </div>
         </div>
       )}
-
-      {/* Google Drive Connection & Direct Sync Modal */}
-      <DriveConnectionModal
-        isOpen={isDriveModalOpen}
-        onClose={() => setIsDriveModalOpen(false)}
-        facilityId={primaryFacilityId}
-      />
 
       {/* Standardized Excel Import & Templates Modal */}
       <ExcelImportModal
@@ -467,6 +570,7 @@ export default function ClientPortalDashboard() {
         onClose={() => setIsExcelModalOpen(false)}
         facilityId={primaryFacilityId}
       />
+
     </div>
   );
 }

@@ -112,7 +112,7 @@ export default function ClientsPage() {
   }
 
   return (
-    <main className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+    <main className="mx-auto max-w-8xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
       <header className="p-6 flex flex-col justify-between gap-4 border-b border-slate-200 pb-5 dark:border-slate-800 sm:flex-row sm:items-center">
         <div>
           <div className="flex flex-wrap items-center gap-3">
@@ -213,7 +213,7 @@ export default function ClientsPage() {
 
                 <Link
                   href={`/clients/${company._id}`}
-                  className="mt-5 inline-flex w-full items-center justify-between rounded-lg bg-[#17365D] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#102947] dark:bg-[#A56F63] dark:hover:bg-[#8C594E]"
+                  className="mt-5 inline-flex w-full items-center justify-between rounded-lg bg-[#17365D] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#102947] dark:bg-emerald-700 dark:hover:bg-emerald-800"
                 >
                   <span className="flex items-center gap-2">
                     <Layers className="h-4 w-4" />

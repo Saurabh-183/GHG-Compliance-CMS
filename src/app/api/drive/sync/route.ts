@@ -4,7 +4,7 @@ import { connectToDatabase } from '@/lib/db';
 import { DatasetModel } from '@/models/Dataset';
 import { FacilityModel } from '@/models/Facility';
 import { DataRequirementModel } from '@/models/DataRequirement';
-import { getSessionFromRequest } from '@/lib/auth';
+import { getSessionFromRequest, isAuthorizedForFacility, authorizeRole } from '@/lib/auth';
 import { calculateReconciliation } from '@/lib/utils';
 import { GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
 import { IMonthlyRecord, ReconciliationResult } from '@/types';
@@ -103,9 +103,11 @@ export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
     const session = getSessionFromRequest(request);
+    if (!authorizeRole(session, ['ADMIN', 'CONSULTANT'])) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const body = await request.json();
     const facilityId = (body.facilityId || 'TRIDENT_PAPER').toUpperCase().trim();
+    if (!isAuthorizedForFacility(session, facilityId)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     const datasetType = body.datasetType || 'GRID_ELECTRICITY';
     const period = body.period || 'FY2025-26';
     const folderUrl = body.folderUrl || GOOGLE_DRIVE_FOLDER_URL;
@@ -263,22 +265,8 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.warn('Error in Google Drive sync with DB, returning fallback demo sync:', error);
-    const { MOCK_DATASET } = await import('@/lib/mockFallback');
-    return NextResponse.json({
-      success: true,
-      message: 'Successfully synchronized 12 records directly from Google Drive repository (Demo Mode)!',
-      data: {
-        dataset: MOCK_DATASET,
-        folderUrl: GOOGLE_DRIVE_FOLDER_URL,
-        folderName: 'Trident Paper Compliance Vault',
-        dataGivenPercentage: 100,
-        dataMatchedPercentage: 66.7,
-        totalMonths: 12,
-        matchedCount: 2,
-        evaluatedCount: 3,
-      },
-    });
+    console.error('Google Drive sync failed:', error);
+    return NextResponse.json({ error: 'Unable to synchronize Google Drive data.' }, { status: 500 });
   }
 }
 

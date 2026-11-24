@@ -1,4 +1,4 @@
-import { GOOGLE_DRIVE_FOLDER_ID, GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
+import { GOOGLE_DRIVE_FOLDER_ID, GOOGLE_DRIVE_FOLDER_URL, rewriteLegacyVaultUrlsInText } from '@/lib/gdrive';
 
 export type DriveLinkMappingStatus = 'PENDING' | 'MAPPED' | 'VERIFIED' | 'REJECTED';
 
@@ -53,7 +53,7 @@ export interface VaultIngestResult {
   vaultTargetFolderId?: string;
   fileName: string;
   mappingStatus: DriveLinkMappingStatus;
-  ingestionMode: 'VAULT_INDEXED' | 'DRIVE_API_COPIED';
+  ingestionMode: 'VAULT_INDEXED' | 'DRIVE_API_COPIED' | 'LOCAL_VAULT_DEV';
 }
 
 export type VaultIngestOverrides = Partial<
@@ -174,13 +174,15 @@ export function buildVaultIngestResult(
   const vaultCategory = inferVaultCategory(input.requirement, input.description);
   const vaultFolderPath = buildVaultFolderPath(input, vaultCategory);
   const fileName = buildDisplayFileName(input, parsed);
-  const vaultFolderUrl =
+  const rawFolderUrl =
     overrides?.vaultFolderUrl ??
     (overrides?.vaultTargetFolderId
       ? `https://drive.google.com/drive/folders/${overrides.vaultTargetFolderId}`
       : `https://drive.google.com/drive/folders/${GOOGLE_DRIVE_FOLDER_ID}`);
-  const vaultUrl = overrides?.vaultUrl ?? parsed.canonicalUrl ?? input.sourceUrl.trim();
-  const primaryUrl = overrides?.url ?? vaultUrl;
+  const vaultFolderUrl = rewriteLegacyVaultUrlsInText(rawFolderUrl);
+  const rawVaultUrl = overrides?.vaultUrl ?? parsed.canonicalUrl ?? input.sourceUrl.trim();
+  const vaultUrl = rewriteLegacyVaultUrlsInText(rawVaultUrl);
+  const primaryUrl = rewriteLegacyVaultUrlsInText(overrides?.url ?? vaultUrl);
 
   return {
     url: primaryUrl,

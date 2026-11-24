@@ -7,6 +7,7 @@ const STATUS_LABEL: Record<string, string> = {
   RECEIVED: 'Received',
   NOT_APPLICABLE: 'Not Applicable',
   NOT_REQUIRED: 'Not Required',
+  NEEDS_VERIFICATION: 'Needs Verification',
 };
 
 export function buildFacilityChecklistPdfBuffer(checklist: IFacilityDataChecklist): Promise<Buffer> {

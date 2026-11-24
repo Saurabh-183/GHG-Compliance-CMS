@@ -12,6 +12,7 @@ export async function GET(
   try {
     await connectToDatabase();
     const session = getSessionFromRequest(request);
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     let dataset: any = null;
     if (mongoose.Types.ObjectId.isValid(id)) {
@@ -50,12 +51,12 @@ export async function GET(
       }
     }
 
-    if (session && session.role === 'CLIENT' && !isAuthorizedForFacility(session, dataset.facilityId)) {
+    if (!isAuthorizedForFacility(session, dataset.facilityId)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     // Client portal view: hide internal consultant notes & internal rejection comments
-    if (session && session.role === 'CLIENT') {
+    if (session.role === 'CLIENT') {
       const sanitizedMonths = (dataset.months || []).map((m: any) => ({
         ...m,
         consultantNotes: undefined,
@@ -82,12 +83,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.warn('Error fetching dataset from DB, returning fallback demo dataset:', error);
-    const { generateDriveDatasetForFacility } = await import('@/lib/gdrive');
-    const fallback = generateDriveDatasetForFacility(id || 'TRIDENT_PAPER');
-    return NextResponse.json({
-      success: true,
-      data: fallback,
-    });
+    console.error('Error fetching dataset:', error);
+    return NextResponse.json({ error: 'Unable to load dataset.' }, { status: 503 });
   }
 }

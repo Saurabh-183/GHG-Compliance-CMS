@@ -1,10 +1,10 @@
 {
   "database": "carbon_crunch_compliance",
-  "createdAt": "2026-10-25T22:16:50.787Z",
+  "createdAt": "2026-11-24T07:09:56.971Z",
   "collections": [
     {
       "collection": "users",
-      "documents": 3,
+      "documents": 46,
       "file": "users.json"
     },
     {
@@ -14,17 +14,17 @@
     },
     {
       "collection": "datarequirements",
-      "documents": 5,
+      "documents": 41,
       "file": "datarequirements.json"
     },
     {
       "collection": "complianceapplicabilities",
-      "documents": 6,
+      "documents": 69,
       "file": "complianceapplicabilities.json"
     },
     {
       "collection": "clientgroups",
-      "documents": 15,
+      "documents": 53,
       "file": "clientgroups.json"
     },
     {
@@ -33,23 +33,43 @@
       "file": "facilities.json"
     },
     {
-      "collection": "notifications",
+      "collection": "facilitydatachecklists",
+      "documents": 3,
+      "file": "facilitydatachecklists.json"
+    },
+    {
+      "collection": "regulatorysubmissions",
       "documents": 5,
+      "file": "regulatorysubmissions.json"
+    },
+    {
+      "collection": "checklistmasterversions",
+      "documents": 1,
+      "file": "checklistmasterversions.json"
+    },
+    {
+      "collection": "notifications",
+      "documents": 39,
       "file": "notifications.json"
     },
     {
       "collection": "calendaritems",
-      "documents": 5,
+      "documents": 8,
       "file": "calendaritems.json"
     },
     {
       "collection": "datasets",
-      "documents": 2,
+      "documents": 3,
       "file": "datasets.json"
     },
     {
+      "collection": "driveitems",
+      "documents": 9,
+      "file": "driveitems.json"
+    },
+    {
       "collection": "assessments",
-      "documents": 2,
+      "documents": 74,
       "file": "assessments.json"
     }
   ]

@@ -1,7 +1,7 @@
 [
   {
     "_id": {
-      "$oid": "6ade76a9667ed7c3e0b3128b"
+      "$oid": "6afe993562c738b0be61bd58"
     },
     "name": "Trident Group",
     "code": "TRIDENT",
@@ -14,12 +14,120 @@
     },
     "createdAt": {
       "$date": {
-        "$numberLong": "1792964265433"
+        "$numberLong": "1795070261364"
       }
     },
     "updatedAt": {
       "$date": {
-        "$numberLong": "1792964265433"
+        "$numberLong": "1795070261364"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "671000000000000000000001"
+    },
+    "name": "ABC Impex",
+    "code": "ABC_IMPEX",
+    "industry": "Industrial / manufacturing (confirm with client)",
+    "headquarters": "Not provided in source PDF",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+abc_impex@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070261542"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070261542"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "671000000000000000000002"
+    },
+    "name": "Anand Triplex",
+    "code": "ANAND_TRIPLEX",
+    "industry": "Industrial / manufacturing (confirm with client)",
+    "headquarters": "Not provided in source PDF",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+anand_triplex@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070261573"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070261573"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "671000000000000000000003"
+    },
+    "name": "Sillverton Industries",
+    "code": "SILLVERTON_INDUSTRIES",
+    "industry": "Industrial / manufacturing (confirm with client)",
+    "headquarters": "Not provided in source PDF",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+sillverton_industries@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070261607"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070261607"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "671000000000000000000004"
+    },
+    "name": "Sillvertoan Papers",
+    "code": "SILLVERTOAN_PAPERS",
+    "industry": "Industrial / manufacturing (confirm with client)",
+    "headquarters": "Not provided in source PDF",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+sillvertoan_papers@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070261638"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070261638"
       }
     },
     "__v": {
@@ -41,12 +149,12 @@
     },
     "createdAt": {
       "$date": {
-        "$numberLong": "1792964265775"
+        "$numberLong": "1795070261672"
       }
     },
     "updatedAt": {
       "$date": {
-        "$numberLong": "1792964265775"
+        "$numberLong": "1795070261672"
       }
     },
     "__v": {
@@ -68,201 +176,12 @@
     },
     "createdAt": {
       "$date": {
-        "$numberLong": "1792964265835"
+        "$numberLong": "1795070261703"
       }
     },
     "updatedAt": {
       "$date": {
-        "$numberLong": "1792964265835"
-      }
-    },
-    "__v": {
-      "$numberInt": "0"
-    }
-  },
-  {
-    "_id": {
-      "$oid": "66f000000000000000000030"
-    },
-    "name": "Hero MotoCorp",
-    "code": "HERO",
-    "industry": "Automobile & Two-Wheeler Manufacturing (PAT DC)",
-    "headquarters": "The Grand Plaza, Nelson Mandela Road, Vasant Kunj, New Delhi - 110070",
-    "contactPerson": {
-      "name": "Sunil Kant Munjal",
-      "email": "compliance@heromotocorp.com",
-      "phone": "+91 11 4604 4100"
-    },
-    "createdAt": {
-      "$date": {
-        "$numberLong": "1792964265891"
-      }
-    },
-    "updatedAt": {
-      "$date": {
-        "$numberLong": "1792964265891"
-      }
-    },
-    "__v": {
-      "$numberInt": "0"
-    }
-  },
-  {
-    "_id": {
-      "$oid": "66f000000000000000000040"
-    },
-    "name": "Jindal Group",
-    "code": "JINDAL",
-    "industry": "Textiles, Denim, Spinning & Weaving (Designated Consumer)",
-    "headquarters": "Jindal House, Shivranjani, Ahmedabad, Gujarat - 380015",
-    "contactPerson": {
-      "name": "Amit Agrawal",
-      "email": "compliance@jindaltextiles.com",
-      "phone": "+91 79 6608 5555"
-    },
-    "createdAt": {
-      "$date": {
-        "$numberLong": "1792964265960"
-      }
-    },
-    "updatedAt": {
-      "$date": {
-        "$numberLong": "1792964265960"
-      }
-    },
-    "__v": {
-      "$numberInt": "0"
-    }
-  },
-  {
-    "_id": {
-      "$oid": "66f000000000000000000050"
-    },
-    "name": "Kajaria Ceramics",
-    "code": "KAJARIA",
-    "industry": "Ceramics, Vitrified Tiles & Sanitaryware",
-    "headquarters": "Mohan Co-op Industrial Estate, Mathura Road, New Delhi - 110044",
-    "contactPerson": {
-      "name": "Ashok Kajaria",
-      "email": "info@kajariaceramics.com",
-      "phone": "+91 11 2694 6409"
-    },
-    "createdAt": {
-      "$date": {
-        "$numberLong": "1792964266015"
-      }
-    },
-    "updatedAt": {
-      "$date": {
-        "$numberLong": "1792964266015"
-      }
-    },
-    "__v": {
-      "$numberInt": "0"
-    }
-  },
-  {
-    "_id": {
-      "$oid": "66f000000000000000000060"
-    },
-    "name": "Wave Industries",
-    "code": "WAVE",
-    "industry": "Sugar Refining, Power Co-generation & Distilleries",
-    "headquarters": "Wave One, Sector 18, Noida, Uttar Pradesh - 201301",
-    "contactPerson": {
-      "name": "Rajiv Gupta",
-      "email": "compliance@waveindustries.in",
-      "phone": "+91 120 418 0500"
-    },
-    "createdAt": {
-      "$date": {
-        "$numberLong": "1792964266080"
-      }
-    },
-    "updatedAt": {
-      "$date": {
-        "$numberLong": "1792964266080"
-      }
-    },
-    "__v": {
-      "$numberInt": "0"
-    }
-  },
-  {
-    "_id": {
-      "$oid": "66f000000000000000000070"
-    },
-    "name": "Gayatrishakti Group",
-    "code": "GAYATRI",
-    "industry": "Paper & Board Manufacturing, Duplex Packaging",
-    "headquarters": "GIDC Industrial Estate, Vapi, Valsad, Gujarat - 396195",
-    "contactPerson": {
-      "name": "P. K. Agarwal",
-      "email": "contact@gayatrishakti.com",
-      "phone": "+91 260 243 0567"
-    },
-    "createdAt": {
-      "$date": {
-        "$numberLong": "1792964266147"
-      }
-    },
-    "updatedAt": {
-      "$date": {
-        "$numberLong": "1792964266147"
-      }
-    },
-    "__v": {
-      "$numberInt": "0"
-    }
-  },
-  {
-    "_id": {
-      "$oid": "66f000000000000000000080"
-    },
-    "name": "Genus Group",
-    "code": "GENUS",
-    "industry": "Paper, Kraft & Duplex Board Manufacturing",
-    "headquarters": "Moradabad Road, Bilaspur, Rampur / Moradabad, Uttar Pradesh",
-    "contactPerson": {
-      "name": "I. C. Agarwal",
-      "email": "info@genuspaper.com",
-      "phone": "+91 595 235 1500"
-    },
-    "createdAt": {
-      "$date": {
-        "$numberLong": "1792964266207"
-      }
-    },
-    "updatedAt": {
-      "$date": {
-        "$numberLong": "1792964266207"
-      }
-    },
-    "__v": {
-      "$numberInt": "0"
-    }
-  },
-  {
-    "_id": {
-      "$oid": "66f000000000000000000090"
-    },
-    "name": "Dev Priya",
-    "code": "DEVPRIYA",
-    "industry": "Kraft Paper & Duplex Board Manufacturing",
-    "headquarters": "Mohkampur Industrial Area, Delhi Road, Meerut, Uttar Pradesh - 250002",
-    "contactPerson": {
-      "name": "Sunil Kumar",
-      "email": "info@devpriyapapers.com",
-      "phone": "+91 121 240 0511"
-    },
-    "createdAt": {
-      "$date": {
-        "$numberLong": "1792964266276"
-      }
-    },
-    "updatedAt": {
-      "$date": {
-        "$numberLong": "1792964266276"
+        "$numberLong": "1795070261703"
       }
     },
     "__v": {
@@ -284,12 +203,66 @@
     },
     "createdAt": {
       "$date": {
-        "$numberLong": "1792964266337"
+        "$numberLong": "1795070261733"
       }
     },
     "updatedAt": {
       "$date": {
-        "$numberLong": "1792964266337"
+        "$numberLong": "1795070261733"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "672000000000000000000001"
+    },
+    "name": "Bhramputra Metalics",
+    "code": "BHRAMPUTRA_METALICS",
+    "industry": "Steel Rolling",
+    "headquarters": "Kamrup Industrial Area, Guwahati, Assam",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+bhramputra_metalics@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070261762"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070261762"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "672000000000000000000002"
+    },
+    "name": "Crackers Alloy India Limited",
+    "code": "CRACKERS_ALLOY_INDIA_LIMITED",
+    "industry": "Alloys & Castings",
+    "headquarters": "Bokaro Steel City, Jharkhand",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+crackers_alloy_india_limited@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070261791"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070261791"
       }
     },
     "__v": {
@@ -311,12 +284,12 @@
     },
     "createdAt": {
       "$date": {
-        "$numberLong": "1792964266402"
+        "$numberLong": "1795070261821"
       }
     },
     "updatedAt": {
       "$date": {
-        "$numberLong": "1792964266402"
+        "$numberLong": "1795070261821"
       }
     },
     "__v": {
@@ -325,25 +298,25 @@
   },
   {
     "_id": {
-      "$oid": "66f000000000000000000120"
+      "$oid": "671000000000000000000010"
     },
-    "name": "Cooperative & Allied Sugar Mills",
-    "code": "SUGAR",
-    "industry": "Sugar Processing, Ethanol Distilleries & Co-gen Power",
-    "headquarters": "Sugar Complex, Vibhuti Khand, Gomti Nagar, Lucknow, UP - 226010",
+    "name": "GM Fabrics",
+    "code": "GM_FABRICS",
+    "industry": "Industrial / manufacturing (confirm with client)",
+    "headquarters": "Not provided in source PDF",
     "contactPerson": {
-      "name": "S. K. Verma",
-      "email": "contact@coopsugar.gov.in",
-      "phone": "+91 522 272 0450"
+      "name": "Not provided",
+      "email": "compliance+gm_fabrics@example.com",
+      "phone": "Not provided"
     },
     "createdAt": {
       "$date": {
-        "$numberLong": "1792964266462"
+        "$numberLong": "1795070261852"
       }
     },
     "updatedAt": {
       "$date": {
-        "$numberLong": "1792964266462"
+        "$numberLong": "1795070261852"
       }
     },
     "__v": {
@@ -352,25 +325,25 @@
   },
   {
     "_id": {
-      "$oid": "66f000000000000000000130"
+      "$oid": "671000000000000000000011"
     },
-    "name": "Independent Paper & Allied Mills",
-    "code": "PAPER",
-    "industry": "Corrugation, Kraft, Duplex & Printing Papers",
-    "headquarters": "Industrial Area, Kashipur / Muzaffarnagar / Vapi",
+    "name": "Jani Sales Pvt Ltd",
+    "code": "JANI_SALES_PVT_LTD",
+    "industry": "Industrial / manufacturing (confirm with client)",
+    "headquarters": "Not provided in source PDF",
     "contactPerson": {
-      "name": "Anil Bansal",
-      "email": "info@independentpaper.org",
-      "phone": "+91 131 260 4400"
+      "name": "Not provided",
+      "email": "compliance+jani_sales_pvt_ltd@example.com",
+      "phone": "Not provided"
     },
     "createdAt": {
       "$date": {
-        "$numberLong": "1792964266530"
+        "$numberLong": "1795070261885"
       }
     },
     "updatedAt": {
       "$date": {
-        "$numberLong": "1792964266530"
+        "$numberLong": "1795070261885"
       }
     },
     "__v": {
@@ -379,25 +352,1078 @@
   },
   {
     "_id": {
-      "$oid": "66f000000000000000000140"
+      "$oid": "671000000000000000000012"
     },
-    "name": "Engineering, Metals & Allied",
-    "code": "METALS",
-    "industry": "Heavy Engineering, Steel, Ceramics & Technical Textiles",
-    "headquarters": "Central Industrial Zone, Mumbai / Kolkata / Ahmedabad",
+    "name": "DY Patil Sugar Mill",
+    "code": "DY_PATIL_SUGAR_MILL",
+    "industry": "Industrial / manufacturing (confirm with client)",
+    "headquarters": "Not provided in source PDF",
     "contactPerson": {
-      "name": "Pradeep Singhania",
-      "email": "compliance@alliedmetals.com",
-      "phone": "+91 33 2289 1200"
+      "name": "Not provided",
+      "email": "compliance+dy_patil_sugar_mill@example.com",
+      "phone": "Not provided"
     },
     "createdAt": {
       "$date": {
-        "$numberLong": "1792964266588"
+        "$numberLong": "1795070261917"
       }
     },
     "updatedAt": {
       "$date": {
-        "$numberLong": "1792964266588"
+        "$numberLong": "1795070261917"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "671000000000000000000013"
+    },
+    "name": "Thorat Sugar Mill",
+    "code": "THORAT_SUGAR_MILL",
+    "industry": "Industrial / manufacturing (confirm with client)",
+    "headquarters": "Not provided in source PDF",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+thorat_sugar_mill@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070261948"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070261948"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "671000000000000000000014"
+    },
+    "name": "Maheshwari Logistics - Paper Division",
+    "code": "MAHESHWARI_LOGISTICS_PAPER_DIVISION",
+    "industry": "Industrial / manufacturing (confirm with client)",
+    "headquarters": "Not provided in source PDF",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+maheshwari_logistics_paper_division@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070261977"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070261977"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "66f000000000000000000070"
+    },
+    "name": "Gayatrishakti Group",
+    "code": "GAYATRI",
+    "industry": "Paper & Board Manufacturing, Duplex Packaging",
+    "headquarters": "GIDC Industrial Estate, Vapi, Valsad, Gujarat - 396195",
+    "contactPerson": {
+      "name": "P. K. Agarwal",
+      "email": "contact@gayatrishakti.com",
+      "phone": "+91 260 243 0567"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262007"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262007"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "672000000000000000000003"
+    },
+    "name": "Jaincord Industries Pvt Ltd",
+    "code": "JAINCORD_INDUSTRIES_PVT_LTD",
+    "industry": "Packaging",
+    "headquarters": "Sachin GIDC, Surat, Gujarat",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+jaincord_industries_pvt_ltd@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262036"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262036"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "672000000000000000000004"
+    },
+    "name": "Mehali Paper Pvt Ltd",
+    "code": "MEHALI_PAPER_PVT_LTD",
+    "industry": "Pulp & Paper",
+    "headquarters": "Dahej Industrial Estate, Bharuch, Gujarat",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+mehali_paper_pvt_ltd@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262065"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262065"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "672000000000000000000005"
+    },
+    "name": "Sainson Paper Industries",
+    "code": "SAINSON_PAPER_INDUSTRIES",
+    "industry": "Pulp & Paper",
+    "headquarters": "Bapoli, Kurukshetra, Haryana",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+sainson_paper_industries@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262097"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262097"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "672000000000000000000006"
+    },
+    "name": "Nikita Paper Limited",
+    "code": "NIKITA_PAPER_LIMITED",
+    "industry": "Paper",
+    "headquarters": "Shamli, Uttar Pradesh",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+nikita_paper_limited@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262128"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262128"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "672000000000000000000007"
+    },
+    "name": "Janki Newsprint Limited",
+    "code": "JANKI_NEWSPRINT_LIMITED",
+    "industry": "Newsprint",
+    "headquarters": "Bhopa Road, Muzaffarnagar, Uttar Pradesh",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+janki_newsprint_limited@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262157"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262157"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "671000000000000000000016"
+    },
+    "name": "Bahl Paper Mills",
+    "code": "BAHL_PAPER_MILLS",
+    "industry": "Industrial / manufacturing (confirm with client)",
+    "headquarters": "Not provided in source PDF",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+bahl_paper_mills@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262191"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262191"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "66f000000000000000000080"
+    },
+    "name": "Genus Group",
+    "code": "GENUS",
+    "industry": "Paper, Kraft & Duplex Board Manufacturing",
+    "headquarters": "Moradabad Road, Bilaspur, Rampur / Moradabad, Uttar Pradesh",
+    "contactPerson": {
+      "name": "I. C. Agarwal",
+      "email": "info@genuspaper.com",
+      "phone": "+91 595 235 1500"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262221"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262221"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "672000000000000000000008"
+    },
+    "name": "Bindlas Duplux Limited",
+    "code": "BINDLAS_DUPLUX_LIMITED",
+    "industry": "Duplex Board",
+    "headquarters": "Bhopa Road, Muzaffarnagar, Uttar Pradesh",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+bindlas_duplux_limited@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262253"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262253"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "672000000000000000000009"
+    },
+    "name": "Tehri Paper Pvt Ltd",
+    "code": "TEHRI_PAPER_PVT_LTD",
+    "industry": "Kraft Paper",
+    "headquarters": "Roorkee, Haridwar, Uttarakhand",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+tehri_paper_pvt_ltd@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262283"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262283"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "672000000000000000000010"
+    },
+    "name": "Agarwal Duplex Pvt Ltd",
+    "code": "AGARWAL_DUPLEX_PVT_LTD",
+    "industry": "Duplex Board",
+    "headquarters": "Bhopa Road, Muzaffarnagar, Uttar Pradesh",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+agarwal_duplex_pvt_ltd@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262312"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262312"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "66f000000000000000000090"
+    },
+    "name": "Dev Priya",
+    "code": "DEVPRIYA",
+    "industry": "Kraft Paper & Duplex Board Manufacturing",
+    "headquarters": "Mohkampur Industrial Area, Delhi Road, Meerut, Uttar Pradesh - 250002",
+    "contactPerson": {
+      "name": "Sunil Kumar",
+      "email": "info@devpriyapapers.com",
+      "phone": "+91 121 240 0511"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262342"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262342"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "672000000000000000000011"
+    },
+    "name": "Dev Priya Products",
+    "code": "DEV_PRIYA_PRODUCTS",
+    "industry": "Paper Products",
+    "headquarters": "Partapur Industrial Estate, Meerut, Uttar Pradesh",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+dev_priya_products@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262371"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262371"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "671000000000000000000019"
+    },
+    "name": "Sangal Papers Limited",
+    "code": "SANGAL_PAPERS_LIMITED",
+    "industry": "Industrial / manufacturing (confirm with client)",
+    "headquarters": "Not provided in source PDF",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+sangal_papers_limited@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262400"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262400"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "66f000000000000000000030"
+    },
+    "name": "Hero MotoCorp",
+    "code": "HERO",
+    "industry": "Automobile & Two-Wheeler Manufacturing (PAT DC)",
+    "headquarters": "The Grand Plaza, Nelson Mandela Road, Vasant Kunj, New Delhi - 110070",
+    "contactPerson": {
+      "name": "Sunil Kant Munjal",
+      "email": "compliance@heromotocorp.com",
+      "phone": "+91 11 4604 4100"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262429"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262429"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "671000000000000000000021"
+    },
+    "name": "SPNG Ltd",
+    "code": "SPNG_LTD",
+    "industry": "Industrial / manufacturing (confirm with client)",
+    "headquarters": "Not provided in source PDF",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+spng_ltd@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262458"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262458"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "671000000000000000000022"
+    },
+    "name": "KIC Metaliks",
+    "code": "KIC_METALIKS",
+    "industry": "Industrial / manufacturing (confirm with client)",
+    "headquarters": "Not provided in source PDF",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+kic_metaliks@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262487"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262487"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "66f000000000000000000040"
+    },
+    "name": "Jindal Group",
+    "code": "JINDAL",
+    "industry": "Textiles, Denim, Spinning & Weaving (Designated Consumer)",
+    "headquarters": "Jindal House, Shivranjani, Ahmedabad, Gujarat - 380015",
+    "contactPerson": {
+      "name": "Amit Agrawal",
+      "email": "compliance@jindaltextiles.com",
+      "phone": "+91 79 6608 5555"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262517"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262517"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "66f000000000000000000050"
+    },
+    "name": "Kajaria Ceramics",
+    "code": "KAJARIA",
+    "industry": "Ceramics, Vitrified Tiles & Sanitaryware",
+    "headquarters": "Mohan Co-op Industrial Estate, Mathura Road, New Delhi - 110044",
+    "contactPerson": {
+      "name": "Ashok Kajaria",
+      "email": "info@kajariaceramics.com",
+      "phone": "+91 11 2694 6409"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262546"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262546"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "671000000000000000000025"
+    },
+    "name": "Anjani Synthetics",
+    "code": "ANJANI_SYNTHETICS",
+    "industry": "Industrial / manufacturing (confirm with client)",
+    "headquarters": "Not provided in source PDF",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+anjani_synthetics@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262577"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262577"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "671000000000000000000026"
+    },
+    "name": "Noble Tech",
+    "code": "NOBLE_TECH",
+    "industry": "Industrial / manufacturing (confirm with client)",
+    "headquarters": "Not provided in source PDF",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+noble_tech@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262609"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262609"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "671000000000000000000027"
+    },
+    "name": "Himmatsingka Linnens",
+    "code": "HIMMATSINGKA_LINNENS",
+    "industry": "Industrial / manufacturing (confirm with client)",
+    "headquarters": "Not provided in source PDF",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+himmatsingka_linnens@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262638"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262638"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "671000000000000000000028"
+    },
+    "name": "Jodhani Paper",
+    "code": "JODHANI_PAPER",
+    "industry": "Industrial / manufacturing (confirm with client)",
+    "headquarters": "Not provided in source PDF",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+jodhani_paper@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262669"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262669"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "671000000000000000000029"
+    },
+    "name": "Menu Paper",
+    "code": "MENU_PAPER",
+    "industry": "Industrial / manufacturing (confirm with client)",
+    "headquarters": "Not provided in source PDF",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+menu_paper@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262698"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262698"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "66f000000000000000000060"
+    },
+    "name": "Wave Industries",
+    "code": "WAVE",
+    "industry": "Sugar Refining, Power Co-generation & Distilleries",
+    "headquarters": "Wave One, Sector 18, Noida, Uttar Pradesh - 201301",
+    "contactPerson": {
+      "name": "Rajiv Gupta",
+      "email": "compliance@waveindustries.in",
+      "phone": "+91 120 418 0500"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262729"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262729"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "671000000000000000000031"
+    },
+    "name": "The Ganga Kisan Sahkari Chini Mills Limited, Morna",
+    "code": "THE_GANGA_KISAN_SAHKARI_CHINI_MILLS",
+    "industry": "Industrial / manufacturing (confirm with client)",
+    "headquarters": "Not provided in source PDF",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+the_ganga_kisan_sahkari_chini_mills@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262757"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262757"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "671000000000000000000032"
+    },
+    "name": "Sarjoo Sahkari Chini Mills Ltd., Belrayan Kheri",
+    "code": "SARJOO_SAHKARI_CHINI_MILLS_LTD_BELR",
+    "industry": "Industrial / manufacturing (confirm with client)",
+    "headquarters": "Not provided in source PDF",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+sarjoo_sahkari_chini_mills_ltd_belr@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262787"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262787"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "671000000000000000000033"
+    },
+    "name": "The Bagpath Co-op Sugar Mill Ltd., Bagpath",
+    "code": "THE_BAGPATH_CO_OP_SUGAR_MILL_LTD_BA",
+    "industry": "Industrial / manufacturing (confirm with client)",
+    "headquarters": "Not provided in source PDF",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+the_bagpath_co_op_sugar_mill_ltd_ba@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262816"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262816"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "671000000000000000000034"
+    },
+    "name": "Ramala Sahkari Chini Mills Ltd., Ramala",
+    "code": "RAMALA_SAHKARI_CHINI_MILLS_LTD_RAMA",
+    "industry": "Industrial / manufacturing (confirm with client)",
+    "headquarters": "Not provided in source PDF",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+ramala_sahkari_chini_mills_ltd_rama@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262846"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262846"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "671000000000000000000035"
+    },
+    "name": "The Kisan Sahakari Chinni Mill Ltd., Tilhar",
+    "code": "THE_KISAN_SAHAKARI_CHINNI_MILL_LTD_",
+    "industry": "Industrial / manufacturing (confirm with client)",
+    "headquarters": "Not provided in source PDF",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+the_kisan_sahakari_chinni_mill_ltd_@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262875"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262875"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "671000000000000000000036"
+    },
+    "name": "The Kisan Sahakri Chinni Mill Ltd., Sampurnanagar",
+    "code": "THE_KISAN_SAHAKRI_CHINNI_MILL_LTD_S",
+    "industry": "Industrial / manufacturing (confirm with client)",
+    "headquarters": "Not provided in source PDF",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+the_kisan_sahakri_chinni_mill_ltd_s@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262905"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262905"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "671000000000000000000037"
+    },
+    "name": "Gris Ceramics Pvt Ltd.",
+    "code": "GRIS_CERAMICS_PVT_LTD",
+    "industry": "Industrial / manufacturing (confirm with client)",
+    "headquarters": "Not provided in source PDF",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+gris_ceramics_pvt_ltd@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262934"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262934"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "671000000000000000000038"
+    },
+    "name": "The Kisan Sahakari Chinni Mill Ltd., Snehroad",
+    "code": "THE_KISAN_SAHAKARI_CHINNI_MILL_2",
+    "industry": "Industrial / manufacturing (confirm with client)",
+    "headquarters": "Not provided in source PDF",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+the_kisan_sahakari_chinni_mill_2@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262964"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262964"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "671000000000000000000039"
+    },
+    "name": "Shree Renuka Sugar Mills Limited",
+    "code": "SHREE_RENUKA_SUGAR_MILLS_LIMITED",
+    "industry": "Industrial / manufacturing (confirm with client)",
+    "headquarters": "Not provided in source PDF",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+shree_renuka_sugar_mills_limited@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070262996"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070262996"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "671000000000000000000040"
+    },
+    "name": "Shravasti Kisan Sahkari Chini Mills Limited, Nanpara",
+    "code": "SHRAVASTI_KISAN_SAHKARI_CHINI_MILLS",
+    "industry": "Industrial / manufacturing (confirm with client)",
+    "headquarters": "Not provided in source PDF",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+shravasti_kisan_sahkari_chini_mills@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070263026"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070263026"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "671000000000000000000041"
+    },
+    "name": "Sahakarmaharshi Bhausaheb Thorat Sahakari Sakhar Karkhana Ltd.",
+    "code": "SAHAKARMAHARSHI_BHAUSAHEB_THORAT_SA",
+    "industry": "Industrial / manufacturing (confirm with client)",
+    "headquarters": "Not provided in source PDF",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+sahakarmaharshi_bhausaheb_thorat_sa@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070263055"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070263055"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "671000000000000000000042"
+    },
+    "name": "Kisan Sahkari Chinni Mills Ltd, Semikhera",
+    "code": "KISAN_SAHKARI_CHINNI_MILLS_LTD_SEMI",
+    "industry": "Industrial / manufacturing (confirm with client)",
+    "headquarters": "Not provided in source PDF",
+    "contactPerson": {
+      "name": "Not provided",
+      "email": "compliance+kisan_sahkari_chinni_mills_ltd_semi@example.com",
+      "phone": "Not provided"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1795070263085"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1795070263085"
       }
     },
     "__v": {

@@ -1,15 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { FacilityModel } from '@/models/Facility';
-import { getSessionFromRequest } from '@/lib/auth';
+import { getSessionFromRequest, authorizeRole, isAuthorizedForFacility } from '@/lib/auth';
 import { GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
 
 export async function GET(request: NextRequest) {
+  const session = getSessionFromRequest(request);
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (session.role !== 'ADMIN' && session.role !== 'CONSULTANT') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
   try {
     await connectToDatabase();
     const { searchParams } = new URL(request.url);
     const facilityId = (searchParams.get('facilityId') || 'TRIDENT_PAPER').toUpperCase().trim();
 
+    if (!isAuthorizedForFacility(session, facilityId)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     const facility = await FacilityModel.findOne({ facilityId }).lean();
     if (!facility) {
       return NextResponse.json({
@@ -25,13 +31,16 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const driveConnection = facility.driveConnection || {
-      isConnected: false,
-      folderUrl: GOOGLE_DRIVE_FOLDER_URL,
-      folderName: `${facility.name} Compliance Vault`,
-      spreadsheetUrl: '',
-      lastSyncedAt: null,
-      syncedMonthsCount: 0,
+    const { getOrEnsureFacilityVaultFolder } = await import('@/lib/driveVaultServer');
+    const resolvedVault = await getOrEnsureFacilityVaultFolder(facility);
+
+    const driveConnection = {
+      isConnected: facility.driveConnection?.isConnected ?? true,
+      folderUrl: resolvedVault.folderUrl,
+      folderName: facility.driveConnection?.folderName || `${facility.name} Compliance Vault`,
+      spreadsheetUrl: facility.driveConnection?.spreadsheetUrl || '',
+      lastSyncedAt: facility.driveConnection?.lastSyncedAt || null,
+      syncedMonthsCount: facility.driveConnection?.syncedMonthsCount || 0,
     };
 
     return NextResponse.json({
@@ -39,18 +48,8 @@ export async function GET(request: NextRequest) {
       data: driveConnection,
     });
   } catch (error) {
-    console.warn('Error fetching Drive connection from DB, returning fallback demo connection:', error);
-    return NextResponse.json({
-      success: true,
-      data: {
-        isConnected: true,
-        folderUrl: GOOGLE_DRIVE_FOLDER_URL,
-        folderName: 'Carbon Crunch · Compliance Documents & Evidence Vault',
-        spreadsheetUrl: '',
-        lastSyncedAt: new Date().toISOString(),
-        syncedMonthsCount: 12,
-      },
-    });
+    console.error('Google Drive connection lookup failed:', error);
+    return NextResponse.json({ error: 'Unable to load Google Drive connection.' }, { status: 503 });
   }
 }
 
@@ -59,9 +58,11 @@ export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
     const session = getSessionFromRequest(request);
+    if (!authorizeRole(session, ['ADMIN', 'CONSULTANT'])) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     body = await request.json();
 
     const facilityId = (body.facilityId || 'TRIDENT_PAPER').toUpperCase().trim();
+    if (!isAuthorizedForFacility(session, facilityId)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     const folderUrl = body.folderUrl?.trim();
     const folderName = body.folderName?.trim() || 'Compliance Evidence Drive';
     const spreadsheetUrl = body.spreadsheetUrl?.trim() || '';
@@ -90,19 +91,8 @@ export async function POST(request: NextRequest) {
       data: facility.driveConnection,
     });
   } catch (error) {
-    console.warn('Error connecting Google Drive in DB, returning demo success:', error);
-    return NextResponse.json({
-      success: true,
-      message: 'Google Drive repository connected successfully (Demo Mode)!',
-      data: {
-        isConnected: true,
-        folderUrl: body?.folderUrl || GOOGLE_DRIVE_FOLDER_URL,
-        folderName: body?.folderName || 'Trident Paper Compliance Vault',
-        spreadsheetUrl: body?.spreadsheetUrl || '',
-        lastSyncedAt: new Date().toISOString(),
-        syncedMonthsCount: 12,
-      },
-    });
+    console.error('Google Drive connection update failed:', error);
+    return NextResponse.json({ error: 'Unable to save Google Drive connection.' }, { status: 500 });
   }
 }
 

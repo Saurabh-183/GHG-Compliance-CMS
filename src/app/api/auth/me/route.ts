@@ -1,18 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server';
+import mongoose from 'mongoose';
 import { connectToDatabase } from '@/lib/db';
-import { UserModel } from '@/models/User';
+import { ClientGroupModel } from '@/models/ClientGroup';
 import { getSessionFromRequest } from '@/lib/auth';
+import { formatClientGroupDisplayName } from '@/lib/clientGroupDisplay';
+import { findUserForSession } from '@/lib/resolveSessionUser';
+import { isMongoUnavailableError } from '@/lib/db';
 
 export async function GET(request: NextRequest) {
   const session = getSessionFromRequest(request);
-  if (!session) {
-    return NextResponse.json({ authenticated: false, error: 'Unauthorized' }, { status: 401 });
-  }
-
+  if (!session || !mongoose.Types.ObjectId.isValid(session.userId)) return NextResponse.json({ authenticated: false }, { status: 401 });
   try {
     await connectToDatabase();
-    const user = await UserModel.findById(session.userId);
+    const user = await findUserForSession(session);
     if (user) {
+      const clientGroupId = user.clientGroupId ? user.clientGroupId.toString() : undefined;
+      let clientGroupCode: string | undefined;
+      let clientGroupName: string | undefined;
+      if (user.clientGroupId) {
+        const group = await ClientGroupModel.findById(user.clientGroupId).select('name code').lean();
+        clientGroupName = group?.name;
+        clientGroupCode = group?.code;
+      }
+      const clientGroupDisplayName = formatClientGroupDisplayName({
+        clientGroupName,
+        clientGroupId,
+        clientGroupCode,
+      });
       return NextResponse.json({
         authenticated: true,
         user: {
@@ -22,13 +36,16 @@ export async function GET(request: NextRequest) {
           role: user.role,
           designation: user.designation,
           avatarUrl: user.avatarUrl,
-          clientGroupId: user.clientGroupId ? user.clientGroupId.toString() : undefined,
+          clientGroupId,
+          clientGroupName: clientGroupDisplayName,
           authorizedFacilityIds: user.authorizedFacilityIds,
         },
       });
     }
   } catch (error) {
-    console.warn('DB lookup in /api/auth/me skipped:', error);
+    if (!isMongoUnavailableError(error)) {
+      console.warn('DB lookup in /api/auth/me skipped:', error);
+    }
   }
 
   // Gracefully fallback to the verified JWT session payload
@@ -52,6 +69,7 @@ export async function GET(request: NextRequest) {
           ? 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop&crop=faces'
           : 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces',
       clientGroupId: session.clientGroupId,
+      clientGroupName: formatClientGroupDisplayName({ clientGroupId: session.clientGroupId }),
       authorizedFacilityIds: session.authorizedFacilityIds,
     },
   });
