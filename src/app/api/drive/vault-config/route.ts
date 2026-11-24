@@ -14,6 +14,10 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  if (session.role !== 'ADMIN' && session.role !== 'CONSULTANT') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
   return NextResponse.json({
     success: true,
     data: {

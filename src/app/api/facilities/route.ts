@@ -77,6 +77,7 @@ export async function GET(request: NextRequest) {
         const clientGroup = f.clientGroupId as unknown as { _id?: { toString(): string }; name?: string };
         return {
           ...f,
+          ...(session.role === 'CLIENT' ? { driveConnection: undefined } : {}),
           _id: f._id.toString(),
           clientGroupId: clientGroup?._id ? clientGroup._id.toString() : String(f.clientGroupId),
           clientGroupName: clientGroup?.name || '',

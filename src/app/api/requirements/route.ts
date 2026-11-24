@@ -1,3 +1,4 @@
+import { isSoftwareSubmittedEvidence } from '@/lib/clientMonthlyEvidenceRows';
 import { NextRequest, NextResponse } from 'next/server';
 import '@/models/Dataset';
 import { connectToDatabase } from '@/lib/db';
@@ -90,7 +91,9 @@ export async function GET(request: NextRequest) {
             ? r.requestedAt.toISOString()
             : new Date(r.requestedAt).toISOString()
           : null,
-        submittedDriveLinks: (r.submittedDriveLinks || []).map((link) => ({
+        submittedDriveLinks: (r.submittedDriveLinks || []).filter((link) =>
+          session.role !== 'CLIENT' || isSoftwareSubmittedEvidence(link)
+        ).map((link) => ({
           ...link,
           submittedAt:
             link.submittedAt instanceof Date
