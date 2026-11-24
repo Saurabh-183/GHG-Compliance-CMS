@@ -71,7 +71,7 @@ export async function GET(
         return NextResponse.json({
           success: true,
           source: 'development-fallback',
-          data: facility,
+          data: session.role === 'CLIENT' ? { ...facility, driveConnection: undefined } : facility,
         });
       }
     }
@@ -101,6 +101,7 @@ export async function GET(
       success: true,
       data: {
         ...facility,
+        ...(session.role === 'CLIENT' ? { driveConnection: undefined } : {}),
         _id: facility._id.toString(),
         clientGroupId:
           clientGroupObj?._id?.toString() || facility.clientGroupId.toString(),

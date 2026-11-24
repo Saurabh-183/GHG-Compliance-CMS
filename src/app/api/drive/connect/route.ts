@@ -2,11 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { FacilityModel } from '@/models/Facility';
 import { getSessionFromRequest, authorizeRole, isAuthorizedForFacility } from '@/lib/auth';
-import { GOOGLE_DRIVE_FOLDER_URL, resolveComplianceVaultFolderUrl } from '@/lib/gdrive';
+import { GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
 
 export async function GET(request: NextRequest) {
   const session = getSessionFromRequest(request);
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (session.role !== 'ADMIN' && session.role !== 'CONSULTANT') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
   try {
     await connectToDatabase();
     const { searchParams } = new URL(request.url);
@@ -14,7 +17,6 @@ export async function GET(request: NextRequest) {
 
     if (!isAuthorizedForFacility(session, facilityId)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     const facility = await FacilityModel.findOne({ facilityId }).lean();
-    if (session.role === 'CLIENT' && facility?.clientGroupId.toString() !== session.clientGroupId) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     if (!facility) {
       return NextResponse.json({
         success: true,

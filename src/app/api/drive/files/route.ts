@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {
-  getDriveFilesForFacility,
-  GOOGLE_DRIVE_FOLDER_URL,
-  GOOGLE_DRIVE_FOLDER_ID,
-  type IDriveFileMetadata,
-} from '@/lib/gdrive';
+import type { IDriveFileMetadata } from '@/lib/gdrive';
 import { connectToDatabase } from '@/lib/db';
 import { FacilityModel } from '@/models/Facility';
+import { readVaultForFacility } from '@/lib/facilityVaultInventory';
 import { getSessionFromRequest, isAuthorizedForFacility } from '@/lib/auth';
 import { DriveItemModel } from '@/models/DriveItem';
+import { getFacilityDriveScope } from '@/lib/facilityDriveScope';
 
 function mapCategory(category?: string): IDriveFileMetadata['category'] {
   switch (category) {
@@ -36,6 +33,9 @@ function inferMonth(value: string): string | undefined {
 export async function GET(request: NextRequest) {
   const session = getSessionFromRequest(request);
   if (!session) return NextResponse.json({ success: false, error: 'Authentication required.' }, { status: 401 });
+  if (session.role !== 'ADMIN' && session.role !== 'CONSULTANT') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
 
   const facilityId = (request.nextUrl.searchParams.get('facilityId') || '').toUpperCase().trim();
   if (!facilityId) return NextResponse.json({ success: false, error: 'facilityId query parameter is required.' }, { status: 400 });
@@ -45,54 +45,63 @@ export async function GET(request: NextRequest) {
     await connectToDatabase();
     const facility = await FacilityModel.findOne({ facilityId }).lean();
     if (!facility) return NextResponse.json({ success: false, error: 'Facility not found.' }, { status: 404 });
-    if (session.role === 'CLIENT' && String(facility.clientGroupId) !== session.clientGroupId) {
-      return NextResponse.json({ success: false, error: 'You are not authorized to access this facility.' }, { status: 403 });
-    }
 
-    const indexedItems = await DriveItemModel.find({ facilityId, isFolder: false, trashed: false })
-      .select('driveId name mimeType webViewLink webContentLink size modifiedTime category pathNames')
+    const scope = await getFacilityDriveScope(facilityId);
+    const indexedItems = await DriveItemModel.find({
+      pathDriveIds: { $in: scope.folderIds },
+      isFolder: false,
+      trashed: false,
+    })
+      .select('driveId name mimeType webViewLink webContentLink size modifiedTime category pathNames pathDriveIds financialYear')
       .sort({ name: 1 }).lean();
-    const mappedFacilityFolder = await DriveItemModel.findOne({ facilityId, mappingType: 'FACILITY', isFolder: true, trashed: false })
-      .select('driveId name webViewLink').lean();
 
-    // Keep the former demo/evidence list as a backwards-compatible fallback until this facility is mapped.
-    const files: IDriveFileMetadata[] = indexedItems.length
-      ? indexedItems.map((item) => {
-          const openUrl = item.webViewLink || (item.mimeType === 'application/vnd.google-apps.folder'
-            ? `https://drive.google.com/drive/folders/${item.driveId}`
-            : `https://drive.google.com/file/d/${item.driveId}/view`);
-          return {
-            id: item.driveId,
-            name: item.name,
-            mimeType: item.mimeType,
-            category: mapCategory(item.category),
-            month: inferMonth(`${(item.pathNames || []).join('/')} ${item.name}`),
-            url: openUrl,
-            downloadUrl: item.webContentLink || openUrl,
-            sizeBytes: item.size ? Number(item.size) : undefined,
-            lastModified: item.modifiedTime?.toISOString(),
-            financialYear: item.financialYear,
-            drivePath: (item.pathNames || []).join(' / '),
-          };
-        })
-      : mappedFacilityFolder ? [] : getDriveFilesForFacility(facilityId, facility.name);
+    const byId = new Map(indexedItems.filter(scope.contains).map((item) => [item.driveId, item]));
+    const vaultItems = await readVaultForFacility(facility, scope.allowsVaultPath).catch((error) => {
+      if (!byId.size) throw error;
+      console.warn('Unable to refresh the facility Drive vault:', error);
+      return [];
+    });
+    const liveFiles = vaultItems.filter((item) => !item.isFolder).map((item) => {
+      const indexed = byId.get(item.driveId);
+      byId.delete(item.driveId);
+      const category = item.pathNames.slice(0, -1).findLast((name) => mapCategory(name) !== 'OTHER_EVIDENCE');
+      return {
+        ...item,
+        category: indexed?.category || category,
+        financialYear: indexed?.financialYear || item.financialYear,
+      };
+    });
 
-    const folderId = mappedFacilityFolder?.driveId || GOOGLE_DRIVE_FOLDER_ID;
-    const folderUrl = mappedFacilityFolder?.webViewLink || (mappedFacilityFolder
-      ? `https://drive.google.com/drive/folders/${mappedFacilityFolder.driveId}`
-      : GOOGLE_DRIVE_FOLDER_URL);
+    const files: IDriveFileMetadata[] = [...byId.values(), ...liveFiles].map((item) => {
+      const openUrl = item.webViewLink || `https://drive.google.com/file/d/${item.driveId}/view`;
+      return {
+        id: item.driveId,
+        name: item.name,
+        mimeType: item.mimeType,
+        category: mapCategory(item.category),
+        month: inferMonth((item.pathNames || []).join('/')),
+        url: openUrl,
+        downloadUrl: item.webContentLink || openUrl,
+        sizeBytes: item.size ? Number(item.size) : undefined,
+        lastModified: item.modifiedTime?.toISOString(),
+        financialYear: item.financialYear,
+        drivePath: (item.pathNames || []).join(' / '),
+      };
+    });
+    files.sort((a, b) => a.name.localeCompare(b.name));
+    const folder = scope.folders[0] || vaultItems.find((item) => item.pathDriveIds.length === 1);
 
     return NextResponse.json({
       success: true,
       data: {
         facilityId,
         facilityName: facility.name,
-        folderId,
-        folderUrl,
-        folderName: mappedFacilityFolder?.name || `${facility.name} Compliance Documents`,
+        folderId: folder?.driveId,
+        folderUrl: folder?.webViewLink || (folder && `https://drive.google.com/drive/folders/${folder.driveId}`),
+        folderName: folder?.name || `${facility.name} Compliance Documents`,
         totalFiles: files.length,
         files,
-        source: indexedItems.length ? 'GOOGLE_DRIVE_INDEX' : 'LEGACY_FALLBACK',
+        source: vaultItems.length ? 'GOOGLE_DRIVE_VAULT' : 'GOOGLE_DRIVE_INDEX',
       },
     });
   } catch (error) {

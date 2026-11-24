@@ -25,7 +25,7 @@ import {
   CheckCheck,
 } from 'lucide-react';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
-import { GOOGLE_DRIVE_FOLDER_ID, GOOGLE_DRIVE_FOLDER_URL, resolveComplianceVaultFolderUrl, rewriteLegacyVaultUrlsInText } from '@/lib/gdrive';
+import { rewriteLegacyVaultUrlsInText } from '@/lib/gdrive';
 
 export default function ClientFacilityOverviewPage() {
   const { theme } = useAuth();
@@ -34,15 +34,6 @@ export default function ClientFacilityOverviewPage() {
   const facilityId = (params.facilityId as string) || 'TRIDENT_PAPER';
   const [facility, setFacility] = useState<IFacility | null>(null);
   const [submissionFiles, setSubmissionFiles] = useState<ClientSubmittedDriveFileCard[]>([]);
-  const [driveConnection, setDriveConnection] = useState<{
-    folderUrl: string;
-    folderName: string;
-    isConnected: boolean;
-  }>({
-    folderUrl: resolveComplianceVaultFolderUrl(process.env.NEXT_PUBLIC_GDRIVE_FOLDER_URL || GOOGLE_DRIVE_FOLDER_URL),
-    folderName: 'Carbon Crunch · Compliance Documents & Evidence Vault',
-    isConnected: true,
-  });
   const [loading, setLoading] = useState(true);
   const [selectedPeriod, setSelectedPeriod] = useState(() => readPortalPeriod());
   const [requestProgress, setRequestProgress] = useState(
@@ -59,9 +50,8 @@ export default function ClientFacilityOverviewPage() {
           facilityId: facilityId.toUpperCase(),
           period: selectedPeriod,
         });
-        const [facRes, driveRes, reqRes] = await Promise.all([
+        const [facRes, reqRes] = await Promise.all([
           fetch(`/api/facilities/${facilityId}`).catch(() => null),
-          fetch(`/api/drive/connect?facilityId=${facilityId}`).catch(() => null),
           fetch(`/api/requirements?${reqParams.toString()}`, {
             credentials: 'include',
             cache: 'no-store',
@@ -71,16 +61,6 @@ export default function ClientFacilityOverviewPage() {
         if (facRes && facRes.ok) {
           const facData = (await facRes.json()) as { data: IFacility };
           setFacility(facData.data);
-        }
-        if (driveRes && driveRes.ok) {
-          const dJson = await driveRes.json();
-          if (dJson.data) {
-            setDriveConnection({
-              folderUrl: dJson.data.folderUrl || process.env.NEXT_PUBLIC_GDRIVE_FOLDER_URL || GOOGLE_DRIVE_FOLDER_URL,
-              folderName: dJson.data.folderName || 'Carbon Crunch · Compliance Documents & Evidence Vault',
-              isConnected: dJson.data.isConnected ?? true,
-            });
-          }
         }
         let scopedReqs: IDataRequirement[] = [];
         if (reqRes && reqRes.ok) {
@@ -105,7 +85,7 @@ export default function ClientFacilityOverviewPage() {
   }, [facilityId, selectedPeriod]);
 
   if (loading) {
-    return <CarbonCrunchLoader message="Loading facility compliance overview & Drive data..." />;
+    return <CarbonCrunchLoader message="Loading facility compliance overview..." />;
   }
 
   if (!facility) {
@@ -156,22 +136,6 @@ export default function ClientFacilityOverviewPage() {
             <p className="text-xs text-slate-600 dark:text-slate-300">
               {facility.category} · {facility.location}
             </p>
-            <div className="flex flex-wrap items-center gap-3 pt-1 text-xs text-slate-500 dark:text-slate-400">
-              <span className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-medium">
-                <Folder className="w-3.5 h-3.5" />
-                <span>Google Drive Vault Linked</span>
-              </span>
-              <span>·</span>
-              <a
-                href={driveConnection.folderUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-emerald-700 dark:text-emerald-400 hover:underline inline-flex items-center gap-1 font-medium"
-              >
-                <span>Browse Drive Repository</span>
-                <ExternalLink className="w-3 h-3" />
-              </a>
-            </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
@@ -241,6 +205,20 @@ export default function ClientFacilityOverviewPage() {
                 </Select>
               </FormControl>
             </div>
+            <label className="flex items-center gap-2 text-[11px] text-slate-600 dark:text-slate-300 mr-1">
+              <span className="font-semibold">FY</span>
+              <select
+                value={selectedPeriod}
+                onChange={(e) => setSelectedPeriod(e.target.value)}
+                className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-2 py-1.5 font-mono text-xs"
+              >
+                {PORTAL_PERIOD_OPTIONS.map((fy) => (
+                  <option key={fy} value={fy}>
+                    {fy}
+                  </option>
+                ))}
+              </select>
+            </label>
             <Link
               href={dataRequestsHref}
               className="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-white border border-slate-300 dark:border-slate-700 shadow-sm transition-colors cursor-pointer"
@@ -282,7 +260,7 @@ export default function ClientFacilityOverviewPage() {
 
           <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 space-y-1">
             <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-              <span className="font-semibold uppercase tracking-wider text-[10px]">Drive Evidence Files</span>
+              <span className="font-semibold uppercase tracking-wider text-[10px]">Submitted Evidence</span>
               <Folder className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             </div>
             <div className="text-xl font-extrabold text-slate-900 dark:text-white">{submissionFiles.length} Files</div>
@@ -314,19 +292,6 @@ export default function ClientFacilityOverviewPage() {
                 <span>Manage on Data Requests</span>
                 <ChevronRight className="w-3 h-3" />
               </Link>
-              <a
-                href={resolveComplianceVaultFolderUrl(
-                  driveConnection.folderUrl && !driveConnection.folderUrl.includes(GOOGLE_DRIVE_FOLDER_ID)
-                    ? driveConnection.folderUrl
-                    : (submissionFiles.find((f) => f.vaultFolderUrl && !f.vaultFolderUrl.includes(GOOGLE_DRIVE_FOLDER_ID))?.vaultFolderUrl || driveConnection.folderUrl)
-                )}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-2xs"
-              >
-                <span>Open Vault</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
             </div>
           </div>
 

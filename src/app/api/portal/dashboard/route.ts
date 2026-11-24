@@ -1,5 +1,5 @@
-
 import { NextRequest, NextResponse } from 'next/server';
+import { isSoftwareSubmittedEvidence } from '@/lib/clientMonthlyEvidenceRows';
 import { connectToDatabase, isMongoObjectId } from '@/lib/db';
 import { FacilityModel } from '@/models/Facility';
 import { ClientGroupModel } from '@/models/ClientGroup';
@@ -11,7 +11,6 @@ import { getSessionFromRequest, isAuthorizedForFacility } from '@/lib/auth';
 import { extractPortalDeadlineAlerts } from '@/lib/deadlineReminders';
 import {
   authorizedFacilityIdsForPortal,
-  dedupeFacilitiesById,
   filterFacilitiesToPortalScope,
 } from '@/lib/portalScope';
 
@@ -51,6 +50,10 @@ export async function GET(request: NextRequest) {
   try {
     // 1. Authenticate the request.
     const session = getSessionFromRequest(request);
+    if (!session || session.role !== 'CLIENT') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+    await connectToDatabase();
     const facilityIdParam = request.nextUrl.searchParams.get('facilityId')?.toUpperCase();
     const periodParam = request.nextUrl.searchParams.get('period')?.trim();
 
@@ -64,6 +67,7 @@ export async function GET(request: NextRequest) {
       const clientGroup = f.clientGroupId as unknown as { _id?: { toString(): string }; name?: string };
       return {
         ...f,
+        driveConnection: undefined,
         _id: f._id.toString(),
         clientGroupId: clientGroup?._id ? clientGroup._id.toString() : String(f.clientGroupId),
         clientGroupName: clientGroup?.name || '',
@@ -205,6 +209,8 @@ export async function GET(request: NextRequest) {
         pendingRequests: pendingRequests.map((r) => ({
           ...r,
           _id: r._id.toString(),
+          submittedDriveLinks: (r.submittedDriveLinks || []).filter(isSoftwareSubmittedEvidence),
+          dueDate: r.dueDate ? r.dueDate.toISOString() : null,
           dueDate: toSafeIso(r.dueDate),
         })),
 
@@ -238,10 +244,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
-        facilities: scopedFacilities,
+        facilities: scopedFacilities.map((facility) => ({ ...facility, driveConnection: undefined })),
         pendingRequests: MOCK_REQUIREMENTS.filter((r) =>
           scopedFacilityIds.has((r.facilityId || '').toUpperCase())
-        ),
+        ).map((r) => ({ ...r, submittedDriveLinks: [] })),
         openClarifications: MOCK_CLARIFICATIONS.filter((c) =>
           scopedFacilityIds.has((c.facilityId || '').toUpperCase())
         ),

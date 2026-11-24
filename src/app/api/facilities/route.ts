@@ -89,6 +89,7 @@ export async function GET(request: NextRequest) {
 
         return {
           ...f,
+          ...(session.role === 'CLIENT' ? { driveConnection: undefined } : {}),
           _id: f._id.toString(),
           clientGroupId: clientGroup?._id
             ? clientGroup._id.toString()

@@ -28,7 +28,7 @@ export function formatBillingMonthLabel(monthKey: string): string {
 }
 
 /** Evidence created by a client submission in this app, not a historical Drive index or folder sync. */
-export function isSoftwareSubmittedEvidence(link: ISubmittedDriveLink): boolean {
+export function isSoftwareSubmittedEvidence(link: Pick<ISubmittedDriveLink, 'description' | 'ingestionMode' | 'vaultFileId' | 'fileName'>): boolean {
   if (/google drive master repository/i.test(link.description || '')) return false;
   if (link.ingestionMode === 'DRIVE_API_COPIED' || link.ingestionMode === 'VAULT_INDEXED' || link.ingestionMode === 'LOCAL_VAULT_DEV') {
     return true;
@@ -81,7 +81,7 @@ export function buildClientMonthlyEvidenceRows(requirements: IDataRequirement[])
       req.reportingMonths.forEach((m) => monthKeys.add(m.trim()));
     }
     for (const link of req.submittedDriveLinks || []) {
-      if (link.mappedMonth?.trim()) monthKeys.add(link.mappedMonth.trim());
+      if (isSoftwareSubmittedEvidence(link) && link.mappedMonth?.trim()) monthKeys.add(link.mappedMonth.trim());
     }
   }
 

@@ -1,3 +1,4 @@
+import { isSoftwareSubmittedEvidence } from '@/lib/clientMonthlyEvidenceRows';
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { FacilityModel } from '@/models/Facility';
@@ -91,7 +92,7 @@ export async function GET(request: NextRequest) {
         linkedCompliances: req.linkedCompliances || [],
         submissionVersion: req.submissionVersion,
         fieldSummary,
-        submittedDriveLinks: (req.submittedDriveLinks || []).map((link) => ({
+        submittedDriveLinks: (req.submittedDriveLinks || []).filter(isSoftwareSubmittedEvidence).map((link) => ({
           url: link.url,
           sourceUrl: link.sourceUrl,
           vaultUrl: link.vaultUrl,

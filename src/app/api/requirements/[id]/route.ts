@@ -1,3 +1,4 @@
+import { isSoftwareSubmittedEvidence } from '@/lib/clientMonthlyEvidenceRows';
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { DataRequirementModel } from '@/models/DataRequirement';
@@ -77,6 +78,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json({
       success: true,
       data: {
+        ...serializeRequirement({
+          ...requirement,
+          submittedDriveLinks: session.role === 'CLIENT'
+            ? (requirement.submittedDriveLinks || []).filter(isSoftwareSubmittedEvidence)
+            : requirement.submittedDriveLinks,
+        }),
         ...serialized,
         requestId:
           requirement.requestId || `REQ-${requirement._id.toString().slice(-8).toUpperCase()}`,

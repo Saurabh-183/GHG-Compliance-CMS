@@ -2,10 +2,13 @@ import 'server-only';
 import { DriveItemModel } from '@/models/DriveItem';
 import { createDriveReadClient } from '@/lib/driveVaultAuth';
 
+type DriveV3 = import('googleapis').drive_v3.Drive;
+
 const FOLDER_MIME = 'application/vnd.google-apps.folder';
 type DriveFile = {
   id?: string | null; name?: string | null; mimeType?: string | null; parents?: string[] | null;
   webViewLink?: string | null; webContentLink?: string | null; size?: string | null;
+  shortcutDetails?: { targetId?: string | null; targetMimeType?: string | null; targetResourceKey?: string | null } | null;
   modifiedTime?: string | null; createdTime?: string | null; trashed?: boolean | null;
 };
 
@@ -33,21 +36,22 @@ function safeDate(value?: string | null): Date | undefined {
   return Number.isNaN(date.getTime()) ? undefined : date;
 }
 
-/** Recursively indexes only the configured root and its descendants. No Drive files are moved or copied. */
-export async function discoverDriveTree(rootFolderId: string) {
-  const drive = await createDriveReadClient();
-  if (!drive) throw new Error('Google Drive API is not configured. Set service-account or OAuth credentials.');
+export async function readDriveTree(
+  drive: DriveV3,
+  rootFolderId: string,
+  includePath: (ids: string[]) => boolean = () => true
+) {
+  if (!includePath([rootFolderId])) return [];
 
   const rootMeta = await drive.files.get({ fileId: rootFolderId, fields: 'id,name,mimeType,parents,webViewLink,modifiedTime,createdTime,trashed', supportsAllDrives: true });
   const rootFile = rootMeta.data as DriveFile;
-  if (rootFile.mimeType !== FOLDER_MIME) throw new Error('GDRIVE_DISCOVERY_ROOT_FOLDER_ID must point to a Google Drive folder.');
+  if (rootFile.trashed || rootFile.mimeType !== FOLDER_MIME) throw new Error('Drive root must point to an active Google Drive folder.');
   const nodes: DriveFile[] = [{ ...rootFile, parents: [], __pathNames: [rootFile.name || 'Drive root'], __pathDriveIds: [rootFolderId] } as DriveFile];
   const queue: Array<{ id: string; pathNames: string[]; pathDriveIds: string[] }> = [
     { id: rootFolderId, pathNames: [rootFile.name || 'Drive root'], pathDriveIds: [rootFolderId] },
   ];
   const visited = new Set<string>();
   const maxFolders = Number(process.env.GDRIVE_DISCOVERY_MAX_FOLDERS || 50000);
-  const startedAt = new Date();
 
   while (queue.length) {
     const parent = queue.shift()!;
@@ -62,7 +66,7 @@ export async function discoverDriveTree(rootFolderId: string) {
         pageSize: 1000,
         pageToken,
         orderBy: 'folder,name',
-        fields: 'nextPageToken,files(id,name,mimeType,parents,webViewLink,webContentLink,size,modifiedTime,createdTime,trashed)',
+        fields: 'nextPageToken,files(id,name,mimeType,parents,webViewLink,webContentLink,size,modifiedTime,createdTime,trashed,shortcutDetails)',
         supportsAllDrives: true,
         includeItemsFromAllDrives: true,
         ...(process.env.GDRIVE_SHARED_DRIVE_ID ? { corpora: 'drive' as const, driveId: process.env.GDRIVE_SHARED_DRIVE_ID } : {}),
@@ -72,6 +76,7 @@ export async function discoverDriveTree(rootFolderId: string) {
         if (!file.id || !file.name) continue;
         const filePathNames = [...parent.pathNames, file.name];
         const filePathIds = [...parent.pathDriveIds, file.id];
+        if (!includePath(filePathIds)) continue;
         nodes.push({ ...file, parents: [parent.id], __pathNames: filePathNames, __pathDriveIds: filePathIds } as DriveFile);
         if (file.mimeType === FOLDER_MIME) {
           queue.push({ id: file.id, pathNames: filePathNames, pathDriveIds: filePathIds });
@@ -81,16 +86,23 @@ export async function discoverDriveTree(rootFolderId: string) {
     } while (pageToken);
   }
 
-  const docs = nodes.map((raw) => {
+  return nodes.map((raw) => {
     const file = raw as DriveFile & { __pathNames?: string[]; __pathDriveIds?: string[] };
     const isFolder = file.mimeType === FOLDER_MIME;
     const inferredYear = [...(file.__pathNames || [])].reverse().map(extractFinancialYear).find(Boolean);
+    const target = file.shortcutDetails;
+    const targetUrl = target?.targetId
+      ? (target.targetMimeType === FOLDER_MIME
+        ? `https://drive.google.com/drive/folders/${target.targetId}`
+        : `https://drive.google.com/open?id=${target.targetId}`) +
+        (target.targetResourceKey ? `${target.targetMimeType === FOLDER_MIME ? '?' : '&'}resourcekey=${encodeURIComponent(target.targetResourceKey)}` : '')
+      : undefined;
     return {
       driveId: file.id!,
       name: file.name!,
       mimeType: file.mimeType || 'application/octet-stream',
       parentDriveId: file.parents?.[0],
-      webViewLink: file.webViewLink || (isFolder ? `https://drive.google.com/drive/folders/${file.id}` : `https://drive.google.com/file/d/${file.id}/view`),
+      webViewLink: targetUrl || file.webViewLink || (isFolder ? `https://drive.google.com/drive/folders/${file.id}` : `https://drive.google.com/file/d/${file.id}/view`),
       webContentLink: file.webContentLink || undefined,
       size: file.size || undefined,
       modifiedTime: safeDate(file.modifiedTime),
@@ -100,9 +112,17 @@ export async function discoverDriveTree(rootFolderId: string) {
       pathDriveIds: file.__pathDriveIds || [],
       isFolder,
       ...(inferredYear ? { financialYear: inferredYear, mappingConfidence: 'INFERRED' as const } : {}),
-      lastSeenAt: startedAt,
     };
   });
+
+}
+
+/** Recursively indexes only the configured root and its descendants. */
+export async function discoverDriveTree(rootFolderId: string) {
+  const drive = await createDriveReadClient();
+  if (!drive) throw new Error('Google Drive API is not configured. Set service-account or OAuth credentials.');
+  const startedAt = new Date();
+  const docs = await readDriveTree(drive, rootFolderId);
 
   // Preserve manual entity mappings when refreshing Drive metadata.
   for (let offset = 0; offset < docs.length; offset += 500) {
@@ -116,7 +136,7 @@ export async function discoverDriveTree(rootFolderId: string) {
             webViewLink: doc.webViewLink, webContentLink: doc.webContentLink, size: doc.size,
             modifiedTime: doc.modifiedTime, createdTime: doc.createdTime, trashed: doc.trashed,
             pathNames: doc.pathNames, pathDriveIds: doc.pathDriveIds, isFolder: doc.isFolder,
-            lastSeenAt: doc.lastSeenAt,
+            lastSeenAt: startedAt,
           },
           $setOnInsert: {
             mappingType: 'UNMAPPED',
