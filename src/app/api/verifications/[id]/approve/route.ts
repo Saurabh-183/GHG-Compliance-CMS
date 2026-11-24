@@ -57,6 +57,7 @@ export async function POST(
       await DataRequirementModel.findByIdAndUpdate(dataset.dataRequirementId, {
         verificationStatus: 'APPROVED',
         workflowStatus: 'ACCEPTED',
+        approvedByRole: session!.role,
         reviewedByName: reviewerName,
         reviewedAt: new Date(),
         $push: { history: { status: 'ACCEPTED', changedAt: new Date(), changedBy: reviewerName, comment: 'Dataset accepted by reviewer.' } },

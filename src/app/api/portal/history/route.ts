@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { FacilityModel } from '@/models/Facility';
 import { DataRequirementModel } from '@/models/DataRequirement';
-import { AssessmentModel } from '@/models/Assessment';
+import { UserModel } from '@/models/User';
 import { ClientGroupModel } from '@/models/ClientGroup';
 import { getSessionFromRequest } from '@/lib/auth';
 import { resolveDataCategoryLabel } from '@/lib/dataRequestDisplay';
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
   if (!facilityIds.length) {
     return NextResponse.json({
       success: true,
-      data: { approvedRequests: [], approvedAssessments: [] },
+      data: { approvedRequests: [] },
     });
   }
 
@@ -38,12 +38,38 @@ export async function GET(request: NextRequest) {
 
     const requirements = await DataRequirementModel.find({
       facilityId: { $in: facilityIds },
-      workflowStatus: { $in: ['ACCEPTED', 'CLOSED'] },
+      $or: [
+        { workflowStatus: 'ACCEPTED' },
+        { workflowStatus: 'CLOSED', verificationStatus: 'APPROVED' },
+      ],
+      approvedByRole: { $ne: 'ADMIN' },
     })
       .sort({ reviewedAt: -1, updatedAt: -1 })
       .lean();
 
-    const approvedRequests = requirements.map((req) => {
+    // Older records store only the reviewer's name. Match it only when the
+    // corresponding staff accounts consistently identify a consultant.
+    const legacyNames = [...new Set(requirements
+      .filter((req) => !req.approvedByRole)
+      .map((req) => req.reviewedByName)
+      .filter((name): name is string => Boolean(name)))];
+    const reviewers = legacyNames.length
+      ? await UserModel.find({ name: { $in: legacyNames }, role: { $in: ['CONSULTANT', 'ADMIN'] } })
+        .select('name role').lean()
+      : [];
+    const staffRoles = new Map<string, Set<string>>();
+    for (const reviewer of reviewers) {
+      const roles = staffRoles.get(reviewer.name) || new Set<string>();
+      roles.add(reviewer.role);
+      staffRoles.set(reviewer.name, roles);
+    }
+    const consultantRequests = requirements.filter((req) => {
+      if (req.approvedByRole) return req.approvedByRole === 'CONSULTANT';
+      const roles = staffRoles.get(req.reviewedByName || '');
+      return roles?.size === 1 && roles.has('CONSULTANT');
+    });
+
+    const approvedRequests = consultantRequests.map((req) => {
       const meta = facilityMeta.get(req.facilityId);
       const clientGroupName = meta?.clientGroupId
         ? groupNameById.get(meta.clientGroupId.toString())
@@ -110,36 +136,14 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    const rawAssessments = await AssessmentModel.find({
-      facilityId: { $in: facilityIds },
-      workflowStatus: 'APPROVED',
-    })
-      .populate('approvedBy', 'name designation')
-      .sort({ period: -1 })
-      .lean();
-
-    const approvedAssessments = rawAssessments.map((a) => ({
-      _id: a._id.toString(),
-      facilityId: a.facilityId,
-      facilityName: facilityMeta.get(a.facilityId)?.name,
-      complianceType: a.complianceType,
-      period: a.period,
-      complianceOutcome: a.complianceOutcome,
-      documentLinks: a.documentLinks,
-      version: a.version,
-      approvedByName: (a.approvedBy as { name?: string })?.name,
-      approvedAt: a.approvedAt ? a.approvedAt.toISOString() : null,
-      metrics: (a.metrics || []).filter((m) => m.approvalStatus === 'APPROVED'),
-    }));
-
     return NextResponse.json({
       success: true,
-      data: { approvedRequests, approvedAssessments },
+      data: { approvedRequests },
     });
   } catch (error) {
     console.error('portal history GET failed:', error);
     return NextResponse.json(
-      { success: false, error: 'Unable to load approved history.', data: { approvedRequests: [], approvedAssessments: [] } },
+      { success: false, error: 'Unable to load approved history.', data: { approvedRequests: [] } },
       { status: 500 }
     );
   }
