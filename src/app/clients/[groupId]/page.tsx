@@ -141,9 +141,50 @@ export default function ClientGroupDetailPage() {
             </div>
             <div className="h-8 w-px bg-slate-300 dark:bg-slate-800"></div>
             <div className="text-center px-2">
-              <div className="text-2xl font-bold text-[#237347] dark:text-emerald-400">4 Active</div>
+              <div className="text-2xl font-bold text-[#237347] dark:text-emerald-400">
+                {(group.enabledFrameworks || ['RCO', 'PAT', 'CCTS']).length} Active
+              </div>
               <div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">Frameworks</div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Statutory Frameworks Applicability Bar */}
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-4 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+              Statutory Compliance Frameworks
+            </h3>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+              Governed at the client conglomerate level by the Administrator.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {[
+              { type: 'RCO', label: 'RCO / RPO', name: 'Renewable Energy Obligation' },
+              { type: 'PAT', label: 'PAT Scheme', name: 'Perform, Achieve & Trade' },
+              { type: 'CCTS', label: 'CCTS Carbon', name: 'Carbon Credit Trading Scheme' },
+            ].map((fw) => {
+              const isEnabled = (group.enabledFrameworks || ['RCO', 'PAT', 'CCTS']).includes(fw.type as any);
+              return (
+                <div
+                  key={fw.type}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-medium ${
+                    isEnabled
+                      ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
+                      : 'bg-slate-100 text-slate-400 dark:bg-slate-800/80 dark:text-slate-500 border-slate-200 dark:border-slate-800 line-through opacity-70'
+                  }`}
+                >
+                  <span className={`w-2 h-2 rounded-full ${isEnabled ? 'bg-emerald-500' : 'bg-slate-400'}`} />
+                  <span className="font-bold">{fw.label}</span>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-normal">
+                    ({isEnabled ? 'Enabled' : 'Disabled'})
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

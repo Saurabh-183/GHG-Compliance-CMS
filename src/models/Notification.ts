@@ -13,7 +13,9 @@ export type NotificationType =
   | 'REGULATORY_DATA_REQUESTED'
   | 'REGULATORY_SUBMITTED'
   | 'REGULATORY_APPROVED'
-  | 'REGULATORY_RETURNED';
+  | 'REGULATORY_RETURNED'
+  | 'USER_CREATED'
+  | 'FACILITY_CREATED';
 
 export interface INotification extends Document {
   recipientRole: 'CONSULTANT' | 'CLIENT' | 'ADMIN' | 'ALL';
@@ -61,6 +63,8 @@ const NotificationSchema: Schema = new Schema(
         'REGULATORY_APPROVED',
         'REGULATORY_RETURNED',
         'DEADLINE_REMINDER',
+        'USER_CREATED',
+        'FACILITY_CREATED',
       ],
     },
     title: { type: String, required: true },

@@ -236,6 +236,29 @@ export default function ClientsPage() {
                           </strong>
                         </span>
                       </div>
+
+                      {/* Active Compliance Frameworks for this client */}
+                      <div className="flex items-center gap-1.5 pt-1">
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Frameworks:</span>
+                        <div className="flex flex-wrap gap-1">
+                          {['RCO', 'PAT', 'CCTS'].map((fw) => {
+                            const isEnabled = (company.enabledFrameworks || ['RCO', 'PAT', 'CCTS']).includes(fw as any);
+                            return (
+                              <span
+                                key={fw}
+                                title={`${fw}: ${isEnabled ? 'Enabled statutory framework' : 'Disabled for this client'}`}
+                                className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                                  isEnabled
+                                    ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                                    : 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500 line-through opacity-50'
+                                }`}
+                              >
+                                {fw}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      </div>
                     </div>
                   </div>
 

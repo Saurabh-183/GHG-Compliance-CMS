@@ -11,7 +11,7 @@ import { masterRowsByCategory, getMasterRequirement } from '@/lib/dataRequiremen
 import { notify } from '@/lib/notify';
 import { generateMonthRange, financialYearOptions } from '@/lib/dataRequestCategories';
 
-const COMPLIANCE_OPTIONS: ComplianceType[] = ['RCO', 'PAT', 'CCTS', 'CEA'];
+const COMPLIANCE_OPTIONS: ComplianceType[] = ['RCO', 'PAT', 'CCTS'];
 
 interface ChecklistDrivenRequestWizardProps {
   facilityId: string;
@@ -116,8 +116,6 @@ export function ChecklistDrivenRequestWizard({
       const preselect = rows
         .filter((r) => {
           if (!r.requestable || r.needsVerification) return false;
-          if (r.master.category === 'ELECTRICITY_POWER' && !activeFws.includes('CEA')) return false;
-          if (/electricity|cea/i.test(r.master.categoryLabel) && !activeFws.includes('CEA')) return false;
           const compliances = getRowCompliances(r);
           return compliances.some((c) => activeFws.includes(c));
         })
@@ -142,8 +140,6 @@ export function ChecklistDrivenRequestWizard({
   const filteredRequirements = useMemo(() => {
     if (linkedCompliances.length === 0) return [];
     return requirements.filter((r) => {
-      if (r.master.category === 'ELECTRICITY_POWER' && !linkedCompliances.includes('CEA')) return false;
-      if (/electricity|cea/i.test(r.master.categoryLabel) && !linkedCompliances.includes('CEA')) return false;
       const compliances = getRowCompliances(r);
       return compliances.some((c) => linkedCompliances.includes(c));
     });
@@ -176,8 +172,6 @@ export function ChecklistDrivenRequestWizard({
       if (!isChecked) {
         requirements.forEach((r) => {
           if (!r.requestable || r.needsVerification) return;
-          if (r.master.category === 'ELECTRICITY_POWER' && !nextCompliances.includes('CEA')) return;
-          if (/electricity|cea/i.test(r.master.categoryLabel) && !nextCompliances.includes('CEA')) return;
           const compliances = getRowCompliances(r);
           if (compliances.includes(c)) {
             nextSelected.add(r.master.itemKey);

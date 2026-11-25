@@ -58,8 +58,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     setIsLoading(true);
-    try { await fetch('/api/auth/logout', { method: 'POST' }); }
-    finally { setCurrentUser(null); setCurrentRole('CLIENT'); setIsLoading(false); router.replace('/login'); }
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      notify.info('Signed out successfully.');
+    } finally {
+      setCurrentUser(null);
+      setCurrentRole('CLIENT');
+      setIsLoading(false);
+      router.replace('/login');
+    }
   };
 
 

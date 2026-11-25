@@ -2243,25 +2243,6 @@ export const MOCK_APPLICABILITY: any[] = [
     complianceOutcome: 'PENDING_DETERMINATION',
     notes: 'Baseline verification under audit.',
   },
-  {
-    _id: 'app_cea_monthly',
-    facilityId: 'TRIDENT_PAPER',
-    complianceType: 'CEA',
-    period: 'Monthly (FY2025-26)',
-    isApplicable: true,
-    authority: 'Central Electricity Authority (CEA)',
-    ministry: 'Ministry of Power',
-    notificationReference: 'Section 74 of the Electricity Act 2003',
-    targetValue: null,
-    targetUnit: 'MU',
-    targetMethodology: 'Monthly Electricity Returns Filing (Form A/B/C)',
-    deadline: '2025-11-15T00:00:00.000Z',
-    assignedConsultantId: 'USR_CONS_01',
-    assignedReviewerId: 'USR_CONS_01',
-    workflowStatus: 'DATA_COLLECTION',
-    complianceOutcome: 'COMPLIANT',
-    notes: 'Recurring monthly returns up to June 2025 submitted.',
-  },
 ];
 
 
@@ -2544,21 +2525,6 @@ export const MOCK_CLARIFICATIONS: any[] = [
 
 
 export const MOCK_CALENDAR_ITEMS: any[] = [
-  {
-    _id: 'cal_demo_01',
-    facilityId: 'TRIDENT_PAPER',
-    facilityName: 'Trident Paper Complex',
-    complianceType: 'CEA',
-    reportingPeriod: 'June 2025',
-    regulatoryDueDate: '2025-07-15T00:00:00.000Z',
-    internalDeadline: '2025-07-10T00:00:00.000Z',
-    clientDataSubmissionDeadline: '2025-07-05T00:00:00.000Z',
-    assignedConsultantId: 'USR_CONS_01',
-    status: 'PENDING',
-    actualSubmissionDate: null,
-    extensionHistory: [],
-    isRecurringCEA: true,
-  },
   {
     _id: 'cal_demo_02',
     facilityId: 'TRIDENT_PAPER',

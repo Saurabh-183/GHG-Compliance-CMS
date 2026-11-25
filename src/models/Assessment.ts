@@ -50,7 +50,7 @@ const AssessmentSchema = new Schema<IAssessmentDocument>(
     facilityId: { type: String, required: true, uppercase: true, trim: true, index: true },
     complianceType: {
       type: String,
-      enum: ['RCO', 'PAT', 'CCTS', 'CEA'],
+      enum: ['RCO', 'PAT', 'CCTS'],
       required: true,
     },
     period: { type: String, required: true, trim: true },

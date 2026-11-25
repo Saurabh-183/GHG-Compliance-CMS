@@ -68,7 +68,7 @@ export const DATA_REQUIREMENT_MASTER: IMasterRequirementRow[] = [
     inputType: 'FILE_UPLOAD',
     reportingFrequency: 'ANNUAL',
     mandatory: true,
-    defaultCompliances: ['RCO', 'CEA'],
+    defaultCompliances: ['RCO'],
     documentSpecs: [{ name: 'Environmental approval certificate', required: true, acceptedFileTypes: ['XLSX'] }],
   },
   {
@@ -494,7 +494,7 @@ export const DATA_REQUIREMENT_MASTER: IMasterRequirementRow[] = [
     inputType: 'MONTHLY_TABLE',
     reportingFrequency: 'MONTHLY',
     mandatory: true,
-    defaultCompliances: ['RCO', 'PAT', 'CCTS', 'CEA'],
+    defaultCompliances: ['RCO', 'PAT', 'CCTS'],
     documentSpecs: [{ name: 'Grid bill PDF', required: true, acceptedFileTypes: ['XLSX'] }],
   },
   {
@@ -590,7 +590,7 @@ export const DATA_REQUIREMENT_MASTER: IMasterRequirementRow[] = [
     inputType: 'FILE_UPLOAD',
     reportingFrequency: 'ANNUAL',
     mandatory: true,
-    defaultCompliances: ['CEA', 'RCO'],
+    defaultCompliances: ['RCO'],
     documentSpecs: [{ name: 'Equipment list', required: true, acceptedFileTypes: ['XLSX'] }],
   },
   {
@@ -604,7 +604,7 @@ export const DATA_REQUIREMENT_MASTER: IMasterRequirementRow[] = [
     inputType: 'FILE_UPLOAD',
     reportingFrequency: 'ANNUAL',
     mandatory: true,
-    defaultCompliances: ['CEA', 'RCO'],
+    defaultCompliances: ['RCO'],
     documentSpecs: [{ name: 'Calibration certificate', required: true, acceptedFileTypes: ['XLSX'] }],
   },
 ];

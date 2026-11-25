@@ -78,7 +78,7 @@ export async function applyCalendarDueDateExtension(input: CalendarExtensionInpu
             revisedAt: new Date(),
           },
         ],
-        isRecurringCEA: complianceType === 'CEA',
+        isRecurringCEA: false,
       });
     } else {
       calendarRow.extensionHistory.push({

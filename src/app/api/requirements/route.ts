@@ -201,7 +201,7 @@ export async function POST(request: NextRequest) {
       Array.isArray(body.linkedCompliances) && body.linkedCompliances.length > 0
         ? body.linkedCompliances
         : ['RCO'];
-    if (linkedCompliances.some((c) => !['RCO', 'PAT', 'CCTS', 'CEA'].includes(c))) {
+    if (linkedCompliances.some((c) => !['RCO', 'PAT', 'CCTS'].includes(c))) {
       return NextResponse.json({ error: 'Select valid compliance frameworks.' }, { status: 400 });
     }
     if (body.priority && !['LOW', 'MEDIUM', 'HIGH'].includes(body.priority)) {

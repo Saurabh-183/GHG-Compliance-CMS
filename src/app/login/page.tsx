@@ -44,7 +44,6 @@ export default function LoginPage() {
       const ok = await login(email, password);
 
       if (ok) {
-        notify.success(`Signed in successfully as ${email}`);
         router.push('/');
       } else {
         const errMsg =

@@ -217,7 +217,7 @@ export async function POST(request: NextRequest) {
         period,
         title: 'Monthly Grid Electricity Invoices & Consumption Logs',
         category: 'COMMON_ENERGY',
-        linkedCompliances: ['RCO', 'PAT', 'CCTS', 'CEA'],
+        linkedCompliances: ['RCO', 'PAT', 'CCTS'],
         description: 'Monthly HT electricity bills and internal sub-metering logs synced directly from Google Drive repository.',
         submissionStatus: 'RECEIVED',
         verificationStatus: 'UNDER_REVIEW',

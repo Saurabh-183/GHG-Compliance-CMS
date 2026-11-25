@@ -9,6 +9,7 @@ import {
   getSessionFromRequest,
   isAuthorizedForFacility,
 } from '@/lib/auth';
+import type { ComplianceType } from '@/types';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
@@ -242,6 +243,19 @@ export async function GET(
       }
     }
 
+    // Ensure facility enabledFrameworks are strictly respected in the matrix
+    const facEnabled = (facility as any).enabledFrameworks as ComplianceType[] | undefined;
+    if (facEnabled && Array.isArray(facEnabled)) {
+      (COMPLIANCE_FRAMEWORKS as ComplianceType[]).forEach((comp) => {
+        if (!facEnabled.includes(comp) && matrix[comp]) {
+          for (const period of Object.keys(matrix[comp])) {
+            matrix[comp][period].isApplicable = false;
+            matrix[comp][period].complianceOutcome = 'NOT_APPLICABLE';
+          }
+        }
+      });
+    }
+
     return NextResponse.json({
       success: true,
       source: isMockFacility ? 'development-mock' : 'database',
@@ -335,7 +349,20 @@ export async function GET(
         resolvedFacility.name
       );
 
-      return NextResponse.json({
+      // Ensure facility enabledFrameworks are strictly respected in the matrix
+      const facFallbackEnabled = (resolvedFacility as any).enabledFrameworks as ComplianceType[] | undefined;
+      if (facFallbackEnabled && Array.isArray(facFallbackEnabled)) {
+        (COMPLIANCE_FRAMEWORKS as ComplianceType[]).forEach((comp) => {
+          if (!facFallbackEnabled.includes(comp) && matrix[comp]) {
+            for (const period of Object.keys(matrix[comp])) {
+              matrix[comp][period].isApplicable = false;
+              matrix[comp][period].complianceOutcome = 'NOT_APPLICABLE';
+            }
+          }
+        });
+      }
+
+    return NextResponse.json({
         success: true,
         source: 'development-fallback',
         data: {

@@ -23,10 +23,6 @@ const complianceLabels: Record<ComplianceType, { title: string; subtitle: string
     title: 'CCTS',
     subtitle: 'Carbon Credit Trading Scheme (MoEFCC/BEE)',
   },
-  CEA: {
-    title: 'CEA Electricity Returns',
-    subtitle: 'Monthly Section 74 Statutory Filings',
-  },
 };
 
 export const ComplianceMatrixTable: React.FC<ComplianceMatrixTableProps> = ({ data }) => {
@@ -80,10 +76,8 @@ const isBeforeFoundingYear = (period: string) => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 dark:divide-slate-800/80 text-xs">
-            {compliances
-              .filter((comp) => comp !== 'CEA')
-              .map((comp) => {
-                const info = complianceLabels[comp];
+            {compliances.map((comp) => {
+              const info = complianceLabels[comp];
                 if (!info) return null;
                 return (
                   <tr key={comp}>

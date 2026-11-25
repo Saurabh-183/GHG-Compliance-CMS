@@ -31,7 +31,7 @@ export function parseAssessmentId(id: string): {
   period: string;
 } | null {
   const slug = id.replace(/^asm_/, '').toLowerCase();
-  const frameworks = ['rco', 'pat', 'ccts', 'cea'] as const;
+  const frameworks = ['rco', 'pat', 'ccts'] as const;
   for (const framework of frameworks) {
     const marker = `_${framework}_`;
     const idx = slug.lastIndexOf(marker);

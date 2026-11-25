@@ -23,7 +23,7 @@ interface ExcelImportModalProps {
   onImportSuccess?: () => void;
 }
 
-type ComplianceTemplateType = 'GRID_ELECTRICITY' | 'RCO' | 'PAT' | 'CCTS' | 'CEA';
+type ComplianceTemplateType = 'GRID_ELECTRICITY' | 'RCO' | 'PAT' | 'CCTS';
 
 export const ExcelImportModal: React.FC<ExcelImportModalProps> = ({
   isOpen,
@@ -187,12 +187,6 @@ export const ExcelImportModal: React.FC<ExcelImportModalProps> = ({
         csvData =
           'Month,Fuel_Type,Quantity_Tonnes,GCV_kcal_kg,Direct_Emissions_tCO2,Emission_Intensity,Drive_Evidence_URL\n' +
           '2025-04,Imported Coal,3200,5400,6850,1.52,https://drive.google.com/file/d/CCTS_Fuel_Apr2025.pdf\n';
-        break;
-      case 'CEA':
-        filename = 'CarbonCrunch_CEA_Electricity_Returns_Template.csv';
-        csvData =
-          'Month,Return_Form,Gross_Generation_kWh,Auxiliary_Consumption_kWh,Net_Export_kWh,Filing_Status,Drive_Acknowledgement_URL\n' +
-          '2025-04,Form-1,2400000,180000,2220000,FILED,https://drive.google.com/file/d/CEA_Ack_Apr2025.pdf\n';
         break;
       default:
         filename = 'CarbonCrunch_Monthly_Grid_Electricity_Template.csv';
@@ -413,11 +407,6 @@ export const ExcelImportModal: React.FC<ExcelImportModalProps> = ({
                     type: 'CCTS' as ComplianceTemplateType,
                     title: 'CCTS GHG Emissions Template',
                     desc: 'Direct emissions, fuel invoices, GCV certificates, covered fuels.',
-                  },
-                  {
-                    type: 'CEA' as ComplianceTemplateType,
-                    title: 'CEA Electricity Returns Template',
-                    desc: 'Form 1/2 monthly statutory returns, generation, auxiliary consumption.',
                   },
                   {
                     type: 'GRID_ELECTRICITY' as ComplianceTemplateType,

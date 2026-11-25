@@ -334,7 +334,7 @@ export function FacilityDataRequestPanel({
     setFields((master.structuredFields || []).map((f) => ({ ...f })));
     setDocuments(normalizeDocumentSpecsForDriveXlsx(master.documentSpecs || []));
     setReportingFrequency((master.reportingFrequency as ReportingFrequency) || 'ANNUAL');
-    setLinkedCompliances((master.defaultCompliances || []).filter((c) => c !== 'CEA'));
+    setLinkedCompliances(master.defaultCompliances || []);
     setOpenSections({ 1: true, 2: Boolean(master.structuredFields?.length), 3: true, 4: true, 5: false });
     notify.success(`Loaded checklist fields for “${master.name}”.`);
   };

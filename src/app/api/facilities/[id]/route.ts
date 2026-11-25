@@ -5,7 +5,9 @@ import { FacilityModel } from '@/models/Facility';
 import {
   getSessionFromRequest,
   isAuthorizedForFacility,
+  authorizeRole,
 } from '@/lib/auth';
+import type { ComplianceType } from '@/types';
 
 export async function GET(
   request: NextRequest,
@@ -144,5 +146,77 @@ export async function GET(
       source: 'development-fallback',
       data: fallback,
     });
+  }
+}
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id: rawId } = await params;
+  const id = typeof rawId === 'string' ? rawId.trim() : '';
+  const session = getSessionFromRequest(request);
+
+  if (!id) {
+    return NextResponse.json({ success: false, error: 'Facility ID is required.' }, { status: 400 });
+  }
+
+  if (!session || !authorizeRole(session, ['ADMIN'])) {
+    return NextResponse.json({ success: false, error: 'Forbidden: Admin access required.' }, { status: 403 });
+  }
+
+  try {
+    await connectToDatabase();
+
+    let facility: any;
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      facility = await FacilityModel.findById(id);
+    }
+    if (!facility) {
+      facility = await FacilityModel.findOne({ facilityId: id.toUpperCase() });
+    }
+    if (!facility) {
+      return NextResponse.json({ success: false, error: 'Facility not found.' }, { status: 404 });
+    }
+
+    const body = await request.json();
+
+    if (Array.isArray(body.enabledFrameworks)) {
+      const valid: ComplianceType[] = ['RCO', 'PAT', 'CCTS'];
+      const filtered = body.enabledFrameworks.filter((f: any) => valid.includes(f));
+      facility.enabledFrameworks = filtered;
+
+      // Sync facility applicability
+      const disabled = valid.filter((f) => !filtered.includes(f));
+      if (disabled.length > 0) {
+        const { ComplianceApplicabilityModel } = await import('@/models/ComplianceApplicability');
+        await ComplianceApplicabilityModel.updateMany(
+          { facilityId: facility.facilityId, complianceType: { $in: disabled } },
+          { $set: { isApplicable: false } }
+        );
+      }
+      if (filtered.length > 0) {
+        const { ComplianceApplicabilityModel } = await import('@/models/ComplianceApplicability');
+        await ComplianceApplicabilityModel.updateMany(
+          { facilityId: facility.facilityId, complianceType: { $in: filtered } },
+          { $set: { isApplicable: true } }
+        );
+      }
+    }
+
+    if (body.name && typeof body.name === 'string') facility.name = body.name.trim();
+    if (body.location && typeof body.location === 'string') facility.location = body.location.trim();
+    if (body.category && typeof body.category === 'string') facility.category = body.category.trim();
+
+    await facility.save();
+
+    return NextResponse.json({
+      success: true,
+      message: 'Facility updated successfully',
+      data: facility,
+    });
+  } catch (error) {
+    console.error('Error updating facility:', error);
+    return NextResponse.json({ success: false, error: 'Unable to update facility.' }, { status: 500 });
   }
 }

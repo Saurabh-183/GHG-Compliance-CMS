@@ -11,7 +11,7 @@ import { buildAssessmentId, parseAssessmentId } from '@/lib/assessmentIds';
 /**
  * Standard Multi-Year Frameworks and Reporting Periods
  */
-export const COMPLIANCE_FRAMEWORKS: ComplianceType[] = ['RCO', 'PAT', 'CCTS', 'CEA'];
+export const COMPLIANCE_FRAMEWORKS: ComplianceType[] = ['RCO', 'PAT', 'CCTS'];
 export const COMPLIANCE_PERIODS = ['FY2024-25', 'FY2025-26', 'FY2026-27'];
 
 const WORKFLOW_STATUS_RANK: Record<string, number> = {
@@ -48,14 +48,6 @@ function preferWorkflowStatus(
   return rankNext >= rankCurrent ? next : current;
 }
 
-
-/**
- * Generates Statutory Compliance Applicability records for any facility.
- * Mapped to availability in the corporate Google Drive compliance repository:
- * - FY2024-25: RCO, PAT, and CEA have verified historical evidence in Drive. CCTS is NOT applicable.
- * - FY2025-26: All 4 frameworks (RCO, PAT, CCTS, CEA) are active with monthly Drive files.
- * - FY2026-27: Future fiscal year — no files exist yet in Drive (marked NOT applicable).
- */
 export function generateFacilityApplicabilities(
   facilityId: string,
   facilityName?: string
@@ -163,46 +155,6 @@ export function generateFacilityApplicabilities(
       workflowStatus: 'UNDER_REVIEW',
       complianceOutcome: 'PENDING_DETERMINATION',
       notes: `Baseline boundary draft under review against verified DISCOM and fuel evidence in Drive.`,
-    },
-    // 6. CEA Returns FY2024-25 (Historical Monthly Filings Verified)
-    {
-      _id: `app_${cleanId.toLowerCase()}_cea_fy2425`,
-      facilityId: cleanId,
-      complianceType: 'CEA',
-      period: 'FY2024-25',
-      isApplicable: true,
-      authority: 'Central Electricity Authority (CEA)',
-      ministry: 'Ministry of Power',
-      notificationReference: 'CEA/SEC-74/STATUTORY/2024',
-      targetValue: null,
-      targetUnit: 'Monthly Filing',
-      targetMethodology: 'Section 74 Electricity Act mandatory monthly returns submission',
-      deadline: '2025-04-15T00:00:00.000Z',
-      assignedConsultantId: '66f000000000000000000002',
-      assignedReviewerId: '66f000000000000000000002',
-      workflowStatus: 'APPROVED',
-      complianceOutcome: 'COMPLIANT',
-      notes: `All 12 monthly electricity returns filed and verified against utility bills on Google Drive.`,
-    },
-    // 7. CEA Returns FY2025-26 (Active Monthly Recurring Returns)
-    {
-      _id: `app_${cleanId.toLowerCase()}_cea_fy2526`,
-      facilityId: cleanId,
-      complianceType: 'CEA',
-      period: 'FY2025-26',
-      isApplicable: true,
-      authority: 'Central Electricity Authority (CEA)',
-      ministry: 'Ministry of Power',
-      notificationReference: 'CEA/SEC-74/MONTHLY/FY25-26',
-      targetValue: null,
-      targetUnit: 'Monthly Filing',
-      targetMethodology: 'Monthly recurring Section 74 statutory electricity returns',
-      deadline: '2025-07-15T00:00:00.000Z',
-      assignedConsultantId: '66f000000000000000000002',
-      assignedReviewerId: '66f000000000000000000002',
-      workflowStatus: 'DATA_COLLECTION',
-      complianceOutcome: 'COMPLIANT',
-      notes: `June and July 2025 electricity bills verified via Google Drive reconciliation engine.`,
     },
   ];
 }
@@ -434,62 +386,6 @@ export function generateFacilityAssessments(
       createdAt: new Date('2025-07-15T10:00:00Z').toISOString(),
       updatedAt: new Date().toISOString(),
     },
-    {
-      _id: `asm_${cleanId.toLowerCase()}_cea_fy2425`,
-      facilityId: cleanId,
-      complianceType: 'CEA',
-      period: 'FY2024-25',
-      workflowStatus: 'APPROVED',
-      complianceOutcome: 'COMPLIANT',
-      isHistorical: true,
-      version: 1,
-      documentLinks: {
-        evidenceFolderUrl: `${baseDrive}/DISCOM_Utility_Bills`,
-      },
-      metrics: [
-        {
-          key: 'cea_total_kwh_fy25',
-          name: 'Total Audited Grid Energy',
-          value: '48,650,000',
-          unit: 'kWh',
-          period: 'FY2024-25',
-          source: 'DISCOM Verified Billing Invoices',
-          isProvisional: false,
-          approvalStatus: 'APPROVED',
-          version: 1,
-        },
-      ],
-      createdAt: new Date('2025-04-10T10:00:00Z').toISOString(),
-      updatedAt: new Date('2025-04-15T14:00:00Z').toISOString(),
-    },
-    {
-      _id: `asm_${cleanId.toLowerCase()}_cea_fy2526`,
-      facilityId: cleanId,
-      complianceType: 'CEA',
-      period: 'FY2025-26',
-      workflowStatus: 'DATA_COLLECTION',
-      complianceOutcome: 'COMPLIANT',
-      isHistorical: false,
-      version: 1,
-      documentLinks: {
-        evidenceFolderUrl: `${baseDrive}/DISCOM_Utility_Bills`,
-      },
-      metrics: [
-        {
-          key: 'cea_q1_monthly_returns',
-          name: 'Q1 Section 74 Filing Status',
-          value: 'All Months Reconciled',
-          unit: 'Status',
-          period: 'FY2025-26',
-          source: 'Monthly Drive Bills',
-          isProvisional: false,
-          approvalStatus: 'APPROVED',
-          version: 1,
-        },
-      ],
-      createdAt: new Date('2025-07-05T10:00:00Z').toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
   ];
 }
 
@@ -530,7 +426,6 @@ export function buildMultiYearComplianceMatrix(
     RCO: {},
     PAT: {},
     CCTS: {},
-    CEA: {},
   };
 
   // Initialize all frameworks & periods

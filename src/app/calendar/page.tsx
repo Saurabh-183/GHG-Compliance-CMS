@@ -174,7 +174,7 @@ export default function ComplianceCalendarPage() {
     return items.filter((item) => facilityIds.has(item.facilityId.toUpperCase()));
   }, [selectedGroup, currentFacilities, items]);
 
-  // Apply compliance framework filter ('ALL', 'RCO', 'PAT', 'CCTS', 'CEA') and text search
+  // Apply compliance framework filter ('ALL', 'RCO', 'PAT', 'CCTS') and text search
   const filteredItems = useMemo(() => {
     return companyItems.filter((item) => {
       const row = item as CalendarViewRow;
@@ -265,7 +265,7 @@ export default function ComplianceCalendarPage() {
 
             {/* Compliance Framework Filter Pills */}
             <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-lg border border-slate-200 dark:border-slate-800">
-              {['ALL', 'RCO', 'PAT', 'CCTS', 'CEA'].map((cat) => (
+              {['ALL', 'RCO', 'PAT', 'CCTS'].map((cat) => (
                 <button
                   key={cat}
                   type="button"
@@ -357,11 +357,6 @@ export default function ComplianceCalendarPage() {
                         {c}
                       </span>
                     ))}
-                    {item.isRecurringCEA && (
-                      <span className="ml-2 px-1.5 py-0.5 rounded text-[10px] bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700">
-                        Monthly Recurring
-                      </span>
-                    )}
                   </td>
                   <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300">
                     <div className="font-mono text-xs">{item.reportingPeriod}</div>

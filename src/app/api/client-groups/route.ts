@@ -59,9 +59,15 @@ export async function GET(request: NextRequest) {
             })
           : 0;
 
+        const enabledFrameworks =
+          Array.isArray(group.enabledFrameworks) && group.enabledFrameworks.length > 0
+            ? group.enabledFrameworks
+            : ['RCO', 'PAT', 'CCTS'];
+
         return {
           ...group,
           _id: group._id.toString(),
+          enabledFrameworks,
           totalFacilitiesCount: facilities.length,
           activeCompliancesCount,
           facilities: facilities.map((facility) => ({

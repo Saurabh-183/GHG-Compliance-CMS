@@ -166,7 +166,7 @@ export default function DashboardPage() {
     ? currentFacilities.length
     : totalUnitsCount;
 
-  // Active compliances mapped dynamically based on assigned/operating facilities (4 statutory frameworks: RCO, PAT, CCTS, CEA Returns)
+  // Active compliances mapped dynamically based on assigned/operating facilities (3 statutory frameworks: RCO, PAT, CCTS)
   const activeCompliancesCount = displayedFacilitiesCount * 3;
 
   const isTridentSelected =
