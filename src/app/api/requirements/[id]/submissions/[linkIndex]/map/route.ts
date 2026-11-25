@@ -42,6 +42,13 @@ export async function PATCH(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    if (requirement.workflowStatus === 'ACCEPTED' || requirement.requirementItemStatus === 'ACCEPTED') {
+      return NextResponse.json(
+        { error: 'This data request has already been accepted and locked. No further modifications to submissions are allowed.' },
+        { status: 400 }
+      );
+    }
+
     const link = requirement.submittedDriveLinks[linkIndex];
     if (!link) {
       return NextResponse.json({ error: 'Upload link not found' }, { status: 404 });

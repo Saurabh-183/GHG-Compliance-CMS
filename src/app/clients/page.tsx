@@ -10,6 +10,8 @@ import {
   Users,
   Factory,
   Layers,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { IClientGroup } from '@/types';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
@@ -39,9 +41,12 @@ function buildMockGroupsWithFacilities(): ClientGroupWithFacilities[] {
   });
 }
 
+const ITEMS_PER_PAGE = 12;
+
 export default function ClientsPage() {
   const [groups, setGroups] = useState<ClientGroupWithFacilities[]>([]);
   const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -98,6 +103,28 @@ export default function ClientsPage() {
       return companyMatches || facilityMatches;
     });
   }, [groups, search]);
+
+  // Reset to page 1 whenever the search query changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
+
+  const totalItems = filteredGroups.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
+  const paginatedGroups = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredGroups.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredGroups, currentPage]);
+
+  const startIndex = totalItems === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
+  const endIndex = Math.min(currentPage * ITEMS_PER_PAGE, totalItems);
 
   const totalFacilities = groups.reduce(
     (total, group) =>
@@ -160,70 +187,148 @@ export default function ClientsPage() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {filteredGroups.map((company) => {
-            const facilityCount =
-              company.totalFacilitiesCount ??
-              company.facilities?.length ??
-              0;
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {paginatedGroups.map((company) => {
+              const facilityCount =
+                company.totalFacilitiesCount ??
+                company.facilities?.length ??
+                0;
 
-            return (
-              <article
-                key={company._id}
-                className="flex flex-col justify-between rounded-md border border-slate-200 bg-white p-5 shadow-sm transition hover:border-[#17365D]/40 hover:shadow-md dark:border-slate-800 dark:bg-slate-900/60 dark:hover:border-emerald-500/40"
-              >
-                <div>
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-lg border border-[#D5DCE5] bg-[#EAF1F8] text-[#17365D] dark:border-slate-700 dark:bg-slate-800 dark:text-emerald-400">
-                      <Building2 className="h-5 w-5" />
-                    </div>
+              return (
+                <article
+                  key={company._id}
+                  className="flex flex-col justify-between rounded-md border border-slate-200 bg-white p-5 shadow-sm transition hover:border-[#17365D]/40 hover:shadow-md dark:border-slate-800 dark:bg-slate-900/60 dark:hover:border-emerald-500/40"
+                >
+                  <div>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-lg border border-[#D5DCE5] bg-[#EAF1F8] text-[#17365D] dark:border-slate-700 dark:bg-slate-800 dark:text-emerald-400">
+                        <Building2 className="h-5 w-5" />
+                      </div>
 
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300">
-                      <Factory className="h-3.5 w-3.5" />
-                      {facilityCount}{' '}
-                      {facilityCount === 1 ? 'Facility' : 'Facilities'}
-                    </span>
-                  </div>
-
-                  <h2 className="mt-4 text-lg font-bold text-slate-900 dark:text-white">
-                    {company.name}
-                  </h2>
-
-                  <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-400 ">
-                    {company.industry || 'Industry not specified'}
-                  </p>
-
-                  <div className="mt-4 space-y-3 border-t border-slate-100 pt-4 text-sm dark:border-slate-800">
-                    <div className="flex items-start gap-2    dark:text-slate-400 ">
-                      <MapPin className="mt-0.5 h-4 w-4 shrink-0" />
-                      <span>{company.headquarters || 'Location not specified'}</span>
-                    </div>
-
-                    <div className="flex items-start gap-2    dark:text-slate-400 ">
-                      <Users className="mt-0.5 h-4 w-4 shrink-0" />
-                      <span>
-                        Contact:{' '}
-                        <strong className="font-medium text-slate-800 dark:text-white">
-                          {company.contactPerson?.name || 'Not specified'}
-                        </strong>
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300">
+                        <Factory className="h-3.5 w-3.5" />
+                        {facilityCount}{' '}
+                        {facilityCount === 1 ? 'Facility' : 'Facilities'}
                       </span>
                     </div>
-                  </div>
-                </div>
 
-                <Link
-                  href={`/clients/${company._id}`}
-                  className="mt-5 inline-flex w-full items-center justify-between rounded-lg bg-[#17365D] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#102947] dark:bg-emerald-700 dark:hover:bg-emerald-800"
-                >
-                  <span className="flex items-center gap-2">
-                    <Layers className="h-4 w-4" />
-                    View Facilities ({facilityCount})
+                    <h2 className="mt-4 text-lg font-bold text-slate-900 dark:text-white">
+                      {company.name}
+                    </h2>
+
+                    <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-400 ">
+                      {company.industry || 'Industry not specified'}
+                    </p>
+
+                    <div className="mt-4 space-y-3 border-t border-slate-100 pt-4 text-sm dark:border-slate-800">
+                      <div className="flex items-start gap-2    dark:text-slate-400 ">
+                        <MapPin className="mt-0.5 h-4 w-4 shrink-0" />
+                        <span>{company.headquarters || 'Location not specified'}</span>
+                      </div>
+
+                      <div className="flex items-start gap-2    dark:text-slate-400 ">
+                        <Users className="mt-0.5 h-4 w-4 shrink-0" />
+                        <span>
+                          Contact:{' '}
+                          <strong className="font-medium text-slate-800 dark:text-white">
+                            {company.contactPerson?.name || 'Not specified'}
+                          </strong>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Link
+                    href={`/clients/${company._id}`}
+                    className="mt-5 inline-flex w-full items-center justify-between rounded-lg bg-[#17365D] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#102947] dark:bg-emerald-700 dark:hover:bg-emerald-800"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Layers className="h-4 w-4" />
+                      View Facilities ({facilityCount})
+                    </span>
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </Link>
+                </article>
+              );
+            })}
+          </div>
+
+          {/* Pagination Footer (12 records per page) */}
+          {totalItems > 0 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 text-xs text-slate-500 dark:text-slate-400 shadow-xs">
+              <div>
+                Showing <strong className="text-slate-700 dark:text-slate-200 font-semibold">{startIndex}</strong> to{' '}
+                <strong className="text-slate-700 dark:text-slate-200 font-semibold">{endIndex}</strong> of{' '}
+                <strong className="text-slate-700 dark:text-slate-200 font-semibold">{totalItems}</strong> companies
+                {search.trim() && (
+                  <span className="ml-1 text-emerald-600 dark:text-emerald-400 font-medium">
+                    (filtered)
                   </span>
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Link>
-              </article>
-            );
-          })}
+                )}
+              </div>
+
+              {totalPages > 1 && (
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    disabled={currentPage <= 1}
+                    onClick={() => {
+                      setCurrentPage((p) => Math.max(1, p - 1));
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-medium text-xs cursor-pointer"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                    <span>Previous</span>
+                  </button>
+
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter((p) => {
+                        if (totalPages <= 7) return true;
+                        return p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1;
+                      })
+                      .map((p, idx, arr) => {
+                        const showEllipsis = idx > 0 && p - arr[idx - 1] > 1;
+                        return (
+                          <React.Fragment key={p}>
+                            {showEllipsis && <span className="px-1 text-slate-400">…</span>}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setCurrentPage(p);
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                              }}
+                              className={`w-7 h-7 rounded-lg text-xs font-semibold flex items-center justify-center transition-colors cursor-pointer ${
+                                currentPage === p
+                                  ? 'bg-[#17365D] text-white dark:bg-emerald-700 dark:text-white font-bold shadow-2xs'
+                                  : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+                              }`}
+                            >
+                              {p}
+                            </button>
+                          </React.Fragment>
+                        );
+                      })}
+                  </div>
+
+                  <button
+                    type="button"
+                    disabled={currentPage >= totalPages}
+                    onClick={() => {
+                      setCurrentPage((p) => Math.min(totalPages, p + 1));
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-medium text-xs cursor-pointer"
+                  >
+                    <span>Next</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </main>

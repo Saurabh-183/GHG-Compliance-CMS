@@ -543,6 +543,7 @@ export interface IMasterRequirementRowPublic {
   unit?: string;
   mandatory: boolean;
   specialInstructions?: string;
+  defaultCompliances?: ComplianceType[];
 }
 
 export interface IFacilityApplicableRequirement {

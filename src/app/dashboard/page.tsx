@@ -21,7 +21,7 @@ import {
 } from '@/types';
 import { formatDate } from '@/lib/utils';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
-import { MOCK_CLIENT_GROUPS } from '@/lib/mockFallback';
+import { MOCK_CLIENT_GROUPS, MOCK_FACILITIES } from '@/lib/mockFallback';
 import { CompanySelectMui } from '@/components/dashboard/CompanySelectMui';
 import { FacilitySelectMui } from '@/components/dashboard/FacilitySelectMui';
 import { ClientSubmissionsReviewTable } from '@/components/uploads/ClientSubmissionsReviewTable';
@@ -32,6 +32,19 @@ import {
   flattenGroupFacilities,
   resolveCompanyScope,
 } from '@/lib/clientGroupFacilities';
+
+function buildMockGroupsWithFacilities(): IClientGroup[] {
+  return MOCK_CLIENT_GROUPS.map((group) => {
+    const facilities = MOCK_FACILITIES.filter(
+      (f) => f.clientGroupId === group._id || f.clientGroupId === group.code
+    );
+    return {
+      ...group,
+      totalFacilitiesCount: facilities.length,
+      facilities: facilities.length > 0 ? (facilities as unknown as IFacility[]) : (group.facilities || []),
+    };
+  });
+}
 
 export default function DashboardPage() {
   const { currentRole, currentUser } = useAuth();
@@ -74,17 +87,17 @@ export default function DashboardPage() {
           setGroups(
             groupsData.data?.length
               ? groupsData.data
-              : MOCK_CLIENT_GROUPS
+              : buildMockGroupsWithFacilities()
           );
         } else {
-          setGroups(MOCK_CLIENT_GROUPS);
+          setGroups(buildMockGroupsWithFacilities());
         }
       } catch (err) {
         console.warn(
           'Fallback: loading local mock client groups on dashboard:',
           err
         );
-        setGroups(MOCK_CLIENT_GROUPS);
+        setGroups(buildMockGroupsWithFacilities());
       } finally {
         setLoading(false);
       }
@@ -148,7 +161,13 @@ export default function DashboardPage() {
       : fallbackCompanyCalendarItems
     : calendarItems;
 
-  const totalUnitsCount = allFacilities.length || 109;
+  const totalUnitsCount = allFacilities.length;
+  const displayedFacilitiesCount = selectedGroup
+    ? currentFacilities.length
+    : totalUnitsCount;
+
+  // Active compliances mapped dynamically based on assigned/operating facilities (4 statutory frameworks: RCO, PAT, CCTS, CEA Returns)
+  const activeCompliancesCount = displayedFacilitiesCount * 3;
 
   const isTridentSelected =
     !!selectedGroup &&
@@ -195,9 +214,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="text-2xl font-bold text-slate-900 dark:text-white mt-2">
-            {selectedGroup
-              ? currentFacilities.length
-              : totalUnitsCount}
+            {displayedFacilitiesCount}
           </div>
 
           <div className="text-[11px] text-emerald-700 dark:text-emerald-400 mt-1 truncate">
@@ -223,13 +240,11 @@ export default function DashboardPage() {
           </div>
 
           <div className="text-2xl font-bold text-slate-900 dark:text-white mt-2">
-            {selectedGroup
-              ? `${currentFacilities.length * 4} Records`
-              : '436 Records'}
+            {activeCompliancesCount} Records
           </div>
 
           <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-            RCO, PAT, CCTS, CEA Returns
+            RCO, PAT, CCTS
           </div>
         </div>
       </div>
@@ -372,7 +387,7 @@ export default function DashboardPage() {
               <span>
                 {selectedGroup
                   ? `${selectedGroup.name} Statutory Deadlines`
-                  : 'Statutory Deadlines & Compliance Calendar'}
+                  : 'Compliance Calendar'}
               </span>
             </h3>
 

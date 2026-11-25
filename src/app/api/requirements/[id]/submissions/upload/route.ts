@@ -39,6 +39,13 @@ export async function POST(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    if (requirement.workflowStatus === 'ACCEPTED' || requirement.requirementItemStatus === 'ACCEPTED') {
+      return NextResponse.json(
+        { error: 'This data request has already been accepted and locked. No further evidence uploads are allowed.' },
+        { status: 400 }
+      );
+    }
+
     try {
       assertClientCanSubmitRequirement(requirement.dueDate);
     } catch (err) {

@@ -56,6 +56,11 @@ export interface ClientSubmissionsReviewTableProps {
   period?: string;
   compact?: boolean;
   showWorkflowFilter?: boolean;
+  searchQuery?: string;
+  onSearchChange?: (q: string) => void;
+  workflowFilter?: string;
+  onWorkflowFilterChange?: (status: string) => void;
+  hideTopFilterBar?: boolean;
 }
 
 const clientUploadsInFlight = new Map<
@@ -74,6 +79,11 @@ export const ClientSubmissionsReviewTable: React.FC<ClientSubmissionsReviewTable
   period,
   compact = false,
   showWorkflowFilter = true,
+  searchQuery,
+  onSearchChange,
+  workflowFilter,
+  onWorkflowFilterChange,
+  hideTopFilterBar = false,
 }) => {
   const [uploads, setUploads] = useState<ClientUploadListItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -179,6 +189,11 @@ export const ClientSubmissionsReviewTable: React.FC<ClientSubmissionsReviewTable
         compact={compact}
         emptyMessage="No client submissions to review yet."
         onReviewed={() => load(true)}
+        searchQuery={searchQuery}
+        onSearchChange={onSearchChange}
+        workflowFilter={workflowFilter}
+        onWorkflowFilterChange={onWorkflowFilterChange}
+        hideTopFilterBar={hideTopFilterBar}
       />
 
       {compact && requirements.length > 5 && (
