@@ -25,7 +25,10 @@ export function FormSection({
         onClick={onToggle}
         className="w-full flex items-center gap-3 px-5 py-4 text-left hover:bg-slate-50 dark:hover:bg-slate-950/50 transition-colors"
       >
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-700 text-white text-xs font-bold">
+        <span
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#17365D] dark:bg-emerald-700 !text-white text-xs font-bold shadow-xs select-none"
+          style={{ color: '#FFFFFF' }}
+        >
           {step}
         </span>
         <div className="flex-1 min-w-0">

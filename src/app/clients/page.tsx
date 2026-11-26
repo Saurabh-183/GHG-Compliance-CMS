@@ -12,8 +12,9 @@ import {
   Layers,
   ChevronLeft,
   ChevronRight,
+  Filter,
 } from 'lucide-react';
-import { IClientGroup } from '@/types';
+import { ComplianceType, IClientGroup } from '@/types';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import { MOCK_CLIENT_GROUPS, MOCK_FACILITIES } from '@/lib/mockFallback';
 
@@ -23,36 +24,89 @@ type ClientGroupWithFacilities = IClientGroup & {
     name: string;
     facilityId: string;
     location: string;
+    enabledFrameworks?: ComplianceType[];
   }>;
 };
 
+const MOCK_FRAMEWORK_DISTRIBUTION: ComplianceType[][] = [
+  ['RCO', 'PAT', 'CCTS'],
+  ['RCO'],
+  ['PAT'],
+  ['CCTS'],
+  ['RCO', 'PAT'],
+  ['RCO', 'CCTS'],
+  ['PAT', 'CCTS'],
+];
+
 function buildMockGroupsWithFacilities(): ClientGroupWithFacilities[] {
-  return MOCK_CLIENT_GROUPS.map((group) => {
+  return MOCK_CLIENT_GROUPS.map((group, idx) => {
     const facilities = MOCK_FACILITIES.filter((f) => f.clientGroupId === group._id);
+    const assignedFrameworks: ComplianceType[] =
+      Array.isArray(group.enabledFrameworks) && group.enabledFrameworks.length > 0
+        ? group.enabledFrameworks
+        : MOCK_FRAMEWORK_DISTRIBUTION[idx % MOCK_FRAMEWORK_DISTRIBUTION.length];
+
     return {
       ...group,
+      enabledFrameworks: assignedFrameworks,
       totalFacilitiesCount: facilities.length,
       facilities: facilities.map((facility) => ({
         name: facility.name,
         facilityId: facility.facilityId,
         location: facility.location || facility.state || 'India',
+        enabledFrameworks:
+          Array.isArray(facility.enabledFrameworks) && facility.enabledFrameworks.length > 0
+            ? facility.enabledFrameworks
+            : assignedFrameworks,
       })),
     };
   });
 }
+
+function getEffectiveFrameworks(group: ClientGroupWithFacilities): ('RCO' | 'PAT' | 'CCTS')[] {
+  if (Array.isArray(group.facilities) && group.facilities.length > 0) {
+    const facFws = Array.from(
+      new Set(
+        group.facilities.flatMap((f: any) =>
+          Array.isArray(f.enabledFrameworks) && f.enabledFrameworks.length > 0
+            ? f.enabledFrameworks
+            : []
+        )
+      )
+    ) as ('RCO' | 'PAT' | 'CCTS')[];
+    if (facFws.length > 0) return facFws;
+  }
+  if (Array.isArray(group.enabledFrameworks) && group.enabledFrameworks.length > 0) {
+    return group.enabledFrameworks as ('RCO' | 'PAT' | 'CCTS')[];
+  }
+  return ['RCO', 'PAT', 'CCTS'];
+}
+
+type FrameworkFilter = 'ALL' | 'RCO' | 'PAT' | 'CCTS';
+
+const FILTER_TABS: Array<{ id: FrameworkFilter; label: string; badgeLabel: string; description: string }> = [
+  { id: 'ALL', label: 'All Frameworks', badgeLabel: 'All', description: 'All registered client companies' },
+  { id: 'RCO', label: 'RCO / RPO', badgeLabel: 'RCO', description: 'Renewable purchase obligations' },
+  { id: 'PAT', label: 'PAT Scheme', badgeLabel: 'PAT', description: 'Perform, Achieve & Trade cycles' },
+  { id: 'CCTS', label: 'CCTS Carbon', badgeLabel: 'CCTS', description: 'Carbon Credit Trading Scheme' },
+];
 
 const ITEMS_PER_PAGE = 12;
 
 export default function ClientsPage() {
   const [groups, setGroups] = useState<ClientGroupWithFacilities[]>([]);
   const [search, setSearch] = useState('');
+  const [selectedFramework, setSelectedFramework] = useState<FrameworkFilter>('ALL');
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchGroups() {
       try {
-        const res = await fetch('/api/client-groups');
+        const res = await fetch('/api/client-groups', {
+          credentials: 'include',
+          cache: 'no-store',
+        });
 
         if (!res.ok) {
           console.warn('API returned non-ok status, loading fallback client directory.');
@@ -65,11 +119,20 @@ export default function ClientsPage() {
           data?: ClientGroupWithFacilities[];
         };
 
-        if (result.data && result.data.length > 0) {
-          setGroups(result.data);
-        } else {
-          setGroups(buildMockGroupsWithFacilities());
-        }
+        const dbGroups = result.data || [];
+        const mockGroups = buildMockGroupsWithFacilities();
+        const dbNames = new Set(dbGroups.map((g) => g.name.trim().toLowerCase()));
+        const dbCodes = new Set(dbGroups.map((g) => (g.code || '').trim().toLowerCase()));
+        const dbIds = new Set(dbGroups.map((g) => String(g._id)));
+
+        const filteredMocks = mockGroups.filter(
+          (m) =>
+            !dbIds.has(String(m._id)) &&
+            !dbNames.has(m.name.trim().toLowerCase()) &&
+            !dbCodes.has((m.code || '').trim().toLowerCase())
+        );
+
+        setGroups([...dbGroups, ...filteredMocks]);
       } catch (error) {
         console.warn('Could not fetch client groups from API, using fallback data:', error);
         setGroups(buildMockGroupsWithFacilities());
@@ -82,11 +145,19 @@ export default function ClientsPage() {
   }, []);
 
   const filteredGroups = useMemo(() => {
+    let list = groups;
+
+    if (selectedFramework !== 'ALL') {
+      list = list.filter((group) => {
+        const frameworks = getEffectiveFrameworks(group);
+        return frameworks.includes(selectedFramework);
+      });
+    }
+
     const query = search.trim().toLowerCase();
+    if (!query) return list;
 
-    if (!query) return groups;
-
-    return groups.filter((group) => {
+    return list.filter((group) => {
       const companyMatches = [
         group.name,
         group.code,
@@ -102,12 +173,21 @@ export default function ClientsPage() {
 
       return companyMatches || facilityMatches;
     });
-  }, [groups, search]);
+  }, [groups, search, selectedFramework]);
 
-  // Reset to page 1 whenever the search query changes
+  // Reset to page 1 whenever search query or framework filter changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [search]);
+  }, [search, selectedFramework]);
+
+  const frameworkCounts = useMemo(() => {
+    return {
+      ALL: groups.length,
+      RCO: groups.filter((g) => getEffectiveFrameworks(g).includes('RCO')).length,
+      PAT: groups.filter((g) => getEffectiveFrameworks(g).includes('PAT')).length,
+      CCTS: groups.filter((g) => getEffectiveFrameworks(g).includes('CCTS')).length,
+    };
+  }, [groups]);
 
   const totalItems = filteredGroups.length;
   const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
@@ -176,6 +256,54 @@ export default function ClientsPage() {
         </div>
       </header>
 
+      {/* Statutory Framework Filter Tabs */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-2xs">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 pl-1 mr-1 flex items-center gap-1.5">
+            <Filter className="w-3.5 h-3.5 text-[#17365D] dark:text-emerald-400" />
+            Framework:
+          </span>
+          {FILTER_TABS.map((tab) => {
+            const isActive = selectedFramework === tab.id;
+            const count = frameworkCounts[tab.id];
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setSelectedFramework(tab.id)}
+                title={tab.description}
+                className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  isActive
+                    ? 'bg-[#17365D] !text-white shadow-xs dark:bg-emerald-700'
+                    : 'bg-slate-50 hover:bg-slate-100 text-slate-700 dark:bg-slate-800/80 dark:hover:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
+                }`}
+              >
+                <span>{tab.label}</span>
+                <span
+                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                    isActive
+                      ? 'bg-white/20 text-white'
+                      : 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200'
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {selectedFramework !== 'ALL' && (
+          <button
+            type="button"
+            onClick={() => setSelectedFramework('ALL')}
+            className="text-xs font-medium text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 underline cursor-pointer self-start sm:self-auto px-1"
+          >
+            Clear Filter (Show All)
+          </button>
+        )}
+      </div>
+
       {filteredGroups.length === 0 ? (
         <div className="rounded-md border border-dashed border-slate-300 py-16 text-center dark:border-slate-700">
           <Building2 className="mx-auto h-10 w-10  " />
@@ -183,8 +311,19 @@ export default function ClientsPage() {
             No companies found
           </h2>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 ">
-            Try another company name, industry, or facility search.
+            {selectedFramework !== 'ALL'
+              ? `No client companies with applicable ${selectedFramework} framework matching "${search}".`
+              : 'Try another company name, industry, or facility search.'}
           </p>
+          {selectedFramework !== 'ALL' && (
+            <button
+              type="button"
+              onClick={() => setSelectedFramework('ALL')}
+              className="mt-3 inline-flex items-center text-xs font-semibold text-[#17365D] dark:text-emerald-400 hover:underline cursor-pointer"
+            >
+              Reset framework filter to All
+            </button>
+          )}
         </div>
       ) : (
         <div className="space-y-6">
@@ -241,22 +380,18 @@ export default function ClientsPage() {
                       <div className="flex items-center gap-1.5 pt-1">
                         <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Frameworks:</span>
                         <div className="flex flex-wrap gap-1">
-                          {['RCO', 'PAT', 'CCTS'].map((fw) => {
-                            const isEnabled = (company.enabledFrameworks || ['RCO', 'PAT', 'CCTS']).includes(fw as any);
-                            return (
+                          {(() => {
+                            const activeFws = getEffectiveFrameworks(company);
+                            return activeFws.map((fw) => (
                               <span
                                 key={fw}
-                                title={`${fw}: ${isEnabled ? 'Enabled statutory framework' : 'Disabled for this client'}`}
-                                className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
-                                  isEnabled
-                                    ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                                    : 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500 line-through opacity-50'
-                                }`}
+                                title={`${fw}: Active statutory compliance obligation for this client`}
+                                className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shadow-2xs"
                               >
                                 {fw}
                               </span>
-                            );
-                          })}
+                            ));
+                          })()}
                         </div>
                       </div>
                     </div>
@@ -286,7 +421,15 @@ export default function ClientsPage() {
                 <strong className="text-slate-700 dark:text-slate-200 font-semibold">{totalItems}</strong> companies
                 {search.trim() && (
                   <span className="ml-1 text-emerald-600 dark:text-emerald-400 font-medium">
-                    (filtered)
+                    (search filtered)
+                  </span>
+                )}
+                {selectedFramework !== 'ALL' && (
+                  <span className="ml-1 text-slate-500 dark:text-slate-400">
+                    · Framework:{' '}
+                    <strong className="text-[#17365D] dark:text-emerald-400 font-semibold">
+                      {selectedFramework}
+                    </strong>
                   </span>
                 )}
               </div>

@@ -16,8 +16,9 @@ import { Select, MenuItem, FormControl, SelectChangeEvent } from '@mui/material'
 import { useAuth } from '@/context/AuthContext';
 
 export default function AssessmentDataPage() {
-  const { theme } = useAuth();
+  const { theme, currentRole, currentUser } = useAuth();
   const isDark = theme === 'dark';
+  const isAdmin = currentRole === 'ADMIN' || currentUser?.role === 'ADMIN';
   const params = useParams();
   const router = useRouter();
   const assessmentId = params.assessmentId as string;
@@ -259,14 +260,16 @@ export default function AssessmentDataPage() {
               <RefreshCw className="h-3.5 w-3.5" />
               Refresh
             </button>
-            <button
-              type="button"
-              onClick={() => setShowCreate((v) => !v)}
-              className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-600"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              {showCreate ? 'Hide create form' : 'Create data request'}
-            </button>
+            {!isAdmin && (
+              <button
+                type="button"
+                onClick={() => setShowCreate((v) => !v)}
+                className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-600"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                {showCreate ? 'Hide create form' : 'Create data request'}
+              </button>
+            )}
             <Link
               href="/data-review"
               className="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold hover:bg-slate-50"
@@ -302,7 +305,7 @@ export default function AssessmentDataPage() {
         </div>
       )}
 
-      {showCreate && assessment && (
+      {showCreate && !isAdmin && assessment && (
         <ChecklistDrivenRequestWizard
           key={`${assessment.facilityId}-${assessment.period}`}
           facilityId={assessment.facilityId}
@@ -340,7 +343,9 @@ export default function AssessmentDataPage() {
           showWorkflowFilter
           emptyMessage={
             requirements.length === 0
-              ? 'No requests for this facility and period. Create one above or publish the facility checklist.'
+              ? (isAdmin
+                  ? 'No requests for this facility and period.'
+                  : 'No requests for this facility and period. Create one above or publish the facility checklist.')
               : 'No requests match the current filter.'
           }
           onReviewed={() => void loadData()}

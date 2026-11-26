@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     await connectToDatabase();
     const session = getSessionFromRequest(request);
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    if (session.role !== 'ADMIN' && !session.authorizedFacilityIds?.length) {
+    if (session.role === 'CLIENT' && !session.authorizedFacilityIds?.length) {
       return NextResponse.json({ success: true, data: [] });
     }
     const searchParams = request.nextUrl.searchParams;
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
       query.facilityId = facilityId.toUpperCase();
-    } else if (session.role !== 'ADMIN') {
+    } else if (session.role === 'CLIENT') {
       query.facilityId = { $in: session.authorizedFacilityIds || [] };
     } else if (!['ADMIN', 'CONSULTANT'].includes(session.role)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });

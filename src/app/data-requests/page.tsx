@@ -31,13 +31,24 @@ export default function DataRequestsPage() {
     void (async () => {
       try {
         const [orgRes, facRes] = await Promise.all([
-          fetch('/api/client-groups', { credentials: 'include' }),
-          fetch('/api/facilities', { credentials: 'include' }),
+          fetch('/api/client-groups', { credentials: 'include', cache: 'no-store' }),
+          fetch('/api/facilities', { credentials: 'include', cache: 'no-store' }),
         ]);
         const orgJson = await orgRes.json();
         const facJson = await facRes.json();
         const list: IFacility[] = facJson.data || [];
-        const orgs: IClientGroup[] = orgJson.data || [];
+        const { MOCK_CLIENT_GROUPS } = await import('@/lib/mockFallback');
+        const dbOrgs: IClientGroup[] = orgJson.data || [];
+        const dbNames = new Set(dbOrgs.map((g) => g.name.trim().toLowerCase()));
+        const dbCodes = new Set(dbOrgs.map((g) => (g.code || '').trim().toLowerCase()));
+        const dbIds = new Set(dbOrgs.map((g) => String(g._id)));
+        const filteredMocks = MOCK_CLIENT_GROUPS.filter(
+          (m) =>
+            !dbIds.has(String(m._id)) &&
+            !dbNames.has(m.name.trim().toLowerCase()) &&
+            !dbCodes.has((m.code || '').trim().toLowerCase())
+        );
+        const orgs = [...dbOrgs, ...filteredMocks];
         setFacilities(list);
         setOrganizations(orgs);
         if (orgs.length > 0) {

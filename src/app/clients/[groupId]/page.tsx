@@ -28,7 +28,10 @@ export default function ClientGroupDetailPage() {
   useEffect(() => {
     async function loadGroup() {
       try {
-        const res = await fetch(`/api/client-groups/${groupId}`);
+        const res = await fetch(`/api/client-groups/${groupId}`, {
+          credentials: 'include',
+          cache: 'no-store',
+        });
         if (res.ok) {
           const data = (await res.json()) as { data: IClientGroup & { facilities?: IFacility[] } };
           if (data.data) {
@@ -82,6 +85,23 @@ export default function ClientGroupDetailPage() {
   }
 
   const allFacilities = group.facilities || [];
+  const facilityFrameworks = Array.from(
+    new Set(
+      allFacilities.flatMap((f: any) =>
+        Array.isArray(f.enabledFrameworks) && f.enabledFrameworks.length > 0
+          ? f.enabledFrameworks
+          : []
+      )
+    )
+  ) as string[];
+
+  const activeFrameworks: string[] =
+    facilityFrameworks.length > 0
+      ? facilityFrameworks
+      : Array.isArray(group.enabledFrameworks) && group.enabledFrameworks.length > 0
+      ? group.enabledFrameworks
+      : ['RCO', 'PAT', 'CCTS'];
+
   const filteredFacilities = allFacilities.filter((f) => {
     const q = search.toLowerCase();
     return (
@@ -142,7 +162,7 @@ export default function ClientGroupDetailPage() {
             <div className="h-8 w-px bg-slate-300 dark:bg-slate-800"></div>
             <div className="text-center px-2">
               <div className="text-2xl font-bold text-[#237347] dark:text-emerald-400">
-                {(group.enabledFrameworks || ['RCO', 'PAT', 'CCTS']).length} Active
+                {activeFrameworks.length} Active
               </div>
               <div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">Frameworks</div>
             </div>
@@ -167,7 +187,7 @@ export default function ClientGroupDetailPage() {
               { type: 'PAT', label: 'PAT Scheme', name: 'Perform, Achieve & Trade' },
               { type: 'CCTS', label: 'CCTS Carbon', name: 'Carbon Credit Trading Scheme' },
             ].map((fw) => {
-              const isEnabled = (group.enabledFrameworks || ['RCO', 'PAT', 'CCTS']).includes(fw.type as any);
+              const isEnabled = activeFrameworks.includes(fw.type);
               return (
                 <div
                   key={fw.type}
@@ -180,7 +200,7 @@ export default function ClientGroupDetailPage() {
                   <span className={`w-2 h-2 rounded-full ${isEnabled ? 'bg-emerald-500' : 'bg-slate-400'}`} />
                   <span className="font-bold">{fw.label}</span>
                   <span className="text-[10px] text-slate-500 dark:text-slate-400 font-normal">
-                    ({isEnabled ? 'Enabled' : 'Disabled'})
+                    ({isEnabled ? 'Applicable' : 'Not Applicable'})
                   </span>
                 </div>
               );
@@ -239,7 +259,7 @@ export default function ClientGroupDetailPage() {
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{facility.category}</p>
                 </div>
 
-                <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 text-[11px] text-slate-500 dark:text-slate-400 space-y-1">
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 text-[11px] text-slate-500 dark:text-slate-400 space-y-1.5">
                   <div className="flex items-center gap-1.5">
                     <MapPin className="w-3 h-3   shrink-0" />
                     <span className="truncate">{facility.location}</span>
@@ -247,6 +267,22 @@ export default function ClientGroupDetailPage() {
                   <div className="flex items-center gap-1.5">
                     <ShieldCheck className="w-3 h-3 text-[#237347] dark:text-emerald-400 shrink-0" />
                     <span>Assigned: <strong className="text-slate-700 dark:text-slate-300">Priya Sharma</strong> (Consultant)</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 pt-0.5">
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Frameworks:</span>
+                    <div className="flex flex-wrap gap-1">
+                      {((Array.isArray((facility as any).enabledFrameworks) && (facility as any).enabledFrameworks.length > 0
+                        ? (facility as any).enabledFrameworks
+                        : activeFrameworks) || ['RCO', 'PAT', 'CCTS']).map((fw: string) => (
+                        <span
+                          key={fw}
+                          title={`${fw}: Active statutory obligation for this facility`}
+                          className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shadow-2xs"
+                        >
+                          {fw}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>

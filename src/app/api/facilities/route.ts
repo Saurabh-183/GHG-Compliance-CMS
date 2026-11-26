@@ -273,16 +273,40 @@ export async function POST(request: NextRequest) {
         : undefined,
     });
 
+    // Synchronize parent ClientGroup's enabledFrameworks with its facilities
+    try {
+      const allClientFacs = await FacilityModel.find({ clientGroupId: targetClientGroupId }).select('enabledFrameworks').lean();
+      const combinedFrameworks = Array.from(
+        new Set(
+          allClientFacs.flatMap((f) =>
+            Array.isArray(f.enabledFrameworks) && f.enabledFrameworks.length > 0
+              ? f.enabledFrameworks
+              : []
+          )
+        )
+      );
+      const updatedFrameworks = combinedFrameworks.length > 0 ? combinedFrameworks : facilityEnabledFrameworks;
+      await ClientGroupModel.updateOne(
+        { _id: targetClientGroupId },
+        { $set: { enabledFrameworks: updatedFrameworks } }
+      );
+    } catch (syncErr) {
+      console.warn('Could not sync parent client group frameworks:', syncErr);
+    }
+
     try {
       const { generateFacilityApplicabilities } = await import('@/lib/complianceMatrixData');
       const defaultApps = generateFacilityApplicabilities(uniqueFacilityId, name);
-      if (defaultApps.length > 0) {
+      const activeApps = defaultApps.filter((app) =>
+        facilityEnabledFrameworks.includes(app.complianceType as ComplianceType)
+      );
+      if (activeApps.length > 0) {
         await ComplianceApplicabilityModel.insertMany(
-          defaultApps.map((app) => ({
+          activeApps.map((app) => ({
             facilityId: app.facilityId,
             complianceType: app.complianceType,
             period: app.period,
-            isApplicable: facilityEnabledFrameworks.includes(app.complianceType),
+            isApplicable: true,
             authority: app.authority,
             ministry: app.ministry,
             notificationReference: app.notificationReference,
@@ -308,13 +332,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Also update consultant if assigned
-    if (finalConsultantId) {
-      await UserModel.updateOne(
-        { _id: finalConsultantId },
-        { $addToSet: { authorizedFacilityIds: uniqueFacilityId } }
-      );
-    }
+    // Also update all consultants so the new facility and client reflect immediately in consultant scope
+    await UserModel.updateMany(
+      { role: 'CONSULTANT' },
+      {
+        $addToSet: {
+          authorizedFacilityIds: uniqueFacilityId,
+          clientGroupIds: targetClientGroupId,
+        },
+      }
+    );
 
     try {
       const { Notification } = await import('@/models/Notification');

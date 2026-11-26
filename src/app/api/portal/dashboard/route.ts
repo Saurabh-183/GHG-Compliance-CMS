@@ -65,13 +65,19 @@ export async function GET(request: NextRequest) {
 
     const mapFacilityRow = (f: (typeof facilitiesRaw)[number]) => {
       const clientGroup = f.clientGroupId as unknown as { _id?: { toString(): string }; name?: string; enabledFrameworks?: string[] };
+      const facFrameworks = Array.isArray(f.enabledFrameworks) && f.enabledFrameworks.length > 0
+        ? f.enabledFrameworks
+        : clientGroup?.enabledFrameworks && clientGroup.enabledFrameworks.length > 0
+        ? clientGroup.enabledFrameworks
+        : ['RCO', 'PAT', 'CCTS'];
+
       return {
         ...f,
         driveConnection: undefined,
         _id: f._id.toString(),
         clientGroupId: clientGroup?._id ? clientGroup._id.toString() : String(f.clientGroupId),
         clientGroupName: clientGroup?.name || '',
-        enabledFrameworks: clientGroup?.enabledFrameworks || ['RCO', 'PAT', 'CCTS'],
+        enabledFrameworks: facFrameworks,
       };
     };
 
@@ -203,15 +209,16 @@ export async function GET(request: NextRequest) {
 
     // 10. Return dashboard data.
     let groupEnabledFrameworks: string[] = ['RCO', 'PAT', 'CCTS'];
-    if (session?.clientGroupId) {
+    const activeFac = facilitiesUnique.find((f) => f.facilityId === facilityIdParam) || facilitiesUnique[0];
+    if (activeFac && Array.isArray((activeFac as any).enabledFrameworks) && (activeFac as any).enabledFrameworks.length > 0) {
+      groupEnabledFrameworks = (activeFac as any).enabledFrameworks;
+    } else if (session?.clientGroupId) {
       const cg = isMongoObjectId(session.clientGroupId)
         ? await ClientGroupModel.findById(session.clientGroupId).select('enabledFrameworks').lean()
         : await ClientGroupModel.findOne({ code: session.clientGroupId.trim().toUpperCase() }).select('enabledFrameworks').lean();
       if (cg?.enabledFrameworks && cg.enabledFrameworks.length > 0) {
         groupEnabledFrameworks = cg.enabledFrameworks;
       }
-    } else if (facilitiesUnique.length > 0 && (facilitiesUnique[0] as any).enabledFrameworks) {
-      groupEnabledFrameworks = (facilitiesUnique[0] as any).enabledFrameworks;
     }
 
     return NextResponse.json({

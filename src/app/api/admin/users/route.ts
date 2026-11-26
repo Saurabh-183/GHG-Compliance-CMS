@@ -161,6 +161,19 @@ export async function POST(request: NextRequest) {
           );
         }
       }
+
+      // Ensure all active consultants have visibility into newly registered client companies
+      if (clientGroupId) {
+        await UserModel.updateMany(
+          { role: 'CONSULTANT' },
+          {
+            $addToSet: {
+              clientGroupIds: clientGroupId,
+              ...(authorizedFacilityIds.length > 0 ? { authorizedFacilityIds: { $each: authorizedFacilityIds } } : {}),
+            },
+          }
+        );
+      }
     } else if (role === 'CONSULTANT') {
       const rawGroupIds: string[] = Array.isArray(body.clientGroupIds)
         ? body.clientGroupIds.map((id: unknown) => String(id).trim()).filter(Boolean)

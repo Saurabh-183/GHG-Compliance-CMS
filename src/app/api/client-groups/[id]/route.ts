@@ -38,7 +38,7 @@ export async function GET(
     let facilities: any[] = [];
     if (group) {
       const facilityQuery: Record<string, unknown> = { clientGroupId: group._id };
-      if (session && session.role !== 'ADMIN') facilityQuery.facilityId = { $in: session.authorizedFacilityIds || [] };
+      if (session && session.role === 'CLIENT') facilityQuery.facilityId = { $in: session.authorizedFacilityIds || [] };
       facilities = await FacilityModel.find(facilityQuery)
         .populate('assignedConsultantId', 'name email designation')
         .populate('assignedReviewerId', 'name email designation')
@@ -47,13 +47,25 @@ export async function GET(
 
     if (!group) return NextResponse.json({ error: 'Client Group not found' }, { status: 404 });
     const resolvedGroup = group;
-    const filteredFacilities = session.role === 'ADMIN'
-      ? facilities
-      : facilities.filter((facility) => (session.authorizedFacilityIds || []).includes(facility.facilityId));
-    if (session.role === 'CONSULTANT' && filteredFacilities.length === 0) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    const filteredFacilities = session.role === 'CLIENT'
+      ? facilities.filter((facility) => (session.authorizedFacilityIds || []).includes(facility.facilityId))
+      : facilities;
+    if (session.role === 'CLIENT' && filteredFacilities.length === 0) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+    const facFws = Array.from(
+      new Set(
+        filteredFacilities.flatMap((facility) =>
+          Array.isArray(facility.enabledFrameworks) && facility.enabledFrameworks.length > 0
+            ? facility.enabledFrameworks
+            : []
+        )
+      )
+    );
 
     const enabledFrameworks =
-      resolvedGroup.enabledFrameworks && resolvedGroup.enabledFrameworks.length > 0
+      facFws.length > 0
+        ? facFws
+        : resolvedGroup.enabledFrameworks && resolvedGroup.enabledFrameworks.length > 0
         ? resolvedGroup.enabledFrameworks
         : ['RCO', 'PAT', 'CCTS'];
 
@@ -67,6 +79,10 @@ export async function GET(
           ...f,
           _id: f._id ? f._id.toString() : 'fac_' + f.facilityId.toLowerCase(),
           clientGroupId: f.clientGroupId ? f.clientGroupId.toString() : resolvedGroup._id.toString(),
+          enabledFrameworks:
+            Array.isArray(f.enabledFrameworks) && f.enabledFrameworks.length > 0
+              ? f.enabledFrameworks
+              : enabledFrameworks,
         })),
       },
     });
@@ -103,11 +119,15 @@ export async function PATCH(
       const filtered = body.enabledFrameworks.filter((f: any) => valid.includes(f));
       updates.enabledFrameworks = filtered;
 
-      // Sync facility compliances
+      // Sync facility compliances and facility documents
       const facilities = await FacilityModel.find({ clientGroupId: group._id }).select('facilityId').lean();
       const facilityIds = facilities.map((f) => f.facilityId);
 
       if (facilityIds.length > 0) {
+        await FacilityModel.updateMany(
+          { clientGroupId: group._id },
+          { $set: { enabledFrameworks: filtered } }
+        );
         // Disabled frameworks: mark isApplicable: false
         const disabled = valid.filter((f) => !filtered.includes(f));
         if (disabled.length > 0) {

@@ -13,9 +13,9 @@ export async function PATCH(request: NextRequest) {
       isRead: false, recipientRole: { $in: [session.role, 'ALL'] },
       $or: [{ recipientUserId: session.userId }, { recipientUserId: { $exists: false } }, { recipientUserId: null }],
     };
-    if (session.role !== 'ADMIN') filter.facilityId = { $in: [...(session.authorizedFacilityIds || []), null] };
+    if (session.role === 'CLIENT') filter.facilityId = { $in: [...(session.authorizedFacilityIds || []), null] };
     await Notification.updateMany(filter, { $set: { isRead: true, readAt: new Date() } });
-    if (session.role !== 'ADMIN') {
+    if (session.role === 'CLIENT') {
       let allowedFacilityIds = (session.authorizedFacilityIds || []).map((id) => id.toUpperCase());
       if (session.role === 'CLIENT' && session.clientGroupId) {
         const companyFacilityIds = await getClientFacilityIds(session.clientGroupId);

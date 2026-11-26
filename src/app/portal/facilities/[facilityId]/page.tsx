@@ -269,25 +269,14 @@ export default function ClientFacilityOverviewPage() {
       {/* Client-submitted Drive links from consultant data requests only */}
       {submissionFiles.length > 0 && (
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-6 shadow-sm dark:shadow-xl space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <Folder className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                Submitted evidence ({submissionFiles.length})
-              </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Drive or vault links you added when responding to consultant data requests for this facility.
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Link
-                href={dataRequestsHref}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/60 hover:bg-emerald-100 dark:hover:bg-emerald-900 transition-colors self-start sm:self-center cursor-pointer"
-              >
-                <span>Manage on Data Requests</span>
-                <ChevronRight className="w-3 h-3" />
-              </Link>
-            </div>
+          <div>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <Folder className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+              Submitted evidence ({submissionFiles.length})
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Drive or vault links you added when responding to consultant data requests for this facility.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">

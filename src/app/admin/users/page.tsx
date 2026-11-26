@@ -344,6 +344,30 @@ export default function AdminUsersPage() {
   const [showResetPassword, setShowResetPassword] = useState(false);
   const [resetBusy, setResetBusy] = useState(false);
 
+  // Delete User State
+  const [deleteConfirmUser, setDeleteConfirmUser] = useState<Account | null>(null);
+  const [isDeletingUser, setIsDeletingUser] = useState(false);
+
+  async function handleDeleteUser() {
+    if (!deleteConfirmUser) return;
+    setIsDeletingUser(true);
+    try {
+      const res = await fetch(`/api/admin/users/${deleteConfirmUser._id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Failed to delete user');
+      notify.success(`User ${deleteConfirmUser.email} deleted successfully`);
+      setUsers((prev) => prev.filter((u) => u._id !== deleteConfirmUser._id));
+      setDeleteConfirmUser(null);
+    } catch (err: any) {
+      notify.error(err.message || 'Error deleting user');
+    } finally {
+      setIsDeletingUser(false);
+    }
+  }
+
   async function load() {
     try {
       const [u, g, f] = await Promise.all([
@@ -1083,11 +1107,16 @@ export default function AdminUsersPage() {
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-xs font-bold text-slate-900 dark:text-white">{fw.title}</span>
                         <span
-                          className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded transition-colors ${
                             isEnabled
-                              ? 'bg-emerald-600 text-white dark:bg-emerald-500'
-                              : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                              ? 'framework-badge-enabled !bg-emerald-600 !text-white'
+                              : '!bg-slate-200 dark:!bg-slate-800 text-slate-600 dark:text-slate-400'
                           }`}
+                          style={
+                            isEnabled
+                              ? { color: '#FFFFFF', backgroundColor: '#059669' }
+                              : undefined
+                          }
                         >
                           {isEnabled ? 'Enabled' : 'Disabled'}
                         </span>
@@ -1323,22 +1352,39 @@ export default function AdminUsersPage() {
                           </div>
                           {/* Enabled Frameworks Badges */}
                           <div className="flex flex-wrap items-center gap-1 pt-1">
-                            {['RCO', 'PAT', 'CCTS'].map((fw) => {
-                              const isEnabled = (userGroup?.enabledFrameworks || ['RCO', 'PAT', 'CCTS']).includes(fw as ComplianceType);
-                              return (
+                            {(() => {
+                              const userFacs = facilities.filter(
+                                (f) =>
+                                  (user.authorizedFacilityIds && user.authorizedFacilityIds.includes(f.facilityId)) ||
+                                  (user.clientGroupId && (f.clientGroupId === user.clientGroupId || (f as any).clientGroupId?._id === user.clientGroupId))
+                              );
+                              const facFws = Array.from(
+                                new Set(
+                                  userFacs.flatMap((f: any) =>
+                                    Array.isArray(f.enabledFrameworks) && f.enabledFrameworks.length > 0
+                                      ? f.enabledFrameworks
+                                      : []
+                                  )
+                                )
+                              ) as ComplianceType[];
+
+                              const effectiveFws =
+                                facFws.length > 0
+                                  ? facFws
+                                  : Array.isArray(userGroup?.enabledFrameworks) && userGroup.enabledFrameworks.length > 0
+                                  ? userGroup.enabledFrameworks
+                                  : ['RCO', 'PAT', 'CCTS'];
+
+                              return effectiveFws.map((fw) => (
                                 <span
                                   key={fw}
-                                  title={`${fw}: ${isEnabled ? 'Active statutory framework' : 'Disabled for this client'}`}
-                                  className={`text-[9px] font-bold px-1.5 py-0.5 rounded transition-all ${
-                                    isEnabled
-                                      ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                                      : 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500 line-through opacity-60'
-                                  }`}
+                                  title={`${fw}: Active statutory compliance obligation for this client`}
+                                  className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shadow-2xs"
                                 >
                                   {fw}
                                 </span>
-                              );
-                            })}
+                              ));
+                            })()}
                           </div>
                         </div>
                       ) : isConsultant ? (
@@ -1478,6 +1524,17 @@ export default function AdminUsersPage() {
                             {(user.status || 'ACTIVE') === 'ACTIVE' ? 'Disable' : 'Enable'}
                           </button>
                         )}
+
+                        {user._id !== currentUser?._id && (
+                          <button
+                            type="button"
+                            onClick={() => setDeleteConfirmUser(user)}
+                            className="rounded-lg border border-rose-200 text-rose-700 hover:bg-rose-50 dark:border-rose-900/60 dark:text-rose-400 dark:hover:bg-rose-950/50 px-2.5 py-1 text-[11px] font-medium transition cursor-pointer"
+                            title="Delete User"
+                          >
+                            Delete
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -1487,6 +1544,56 @@ export default function AdminUsersPage() {
           </table>
         </div>
       </section>
+
+      {/* Modal 0: Delete User Confirmation via MUI Dialog */}
+      <Dialog
+        open={Boolean(deleteConfirmUser)}
+        onClose={() => setDeleteConfirmUser(null)}
+        maxWidth="xs"
+        fullWidth
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: '16px',
+              backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+              color: isDark ? '#FFFFFF' : '#0F172A',
+              border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0'}`,
+              p: 1,
+            },
+          },
+        }}
+      >
+        <DialogTitle sx={{ fontWeight: 600, color: isDark ? '#FFFFFF' : '#0F172A' }}>
+          Delete User Account
+        </DialogTitle>
+        <DialogContent>
+          <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
+            Are you sure you want to delete <strong>{deleteConfirmUser?.name}</strong> ({deleteConfirmUser?.email})?
+          </p>
+          <p className="text-xs text-rose-600 dark:text-rose-400 mt-2 font-medium">
+            This action will permanently delete the user account and clear all their facility assignment mappings.
+          </p>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, gap: 1 }}>
+          <Button
+            onClick={() => setDeleteConfirmUser(null)}
+            color="inherit"
+            disabled={isDeletingUser}
+            sx={{ textTransform: 'none', borderRadius: '8px' }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleDeleteUser}
+            variant="contained"
+            color="error"
+            disabled={isDeletingUser}
+            sx={{ textTransform: 'none', borderRadius: '8px', fontWeight: 600 }}
+          >
+            {isDeletingUser ? 'Deleting...' : 'Delete User'}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Modal 1: Edit Consultant Facility Assignments via MUI Dialog */}
       <Dialog
@@ -1690,11 +1797,16 @@ export default function AdminUsersPage() {
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-bold text-slate-900 dark:text-white">{fw.title}</span>
                       <span
-                        className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded transition-colors ${
                           isEnabled
-                            ? 'bg-emerald-600 text-white dark:bg-emerald-500'
-                            : 'bg-slate-200 dark:bg-slate-800 text-slate-500'
+                            ? 'framework-badge-enabled !bg-emerald-600 !text-white'
+                            : '!bg-slate-200 dark:!bg-slate-800 text-slate-500'
                         }`}
+                        style={
+                          isEnabled
+                            ? { color: '#FFFFFF', backgroundColor: '#059669' }
+                            : undefined
+                        }
                       >
                         {isEnabled ? 'Active' : 'Disabled'}
                       </span>

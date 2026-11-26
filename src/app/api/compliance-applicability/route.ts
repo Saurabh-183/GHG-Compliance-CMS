@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
 
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     const query: { facilityId?: string | { $in: string[] } } = {};
-    if (!facilityId && session.role !== 'ADMIN') query.facilityId = { $in: session.authorizedFacilityIds || [] };
+    if (!facilityId && session.role === 'CLIENT') query.facilityId = { $in: session.authorizedFacilityIds || [] };
     if (facilityId) {
       if (!isAuthorizedForFacility(session, facilityId)) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });

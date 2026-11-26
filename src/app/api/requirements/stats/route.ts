@@ -22,12 +22,7 @@ export async function GET(request: NextRequest) {
       query.facilityId = facilityId.toUpperCase();
     } else if (session.role === 'CLIENT') {
       query.facilityId = { $in: session.authorizedFacilityIds || [] };
-    } else if (session.role === 'CONSULTANT') {
-      const assigned = await FacilityModel.find({ assignedConsultantId: session.userId })
-        .select('facilityId')
-        .lean();
-      query.facilityId = { $in: assigned.map((f) => f.facilityId) };
-    } else if (session.role !== 'ADMIN') {
+    } else if (!['ADMIN', 'CONSULTANT'].includes(session.role)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

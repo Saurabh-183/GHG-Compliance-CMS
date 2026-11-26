@@ -23,7 +23,7 @@ export function proxy(request: NextRequest) {
   if (pathname.startsWith('/admin') && user.role !== 'ADMIN') return NextResponse.redirect(new URL('/dashboard?denied=forbidden', request.url));
   if (pathname.startsWith('/api/portal/') && user.role !== 'CLIENT') return NextResponse.json({ error: 'Forbidden.' }, { status: 403 });
   if (pathname === '/') return NextResponse.redirect(new URL(user.role === 'CLIENT' ? '/portal' : '/dashboard', request.url));
-  const clientBlocked = ['/dashboard','/client-uploads','/approvals','/datasets','/assessments','/clients','/calendar','/facilities','/drive-explorer'];
+  const clientBlocked = ['/dashboard','/client-uploads','/approvals','/datasets','/assessments','/clients','/calendar','/facilities'];
   if (user.role === 'CLIENT' && clientBlocked.some((path) => pathname.startsWith(path))) return NextResponse.redirect(new URL('/portal?denied=unauthorized_internal', request.url));
   if (user.role !== 'CLIENT' && pathname.startsWith('/portal')) return NextResponse.redirect(new URL('/dashboard', request.url));
   return NextResponse.next();

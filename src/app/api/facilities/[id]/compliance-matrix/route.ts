@@ -245,16 +245,19 @@ export async function GET(
 
     // Ensure facility enabledFrameworks are strictly respected in the matrix
     const facEnabled = (facility as any).enabledFrameworks as ComplianceType[] | undefined;
-    if (facEnabled && Array.isArray(facEnabled)) {
-      (COMPLIANCE_FRAMEWORKS as ComplianceType[]).forEach((comp) => {
-        if (!facEnabled.includes(comp) && matrix[comp]) {
-          for (const period of Object.keys(matrix[comp])) {
-            matrix[comp][period].isApplicable = false;
-            matrix[comp][period].complianceOutcome = 'NOT_APPLICABLE';
-          }
+    const activeFrameworks: ComplianceType[] =
+      facEnabled && Array.isArray(facEnabled) && facEnabled.length > 0
+        ? (COMPLIANCE_FRAMEWORKS as ComplianceType[]).filter((c) => facEnabled.includes(c))
+        : (COMPLIANCE_FRAMEWORKS as ComplianceType[]);
+
+    (COMPLIANCE_FRAMEWORKS as ComplianceType[]).forEach((comp) => {
+      if (!activeFrameworks.includes(comp) && matrix[comp]) {
+        for (const period of Object.keys(matrix[comp])) {
+          matrix[comp][period].isApplicable = false;
+          matrix[comp][period].complianceOutcome = 'NOT_APPLICABLE';
         }
-      });
-    }
+      }
+    });
 
     return NextResponse.json({
       success: true,
@@ -271,9 +274,11 @@ export async function GET(
           clientGroupCode: clientGroupCode || rawGroupId,
         },
         periods: COMPLIANCE_PERIODS,
-        compliances: COMPLIANCE_FRAMEWORKS,
+        compliances: activeFrameworks,
         matrix,
-        rawApplicability: applicabilities,
+        rawApplicability: applicabilities.filter((a) =>
+          activeFrameworks.includes(a.complianceType as ComplianceType)
+        ),
       },
     });
   } catch (error) {
@@ -351,26 +356,31 @@ export async function GET(
 
       // Ensure facility enabledFrameworks are strictly respected in the matrix
       const facFallbackEnabled = (resolvedFacility as any).enabledFrameworks as ComplianceType[] | undefined;
-      if (facFallbackEnabled && Array.isArray(facFallbackEnabled)) {
-        (COMPLIANCE_FRAMEWORKS as ComplianceType[]).forEach((comp) => {
-          if (!facFallbackEnabled.includes(comp) && matrix[comp]) {
-            for (const period of Object.keys(matrix[comp])) {
-              matrix[comp][period].isApplicable = false;
-              matrix[comp][period].complianceOutcome = 'NOT_APPLICABLE';
-            }
-          }
-        });
-      }
+      const activeFallbackFrameworks: ComplianceType[] =
+        facFallbackEnabled && Array.isArray(facFallbackEnabled) && facFallbackEnabled.length > 0
+          ? (COMPLIANCE_FRAMEWORKS as ComplianceType[]).filter((c) => facFallbackEnabled.includes(c))
+          : (COMPLIANCE_FRAMEWORKS as ComplianceType[]);
 
-    return NextResponse.json({
+      (COMPLIANCE_FRAMEWORKS as ComplianceType[]).forEach((comp) => {
+        if (!activeFallbackFrameworks.includes(comp) && matrix[comp]) {
+          for (const period of Object.keys(matrix[comp])) {
+            matrix[comp][period].isApplicable = false;
+            matrix[comp][period].complianceOutcome = 'NOT_APPLICABLE';
+          }
+        }
+      });
+
+      return NextResponse.json({
         success: true,
         source: 'development-fallback',
         data: {
           facility: resolvedFacility,
           periods: COMPLIANCE_PERIODS,
-          compliances: COMPLIANCE_FRAMEWORKS,
+          compliances: activeFallbackFrameworks,
           matrix,
-          rawApplicability: applicabilities,
+          rawApplicability: applicabilities.filter((a) =>
+            activeFallbackFrameworks.includes(a.complianceType as ComplianceType)
+          ),
         },
       });
     } catch (fallbackError) {
