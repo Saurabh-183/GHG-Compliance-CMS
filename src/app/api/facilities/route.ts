@@ -4,7 +4,6 @@ import { connectToDatabase } from '@/lib/db';
 import { FacilityModel } from '@/models/Facility';
 import { ClientGroupModel } from '@/models/ClientGroup';
 import { UserModel } from '@/models/User';
-import { ComplianceApplicabilityModel } from '@/models/ComplianceApplicability';
 import type { ComplianceType } from '@/types';
 import { getSessionFromRequest, authorizeRole, signToken } from '@/lib/auth';
 import {
@@ -242,7 +241,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const validFrameworks: ComplianceType[] = ['RCO', 'PAT', 'CCTS'];
+    const validFrameworks: ComplianceType[] = ['RCO', 'RPO', 'PAT', 'CCTS'];
     const facilityEnabledFrameworks: ComplianceType[] =
       Array.isArray(body.enabledFrameworks)
         ? (body.enabledFrameworks.filter((f) => validFrameworks.includes(f as ComplianceType)) as ComplianceType[])
@@ -250,7 +249,7 @@ export async function POST(request: NextRequest) {
 
     if (facilityEnabledFrameworks.length === 0) {
       return NextResponse.json(
-        { error: 'At least one statutory compliance framework (RCO, PAT, or CCTS) must be enabled for this facility.' },
+        { error: 'At least one statutory compliance framework (RCO, RPO, PAT, or CCTS) must be enabled for this facility.' },
         { status: 400 }
       );
     }

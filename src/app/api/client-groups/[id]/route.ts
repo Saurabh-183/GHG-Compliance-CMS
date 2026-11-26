@@ -67,7 +67,7 @@ export async function GET(
         ? facFws
         : resolvedGroup.enabledFrameworks && resolvedGroup.enabledFrameworks.length > 0
         ? resolvedGroup.enabledFrameworks
-        : ['RCO', 'PAT', 'CCTS'];
+        : ['RCO', 'RPO', 'PAT', 'CCTS'];
 
     return NextResponse.json({
       success: true,
@@ -115,7 +115,7 @@ export async function PATCH(
     const updates: Record<string, unknown> = {};
 
     if (Array.isArray(body.enabledFrameworks)) {
-      const valid = ['RCO', 'PAT', 'CCTS'] as ComplianceType[];
+      const valid = ['RCO', 'RPO', 'PAT', 'CCTS'] as ComplianceType[];
       const filtered = body.enabledFrameworks.filter((f: any) => valid.includes(f));
       updates.enabledFrameworks = filtered;
 

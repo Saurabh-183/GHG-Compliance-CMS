@@ -416,7 +416,7 @@ export default function AssessmentDetailPage() {
       {(['RCO', 'PAT', 'CCTS'] as string[]).includes(assessment.complianceType) && (
         <RegulatoryMetricsPanel
           assessmentId={assessment._id}
-          framework={assessment.complianceType as 'RCO' | 'PAT' | 'CCTS'}
+          framework={assessment.complianceType as 'RCO' | 'RPO' | 'PAT' | 'CCTS'}
           period={assessment.period}
           facilityId={assessment.facilityId}
         />

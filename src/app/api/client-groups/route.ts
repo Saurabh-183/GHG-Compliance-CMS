@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
             ? facFws
             : Array.isArray(group.enabledFrameworks) && group.enabledFrameworks.length > 0
             ? group.enabledFrameworks
-            : ['RCO', 'PAT', 'CCTS'];
+            : ['RCO', 'RPO', 'PAT', 'CCTS'];
 
         if (facFws.length > 0 && JSON.stringify(facFws) !== JSON.stringify(group.enabledFrameworks)) {
           ClientGroupModel.updateOne({ _id: group._id }, { $set: { enabledFrameworks: facFws } }).catch(() => {});
