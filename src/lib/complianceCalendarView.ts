@@ -111,7 +111,7 @@ function mapRequirementRow(
       : mapWorkflowToCalendarStatus(resolvedStatus, regulatoryDue),
     actualSubmissionDate: null,
     extensionHistory: extensionOverlay ? mapExtensionHistory(extensionOverlay) : [],
-    isRecurringCEA: linkedFrameworks.includes('CEA'),
+    isRecurringCEA: false,
     source: 'requirement',
     sourceRequirementId: req._id.toString(),
     requestTitle: req.title,
@@ -170,7 +170,7 @@ export function parseCalendarItemId(itemId: string): {
   complianceType?: ComplianceType;
   calendarId?: string;
 } {
-  const reqMatch = itemId.match(/^req-([a-f0-9]{24})(?:-(RCO|PAT|CCTS|CEA))?$/i);
+  const reqMatch = itemId.match(/^req-([a-f0-9]{24})(?:-(RCO|PAT|CCTS))?$/i);
   if (reqMatch) {
     return {
       kind: 'requirement',

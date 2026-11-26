@@ -29,6 +29,7 @@ function toPublicMaster(row: (typeof DATA_REQUIREMENT_MASTER)[number]): IMasterR
     unit: row.unit,
     mandatory: row.mandatory,
     specialInstructions: row.specialInstructions,
+    defaultCompliances: row.defaultCompliances,
   };
 }
 

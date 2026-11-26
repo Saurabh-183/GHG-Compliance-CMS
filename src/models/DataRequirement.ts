@@ -149,7 +149,7 @@ const DataRequirementSchema = new Schema<IDataRequirementDocument>(
     linkedCompliances: [
       {
         type: String,
-        enum: ['RCO', 'PAT', 'CCTS', 'CEA'],
+        enum: ['RCO', 'PAT', 'CCTS'],
       },
     ],
     description: { type: String, required: true },

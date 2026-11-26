@@ -35,13 +35,20 @@ export function portalAllowListFromUser(user: Pick<IUser, 'role' | 'authorizedFa
   return [...DEFAULT_CLIENT_PORTAL_FACILITY_IDS];
 }
 
-export function filterFacilitiesToPortalScope<T extends { facilityId: string }>(
+export function filterFacilitiesToPortalScope<T extends { facilityId: string; clientGroupId?: string }>(
   session: IAuthUserSession | null,
   list: T[]
 ): T[] {
   const allowed = new Set(authorizedFacilityIdsForPortal(session));
   return dedupeFacilitiesById(
-    list.filter((f) => allowed.has((f.facilityId || '').trim().toUpperCase()))
+    list.filter((f) => {
+      const id = (f.facilityId || '').trim().toUpperCase();
+      if (allowed.has(id)) return true;
+      if (session?.role === 'CLIENT' && session.clientGroupId && f.clientGroupId) {
+        return String(f.clientGroupId) === String(session.clientGroupId);
+      }
+      return false;
+    })
   );
 }
 

@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
       instructions: body.instructions,
       dueDate: body.dueDate,
       priority: body.priority,
-      linkedCompliances: body.linkedCompliances as ('RCO' | 'PAT' | 'CCTS' | 'CEA')[] | undefined,
+      linkedCompliances: body.linkedCompliances as ('RCO' | 'PAT' | 'CCTS')[] | undefined,
       reportingPeriodStart: body.reportingPeriodStart,
       reportingPeriodEnd: body.reportingPeriodEnd,
       selectedMonths: body.selectedMonths,

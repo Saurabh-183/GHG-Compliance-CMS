@@ -73,11 +73,14 @@ export const NotificationBell: React.FC = () => {
       return;
     }
     void fetchNotifications();
-    const interval = setInterval(fetchNotifications, 15000);
+    const interval = setInterval(fetchNotifications, 5000);
+    const onNotificationUpdate = () => { void fetchNotifications(); };
+    window.addEventListener('cc:notification-update', onNotificationUpdate);
     const onFocus = () => { void fetchNotifications(); };
     window.addEventListener('focus', onFocus);
     return () => {
       clearInterval(interval);
+      window.removeEventListener('cc:notification-update', onNotificationUpdate);
       window.removeEventListener('focus', onFocus);
     };
   }, [currentRole, currentUser, isLoading]);
@@ -99,6 +102,12 @@ export const NotificationBell: React.FC = () => {
     const destination = clientDestination.startsWith('/') ? clientDestination : '/portal';
 
     try {
+      const nowIso = new Date().toISOString();
+      setNotifications((prev) =>
+        prev.map((n) => (n._id === id ? { ...n, isRead: true, readAt: nowIso } : n))
+      );
+      setUnreadCount((prev) => Math.max(0, prev - 1));
+
       const response = await fetch(`/api/notifications/${id}/read`, {
         method: 'PATCH',
         credentials: 'include',
@@ -107,21 +116,10 @@ export const NotificationBell: React.FC = () => {
       if (!response.ok) {
         const payload = await response.json().catch(() => ({}));
         console.error('Unable to mark notification as read:', payload.error || response.statusText);
-      } else {
-        setNotifications((prev) =>
-          prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
-        );
-        setUnreadCount((prev) => Math.max(0, prev - 1));
       }
     } catch (e) {
       console.error('Notification read request failed:', e);
     } finally {
-      await fetch(`/api/notifications/${id}/read`, { method: 'PATCH' });
-      const nowIso = new Date().toISOString();
-      setNotifications((prev) =>
-        prev.map((n) => (n._id === id ? { ...n, isRead: true, readAt: nowIso } : n))
-      );
-      setUnreadCount((prev) => Math.max(0, prev - 1));
       setIsOpen(false);
       router.push(destination);
     }
@@ -150,20 +148,25 @@ export const NotificationBell: React.FC = () => {
         return <Send className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />;
       case 'EVIDENCE_SUBMITTED':
         return <FileSpreadsheet className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />;
+      case 'DATA_CHECKLIST_SHARED':
+      case 'REGULATORY_DATA_REQUESTED':
+        return <FileSpreadsheet className="w-4 h-4 text-blue-600 dark:text-blue-400" />;
+      case 'REGULATORY_SUBMITTED':
+        return <FileSpreadsheet className="w-4 h-4 text-teal-600 dark:text-teal-400" />;
       case 'REVIEW_REQUESTED':
         return <Clock className="w-4 h-4 text-purple-600 dark:text-purple-400" />;
       case 'DATASET_APPROVED':
+      case 'REGULATORY_APPROVED':
         return <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />;
       case 'DATASET_REJECTED':
       case 'REGULATORY_RETURNED':
         return <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400" />;
       case 'DEADLINE_REMINDER':
-        return <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400" />;
-      case 'REGULATORY_DATA_REQUESTED':
-      case 'REGULATORY_SUBMITTED':
-        return <FileSpreadsheet className="w-4 h-4 text-blue-600 dark:text-blue-400" />;
-      case 'REGULATORY_APPROVED':
-        return <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />;
+      case 'DEADLINE_EXTENDED':
+        return <AlertTriangle className="w-4 h-4 text-amber-500" />;
+      case 'USER_CREATED':
+      case 'FACILITY_CREATED':
+        return <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />;
       default:
         return <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />;
     }

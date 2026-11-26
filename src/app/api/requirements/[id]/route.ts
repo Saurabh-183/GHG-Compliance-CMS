@@ -111,6 +111,13 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    if (requirement.workflowStatus === 'ACCEPTED' || requirement.requirementItemStatus === 'ACCEPTED') {
+      return NextResponse.json(
+        { error: 'This data request has already been accepted and locked. No modifications or status changes are permitted.' },
+        { status: 400 }
+      );
+    }
+
     const body = (await request.json()) as {
       action?:
         | 'SAVE_DRAFT'

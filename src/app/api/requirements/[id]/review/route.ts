@@ -25,6 +25,13 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (!requirement) return NextResponse.json({ error: 'Requirement not found.' }, { status: 404 });
     if (!isAuthorizedForFacility(session, requirement.facilityId)) return NextResponse.json({ error: 'Forbidden.' }, { status: 403 });
 
+    if (requirement.workflowStatus === 'ACCEPTED' || requirement.requirementItemStatus === 'ACCEPTED') {
+      return NextResponse.json(
+        { error: 'This data request has already been accepted and locked. Its status cannot be modified or rejected.' },
+        { status: 400 }
+      );
+    }
+
     const body = (await request.json()) as {
       action?: 'START_REVIEW' | 'REQUEST_CHANGES' | 'ACCEPT' | 'REJECT';
       comment?: string;

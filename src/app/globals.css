@@ -1263,6 +1263,15 @@ html.dark ::-webkit-scrollbar-thumb:hover {
   padding: 8px !important;
 }
 
+.Toastify__toast {
+  animation-duration: 250ms !important;
+  margin-bottom: 8px !important;
+}
+
+.Toastify__progress-bar {
+  animation-duration: 1500ms !important;
+}
+
 .cc-toast {
   border-radius: 10px !important;
   font-size: 13px !important;

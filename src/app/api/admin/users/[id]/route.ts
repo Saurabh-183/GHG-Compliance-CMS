@@ -203,6 +203,49 @@ export async function PATCH(
     }
 
     // ---------------------------------------
+    // UPDATE CONSULTANT CLIENT ASSIGNMENTS
+    // ---------------------------------------
+
+    if (body.clientGroupIds !== undefined) {
+      if (user.role !== 'CONSULTANT' || !Array.isArray(body.clientGroupIds)) {
+        return NextResponse.json(
+          { error: 'Client company assignments can only be updated for consultants.' },
+          { status: 400 }
+        );
+      }
+
+      const clientGroupIds = (body.clientGroupIds as string[])
+        .filter((id) => mongoose.Types.ObjectId.isValid(id))
+        .map((id) => new mongoose.Types.ObjectId(id));
+
+      const matchedFacilities = clientGroupIds.length > 0
+        ? await FacilityModel.find({
+            clientGroupId: { $in: clientGroupIds },
+            status: { $ne: 'INACTIVE' },
+          }).select('facilityId').lean()
+        : [];
+
+      const facilityIds = matchedFacilities.map((f) => f.facilityId.toUpperCase());
+
+      // Remove previous assignments for this consultant
+      await FacilityModel.updateMany(
+        { assignedConsultantId: user._id },
+        { $unset: { assignedConsultantId: 1 } }
+      );
+
+      // Apply new assignments
+      if (clientGroupIds.length > 0) {
+        await FacilityModel.updateMany(
+          { clientGroupId: { $in: clientGroupIds } },
+          { $set: { assignedConsultantId: user._id } }
+        );
+      }
+
+      user.clientGroupIds = clientGroupIds;
+      user.authorizedFacilityIds = facilityIds;
+    }
+
+    // ---------------------------------------
     // UPDATE CONSULTANT FACILITY ASSIGNMENTS
     // ---------------------------------------
 

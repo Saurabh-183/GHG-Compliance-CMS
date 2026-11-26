@@ -36,6 +36,13 @@ export async function POST(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    if (requirement.workflowStatus === 'ACCEPTED' || requirement.requirementItemStatus === 'ACCEPTED') {
+      return NextResponse.json(
+        { error: 'This data request has already been accepted and locked. No further submissions or modifications are allowed.' },
+        { status: 400 }
+      );
+    }
+
     const body = (await request.json()) as {
       url?: string; description?: string; reportingMonth?: string; draft?: boolean;
       utilityConnection?: { providerName: string; connectionType: string; subDivision: string; circle: string; consumerAccountNumber: string; consumerName: string; meterNumber: string; contractDemand: string };

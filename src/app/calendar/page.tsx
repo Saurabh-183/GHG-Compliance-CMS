@@ -8,25 +8,32 @@ import {
   Calendar as CalendarIcon,
   Clock,
   Building2,
-  AlertCircle,
-  CheckCircle2,
-  Plus,
-  RefreshCw,
   History,
   Search,
   RotateCcw,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import { notify } from '@/lib/notify';
-import { MOCK_CLIENT_GROUPS } from '@/lib/mockFallback';
+import { MOCK_CLIENT_GROUPS, MOCK_FACILITIES } from '@/lib/mockFallback';
+
+function buildMockGroupsWithFacilities(): IClientGroup[] {
+  return MOCK_CLIENT_GROUPS.map((group) => {
+    const facilities = MOCK_FACILITIES.filter(
+      (f) => f.clientGroupId === group._id || f.clientGroupId === group.code
+    );
+    return {
+      ...group,
+      totalFacilitiesCount: facilities.length,
+      facilities: facilities.length > 0 ? (facilities as unknown as IFacility[]) : (group.facilities || []),
+    };
+  });
+}
 import { CompanySelectMui } from '@/components/dashboard/CompanySelectMui';
 import { MuiDatePicker } from '@/components/common/MuiDatePicker';
 import { useAuth } from '@/context/AuthContext';
-import {
-  generateDeadlinesForFacilities,
-  generateAllClientDeadlines,
-} from '@/lib/statutoryCalendar';
 
 export default function ComplianceCalendarPage() {
   const { currentRole, currentUser } = useAuth();
@@ -70,15 +77,15 @@ export default function ComplianceCalendarPage() {
         if (json.data && json.data.length > 0) {
           setGroups(json.data);
         } else {
-          setGroups(MOCK_CLIENT_GROUPS);
+          setGroups(buildMockGroupsWithFacilities());
         }
       } else {
-        setGroups(MOCK_CLIENT_GROUPS);
+        setGroups(buildMockGroupsWithFacilities());
       }
     } catch (e) {
       console.error(e);
       notify.error('Failed to load compliance calendar');
-      setGroups(MOCK_CLIENT_GROUPS);
+      setGroups(buildMockGroupsWithFacilities());
     } finally {
       setLoading(false);
     }
@@ -167,7 +174,7 @@ export default function ComplianceCalendarPage() {
     return items.filter((item) => facilityIds.has(item.facilityId.toUpperCase()));
   }, [selectedGroup, currentFacilities, items]);
 
-  // Apply compliance framework filter ('ALL', 'RCO', 'PAT', 'CCTS', 'CEA') and text search
+  // Apply compliance framework filter ('ALL', 'RCO', 'PAT', 'CCTS') and text search
   const filteredItems = useMemo(() => {
     return companyItems.filter((item) => {
       const row = item as CalendarViewRow;
@@ -186,6 +193,24 @@ export default function ComplianceCalendarPage() {
     });
   }, [companyItems, filter, searchQuery]);
 
+  const PAGE_SIZE = 15;
+  const [currentPage, setCurrentPage] = useState<number>(1);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCompanyId, filter, searchQuery]);
+
+  const totalItems = filteredItems.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
+  const startIndex = totalItems > 0 ? (currentPage - 1) * PAGE_SIZE + 1 : 0;
+  const endIndex = Math.min(currentPage * PAGE_SIZE, totalItems);
+
+  const paginatedItems = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return filteredItems.slice(start, start + PAGE_SIZE);
+  }, [filteredItems, currentPage, PAGE_SIZE]);
+
   if (loading) {
     return <CarbonCrunchLoader message="Loading statutory compliance calendar..." />;
   }
@@ -199,7 +224,7 @@ export default function ComplianceCalendarPage() {
             <span className="flex items-center justify-center w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 shrink-0">
               <CalendarIcon className="w-5 h-5" />
             </span>
-            Centralized Statutory Compliance Calendar
+            Compliance Calendar
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 max-w-2xl leading-relaxed">
             One row per consultant data request with a due date (financial year = reporting period). Extend updates the same request for clients.
@@ -212,8 +237,22 @@ export default function ComplianceCalendarPage() {
         </div>
 
         <div className="flex flex-col gap-2.5 sm:items-end w-full lg:w-auto">
-          {/* Top Row: Company Filter Dropdown & Search Bar */}
-          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+          {/* Top Row: Quick Facility Search Input */}
+          <div className="flex items-center justify-end w-full">
+            <div className="relative">
+              <Search className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Search facility..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-8 pr-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 w-52 sm:w-64 shadow-2xs h-[38px]"
+              />
+            </div>
+          </div>
+
+          {/* Bottom Row: Company Filter Dropdown WITH Compliance Framework Filter Pills */}
+          <div className="flex flex-wrap items-center justify-end gap-2.5 sm:gap-3 w-full">
             {/* MUI Company Filter Dropdown */}
             <CompanySelectMui
               groups={activeGroups}
@@ -224,23 +263,9 @@ export default function ComplianceCalendarPage() {
               }}
             />
 
-            {/* Quick Facility Search Input */}
-            <div className="relative">
-              <Search className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <input
-                type="text"
-                placeholder="Search facility..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8 pr-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 w-48 sm:w-60 shadow-2xs h-[38px]"
-              />
-            </div>
-          </div>
-
-          {/* Bottom Row: Compliance Framework Filter Pills aligned to the right */}
-          <div className="flex items-center justify-end w-full">
+            {/* Compliance Framework Filter Pills */}
             <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-lg border border-slate-200 dark:border-slate-800">
-              {['ALL', 'RCO', 'PAT', 'CCTS', 'CEA'].map((cat) => (
+              {['ALL', 'RCO', 'PAT', 'CCTS'].map((cat) => (
                 <button
                   key={cat}
                   type="button"
@@ -303,7 +328,7 @@ export default function ComplianceCalendarPage() {
                 <th className="py-3 px-4">Facility / Unit</th>
                 <th className="py-3 px-4">Compliance Framework</th>
                 <th className="py-3 px-4">Reporting Period</th>
-                <th className="py-3 px-4">Client Data Cut-off</th>
+                <th className="py-3 px-4 w-40">Client Data Cut-off</th>
                 <th className="py-3 px-4">Internal Deadline</th>
                 <th className="py-3 px-4">Regulatory Due Date</th>
                 <th className="py-3 px-4 text-center">Status</th>
@@ -311,7 +336,7 @@ export default function ComplianceCalendarPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-800/70 text-xs">
-              {filteredItems.map((item) => {
+              {paginatedItems.map((item) => {
                 const row = item as CalendarViewRow;
                 const extraFrameworks = (row.linkedFrameworks || []).filter((c) => c !== item.complianceType);
                 return (
@@ -332,11 +357,6 @@ export default function ComplianceCalendarPage() {
                         {c}
                       </span>
                     ))}
-                    {item.isRecurringCEA && (
-                      <span className="ml-2 px-1.5 py-0.5 rounded text-[10px] bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700">
-                        Monthly Recurring
-                      </span>
-                    )}
                   </td>
                   <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300">
                     <div className="font-mono text-xs">{item.reportingPeriod}</div>
@@ -450,6 +470,74 @@ export default function ComplianceCalendarPage() {
               )}
             </tbody>
           </table>
+
+          {/* Pagination Footer (15 records per page) */}
+          {totalItems > 0 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 border-t border-slate-200 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 bg-slate-50/50 dark:bg-slate-950/30">
+              <div>
+                Showing <strong className="text-slate-700 dark:text-slate-200">{startIndex}</strong> to{' '}
+                <strong className="text-slate-700 dark:text-slate-200">{endIndex}</strong> of{' '}
+                <strong className="text-slate-700 dark:text-slate-200">{totalItems}</strong> obligations
+                {(searchQuery || filter !== 'ALL' || selectedCompanyId !== 'ALL') && (
+                  <span className="ml-1 text-emerald-600 dark:text-emerald-400 font-medium">
+                    (filtered)
+                  </span>
+                )}
+              </div>
+
+              {totalPages > 1 && (
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    disabled={currentPage <= 1}
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-medium text-xs cursor-pointer"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                    <span>Previous</span>
+                  </button>
+
+                  {/* Page Number Buttons */}
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter((p) => {
+                        if (totalPages <= 7) return true;
+                        return p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1;
+                      })
+                      .map((p, idx, arr) => {
+                        const showEllipsis = idx > 0 && p - arr[idx - 1] > 1;
+                        return (
+                          <React.Fragment key={p}>
+                            {showEllipsis && <span className="px-1 text-slate-400">…</span>}
+                            <button
+                              type="button"
+                              onClick={() => setCurrentPage(p)}
+                              className={`w-7 h-7 rounded-lg text-xs font-semibold flex items-center justify-center transition-colors cursor-pointer ${
+                                currentPage === p
+                                  ? 'bg-emerald-700 text-white !text-white font-bold shadow-2xs'
+                                  : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+                              }`}
+                            >
+                              {p}
+                            </button>
+                          </React.Fragment>
+                        );
+                      })}
+                  </div>
+
+                  <button
+                    type="button"
+                    disabled={currentPage >= totalPages}
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-medium text-xs cursor-pointer"
+                  >
+                    <span>Next</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

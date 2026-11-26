@@ -8,6 +8,7 @@ export interface IFacilityDocument extends Document {
   category: string;
   assignedConsultantId?: mongoose.Types.ObjectId;
   assignedReviewerId?: mongoose.Types.ObjectId;
+  enabledFrameworks?: ('RCO' | 'PAT' | 'CCTS')[];
   status: 'ACTIVE' | 'INACTIVE';
   utilityConnection?: {
     providerName: string; connectionType: string; subDivision: string; circle: string;
@@ -35,6 +36,10 @@ const FacilitySchema = new Schema<IFacilityDocument>(
     category: { type: String, required: true },
     assignedConsultantId: { type: Schema.Types.ObjectId, ref: 'User' },
     assignedReviewerId: { type: Schema.Types.ObjectId, ref: 'User' },
+    enabledFrameworks: {
+      type: [{ type: String, enum: ['RCO', 'PAT', 'CCTS'] }],
+      default: ['RCO', 'PAT', 'CCTS'],
+    },
     status: { type: String, enum: ['ACTIVE', 'INACTIVE'], default: 'ACTIVE' },
     utilityConnection: {
       providerName: { type: String, default: '' }, connectionType: { type: String, default: '' },

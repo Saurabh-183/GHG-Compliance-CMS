@@ -60,17 +60,18 @@ export async function GET(request: NextRequest) {
     const { filter: facilityFilter } = await buildPortalFacilityQuery(session);
 
     const facilitiesRaw = await FacilityModel.find(facilityFilter)
-      .populate('clientGroupId', 'name code industry')
+      .populate('clientGroupId', 'name code industry enabledFrameworks')
       .lean();
 
     const mapFacilityRow = (f: (typeof facilitiesRaw)[number]) => {
-      const clientGroup = f.clientGroupId as unknown as { _id?: { toString(): string }; name?: string };
+      const clientGroup = f.clientGroupId as unknown as { _id?: { toString(): string }; name?: string; enabledFrameworks?: string[] };
       return {
         ...f,
         driveConnection: undefined,
         _id: f._id.toString(),
         clientGroupId: clientGroup?._id ? clientGroup._id.toString() : String(f.clientGroupId),
         clientGroupName: clientGroup?.name || '',
+        enabledFrameworks: clientGroup?.enabledFrameworks || ['RCO', 'PAT', 'CCTS'],
       };
     };
 
@@ -201,11 +202,23 @@ export async function GET(request: NextRequest) {
       .lean();
 
     // 10. Return dashboard data.
-    // 9. Return dashboard data.
+    let groupEnabledFrameworks: string[] = ['RCO', 'PAT', 'CCTS'];
+    if (session?.clientGroupId) {
+      const cg = isMongoObjectId(session.clientGroupId)
+        ? await ClientGroupModel.findById(session.clientGroupId).select('enabledFrameworks').lean()
+        : await ClientGroupModel.findOne({ code: session.clientGroupId.trim().toUpperCase() }).select('enabledFrameworks').lean();
+      if (cg?.enabledFrameworks && cg.enabledFrameworks.length > 0) {
+        groupEnabledFrameworks = cg.enabledFrameworks;
+      }
+    } else if (facilitiesUnique.length > 0 && (facilitiesUnique[0] as any).enabledFrameworks) {
+      groupEnabledFrameworks = (facilitiesUnique[0] as any).enabledFrameworks;
+    }
+
     return NextResponse.json({
       success: true,
       data: {
         facilities: facilitiesUnique,
+        enabledFrameworks: groupEnabledFrameworks,
         pendingRequests: pendingRequests.map((r) => ({
           ...r,
           _id: r._id.toString(),

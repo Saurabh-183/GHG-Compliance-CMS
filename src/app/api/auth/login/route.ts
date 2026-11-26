@@ -83,8 +83,8 @@ export async function POST(request: NextRequest) {
       const companyFacilityIds = await getClientFacilityIds(String(user.clientGroupId));
       authorizedFacilityIds = [...new Set([...authorizedFacilityIds.map((id: string) => id.toUpperCase()), ...companyFacilityIds])];
     }
-    if (user.role !== 'ADMIN' && authorizedFacilityIds.length === 0) {
-      return NextResponse.json({ error: 'No facilities have been assigned to this account. Contact your administrator.' }, { status: 403 });
+    if (user.role === 'CONSULTANT' && authorizedFacilityIds.length === 0) {
+      return NextResponse.json({ error: 'No facilities have been assigned to this consultant account. Contact your administrator.' }, { status: 403 });
     }
     const payload = { userId: user._id.toString(), name: user.name, email: user.email, role: user.role,
       clientGroupId: user.clientGroupId?.toString(), authorizedFacilityIds, mustChangePassword: !!user.mustChangePassword };

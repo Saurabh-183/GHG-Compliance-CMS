@@ -44,13 +44,14 @@ export default function DataRequestsPage() {
           setOrganizationId((prev) => prev || orgs[0]._id);
         }
         if (list.length > 0) {
-          setSelectedFacilityId((prev) => {
-            const id = prev || list[0].facilityId;
-            const f = list.find((x) => x.facilityId === id) || list[0];
-            setFacilityName(f.name);
-            if (f.clientGroupId) setOrganizationId(f.clientGroupId);
-            return f.facilityId;
-          });
+          const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+          const urlFac = urlParams?.get('facilityId');
+          const matchedFac = urlFac ? list.find((x) => x.facilityId.toLowerCase() === urlFac.toLowerCase()) : null;
+
+          const activeFac = matchedFac || list[0];
+          setSelectedFacilityId(activeFac.facilityId);
+          setFacilityName(activeFac.name);
+          if (activeFac.clientGroupId) setOrganizationId(activeFac.clientGroupId);
         }
       } catch {
         /* optional */

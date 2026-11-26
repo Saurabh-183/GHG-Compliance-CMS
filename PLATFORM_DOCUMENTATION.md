@@ -83,7 +83,7 @@ Per the PRD specification, Carbon Crunch does not store raw files on internal di
 
 ### Module 1: Multi-Facility Compliance Matrices & YoY Historical Trajectory
 - **Conglomerate Hierarchy**: Industrial conglomerates (e.g. Trident Group) grouped with individual designated consumer facilities:
-  - `TRIDENT_PAPER` (Pulp & Paper, Barnala, Punjab — PAT DC, RCO, CCTS, CEA)
+  - `TRIDENT_PAPER` (Pulp & Paper, Barnala, Punjab — PAT DC, RCO, CCTS)
   - `TRIDENT_YARN` (Textile Spinning, Dhaula, Punjab)
   - `TRIDENT_TEXTILES` (Home Textiles, Budhni, Madhya Pradesh)
 - **Multi-Year Compliance Register**:

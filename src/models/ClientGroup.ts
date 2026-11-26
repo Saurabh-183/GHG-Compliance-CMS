@@ -1,10 +1,14 @@
 import mongoose, { Schema, Model, Document } from 'mongoose';
+import { ComplianceType } from '@/types';
 
 export interface IClientGroupDocument extends Document {
   name: string;
   code: string;
   industry: string;
   headquarters: string;
+  capacity?: string;
+  managerName?: string;
+  enabledFrameworks?: ComplianceType[];
   contactPerson: {
     name: string;
     email: string;
@@ -20,6 +24,12 @@ const ClientGroupSchema = new Schema<IClientGroupDocument>(
     code: { type: String, required: true, unique: true, uppercase: true, trim: true },
     industry: { type: String, required: true },
     headquarters: { type: String, required: true },
+    capacity: { type: String, trim: true },
+    managerName: { type: String, trim: true },
+    enabledFrameworks: {
+      type: [{ type: String, enum: ['RCO', 'PAT', 'CCTS'] }],
+      default: ['RCO', 'PAT', 'CCTS'],
+    },
     contactPerson: {
       name: { type: String, required: true },
       email: { type: String, required: true },

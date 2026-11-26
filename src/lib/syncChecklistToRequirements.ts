@@ -7,7 +7,7 @@ import {
   legacyChecklistStatusToApplicability,
 } from '@/lib/dataRequirementMaster';
 
-const DEFAULT_COMPLIANCES: ComplianceType[] = ['RCO', 'PAT', 'CCTS', 'CEA'];
+const DEFAULT_COMPLIANCES: ComplianceType[] = ['RCO', 'PAT', 'CCTS'];
 
 /**
  * Creates or refreshes portal data requests for each checklist row marked applicable (Due),

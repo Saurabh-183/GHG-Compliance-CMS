@@ -18,6 +18,7 @@ import {
   X,
   Layers,
   HardDrive,
+  Users,
 } from 'lucide-react';
 import { NotificationBell } from '@/components/common/NotificationBell';
 import { PortalFacilityNavDropdown } from '@/components/portal/PortalFacilityNavDropdown';
@@ -72,6 +73,12 @@ export const Navbar: React.FC = () => {
     ];
 
     if (currentRole === 'ADMIN') {
+      items.push({
+        label: 'Users & Roles',
+        shortLabel: 'Users',
+        href: '/admin/users',
+        icon: Users,
+      });
       items.push({
         label: 'Checklist Config',
         shortLabel: 'Checklists',

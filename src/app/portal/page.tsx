@@ -15,9 +15,24 @@ import {
   TrendingUp,
   CheckCheck,
   CalendarRange,
+  Plus,
+  Factory,
 } from 'lucide-react';
-import { FormControl, Select, MenuItem, SelectChangeEvent } from '@mui/material';
-import { IDataRequirement, IFacility, IClarification } from '@/types';
+import {
+  FormControl,
+  Select,
+  MenuItem,
+  SelectChangeEvent,
+  TextField,
+  InputLabel,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  CircularProgress,
+} from '@mui/material';
+import { notify } from '@/lib/notify';
+import { IDataRequirement, IFacility, IClarification, ComplianceType } from '@/types';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import { computePortalDataRequestPercentages } from '@/lib/requestStats';
 import {
@@ -45,9 +60,10 @@ export default function ClientPortalDashboard() {
   const { currentUser, currentRole, theme } = useAuth();
   const isDark = theme === 'dark';
   const [data, setData] = useState<{
-    facilities: IFacility[];
+    facilities: (IFacility & { enabledFrameworks?: ComplianceType[] })[];
     openClarifications: IClarification[];
     deadlineAlerts?: DeadlineAlertItem[];
+    enabledFrameworks?: ComplianceType[];
   } | null>(null);
   const [portalAlerts, setPortalAlerts] = useState<DeadlineAlertItem[]>([]);
   const [submissionFiles, setSubmissionFiles] = useState<ClientSubmittedDriveFileCard[]>([]);
@@ -62,6 +78,73 @@ export default function ClientPortalDashboard() {
   });
   const [selectedPeriod, setSelectedPeriod] = useState(() => readPortalPeriod());
   const hasLoadedOnceRef = useRef(false);
+
+  // Facility Registration Modal State
+  const [isCreateFacilityOpen, setIsCreateFacilityOpen] = useState(false);
+  const [facilityForm, setFacilityForm] = useState({
+    name: '',
+    facilityId: '',
+    location: '',
+    category: 'Pulp & Paper',
+    consumerAccountNumber: '',
+    contractDemand: '',
+  });
+  const [facilityCodeManuallyEdited, setFacilityCodeManuallyEdited] = useState(false);
+  const [isCreatingFacility, setIsCreatingFacility] = useState(false);
+  const [createFacilityError, setCreateFacilityError] = useState<string | null>(null);
+
+  const handleCreateFacility = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!facilityForm.name.trim()) {
+      setCreateFacilityError('Facility name is required');
+      return;
+    }
+    setIsCreatingFacility(true);
+    setCreateFacilityError(null);
+    try {
+      const payload = {
+        name: facilityForm.name.trim(),
+        facilityId: facilityForm.facilityId.trim().toUpperCase() || undefined,
+        location: facilityForm.location.trim() || 'India',
+        category: facilityForm.category || 'General Manufacturing',
+        utilityConnection: {
+          consumerAccountNumber: facilityForm.consumerAccountNumber.trim(),
+          contractDemand: facilityForm.contractDemand.trim(),
+        },
+      };
+
+      const res = await fetch('/api/facilities', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(payload),
+      });
+
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || 'Failed to create facility.');
+
+      notify.success(`Operating facility "${json.data?.name || payload.name}" created successfully!`);
+      setIsCreateFacilityOpen(false);
+      setFacilityForm({
+        name: '',
+        facilityId: '',
+        location: '',
+        category: 'Pulp & Paper',
+        consumerAccountNumber: '',
+        contractDemand: '',
+      });
+      setFacilityCodeManuallyEdited(false);
+
+      await loadPortal(selectedPeriod);
+      if (json.data?.facilityId) {
+        setSelectedFacilityId(json.data.facilityId);
+      }
+    } catch (err) {
+      setCreateFacilityError(err instanceof Error ? err.message : 'Failed to create facility.');
+    } finally {
+      setIsCreatingFacility(false);
+    }
+  };
 
   const loadPortal = useCallback(async (period?: string) => {
     try {
@@ -450,6 +533,14 @@ export default function ClientPortalDashboard() {
               <FileSpreadsheet className="w-3.5 h-3.5" />
               Data Requests
             </Link>
+            <button
+              type="button"
+              onClick={() => setIsCreateFacilityOpen(true)}
+              className="inline-flex items-center gap-1.5 h-[36px] rounded-lg bg-[#17365D] hover:bg-[#102947] dark:bg-emerald-700 dark:hover:bg-emerald-800 px-3.5 font-semibold text-white transition-colors shadow-2xs text-xs cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Register Facility</span>
+            </button>
           </div>
         </div>
         <p className="text-[11px] text-slate-500 dark:text-slate-400">
@@ -457,48 +548,80 @@ export default function ClientPortalDashboard() {
           are on <Link href="/portal/history" className="text-emerald-700 dark:text-emerald-400 hover:underline">Approved History</Link>.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {facilities.map((facility) => (
-            <div
-              key={facility._id}
-              role="button"
-              tabIndex={0}
-              onClick={() => setSelectedFacilityId(facility.facilityId)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') setSelectedFacilityId(facility.facilityId);
-              }}
-              className={`rounded-md border bg-white dark:bg-slate-900/60 p-5 shadow-sm flex flex-col justify-between transition-all cursor-pointer ${
-                selectedFacilityId === facility.facilityId
-                  ? 'border-emerald-500 ring-2 ring-emerald-500/30'
-                  : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
-              }`}
-            >
-              <div className="space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-emerald-700 dark:text-emerald-400 border border-slate-200 dark:border-slate-700">
-                    {facility.facilityId}
-                  </span>
-                  <span className="text-[10px] text-slate-500 uppercase">{facility.location}</span>
-                </div>
-                <h3 className="text-base font-bold text-slate-900 dark:text-white">{facility.name}</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{facility.category}</p>
-              </div>
-
-              <div className="pt-4 mt-4 border-t border-slate-200 dark:border-slate-800/80 flex items-center justify-between">
-                <span className="text-[11px] text-slate-600 dark:text-slate-400">
-                  Obligations: <strong>RCO, PAT, CCTS, CEA</strong>
-                </span>
-                <Link
-                  href={`/portal/facilities/${facility.facilityId}`}
-                  className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-300 flex items-center gap-1"
-                >
-                  <span>View Overview</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
-              </div>
+        {facilities.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-slate-300 dark:border-slate-700 p-8 text-center space-y-3 bg-slate-50/50 dark:bg-slate-900/40">
+            <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto">
+              <Building2 className="w-6 h-6" />
             </div>
-          ))}
-        </div>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white">
+              No Operating Facilities Registered Yet
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto">
+              Register your organization&apos;s manufacturing complexes or industrial operating units to enable compliance data requests and verification.
+            </p>
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={() => setIsCreateFacilityOpen(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs shadow-sm transition cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Register First Facility</span>
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {facilities.map((facility) => (
+              <div
+                key={facility._id}
+                role="button"
+                tabIndex={0}
+                onClick={() => setSelectedFacilityId(facility.facilityId)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') setSelectedFacilityId(facility.facilityId);
+                }}
+                className={`rounded-md border bg-white dark:bg-slate-900/60 p-5 shadow-sm flex flex-col justify-between transition-all cursor-pointer ${
+                  selectedFacilityId === facility.facilityId
+                    ? 'border-emerald-500 ring-2 ring-emerald-500/30'
+                    : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+                }`}
+              >
+                <div className="space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-emerald-700 dark:text-emerald-400 border border-slate-200 dark:border-slate-700">
+                      {facility.facilityId}
+                    </span>
+                    <span className="text-[10px] text-slate-500 uppercase">{facility.location}</span>
+                  </div>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">{facility.name}</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{facility.category}</p>
+                </div>
+
+                <div className="pt-4 mt-4 border-t border-slate-200 dark:border-slate-800/80 flex items-center justify-between">
+                  <span className="text-[11px] text-slate-600 dark:text-slate-400">
+                    Obligations:{' '}
+                    <strong className="text-slate-800 dark:text-slate-200">
+                      {((facility as any).enabledFrameworks && (facility as any).enabledFrameworks.length > 0
+                        ? (facility as any).enabledFrameworks
+                        : data?.enabledFrameworks && data.enabledFrameworks.length > 0
+                        ? data.enabledFrameworks
+                        : ['RCO', 'PAT', 'CCTS']
+                      ).join(', ')}
+                    </strong>
+                  </span>
+                  <Link
+                    href={`/portal/facilities/${facility.facilityId}`}
+                    className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-300 flex items-center gap-1"
+                  >
+                    <span>View Overview</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {submissionFiles.length > 0 && (
@@ -570,6 +693,344 @@ export default function ClientPortalDashboard() {
         onClose={() => setIsExcelModalOpen(false)}
         facilityId={primaryFacilityId}
       />
+
+      {/* Client Register Facility Modal via MUI Dialog */}
+      <Dialog
+        open={isCreateFacilityOpen}
+        onClose={() => !isCreatingFacility && setIsCreateFacilityOpen(false)}
+        maxWidth="sm"
+        fullWidth
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: '16px',
+              backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+              color: isDark ? '#FFFFFF' : '#0F172A',
+              border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0'}`,
+              p: 1,
+            },
+          },
+        }}
+      >
+        <DialogTitle sx={{ fontWeight: 700, fontSize: '18px', pb: 0.5 }}>
+          <div className="flex items-center gap-2">
+            <Building2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            <span>Register New Operating Facility</span>
+          </div>
+        </DialogTitle>
+        <DialogContent sx={{ pt: 1.5 }}>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mb-5">
+            Register a manufacturing unit, complex, or facility under{' '}
+            <strong className="text-slate-700 dark:text-slate-200">{clientOrgName}</strong>.
+          </p>
+
+          {createFacilityError && (
+            <div className="mb-4 rounded-lg border border-rose-200 bg-rose-50 p-3 text-xs text-rose-800 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-300 font-medium">
+              {createFacilityError}
+            </div>
+          )}
+
+          <form id="create-facility-form" onSubmit={handleCreateFacility} className="space-y-4 pt-1">
+            <TextField
+              required
+              fullWidth
+              label="Facility / Unit Name"
+              placeholder="e.g. Trident Paper Complex — Ludhiana"
+              value={facilityForm.name}
+              onChange={(e) => {
+                const newName = e.target.value;
+                setFacilityForm((prev) => ({
+                  ...prev,
+                  name: newName,
+                  facilityId: facilityCodeManuallyEdited
+                    ? prev.facilityId
+                    : newName.toUpperCase().replace(/[^A-Z0-9]/g, '_').slice(0, 24),
+                }));
+              }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '8px',
+                  backgroundColor: isDark ? '#020617' : '#FFFFFF',
+                  color: isDark ? '#FFFFFF' : '#0F172A',
+                  fontSize: '13px',
+                  '& fieldset': {
+                    borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: isDark ? '#34D399' : '#059669',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: isDark ? '#34D399' : '#059669',
+                    borderWidth: '1.5px',
+                  },
+                },
+                '& .MuiInputLabel-root': {
+                  color: isDark ? '#94A3B8' : '#64748B',
+                  fontSize: '13px',
+                  '&.Mui-focused': {
+                    color: isDark ? '#34D399' : '#059669',
+                  },
+                },
+              }}
+            />
+
+            <TextField
+              required
+              fullWidth
+              label="Facility Code / Identifier (Uppercase)"
+              placeholder="e.g. TRIDENT_PAPER_LUDHIANA"
+              helperText="Unique uppercase identifier for compliance data requests & audits."
+              value={facilityForm.facilityId}
+              onChange={(e) => {
+                setFacilityCodeManuallyEdited(true);
+                setFacilityForm((prev) => ({
+                  ...prev,
+                  facilityId: e.target.value.toUpperCase().replace(/[^A-Z0-9_]/g, ''),
+                }));
+              }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '8px',
+                  backgroundColor: isDark ? '#020617' : '#FFFFFF',
+                  color: isDark ? '#FFFFFF' : '#0F172A',
+                  fontSize: '13px',
+                  fontFamily: 'monospace',
+                  '& fieldset': {
+                    borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: isDark ? '#34D399' : '#059669',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: isDark ? '#34D399' : '#059669',
+                    borderWidth: '1.5px',
+                  },
+                },
+                '& .MuiInputLabel-root': {
+                  color: isDark ? '#94A3B8' : '#64748B',
+                  fontSize: '13px',
+                  '&.Mui-focused': {
+                    color: isDark ? '#34D399' : '#059669',
+                  },
+                },
+                '& .MuiFormHelperText-root': {
+                  color: isDark ? '#94A3B8' : '#64748B',
+                  fontSize: '11px',
+                },
+              }}
+            />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <TextField
+                required
+                fullWidth
+                label="Location / State"
+                placeholder="e.g. Barnala, Punjab"
+                value={facilityForm.location}
+                onChange={(e) =>
+                  setFacilityForm((prev) => ({ ...prev, location: e.target.value }))
+                }
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '8px',
+                    backgroundColor: isDark ? '#020617' : '#FFFFFF',
+                    color: isDark ? '#FFFFFF' : '#0F172A',
+                    fontSize: '13px',
+                    '& fieldset': {
+                      borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: isDark ? '#34D399' : '#059669',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: isDark ? '#34D399' : '#059669',
+                      borderWidth: '1.5px',
+                    },
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: isDark ? '#94A3B8' : '#64748B',
+                    fontSize: '13px',
+                    '&.Mui-focused': {
+                      color: isDark ? '#34D399' : '#059669',
+                    },
+                  },
+                }}
+              />
+
+              <FormControl fullWidth>
+                <InputLabel id="facility-cat-label" sx={{ color: isDark ? '#94A3B8' : '#64748B', fontSize: '13px' }}>
+                  Industry Category
+                </InputLabel>
+                <Select
+                  labelId="facility-cat-label"
+                  label="Industry Category"
+                  value={facilityForm.category}
+                  onChange={(e: SelectChangeEvent) =>
+                    setFacilityForm((prev) => ({ ...prev, category: e.target.value }))
+                  }
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor: isDark ? '#020617' : '#FFFFFF',
+                    color: isDark ? '#FFFFFF' : '#0F172A',
+                    fontSize: '13px',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDark ? '#34D399' : '#059669',
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDark ? '#34D399' : '#059669',
+                      borderWidth: '1.5px',
+                    },
+                  }}
+                  MenuProps={{
+                    slotProps: {
+                      paper: {
+                        sx: {
+                          mt: 0.5,
+                          maxHeight: 280,
+                          borderRadius: '8px',
+                          backgroundColor: isDark ? '#0F172A !important' : '#FFFFFF !important',
+                          color: isDark ? '#FFFFFF' : '#0F172A',
+                          border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0'}`,
+                          boxShadow: isDark
+                            ? '0 10px 25px -5px rgba(0, 0, 0, 0.7)'
+                            : '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
+                          '& .MuiMenuItem-root': {
+                            fontSize: '13px',
+                            color: isDark ? '#E2E8F0' : '#0F172A',
+                            '&:hover, &.Mui-focusVisible': {
+                              backgroundColor: isDark ? '#1E293B' : '#F1F5F9',
+                              color: isDark ? '#34D399' : '#059669',
+                            },
+                            '&.Mui-selected': {
+                              backgroundColor: isDark ? '#1E293B !important' : '#E2E8F0 !important',
+                              color: isDark ? '#34D399' : '#059669',
+                              fontWeight: 600,
+                            },
+                          },
+                        },
+                      },
+                    },
+                  }}
+                >
+                  <MenuItem value="Pulp & Paper">Pulp & Paper</MenuItem>
+                  <MenuItem value="Textiles & Spinning">Textiles & Spinning</MenuItem>
+                  <MenuItem value="Iron & Steel">Iron & Steel</MenuItem>
+                  <MenuItem value="Chemicals & Fertilizers">Chemicals & Fertilizers</MenuItem>
+                  <MenuItem value="Cement & Building Materials">Cement & Building Materials</MenuItem>
+                  <MenuItem value="Power Generation & Utilities">Power Generation & Utilities</MenuItem>
+                  <MenuItem value="Food Processing & Sugar">Food Processing & Sugar</MenuItem>
+                  <MenuItem value="General Manufacturing">General Manufacturing</MenuItem>
+                  <MenuItem value="Commercial Complex">Commercial Complex</MenuItem>
+                </Select>
+              </FormControl>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <TextField
+                fullWidth
+                label="Utility Consumer Account No. (Optional)"
+                placeholder="e.g. 3002948192"
+                value={facilityForm.consumerAccountNumber}
+                onChange={(e) =>
+                  setFacilityForm((prev) => ({ ...prev, consumerAccountNumber: e.target.value }))
+                }
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '8px',
+                    backgroundColor: isDark ? '#020617' : '#FFFFFF',
+                    color: isDark ? '#FFFFFF' : '#0F172A',
+                    fontSize: '13px',
+                    '& fieldset': {
+                      borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: isDark ? '#34D399' : '#059669',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: isDark ? '#34D399' : '#059669',
+                      borderWidth: '1.5px',
+                    },
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: isDark ? '#94A3B8' : '#64748B',
+                    fontSize: '13px',
+                    '&.Mui-focused': {
+                      color: isDark ? '#34D399' : '#059669',
+                    },
+                  },
+                }}
+              />
+
+              <TextField
+                fullWidth
+                label="Contract Demand / Capacity (Optional)"
+                placeholder="e.g. 25,000 kVA"
+                value={facilityForm.contractDemand}
+                onChange={(e) =>
+                  setFacilityForm((prev) => ({ ...prev, contractDemand: e.target.value }))
+                }
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '8px',
+                    backgroundColor: isDark ? '#020617' : '#FFFFFF',
+                    color: isDark ? '#FFFFFF' : '#0F172A',
+                    fontSize: '13px',
+                    '& fieldset': {
+                      borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: isDark ? '#34D399' : '#059669',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: isDark ? '#34D399' : '#059669',
+                      borderWidth: '1.5px',
+                    },
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: isDark ? '#94A3B8' : '#64748B',
+                    fontSize: '13px',
+                    '&.Mui-focused': {
+                      color: isDark ? '#34D399' : '#059669',
+                    },
+                  },
+                }}
+              />
+            </div>
+          </form>
+        </DialogContent>
+
+        <DialogActions sx={{ p: 2, gap: 1 }}>
+          <button
+            type="button"
+            disabled={isCreatingFacility}
+            onClick={() => setIsCreateFacilityOpen(false)}
+            className="rounded-lg border border-slate-300 dark:border-slate-700 px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            form="create-facility-form"
+            disabled={isCreatingFacility}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 px-5 py-2 text-xs font-bold text-white hover:bg-emerald-800 transition shadow-sm disabled:opacity-50 cursor-pointer"
+          >
+            {isCreatingFacility ? (
+              <>
+                <CircularProgress size={14} color="inherit" />
+                <span>Registering...</span>
+              </>
+            ) : (
+              <>
+                <Building2 className="w-3.5 h-3.5" />
+                <span>Register Facility</span>
+              </>
+            )}
+          </button>
+        </DialogActions>
+      </Dialog>
 
     </div>
   );

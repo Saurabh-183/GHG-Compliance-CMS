@@ -8,12 +8,10 @@ import {
   FileSpreadsheet,
   CheckCircle2,
   Calendar,
-  Layers,
   ArrowRight,
   ExternalLink,
   Sparkles,
   Sliders,
-  AlertTriangle,
 } from 'lucide-react';
 
 export default function HomePage() {
@@ -86,7 +84,7 @@ export default function HomePage() {
           </h1>
 
           <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed">
-            Centralizing multi-facility compliance registers (RCO/RPO, PAT, CCTS, CEA),
+            Centralizing multi-facility compliance registers (RCO/RPO, PAT, CCTS),
             evidence-based reconciliation against Google Drive documents, reviewer audit approval queues, and restricted client visibility.
           </p>
 
@@ -203,7 +201,7 @@ export default function HomePage() {
           </div>
           <h4 className="text-xs font-bold    dark:text-white">Statutory Calendar</h4>
           <p className="text-[11px]   mt-1">
-            Centralized calendar tracking regulatory due dates, internal deadlines, and recurring monthly CEA filings.
+            Centralized calendar tracking regulatory due dates, internal deadlines, and statutory compliance filings.
           </p>
         </div>
       </div>

@@ -14,24 +14,6 @@ export interface StandardCycleDefinition {
 
 export const STANDARD_STATUTORY_CYCLES: StandardCycleDefinition[] = [
   {
-    complianceType: 'CEA',
-    reportingPeriod: 'June 2025 Electricity Returns',
-    clientCutoff: '2025-07-05T00:00:00.000Z',
-    internalDeadline: '2025-07-10T00:00:00.000Z',
-    regulatoryDueDate: '2025-07-15T00:00:00.000Z',
-    status: 'PENDING',
-    isRecurringCEA: true,
-  },
-  {
-    complianceType: 'CEA',
-    reportingPeriod: 'July 2025 Electricity Returns',
-    clientCutoff: '2025-08-05T00:00:00.000Z',
-    internalDeadline: '2025-08-10T00:00:00.000Z',
-    regulatoryDueDate: '2025-08-15T00:00:00.000Z',
-    status: 'UPCOMING',
-    isRecurringCEA: true,
-  },
-  {
     complianceType: 'RCO',
     reportingPeriod: 'FY2025-26 (Q1 Reconciliation)',
     clientCutoff: '2025-07-20T00:00:00.000Z',
@@ -62,7 +44,7 @@ export const STANDARD_STATUTORY_CYCLES: StandardCycleDefinition[] = [
 
 /**
  * Generate full statutory compliance deadlines for a specific list of facilities
- * Each facility receives statutory obligations for CEA, RCO, PAT, and CCTS.
+ * Each facility receives statutory obligations for RCO, PAT, and CCTS.
  */
 export function generateDeadlinesForFacilities(
   facilities: IFacility[],

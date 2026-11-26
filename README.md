@@ -1,6 +1,6 @@
 # Carbon Crunch — Compliance Management Platform (MVP v1.0)
 
-> A modern, multi-tenant, role-based web application for industrial energy and carbon regulatory compliance management (RCO/RPO, PAT, CCTS, and CEA Electricity Returns).
+> A modern, multi-tenant, role-based web application for industrial energy and carbon regulatory compliance management (RCO/RPO, PAT, and CCTS Carbon Obligations).
 
 Built for **Monday Morning Executive Demonstrations & Stakeholder Handover**.
 
@@ -93,7 +93,7 @@ new CMS CC/
 │       ├── datasets/
 │       │   └── [datasetId]/verify/page.tsx # Monthly reconciliation engine
 │       ├── approvals/page.tsx      # Reviewer queue & audit sign-off
-│       ├── calendar/page.tsx       # Compliance calendar & recurring CEA returns
+│       ├── calendar/page.tsx       # Compliance calendar & statutory returns
 │       ├── portal/                 # Restricted External Client Portal
 │       │   ├── page.tsx            # Client group overview
 │       │   ├── facilities/[facilityId]/page.tsx # Client facility read-only view
@@ -164,7 +164,7 @@ Follow these exact steps during your Monday morning review:
 | Step | Action | Screen to Open | What to Show |
 | :---: | :--- | :--- | :--- |
 | **1-2** | Inspect Trident Group & Paper Facility | `/clients` → `/clients/TRIDENT` | Show Trident Paper Complex (Pulp & Paper DC) with assigned consultant Priya Sharma and reviewer Dr. Rajesh Nair. |
-| **3** | View Compliance Applicability | `/facilities/TRIDENT_PAPER` | Show all 4 registered compliances (RCO, PAT, CCTS, CEA). |
+| **3** | View Compliance Applicability | `/facilities/TRIDENT_PAPER` | Show all 3 registered compliances (RCO, PAT, CCTS). |
 | **4** | Multi-Year Compliance Matrix | `/facilities/TRIDENT_PAPER` | Show RCO FY24-25 (Shortfall / Approved) and FY25-26 (In Progress). Click into RCO FY24-25 assessment. |
 | **5** | Historical Performance & Drive Links | `/assessments/[id]` | Show 29.91% target, 25.51% achieved, 5.00 MU shortfall, and working Google Drive report links. |
 | **6** | Client Data Request | Switch to **Client** role → `/portal/requests` | Show outstanding FY 2025-26 grid electricity data request. Click **"+ Submit Link"** and paste a Drive URL. Notice status updates to `RECEIVED`. |

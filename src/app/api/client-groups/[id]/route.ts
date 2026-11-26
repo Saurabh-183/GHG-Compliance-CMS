@@ -3,7 +3,9 @@ import mongoose from 'mongoose';
 import { connectToDatabase } from '@/lib/db';
 import { ClientGroupModel } from '@/models/ClientGroup';
 import { FacilityModel } from '@/models/Facility';
-import { getSessionFromRequest } from '@/lib/auth';
+import { ComplianceApplicabilityModel } from '@/models/ComplianceApplicability';
+import { getSessionFromRequest, authorizeRole } from '@/lib/auth';
+import { ComplianceType } from '@/types';
 
 export async function GET(
   request: NextRequest,
@@ -50,11 +52,17 @@ export async function GET(
       : facilities.filter((facility) => (session.authorizedFacilityIds || []).includes(facility.facilityId));
     if (session.role === 'CONSULTANT' && filteredFacilities.length === 0) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
+    const enabledFrameworks =
+      resolvedGroup.enabledFrameworks && resolvedGroup.enabledFrameworks.length > 0
+        ? resolvedGroup.enabledFrameworks
+        : ['RCO', 'PAT', 'CCTS'];
+
     return NextResponse.json({
       success: true,
       data: {
         ...resolvedGroup,
         _id: resolvedGroup._id.toString(),
+        enabledFrameworks,
         facilities: filteredFacilities.map((f) => ({
           ...f,
           _id: f._id ? f._id.toString() : 'fac_' + f.facilityId.toLowerCase(),
@@ -65,5 +73,72 @@ export async function GET(
   } catch (error) {
     console.error('Client group lookup failed:', error);
     return NextResponse.json({ error: 'Unable to load client group.' }, { status: 503 });
+  }
+}
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  try {
+    await connectToDatabase();
+    const session = getSessionFromRequest(request);
+    if (!session || !authorizeRole(session, ['ADMIN'])) {
+      return NextResponse.json({ error: 'Forbidden: Admin access required.' }, { status: 403 });
+    }
+
+    const body = await request.json();
+    let query: Record<string, unknown> = {};
+    if (mongoose.Types.ObjectId.isValid(id)) query = { _id: id };
+    else query = { $or: [{ code: id.toUpperCase() }, { name: { $regex: new RegExp(`^${id}$`, 'i') } }] };
+
+    const group = await ClientGroupModel.findOne(query);
+    if (!group) return NextResponse.json({ error: 'Client Group not found.' }, { status: 404 });
+
+    const updates: Record<string, unknown> = {};
+
+    if (Array.isArray(body.enabledFrameworks)) {
+      const valid = ['RCO', 'PAT', 'CCTS'] as ComplianceType[];
+      const filtered = body.enabledFrameworks.filter((f: any) => valid.includes(f));
+      updates.enabledFrameworks = filtered;
+
+      // Sync facility compliances
+      const facilities = await FacilityModel.find({ clientGroupId: group._id }).select('facilityId').lean();
+      const facilityIds = facilities.map((f) => f.facilityId);
+
+      if (facilityIds.length > 0) {
+        // Disabled frameworks: mark isApplicable: false
+        const disabled = valid.filter((f) => !filtered.includes(f));
+        if (disabled.length > 0) {
+          await ComplianceApplicabilityModel.updateMany(
+            { facilityId: { $in: facilityIds }, complianceType: { $in: disabled } },
+            { $set: { isApplicable: false } }
+          );
+        }
+        // Enabled frameworks: mark isApplicable: true (or leave intact)
+        if (filtered.length > 0) {
+          await ComplianceApplicabilityModel.updateMany(
+            { facilityId: { $in: facilityIds }, complianceType: { $in: filtered } },
+            { $set: { isApplicable: true } }
+          );
+        }
+      }
+    }
+
+    if (typeof body.name === 'string' && body.name.trim()) updates.name = body.name.trim();
+    if (typeof body.industry === 'string') updates.industry = body.industry.trim();
+    if (typeof body.headquarters === 'string') updates.headquarters = body.headquarters.trim();
+
+    const updatedGroup = await ClientGroupModel.findByIdAndUpdate(group._id, { $set: updates }, { new: true }).lean();
+
+    return NextResponse.json({
+      success: true,
+      message: 'Client group frameworks updated successfully.',
+      data: updatedGroup,
+    });
+  } catch (error) {
+    console.error('Client group update failed:', error);
+    return NextResponse.json({ error: 'Unable to update client group.' }, { status: 500 });
   }
 }

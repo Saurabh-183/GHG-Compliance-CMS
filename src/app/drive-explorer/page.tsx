@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, ChevronRight, File, Folder, HardDrive, RefreshCw, ExternalLink, Tags } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { notify } from '@/lib/notify';
 
 type DriveItem = {
   driveId: string; name: string; mimeType: string; webViewLink?: string; size?: string;
@@ -94,8 +95,12 @@ export default function DriveExplorerPage() {
       const json = await response.json();
       if (!response.ok || !json.success) throw new Error(json.error || 'Drive discovery failed.');
       setStack([]); await loadItems('');
-      window.alert(`Discovery complete: ${json.data.totalItems} items, ${json.data.folders} folders and ${json.data.files} files indexed.`);
-    } catch (e) { setError(e instanceof Error ? e.message : 'Drive discovery failed.'); }
+      notify.success(`Discovery complete: ${json.data.totalItems} items indexed.`);
+    } catch (e) {
+      const errMsg = e instanceof Error ? e.message : 'Drive discovery failed.';
+      setError(errMsg);
+      notify.error(errMsg);
+    }
     finally { setLoading(false); }
   };
 
@@ -111,8 +116,13 @@ export default function DriveExplorerPage() {
       const response = await fetch('/api/drive/map', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
       const json = await response.json();
       if (!response.ok || !json.success) throw new Error(json.error || 'Mapping failed.');
+      notify.success('Folder mapping saved successfully.');
       setSelected(null); await loadItems(parentId);
-    } catch (e) { setError(e instanceof Error ? e.message : 'Mapping failed.'); }
+    } catch (e) {
+      const errMsg = e instanceof Error ? e.message : 'Mapping failed.';
+      setError(errMsg);
+      notify.error(errMsg);
+    }
     finally { setMappingBusy(false); }
   };
 

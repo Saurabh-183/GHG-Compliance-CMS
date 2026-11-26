@@ -499,13 +499,6 @@ export default function FacilityDashboardPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Link
-              href={`/data-requests?facilityId=${encodeURIComponent(facilityId)}&period=${encodeURIComponent(selectedPeriod)}`}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900 transition-colors shadow-2xs cursor-pointer"
-            >
-              <span>Manage on Data Requests</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </Link>
             <a
               href={resolveComplianceVaultFolderUrl(
                 stats.driveFolderUrl && !stats.driveFolderUrl.includes(GOOGLE_DRIVE_FOLDER_ID)

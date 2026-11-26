@@ -308,6 +308,7 @@ export default function AssessmentDataPage() {
           facilityId={assessment.facilityId}
           facilityName={assessment.facilityName}
           period={assessment.period}
+          initialFrameworks={assessment.complianceType ? [assessment.complianceType] : undefined}
           onPeriodChange={(nextPeriod) => {
             const nextId = buildAssessmentId(
               assessment.facilityId,

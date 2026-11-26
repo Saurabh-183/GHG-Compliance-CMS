@@ -6,14 +6,18 @@ export interface IUser {
   email: string;
   role: UserRole;
   clientGroupId?: string;
+  clientGroupIds?: string[];
   clientGroupName?: string;
   authorizedFacilityIds?: string[];
   designation?: string;
   avatarUrl?: string;
+  mobileNo?: string;
+  managerName?: string;
+  capacity?: string;
   mustChangePassword?: boolean;
 }
 
-export type ComplianceType = 'RCO' | 'PAT' | 'CCTS' | 'CEA';
+export type ComplianceType = 'RCO' | 'PAT' | 'CCTS';
 
 export type WorkflowStatus =
   | 'NOT_STARTED'
@@ -128,6 +132,9 @@ export interface IClientGroup {
   code: string;
   industry: string;
   headquarters: string;
+  capacity?: string;
+  managerName?: string;
+  enabledFrameworks?: ComplianceType[];
   contactPerson: {
     name: string;
     email: string;
@@ -163,6 +170,7 @@ export interface IFacility {
   assignedConsultantName?: string;
   assignedReviewerName?: string;
   status: 'ACTIVE' | 'INACTIVE';
+  enabledFrameworks?: ComplianceType[];
   driveConnection?: IDriveConnection;
   dataGivenPercentage?: number;
   dataMatchedPercentage?: number;
@@ -176,7 +184,7 @@ export interface IComplianceApplicability {
   complianceType: ComplianceType;
   period: string; // FY2024-25, FY2025-26, Cycle-II, 2025-06
   isApplicable: boolean;
-  authority: string; // BEE, State ERC, Ministry of Power, CEA
+  authority: string; // BEE, State ERC, Ministry of Power
   ministry?: string;
   notificationReference?: string;
   targetValue: number | null;
@@ -543,6 +551,7 @@ export interface IMasterRequirementRowPublic {
   unit?: string;
   mandatory: boolean;
   specialInstructions?: string;
+  defaultCompliances?: ComplianceType[];
 }
 
 export interface IFacilityApplicableRequirement {

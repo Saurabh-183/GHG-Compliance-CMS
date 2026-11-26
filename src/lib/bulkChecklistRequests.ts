@@ -56,6 +56,11 @@ export async function createBulkChecklistRequirements(input: BulkChecklistSendIn
       .filter(Boolean)
       .join('\n\n');
 
+    const matchedCompliances = input.linkedCompliances?.length
+      ? master.defaultCompliances.filter((c) => input.linkedCompliances!.includes(c))
+      : master.defaultCompliances;
+    const itemLinkedCompliances = matchedCompliances.length > 0 ? matchedCompliances : master.defaultCompliances;
+
     const payload = {
       facilityId,
       period: input.period,
@@ -65,7 +70,7 @@ export async function createBulkChecklistRequirements(input: BulkChecklistSendIn
       masterRequirementId: master.requirementId,
       title,
       category: energyCategoryForItem(itemKey),
-      linkedCompliances: input.linkedCompliances?.length ? input.linkedCompliances : master.defaultCompliances,
+      linkedCompliances: itemLinkedCompliances,
       description: description || master.description,
       purpose: input.purpose,
       dataCategory: MASTER_REQUIREMENT_CATEGORIES[master.category],

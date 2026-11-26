@@ -29,6 +29,10 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const facilityId = searchParams.get('facilityId');
     const status = searchParams.get('status');
+    const pageParam = searchParams.get('page');
+    const limitParam = searchParams.get('limit');
+    const searchParam = searchParams.get('search') || searchParams.get('q');
+    const frameworkParam = searchParams.get('framework') || searchParams.get('complianceType');
 
     const query: Record<string, unknown> = {};
 
@@ -84,15 +88,59 @@ export async function GET(request: NextRequest) {
       .lean();
     const facilityNameById = new Map(facilities.map((f) => [f.facilityId, f.name]));
 
-    const responseData = buildComplianceCalendarView({
+    let responseData = buildComplianceCalendarView({
       requirements,
       calendarItems: rawItems,
       facilityNameById,
     });
 
+    if (frameworkParam && frameworkParam !== 'ALL') {
+      responseData = responseData.filter((item) => {
+        const row = item as { linkedFrameworks?: string[]; complianceType?: string };
+        const frameworks = row.linkedFrameworks?.length ? row.linkedFrameworks : [row.complianceType || ''];
+        return frameworks.includes(frameworkParam);
+      });
+    }
+
+    if (searchParam?.trim()) {
+      const q = searchParam.trim().toLowerCase();
+      responseData = responseData.filter((item) => {
+        const row = item as {
+          facilityName?: string;
+          facilityId?: string;
+          reportingPeriod?: string;
+          requestTitle?: string;
+          requestCode?: string;
+        };
+        return (
+          item.facilityName?.toLowerCase().includes(q) ||
+          item.facilityId?.toLowerCase().includes(q) ||
+          item.reportingPeriod?.toLowerCase().includes(q) ||
+          row.requestTitle?.toLowerCase().includes(q) ||
+          row.requestCode?.toLowerCase().includes(q)
+        );
+      });
+    }
+
+    const total = responseData.length;
+    const limit = limitParam ? Math.max(1, parseInt(limitParam, 10) || 15) : 15;
+    const page = pageParam ? Math.max(1, parseInt(pageParam, 10) || 1) : 1;
+    const totalPages = Math.ceil(total / limit) || 1;
+
+    const isPaginated = searchParams.has('page') || searchParams.has('limit');
+    const paginatedData = isPaginated
+      ? responseData.slice((page - 1) * limit, page * limit)
+      : responseData;
+
     return NextResponse.json({
       success: true,
-      data: responseData,
+      data: paginatedData,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages,
+      },
     });
   } catch (error) {
     console.error('Error fetching compliance calendar:', error);

@@ -33,6 +33,11 @@ export function RequestReviewPanel({
     requirement.workflowStatus === 'UNDER_REVIEW' ||
     requirement.submissionStatus === 'RECEIVED';
 
+  const isAccepted =
+    requirement.workflowStatus === 'ACCEPTED' ||
+    requirement.requirementItemStatus === 'ACCEPTED' ||
+    requirement.verificationStatus === 'APPROVED';
+
   const effectiveDueDate = useMemo(() => {
     return resolveRequirementDueDate(requirement.dueDate, requirement.period, requirement.requestedAt);
   }, [requirement.dueDate, requirement.period, requirement.requestedAt]);
@@ -70,6 +75,10 @@ export function RequestReviewPanel({
   }, [fieldReviews]);
 
   const submitReview = async (action: 'START_REVIEW' | 'REQUEST_CHANGES' | 'ACCEPT' | 'REJECT') => {
+    if (isAccepted) {
+      notify.error('This data request has already been accepted and locked. No further modifications or status changes are permitted.');
+      return;
+    }
     if (action === 'ACCEPT' && !allFieldsVerified) {
       notify.error('All fields must be marked as Verified before accepting the submission.');
       return;
@@ -145,8 +154,8 @@ export function RequestReviewPanel({
             return (
               <div key={review.fieldKey} className="grid grid-cols-1 sm:grid-cols-[1fr_140px] gap-2 items-center">
                 <span className="text-slate-700 dark:text-slate-300">{field?.label || review.fieldKey}</span>
-                {isAdmin ? (
-                  <span className="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-center">
+                {isAdmin || isAccepted ? (
+                  <span className="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 text-center">
                     {review.status.replaceAll('_', ' ')}
                   </span>
                 ) : (
@@ -243,9 +252,9 @@ export function RequestReviewPanel({
                 <span className="flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5 text-slate-500" /> Due date
                 </span>
-                {isSubmitted && (
+                {(isSubmitted || isAccepted) && (
                   <span className="text-[10px] text-slate-400 font-normal">
-                    (Locked — submitted)
+                    {isAccepted ? '(Locked — accepted)' : '(Locked — submitted)'}
                   </span>
                 )}
               </span>
@@ -253,7 +262,7 @@ export function RequestReviewPanel({
                 value={dueDateInput}
                 onChange={(val) => setDueDateInput(val)}
                 placeholder="dd-mm-yyyy"
-                disabled={isSubmitted}
+                disabled={isSubmitted || isAccepted}
               />
             </div>
             <label className="block space-y-1">
@@ -261,9 +270,14 @@ export function RequestReviewPanel({
               <textarea
                 rows={3}
                 value={comment}
+                disabled={isAccepted}
                 onChange={(e) => setComment(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                placeholder="Explain missing or incorrect items for the client…"
+                className={`w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500 ${
+                  isAccepted
+                    ? 'bg-slate-100 dark:bg-slate-900 text-slate-500 cursor-not-allowed'
+                    : 'bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200'
+                }`}
+                placeholder={isAccepted ? 'No further comments (request accepted)' : 'Explain missing or incorrect items for the client…'}
               />
             </label>
           </div>
@@ -276,6 +290,33 @@ export function RequestReviewPanel({
           <span>
             <strong className="font-semibold text-slate-800 dark:text-slate-200">Admin View Only:</strong> Data review actions (accept, reject, request changes) are reserved for assigned Consultants.
           </span>
+        </div>
+      ) : isAccepted ? (
+        <div className="flex flex-wrap items-center gap-2 justify-end w-full">
+          <button
+            type="button"
+            disabled
+            className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500 font-bold text-xs cursor-not-allowed opacity-60"
+            title="Accepted requests cannot request changes"
+          >
+            <RotateCcw className="w-3.5 h-3.5" /> Request changes
+          </button>
+          <button
+            type="button"
+            disabled
+            className="inline-flex items-center gap-1 px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-800 text-slate-400 dark:text-slate-500 font-bold text-xs cursor-not-allowed opacity-60"
+            title="Accepted requests cannot be rejected"
+          >
+            <XCircle className="w-3.5 h-3.5" /> Reject
+          </button>
+          <button
+            type="button"
+            disabled
+            className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-emerald-700/60 dark:bg-emerald-800/60 text-white font-bold text-xs cursor-not-allowed opacity-75 shadow-none"
+            title="Submission already accepted"
+          >
+            <CheckCircle2 className="w-3.5 h-3.5" /> Accepted
+          </button>
         </div>
       ) : (
         <div className="flex flex-wrap items-center gap-2 justify-end">

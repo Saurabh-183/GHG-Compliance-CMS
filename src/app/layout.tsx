@@ -8,7 +8,7 @@ import { ToastContainer } from 'react-toastify';
 export const metadata: Metadata = {
   title: 'Carbon Crunch — Compliance Management Platform',
   description:
-    'Multi-tenant, role-based compliance management platform for industrial energy and carbon obligations (RCO/RPO, PAT, CCTS, CEA).',
+    'Multi-tenant, role-based compliance management platform for industrial energy and carbon obligations (RCO/RPO, PAT, CCTS).',
 };
 
 export default function RootLayout({
@@ -29,6 +29,7 @@ export default function RootLayout({
           <ToastContainer
             position="top-right"
             autoClose={1500}
+            limit={3}
             hideProgressBar={false}
             newestOnTop
             closeOnClick
