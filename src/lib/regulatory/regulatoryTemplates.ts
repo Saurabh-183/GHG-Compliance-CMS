@@ -1,4 +1,4 @@
-export type RegulatoryFramework = 'RCO' | 'PAT' | 'CCTS';
+export type RegulatoryFramework = 'RCO' | 'RPO' | 'PAT' | 'CCTS';
 export type RegulatoryColumn = 'BASELINE' | 'ASSESSMENT' | 'TARGET' | 'NOT_APPLICABLE' | 'VALUE';
 
 export interface RegulatoryField {

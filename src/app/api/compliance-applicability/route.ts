@@ -8,12 +8,13 @@ export async function GET(request: NextRequest) {
   try {
     await connectToDatabase();
     const session = getSessionFromRequest(request);
-    const searchParams = request.nextUrl.searchParams;
-    const facilityId = searchParams.get('facilityId');
-
+    const facilityId = request.nextUrl.searchParams.get('facilityId');
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     const query: { facilityId?: string | { $in: string[] } } = {};
-    if (!facilityId && session.role !== 'ADMIN') query.facilityId = { $in: session.authorizedFacilityIds || [] };
+    if (!facilityId && session.role !== 'ADMIN') {
+      query.facilityId = { $in: session.authorizedFacilityIds || [] };
+    }
     if (facilityId) {
       if (!isAuthorizedForFacility(session, facilityId)) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -27,29 +28,13 @@ export async function GET(request: NextRequest) {
       .sort({ period: 1 })
       .lean();
 
-    if (records.length > 0) {
-      return NextResponse.json({
-        success: true,
-        data: records.map((r) => ({
-          ...r,
-          _id: r._id.toString(),
-          deadline: r.deadline ? (r.deadline instanceof Date ? r.deadline.toISOString() : (() => { const d = new Date(String(r.deadline)); return isNaN(d.getTime()) ? String(r.deadline) : d.toISOString(); })()) : null,
-        })),
-      });
-    }
-
-    if (facilityId) {
-      const { generateFacilityApplicabilities } = await import('@/lib/complianceMatrixData');
-      const generated = generateFacilityApplicabilities(facilityId);
-      return NextResponse.json({
-        success: true,
-        data: generated,
-      });
-    }
-
     return NextResponse.json({
       success: true,
-      data: [],
+      data: records.map((record) => ({
+        ...record,
+        _id: record._id.toString(),
+        deadline: record.deadline ? new Date(record.deadline).toISOString() : null,
+      })),
     });
   } catch (error) {
     console.error('Compliance applicability query failed:', error);

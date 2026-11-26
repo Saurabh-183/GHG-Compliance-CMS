@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import { connectToDatabase } from '@/lib/db';
 import { AssessmentModel } from '@/models/Assessment';
+import { ComplianceApplicabilityModel } from '@/models/ComplianceApplicability';
 import { RegulatorySubmissionModel } from '@/models/RegulatorySubmission';
 import { getSessionFromRequest, authorizeRole, isAuthorizedForFacility } from '@/lib/auth';
 import { getRegulatoryTemplate, calculateRegulatoryValues } from '@/lib/regulatory/regulatoryTemplates';
@@ -44,25 +45,37 @@ async function getAssessmentAndSession(
   }
 
   if (!assessment && parsed) {
-    const { resolveAssessmentById } = await import('@/lib/complianceMatrixData');
-    const fallback = resolveAssessmentById(id);
+    // Lazy-create an empty assessment only when the exact facility/framework/year
+    // has been explicitly configured as applicable. Never synthesize a report
+    // for a Not Applicable matrix cell.
+    const applicability = await ComplianceApplicabilityModel.findOne({
+      facilityId: parsed.facilityId.toUpperCase(),
+      complianceType: parsed.complianceType,
+      period: parsed.period,
+      isApplicable: true,
+    }).lean();
+
+    if (!applicability) {
+      return { error: jsonError('This compliance framework and financial year are not applicable for this facility.', 404) } as const;
+    }
+
     assessment = await AssessmentModel.findOneAndUpdate(
       {
-        facilityId: parsed.facilityId,
+        facilityId: parsed.facilityId.toUpperCase(),
         complianceType: parsed.complianceType,
         period: parsed.period,
       },
       {
         $setOnInsert: {
-          facilityId: parsed.facilityId,
+          facilityId: parsed.facilityId.toUpperCase(),
           complianceType: parsed.complianceType,
           period: parsed.period,
-          workflowStatus: fallback?.workflowStatus || 'DATA_COLLECTION',
-          complianceOutcome: fallback?.complianceOutcome || 'PENDING_DETERMINATION',
+          workflowStatus: 'NOT_STARTED',
+          complianceOutcome: 'PENDING_DETERMINATION',
           isHistorical: false,
           version: 1,
-          documentLinks: fallback?.documentLinks || {},
-          metrics: fallback?.metrics || [],
+          documentLinks: {},
+          metrics: [],
         },
       },
       { upsert: true, new: true, setDefaultsOnInsert: true }
@@ -70,6 +83,19 @@ async function getAssessmentAndSession(
   }
 
   if (!assessment) return { error: jsonError('Assessment not found', 404) } as const;
+
+  // Existing legacy assessments are also blocked when their exact applicability
+  // has since been disabled; checking only the lazy-create branch is insufficient.
+  const activeApplicability = await ComplianceApplicabilityModel.findOne({
+    facilityId: String(assessment.facilityId).toUpperCase(),
+    complianceType: assessment.complianceType,
+    period: assessment.period,
+    isApplicable: true,
+  }).lean();
+  if (!activeApplicability) {
+    return { error: jsonError('This compliance framework and financial year are not applicable for this facility.', 404) } as const;
+  }
+
   if (!isAuthorizedForFacility(session, assessment.facilityId)) {
     return { error: jsonError('You are not authorized for this facility', 403) } as const;
   }
@@ -130,8 +156,8 @@ export async function PUT(request: NextRequest, { params }: Ctx) {
     if ('error' in ctx) return ctx.error;
     if (!authorizeRole(ctx.session, ['CLIENT'])) return jsonError('Only the client can enter or edit facility regulatory values',403);
     const body = await request.json();
-    const framework = ctx.assessment.complianceType as 'RCO' | 'PAT' | 'CCTS';
-    if (!['RCO','PAT','CCTS'].includes(framework)) return jsonError('This assessment type does not support regulatory summary sheets',400);
+    const framework = ctx.assessment.complianceType as 'RCO' | 'RPO' | 'PAT' | 'CCTS';
+    if (!['RCO','RPO','PAT','CCTS'].includes(framework)) return jsonError('This assessment type does not support regulatory summary sheets',400);
     const template = getRegulatoryTemplate(String(body.templateId || ''));
     if (!template || template.framework !== framework) return jsonError('Select a valid template for this assessment framework',400);
     const existing = await RegulatorySubmissionModel.findOne({ assessmentId: ctx.assessment._id });
@@ -239,7 +265,7 @@ export async function PATCH(request: NextRequest, { params }: Ctx) {
     const action = String(body.action || '');
     let submission = await RegulatorySubmissionModel.findOne({ assessmentId: ctx.assessment._id });
     if (action === 'REQUEST_DATA') {
-      const framework = ctx.assessment.complianceType as 'RCO' | 'PAT' | 'CCTS';
+      const framework = ctx.assessment.complianceType as 'RCO' | 'RPO' | 'PAT' | 'CCTS';
       const template = getRegulatoryTemplate(String(body.templateId || ''));
       if (!template || template.framework !== framework) return jsonError('Choose a valid summary sheet for this assessment framework',400);
       if (submission && ['REQUESTED','SUBMITTED','UNDER_REVIEW','RETURNED','VERIFIED','APPROVED'].includes(submission.status)) return jsonError('A submitted or approved report cannot be replaced with a new request',409);

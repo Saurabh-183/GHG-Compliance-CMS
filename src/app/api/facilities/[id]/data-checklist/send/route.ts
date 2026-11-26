@@ -8,7 +8,7 @@ import { DataRequirementModel } from '@/models/DataRequirement';
 import { FacilityModel } from '@/models/Facility';
 import type { ComplianceType } from '@/types';
 
-const VALID_COMPLIANCES: ComplianceType[] = ['RCO', 'PAT', 'CCTS'];
+const VALID_COMPLIANCES: ComplianceType[] = ['RCO', 'RPO', 'PAT', 'CCTS'];
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {

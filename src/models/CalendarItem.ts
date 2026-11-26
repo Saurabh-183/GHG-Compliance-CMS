@@ -41,7 +41,7 @@ const CalendarItemSchema = new Schema<ICalendarItemDocument>(
     facilityId: { type: String, required: true, uppercase: true, trim: true, index: true },
     complianceType: {
       type: String,
-      enum: ['RCO', 'PAT', 'CCTS'],
+      enum: ['RCO', 'RPO', 'PAT', 'CCTS'],
       required: true,
     },
     reportingPeriod: { type: String, required: true },

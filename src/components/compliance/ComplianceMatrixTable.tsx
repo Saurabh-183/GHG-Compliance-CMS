@@ -12,8 +12,12 @@ interface ComplianceMatrixTableProps {
 
 const complianceLabels: Record<ComplianceType, { title: string; subtitle: string }> = {
   RCO: {
-    title: 'RCO / RPO',
+    title: 'RCO',
     subtitle: 'Renewable Consumption Obligation (Financial Year)',
+  },
+  RPO: {
+    title: 'RPO',
+    subtitle: 'Renewable Purchase Obligation (Financial Year)',
   },
   PAT: {
     title: 'PAT Scheme',
@@ -77,7 +81,7 @@ const isBeforeFoundingYear = (period: string) => {
           </thead>
           <tbody className="divide-y divide-slate-200 dark:divide-slate-800/80 text-xs">
             {compliances.map((comp) => {
-              const info = complianceLabels[comp];
+              const info = complianceLabels[comp as ComplianceType];
                 if (!info) return null;
                 return (
                   <tr key={comp}>
@@ -89,7 +93,7 @@ const isBeforeFoundingYear = (period: string) => {
 
                   {/* Matrix Cells */}
                   {periods.map((period) => {
-              const cell = matrix[comp]?.[period];
+              const cell = matrix[comp as ComplianceType]?.[period];
 if (isBeforeFoundingYear(period) || !cell || !cell.isApplicable) {
                       return (
                         <td key={period} className="py-4 px-3 align-top text-center">

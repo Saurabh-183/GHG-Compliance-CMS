@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import { connectToDatabase } from '@/lib/db';
 import { AssessmentModel } from '@/models/Assessment';
+import { ComplianceApplicabilityModel } from '@/models/ComplianceApplicability';
 import { getClientFacilityIds } from '@/lib/clientFacilityAccess';
 import { getSessionFromRequest, isAuthorizedForFacility, authorizeRole } from '@/lib/auth';
 
@@ -27,13 +28,24 @@ export async function GET(
       assessment = await AssessmentModel.findOne({ _id: id }).lean();
     }
 
-    if (!assessment) {
-      const { resolveAssessmentById } = await import('@/lib/complianceMatrixData');
-      assessment = resolveAssessmentById(id) as typeof assessment;
-    }
 
     if (!assessment) {
       return NextResponse.json({ error: 'Assessment not found' }, { status: 404 });
+    }
+
+    const applicability = await ComplianceApplicabilityModel.find({
+      facilityId: String(assessment.facilityId).toUpperCase(),
+      complianceType: assessment.complianceType,
+      isApplicable: true,
+    }).select('period').lean();
+    const assessmentPeriod = String(assessment.period).toLowerCase();
+    const assessmentYear = assessmentPeriod.match(/20\d{2}-\d{2}/)?.[0];
+    const isConfigured = applicability.some((row) => {
+      const configuredPeriod = String(row.period).toLowerCase();
+      return configuredPeriod === assessmentPeriod || (!!assessmentYear && configuredPeriod.includes(assessmentYear));
+    });
+    if (!isConfigured) {
+      return NextResponse.json({ error: 'This assessment is not configured as applicable for the selected facility and financial year.' }, { status: 404 });
     }
 
     let facilityAuthorized = isAuthorizedForFacility(session, assessment.facilityId);
@@ -76,14 +88,8 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.warn('Error fetching assessment from DB, returning fallback assessment:', error);
-    const { id } = await params;
-    const { resolveAssessmentById } = await import('@/lib/complianceMatrixData');
-    const fallback = resolveAssessmentById(id);
-    if (!fallback) {
-      return NextResponse.json({ error: 'Assessment not found' }, { status: 404 });
-    }
-    return NextResponse.json({ success: true, data: fallback });
+    console.error('Assessment lookup failed:', error);
+    return NextResponse.json({ error: 'Unable to load assessment.' }, { status: 503 });
   }
 }
 
@@ -102,6 +108,15 @@ export async function PATCH(
     const existing = await AssessmentModel.findById(id);
     if (!existing) return NextResponse.json({ error: 'Assessment not found' }, { status: 404 });
     if (!isAuthorizedForFacility(session, existing.facilityId)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    const applicability = await ComplianceApplicabilityModel.findOne({
+      facilityId: String(existing.facilityId).toUpperCase(),
+      complianceType: existing.complianceType,
+      period: existing.period,
+      isApplicable: true,
+    }).lean();
+    if (!applicability) {
+      return NextResponse.json({ error: 'This assessment is not applicable for the selected facility and financial year.' }, { status: 409 });
+    }
     const body = (await request.json()) as Record<string, unknown>;
 
     // Increment version when updating assessment records

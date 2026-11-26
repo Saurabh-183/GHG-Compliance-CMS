@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
 
           const enabledFrameworks = Array.isArray(body.enabledFrameworks) && body.enabledFrameworks.length > 0
             ? body.enabledFrameworks
-            : ['RCO', 'PAT', 'CCTS'];
+            : ['RCO', 'RPO', 'PAT', 'CCTS'];
 
           group = await ClientGroupModel.create({
             name: companyName,

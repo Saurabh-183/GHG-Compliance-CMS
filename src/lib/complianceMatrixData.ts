@@ -5,13 +5,15 @@ import {
   IAssessment,
   WorkflowStatus,
 } from '@/types';
-import { GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
-import { buildAssessmentId, parseAssessmentId } from '@/lib/assessmentIds';
 
 /**
- * Standard Multi-Year Frameworks and Reporting Periods
+ * Compliance matrix configuration.
+ *
+ * IMPORTANT: The matrix is a read model of explicitly configured applicability
+ * and real assessment records. It must never invent historical applicability,
+ * workflow statuses, evidence links, or assessment IDs.
  */
-export const COMPLIANCE_FRAMEWORKS: ComplianceType[] = ['RCO', 'PAT', 'CCTS'];
+export const COMPLIANCE_FRAMEWORKS: ComplianceType[] = ['RCO', 'RPO', 'PAT', 'CCTS'];
 export const COMPLIANCE_PERIODS = ['FY2024-25', 'FY2025-26', 'FY2026-27'];
 
 const WORKFLOW_STATUS_RANK: Record<string, number> = {
@@ -23,508 +25,113 @@ const WORKFLOW_STATUS_RANK: Record<string, number> = {
 };
 
 function resolveMatrixPeriod(period: string): string | undefined {
-  const exact = COMPLIANCE_PERIODS.find((p) => p.toLowerCase() === period.toLowerCase());
+  const normalized = String(period || '').trim().toLowerCase();
+  const exact = COMPLIANCE_PERIODS.find((p) => p.toLowerCase() === normalized);
   if (exact) return exact;
-  if (period.includes('2024-25') || period.includes('Cycle-II')) return 'FY2024-25';
-  if (period.includes('2025-26') || period.includes('Monthly')) return 'FY2025-26';
-  if (period.includes('2026-27')) return 'FY2026-27';
+  if (normalized.includes('2024-25')) return 'FY2024-25';
+  if (normalized.includes('2025-26')) return 'FY2025-26';
+  if (normalized.includes('2026-27')) return 'FY2026-27';
   return undefined;
 }
 
-function periodsAlign(a: string, b: string): boolean {
-  if (a.toLowerCase() === b.toLowerCase()) return true;
-  const matrixA = resolveMatrixPeriod(a);
-  const matrixB = resolveMatrixPeriod(b);
-  return matrixA !== undefined && matrixA === matrixB;
+function preferWorkflowStatus(current: WorkflowStatus, next: WorkflowStatus): WorkflowStatus {
+  const currentRank = WORKFLOW_STATUS_RANK[current] ?? 0;
+  const nextRank = WORKFLOW_STATUS_RANK[next] ?? 0;
+  return nextRank >= currentRank ? next : current;
 }
 
-function preferWorkflowStatus(
-  current: WorkflowStatus,
-  next: WorkflowStatus
-): WorkflowStatus {
-  const rankCurrent = WORKFLOW_STATUS_RANK[current] ?? 0;
-  const rankNext = WORKFLOW_STATUS_RANK[next] ?? 0;
-
-  return rankNext >= rankCurrent ? next : current;
-}
-
+/** Kept for backwards compatibility with existing imports. No defaults are fabricated. */
 export function generateFacilityApplicabilities(
-  facilityId: string,
-  facilityName?: string
+  _facilityId: string,
+  _facilityName?: string
 ): IComplianceApplicability[] {
-  const cleanId = (facilityId || 'FACILITY').toUpperCase();
-  const displayName = facilityName || cleanId.replace(/_/g, ' ');
-
-  return [
-    // 1. RCO FY2024-25 (Audited & Verified in Drive)
-    {
-      _id: `app_${cleanId.toLowerCase()}_rco_fy2425`,
-      facilityId: cleanId,
-      complianceType: 'RCO',
-      period: 'FY2024-25',
-      isApplicable: true,
-      authority: 'State Electricity Regulatory Commission (SERC)',
-      ministry: 'Ministry of Power',
-      notificationReference: 'SERC/RCO/REG-2024/088',
-      targetValue: 29.91,
-      targetUnit: '%',
-      targetMethodology: 'Renewable Purchase Obligation against total annual grid and captive power',
-      deadline: '2025-06-30T00:00:00.000Z',
-      assignedConsultantId: '66f000000000000000000002',
-      assignedReviewerId: '66f000000000000000000002',
-      workflowStatus: 'APPROVED',
-      complianceOutcome: 'COMPLIANT',
-      notes: `Audited and verified against executive compliance model and SERC acknowledgement stored on Google Drive.`,
-    },
-    // 2. RCO FY2025-26 (Active Monitoring from Drive Workbooks)
-    {
-      _id: `app_${cleanId.toLowerCase()}_rco_fy2526`,
-      facilityId: cleanId,
-      complianceType: 'RCO',
-      period: 'FY2025-26',
-      isApplicable: true,
-      authority: 'State Electricity Regulatory Commission (SERC)',
-      ministry: 'Ministry of Power',
-      notificationReference: 'SERC/RCO/FY25-26/012',
-      targetValue: 33.01,
-      targetUnit: '%',
-      targetMethodology: 'Monthly cumulative RCO tracking via client consumption logs and open-access PPA',
-      deadline: '2025-09-30T00:00:00.000Z',
-      assignedConsultantId: '66f000000000000000000002',
-      assignedReviewerId: '66f000000000000000000002',
-      workflowStatus: 'DATA_COLLECTION',
-      complianceOutcome: 'PENDING_DETERMINATION',
-      notes: `Ongoing monthly data logging mapped to corporate Google Drive vault.`,
-    },
-    // 3. PAT Scheme FY2024-25 (Cycle VII M&V Audited in Drive)
-    {
-      _id: `app_${cleanId.toLowerCase()}_pat_fy2425`,
-      facilityId: cleanId,
-      complianceType: 'PAT',
-      period: 'FY2024-25',
-      isApplicable: true,
-      authority: 'Bureau of Energy Efficiency (BEE)',
-      ministry: 'Ministry of Power',
-      notificationReference: 'BEE/PAT-VII/DC-M&V/2024',
-      targetValue: 0.185,
-      targetUnit: 'toe/T',
-      targetMethodology: 'Form A M&V Audit Protocol verified by Accredited Energy Auditor (AEA)',
-      deadline: '2025-08-31T00:00:00.000Z',
-      assignedConsultantId: '66f000000000000000000002',
-      assignedReviewerId: '66f000000000000000000002',
-      workflowStatus: 'APPROVED',
-      complianceOutcome: 'COMPLIANT',
-      notes: `M&V assessment report certified and archived in Google Drive.`,
-    },
-    // 4. PAT Scheme FY2025-26 (Active Monitoring Period)
-    {
-      _id: `app_${cleanId.toLowerCase()}_pat_fy2526`,
-      facilityId: cleanId,
-      complianceType: 'PAT',
-      period: 'FY2025-26',
-      isApplicable: true,
-      authority: 'Bureau of Energy Efficiency (BEE)',
-      ministry: 'Ministry of Power',
-      notificationReference: 'BEE/PAT-VII/M&V-ANNUAL',
-      targetValue: 0.178,
-      targetUnit: 'toe/T',
-      targetMethodology: 'Gate-to-gate specific energy consumption (SEC) monitoring',
-      deadline: '2025-10-31T00:00:00.000Z',
-      assignedConsultantId: '66f000000000000000000002',
-      assignedReviewerId: '66f000000000000000000002',
-      workflowStatus: 'DATA_COLLECTION',
-      complianceOutcome: 'PENDING_DETERMINATION',
-      notes: `Fuel consumption logs and production data synchronized with Google Drive repository.`,
-    },
-    // 5. CCTS FY2025-26 (Baseline Boundary Finalization)
-    {
-      _id: `app_${cleanId.toLowerCase()}_ccts_fy2526`,
-      facilityId: cleanId,
-      complianceType: 'CCTS',
-      period: 'FY2025-26',
-      isApplicable: true,
-      authority: 'Bureau of Energy Efficiency / MoEFCC',
-      ministry: 'Ministry of Environment, Forest & Climate Change',
-      notificationReference: 'CCTS/BEE/BASELINE-2025',
-      targetValue: null,
-      targetUnit: 'tCO2e/T',
-      targetMethodology: 'National Carbon Market Scope 1 & Scope 2 GHG Baseline Determination',
-      deadline: '2025-11-30T00:00:00.000Z',
-      assignedConsultantId: '66f000000000000000000002',
-      assignedReviewerId: '66f000000000000000000002',
-      workflowStatus: 'UNDER_REVIEW',
-      complianceOutcome: 'PENDING_DETERMINATION',
-      notes: `Baseline boundary draft under review against verified DISCOM and fuel evidence in Drive.`,
-    },
-  ];
+  return [];
 }
 
-/**
- * Generates full assessment records with Google Drive documentation links for any facility
- */
+/** Kept for backwards compatibility with existing imports. Assessments must be real DB records. */
 export function generateFacilityAssessments(
-  facilityId: string,
-  facilityName?: string
+  _facilityId: string,
+  _facilityName?: string
 ): IAssessment[] {
-  const cleanId = (facilityId || 'FACILITY').toUpperCase();
-  const displayName = facilityName || cleanId.replace(/_/g, ' ');
-  const baseDrive = GOOGLE_DRIVE_FOLDER_URL;
-
-  return [
-    {
-      _id: `asm_${cleanId.toLowerCase()}_rco_fy2425`,
-      facilityId: cleanId,
-      facilityName: displayName,
-      complianceType: 'RCO',
-      period: 'FY2024-25',
-      workflowStatus: 'APPROVED',
-      complianceOutcome: 'COMPLIANT',
-      isHistorical: true,
-      version: 1,
-      documentLinks: {
-        finalReportUrl: `${baseDrive}/Final_Reports/${cleanId}_RCO_FY24-25_Approved_Report.pdf`,
-        submissionAckUrl: `${baseDrive}/Regulatory_Ack/${cleanId}_SERC_RCO_Acknowledgement.pdf`,
-        calculationWorkbookUrl: `${baseDrive}/Client_Consumption_Sheets/${cleanId}_RCO_Model_v2.4.xlsx`,
-        evidenceFolderUrl: baseDrive,
-      },
-      metrics: [
-        {
-          key: 'rco_total_consumption',
-          name: 'Total Electricity Consumed',
-          value: '48,650',
-          unit: 'MWh',
-          period: 'FY2024-25',
-          source: 'Audited Utility Records (Google Drive)',
-          sourceUrl: `${baseDrive}/Client_Consumption_Sheets/${cleanId}_RCO_Model_v2.4.xlsx`,
-          isProvisional: false,
-          approvalStatus: 'APPROVED',
-          version: 1,
-        },
-        {
-          key: 'rco_re_purchased',
-          name: 'Total Renewable Power Procured',
-          value: '14,668',
-          unit: 'MWh',
-          period: 'FY2024-25',
-          source: 'Solar PPA Invoices (Google Drive)',
-          sourceUrl: `${baseDrive}/Renewables/${cleanId}_Solar_PPA_FY25-26.pdf`,
-          isProvisional: false,
-          approvalStatus: 'APPROVED',
-          version: 1,
-        },
-        {
-          key: 'rco_achieved_pct',
-          name: 'Renewable Power Percentage Achieved',
-          value: '30.15',
-          unit: '%',
-          period: 'FY2024-25',
-          source: 'Compliance Model Determination',
-          isProvisional: false,
-          approvalStatus: 'APPROVED',
-          version: 1,
-        },
-      ],
-      createdAt: new Date('2025-06-25T10:00:00Z').toISOString(),
-      updatedAt: new Date('2025-06-30T14:00:00Z').toISOString(),
-    },
-    {
-      _id: `asm_${cleanId.toLowerCase()}_rco_fy2526`,
-      facilityId: cleanId,
-      facilityName: displayName,
-      complianceType: 'RCO',
-      period: 'FY2025-26',
-      workflowStatus: 'DATA_COLLECTION',
-      complianceOutcome: 'PENDING_DETERMINATION',
-      isHistorical: false,
-      version: 1,
-      documentLinks: {
-        calculationWorkbookUrl: `${baseDrive}/Client_Consumption_Sheets/${cleanId}_FY25-26_Draft_Model.xlsx`,
-        evidenceFolderUrl: baseDrive,
-      },
-      metrics: [
-        {
-          key: 'rco_target_mandate',
-          name: 'Statutory Mandated Target',
-          value: '33.01',
-          unit: '%',
-          period: 'FY2025-26',
-          source: 'SERC Gazette Notification',
-          isProvisional: false,
-          approvalStatus: 'APPROVED',
-          version: 1,
-        },
-        {
-          key: 'rco_q1_consumption',
-          name: 'Q1 Cumulative Electricity Consumption',
-          value: '12,450',
-          unit: 'MWh',
-          period: 'FY2025-26',
-          source: 'Google Drive Monthly Logs',
-          sourceUrl: `${baseDrive}/Client_Consumption_Sheets/${cleanId}_FY25-26_Consumption_Log.xlsx`,
-          isProvisional: true,
-          approvalStatus: 'PENDING',
-          version: 1,
-        },
-      ],
-      createdAt: new Date('2025-07-01T10:00:00Z').toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      _id: buildAssessmentId(cleanId, 'RCO', 'FY2026-27'),
-      facilityId: cleanId,
-      facilityName: displayName,
-      complianceType: 'RCO',
-      period: 'FY2026-27',
-      workflowStatus: 'DATA_COLLECTION',
-      complianceOutcome: 'PENDING_DETERMINATION',
-      isHistorical: false,
-      version: 1,
-      documentLinks: {
-        evidenceFolderUrl: baseDrive,
-      },
-      metrics: [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      _id: `asm_${cleanId.toLowerCase()}_pat_fy2425`,
-      facilityId: cleanId,
-      complianceType: 'PAT',
-      period: 'FY2024-25',
-      workflowStatus: 'APPROVED',
-      complianceOutcome: 'COMPLIANT',
-      isHistorical: true,
-      version: 1,
-      documentLinks: {
-        finalReportUrl: `${baseDrive}/Final_Reports/${cleanId}_BEE_PAT_Cycle_VII_Report.pdf`,
-        evidenceFolderUrl: baseDrive,
-      },
-      metrics: [
-        {
-          key: 'pat_target_sec',
-          name: 'Target Specific Energy Consumption',
-          value: '0.185',
-          unit: 'toe/T',
-          period: 'Cycle VII',
-          source: 'BEE Target Gazette',
-          isProvisional: false,
-          approvalStatus: 'APPROVED',
-          version: 1,
-        },
-        {
-          key: 'pat_achieved_sec',
-          name: 'Verified Specific Energy Consumption',
-          value: '0.179',
-          unit: 'toe/T',
-          period: 'FY2024-25',
-          source: 'Form A M&V Audit Report (Drive)',
-          sourceUrl: `${baseDrive}/Final_Reports/${cleanId}_BEE_PAT_Cycle_VII_Report.pdf`,
-          isProvisional: false,
-          approvalStatus: 'APPROVED',
-          version: 1,
-        },
-      ],
-      createdAt: new Date('2025-08-15T10:00:00Z').toISOString(),
-      updatedAt: new Date('2025-08-20T14:00:00Z').toISOString(),
-    },
-    {
-      _id: `asm_${cleanId.toLowerCase()}_pat_fy2526`,
-      facilityId: cleanId,
-      complianceType: 'PAT',
-      period: 'FY2025-26',
-      workflowStatus: 'DATA_COLLECTION',
-      complianceOutcome: 'PENDING_DETERMINATION',
-      isHistorical: false,
-      version: 1,
-      documentLinks: {
-        calculationWorkbookUrl: `${baseDrive}/Production_Records/${cleanId}_SEC_Production_FY25-26.xlsx`,
-        evidenceFolderUrl: baseDrive,
-      },
-      metrics: [
-        {
-          key: 'pat_target_sec_fy26',
-          name: 'Annual Baseline SEC Target',
-          value: '0.178',
-          unit: 'toe/T',
-          period: 'FY2025-26',
-          source: 'BEE Monitoring Framework',
-          isProvisional: false,
-          approvalStatus: 'APPROVED',
-          version: 1,
-        },
-      ],
-      createdAt: new Date('2025-07-01T10:00:00Z').toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      _id: `asm_${cleanId.toLowerCase()}_ccts_fy2526`,
-      facilityId: cleanId,
-      complianceType: 'CCTS',
-      period: 'FY2025-26',
-      workflowStatus: 'UNDER_REVIEW',
-      complianceOutcome: 'PENDING_DETERMINATION',
-      isHistorical: false,
-      version: 1,
-      documentLinks: {
-        calculationWorkbookUrl: `${baseDrive}/Production_Records/${cleanId}_SEC_Production_FY25-26.xlsx`,
-        evidenceFolderUrl: baseDrive,
-      },
-      metrics: [
-        {
-          key: 'ccts_baseline_scope1',
-          name: 'Scope 1 Stationary Combustion Baseline',
-          value: '18,450',
-          unit: 'tCO2e',
-          period: 'FY2025-26',
-          source: 'Coal Lab GCV Analysis (Drive)',
-          sourceUrl: `${baseDrive}/Fuel_Certificates/${cleanId}_NABL_Coal_GCV_Q1.pdf`,
-          isProvisional: true,
-          approvalStatus: 'PENDING',
-          version: 1,
-        },
-      ],
-      createdAt: new Date('2025-07-15T10:00:00Z').toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-  ];
+  return [];
 }
 
-/**
- * Constructs the Multi-Year Compliance Matrix:
- * - Checks which frameworks/periods have files in the Drive
- * - Flags missing/future years (e.g. FY2026-27 or CCTS FY2024-25) as NOT APPLICABLE
- */
 export function buildMultiYearComplianceMatrix(
   facilityId: string,
-  facilityName?: string,
-  existingApplicabilities?: IComplianceApplicability[],
-  existingAssessments?: IAssessment[]
+  _facilityName?: string,
+  existingApplicabilities: IComplianceApplicability[] = [],
+  existingAssessments: IAssessment[] = []
 ): {
   matrix: Record<ComplianceType, Record<string, IComplianceMatrixCell>>;
   applicabilities: IComplianceApplicability[];
   assessments: IAssessment[];
 } {
-  const cleanId = (facilityId || 'FACILITY').toUpperCase();
-  const displayName = facilityName || cleanId.replace(/_/g, ' ');
-
-  const applicabilities =
-    existingApplicabilities && existingApplicabilities.length > 0
-      ? existingApplicabilities
-      : generateFacilityApplicabilities(cleanId, displayName);
-
-  const assessments =
-    existingAssessments && existingAssessments.length > 0
-      ? existingAssessments
-      : generateFacilityAssessments(cleanId, displayName);
+  const cleanId = String(facilityId || '').toUpperCase();
+  const applicabilities = existingApplicabilities.filter(
+    (app) => String(app.facilityId || '').toUpperCase() === cleanId && app.isApplicable === true
+  );
+  const assessments = existingAssessments.filter(
+    (assessment) => String(assessment.facilityId || '').toUpperCase() === cleanId
+  );
 
   const assessmentMap = new Map<string, string>();
-  assessments.forEach((a) => {
-    assessmentMap.set(`${a.complianceType}_${a.period}`, a._id);
-  });
+  for (const assessment of assessments) {
+    assessmentMap.set(
+      `${assessment.complianceType}_${resolveMatrixPeriod(assessment.period) || assessment.period}`,
+      String(assessment._id)
+    );
+  }
 
   const matrix: Record<ComplianceType, Record<string, IComplianceMatrixCell>> = {
-    RCO: {},
-    PAT: {},
-    CCTS: {},
+    RCO: {}, RPO: {}, PAT: {}, CCTS: {},
   };
 
-  // Initialize all frameworks & periods
-  COMPLIANCE_FRAMEWORKS.forEach((comp) => {
-    COMPLIANCE_PERIODS.forEach((period) => {
-      // By default, FY2026-27 (future) has NO files in Drive -> NOT APPLICABLE
-      matrix[comp][period] = {
+  for (const framework of COMPLIANCE_FRAMEWORKS) {
+    for (const period of COMPLIANCE_PERIODS) {
+      matrix[framework][period] = {
         period,
-        complianceType: comp,
+        complianceType: framework,
         isApplicable: false,
         workflowStatus: 'NOT_STARTED',
         complianceOutcome: 'NOT_APPLICABLE',
       };
-    });
-  });
-
-  // Populate from active applicability records (where Drive evidence exists)
-  applicabilities.forEach((app) => {
-    const comp = app.complianceType as ComplianceType;
-    const matchedPeriod = resolveMatrixPeriod(app.period);
-
-    if (matchedPeriod && matrix[comp]) {
-      const assessmentId =
-        assessmentMap.get(`${comp}_${app.period}`) ||
-        assessmentMap.get(`${comp}_${matchedPeriod}`) ||
-        buildAssessmentId(cleanId, comp, matchedPeriod);
-
-      matrix[comp][matchedPeriod] = {
-        period: matchedPeriod,
-        complianceType: comp,
-        isApplicable: app.isApplicable,
-        workflowStatus: app.workflowStatus,
-        complianceOutcome: app.complianceOutcome,
-        assessmentId,
-        deadline: app.deadline || undefined,
-      };
     }
-  });
+  }
 
-  // Overlay assessment workflow (e.g. after admin/consultant report approval) so consultant views stay in sync
-  assessments.forEach((asm) => {
-    const comp = asm.complianceType as ComplianceType;
-    const matchedPeriod = resolveMatrixPeriod(asm.period);
-    if (!matchedPeriod || !matrix[comp]) return;
+  // An applicability record is the only source that can turn a cell on.
+  for (const app of applicabilities) {
+    const framework = app.complianceType as ComplianceType;
+    const period = resolveMatrixPeriod(app.period);
+    if (!period || !matrix[framework] || !app.isApplicable) continue;
 
-    const cell = matrix[comp][matchedPeriod];
-    if (!cell?.isApplicable) return;
+    const assessmentId = assessmentMap.get(`${framework}_${period}`);
+    matrix[framework][period] = {
+      period,
+      complianceType: framework,
+      isApplicable: true,
+      workflowStatus: app.workflowStatus,
+      complianceOutcome: app.complianceOutcome,
+      ...(assessmentId ? { assessmentId } : {}),
+      ...(app.deadline ? { deadline: app.deadline } : {}),
+    };
+  }
 
-    cell.workflowStatus = preferWorkflowStatus(cell.workflowStatus, asm.workflowStatus);
-    cell.complianceOutcome = asm.complianceOutcome;
-    cell.assessmentId = asm._id;
-  });
-
-  applicabilities.forEach((app) => {
-    const matchedAssessment = assessments.find(
-      (asm) => asm.complianceType === app.complianceType && periodsAlign(asm.period, app.period)
-    );
-    if (!matchedAssessment) return;
-
-    app.workflowStatus = preferWorkflowStatus(
-      app.workflowStatus,
-      matchedAssessment.workflowStatus
-    ) as IComplianceApplicability['workflowStatus'];
-    app.complianceOutcome = matchedAssessment.complianceOutcome;
-  });
+  // Overlay status only from an assessment that really exists in MongoDB.
+  for (const assessment of assessments) {
+    const framework = assessment.complianceType as ComplianceType;
+    const period = resolveMatrixPeriod(assessment.period);
+    if (!period || !matrix[framework]) continue;
+    const cell = matrix[framework][period];
+    if (!cell.isApplicable) continue;
+    cell.workflowStatus = preferWorkflowStatus(cell.workflowStatus, assessment.workflowStatus);
+    cell.complianceOutcome = assessment.complianceOutcome;
+    cell.assessmentId = String(assessment._id);
+  }
 
   return { matrix, applicabilities, assessments };
 }
 
-/** Resolve assessment by URL id — never fall back to a different FY. */
-export function resolveAssessmentById(id: string, facilityName?: string): IAssessment | null {
-  const parsed = parseAssessmentId(id);
-  if (!parsed) return null;
-
-  const assessments = generateFacilityAssessments(parsed.facilityId, facilityName);
-  const exact = assessments.find((a) => a._id.toLowerCase() === id.toLowerCase());
-  if (exact) return exact;
-
-  const canonicalId = buildAssessmentId(parsed.facilityId, parsed.complianceType, parsed.period);
-  const canonical = assessments.find((a) => a._id.toLowerCase() === canonicalId.toLowerCase());
-  if (canonical) {
-    return { ...canonical, _id: id };
-  }
-
-  const displayName = facilityName || parsed.facilityId.replace(/_/g, ' ');
-  return {
-    _id: id,
-    facilityId: parsed.facilityId,
-    facilityName: displayName,
-    complianceType: parsed.complianceType,
-    period: parsed.period,
-    workflowStatus: 'DATA_COLLECTION',
-    complianceOutcome: 'PENDING_DETERMINATION',
-    isHistorical: false,
-    version: 1,
-    documentLinks: { evidenceFolderUrl: GOOGLE_DRIVE_FOLDER_URL },
-    metrics: [],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
+/** Synthetic IDs are not assessments. Only database-backed assessment IDs resolve. */
+export function resolveAssessmentById(_id: string, _facilityName?: string): IAssessment | null {
+  return null;
 }
-
