@@ -9,16 +9,24 @@ import { getFacilityDriveScope } from '@/lib/facilityDriveScope';
 export async function GET(request: NextRequest) {
   const session = getSessionFromRequest(request);
   if (!session) return NextResponse.json({ success: false, error: 'Authentication required.' }, { status: 401 });
-  if (session.role !== 'ADMIN' && session.role !== 'CONSULTANT') {
+  if (session.role !== 'ADMIN' && session.role !== 'CONSULTANT' && session.role !== 'CLIENT') {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
   try {
     await connectToDatabase();
     const parentId = request.nextUrl.searchParams.get('parentId');
-    const facilityId = request.nextUrl.searchParams.get('facilityId')?.trim().toUpperCase();
+    let facilityId = request.nextUrl.searchParams.get('facilityId')?.trim().toUpperCase();
     const year = request.nextUrl.searchParams.get('financialYear')?.trim();
 
-    if (session.role === 'CONSULTANT' && !facilityId) {
+    if (session.role === 'CLIENT') {
+      const authorized = (session.authorizedFacilityIds || []).map((id) => id.toUpperCase());
+      if (!facilityId && authorized.length > 0) {
+        facilityId = authorized[0];
+      }
+      if (!facilityId || !authorized.includes(facilityId)) {
+        return NextResponse.json({ success: false, error: 'Access denied: not authorized for this facility.' }, { status: 403 });
+      }
+    } else if (session.role === 'CONSULTANT' && !facilityId) {
       return NextResponse.json({ success: false, error: 'Select an authorized facility.' }, { status: 400 });
     }
     if (facilityId && !isAuthorizedForFacility(session, facilityId)) {

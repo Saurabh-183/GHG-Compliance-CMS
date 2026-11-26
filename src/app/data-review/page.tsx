@@ -39,10 +39,22 @@ export default function DataReviewPage() {
   useEffect(() => {
     void (async () => {
       try {
-        const res = await fetch('/api/client-groups', { credentials: 'include' });
+        const res = await fetch('/api/client-groups', { credentials: 'include', cache: 'no-store' });
         if (res.ok) {
           const json = (await res.json()) as { data?: IClientGroup[] };
-          setGroups(json.data?.length ? json.data : MOCK_CLIENT_GROUPS);
+          const dbGroups = json.data || [];
+          const dbNames = new Set(dbGroups.map((g) => g.name.trim().toLowerCase()));
+          const dbCodes = new Set(dbGroups.map((g) => (g.code || '').trim().toLowerCase()));
+          const dbIds = new Set(dbGroups.map((g) => String(g._id)));
+
+          const filteredMocks = MOCK_CLIENT_GROUPS.filter(
+            (m) =>
+              !dbIds.has(String(m._id)) &&
+              !dbNames.has(m.name.trim().toLowerCase()) &&
+              !dbCodes.has((m.code || '').trim().toLowerCase())
+          );
+
+          setGroups([...dbGroups, ...filteredMocks]);
         } else {
           setGroups(MOCK_CLIENT_GROUPS);
         }

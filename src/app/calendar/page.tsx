@@ -13,6 +13,7 @@ import {
   RotateCcw,
   ChevronLeft,
   ChevronRight,
+  Plus,
 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
@@ -52,6 +53,16 @@ export default function ComplianceCalendarPage() {
   const [notificationRef, setNotificationRef] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Add Deadline Modal State
+  const [showAddDeadlineModal, setShowAddDeadlineModal] = useState(false);
+  const [newDeadlineFacilityId, setNewDeadlineFacilityId] = useState('');
+  const [newDeadlineFramework, setNewDeadlineFramework] = useState<ComplianceType>('RCO');
+  const [newDeadlinePeriod, setNewDeadlinePeriod] = useState('FY 2024-25');
+  const [newRegulatoryDueDate, setNewRegulatoryDueDate] = useState('');
+  const [newInternalDeadline, setNewInternalDeadline] = useState('');
+  const [newClientDeadline, setNewClientDeadline] = useState('');
+  const [isAddingDeadline, setIsAddingDeadline] = useState(false);
+
   const loadData = async () => {
     try {
       const [calRes, groupsRes] = await Promise.all([
@@ -74,11 +85,20 @@ export default function ComplianceCalendarPage() {
 
       if (groupsRes && groupsRes.ok) {
         const json = (await groupsRes.json()) as { data: IClientGroup[] };
-        if (json.data && json.data.length > 0) {
-          setGroups(json.data);
-        } else {
-          setGroups(buildMockGroupsWithFacilities());
-        }
+        const dbGroups = json.data || [];
+        const mockGroups = buildMockGroupsWithFacilities();
+        const dbNames = new Set(dbGroups.map((g) => g.name.trim().toLowerCase()));
+        const dbCodes = new Set(dbGroups.map((g) => (g.code || '').trim().toLowerCase()));
+        const dbIds = new Set(dbGroups.map((g) => String(g._id)));
+
+        const filteredMocks = mockGroups.filter(
+          (m) =>
+            !dbIds.has(String(m._id)) &&
+            !dbNames.has(m.name.trim().toLowerCase()) &&
+            !dbCodes.has((m.code || '').trim().toLowerCase())
+        );
+
+        setGroups([...dbGroups, ...filteredMocks]);
       } else {
         setGroups(buildMockGroupsWithFacilities());
       }
@@ -144,6 +164,42 @@ export default function ComplianceCalendarPage() {
       notify.error('Network error updating deadline');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleAddDeadline = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newDeadlineFacilityId || !newRegulatoryDueDate || !newInternalDeadline || !newClientDeadline) {
+      notify.warning('Please select a facility and provide all deadline dates');
+      return;
+    }
+    setIsAddingDeadline(true);
+    try {
+      const res = await fetch('/api/calendar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          facilityId: newDeadlineFacilityId,
+          complianceType: newDeadlineFramework,
+          reportingPeriod: newDeadlinePeriod,
+          regulatoryDueDate: newRegulatoryDueDate,
+          internalDeadline: newInternalDeadline,
+          clientDataSubmissionDeadline: newClientDeadline,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Failed to create calendar deadline');
+      notify.success('Calendar deadline registered successfully');
+      setShowAddDeadlineModal(false);
+      setNewRegulatoryDueDate('');
+      setNewInternalDeadline('');
+      setNewClientDeadline('');
+      await loadData();
+    } catch (err: any) {
+      notify.error(err.message || 'Error creating deadline');
+    } finally {
+      setIsAddingDeadline(false);
     }
   };
 
@@ -237,8 +293,21 @@ export default function ComplianceCalendarPage() {
         </div>
 
         <div className="flex flex-col gap-2.5 sm:items-end w-full lg:w-auto">
-          {/* Top Row: Quick Facility Search Input */}
-          <div className="flex items-center justify-end w-full">
+          {/* Top Row: Quick Facility Search Input & Add Deadline Button */}
+          <div className="flex items-center justify-end gap-2 w-full">
+            {(isAdmin || isConsultant) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setNewDeadlineFacilityId(currentFacilities[0]?.facilityId || allFacilities[0]?.facilityId || '');
+                  setShowAddDeadlineModal(true);
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold shadow-2xs transition-colors cursor-pointer shrink-0"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add Deadline</span>
+              </button>
+            )}
             <div className="relative">
               <Search className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
@@ -604,6 +673,129 @@ export default function ComplianceCalendarPage() {
                   className="px-4 py-1.5 text-xs font-bold bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg transition-colors shadow-sm disabled:opacity-50"
                 >
                   {isSubmitting ? 'Recording Extension...' : 'Confirm Extension'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* Add Custom Statutory Deadline Modal */}
+      {showAddDeadlineModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl w-full max-w-lg p-5">
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-1">
+              <CalendarIcon className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              Register New Compliance Deadline
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
+              Add a statutory regulatory filing deadline and internal milestones for a facility.
+            </p>
+
+            <form onSubmit={handleAddDeadline} className="space-y-3.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Facility:
+                  </label>
+                  <select
+                    value={newDeadlineFacilityId}
+                    onChange={(e) => setNewDeadlineFacilityId(e.target.value)}
+                    className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                    required
+                  >
+                    {allFacilities.map((f) => (
+                      <option key={f.facilityId} value={f.facilityId}>
+                        {f.name} ({f.facilityId})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Framework:
+                  </label>
+                  <select
+                    value={newDeadlineFramework}
+                    onChange={(e) => setNewDeadlineFramework(e.target.value as ComplianceType)}
+                    className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                  >
+                    <option value="RCO">RCO (Renewable Compliance)</option>
+                    <option value="PAT">PAT (Perform Achieve Trade)</option>
+                    <option value="CCTS">CCTS (Carbon Credit Scheme)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  Reporting Period:
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. FY 2024-25"
+                  value={newDeadlinePeriod}
+                  onChange={(e) => setNewDeadlinePeriod(e.target.value)}
+                  className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Regulatory Due Date:
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={newRegulatoryDueDate}
+                    onChange={(e) => setNewRegulatoryDueDate(e.target.value)}
+                    className="w-full px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Internal Deadline:
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={newInternalDeadline}
+                    onChange={(e) => setNewInternalDeadline(e.target.value)}
+                    className="w-full px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Client Deadline:
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={newClientDeadline}
+                    onChange={(e) => setNewClientDeadline(e.target.value)}
+                    className="w-full px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setShowAddDeadlineModal(false)}
+                  className="px-3 py-1.5 text-xs text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isAddingDeadline}
+                  className="px-4 py-1.5 text-xs font-bold bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
+                >
+                  {isAddingDeadline ? 'Registering...' : 'Register Deadline'}
                 </button>
               </div>
             </form>

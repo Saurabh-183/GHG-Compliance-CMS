@@ -42,9 +42,9 @@ export async function GET(request: NextRequest) {
       },
     ];
 
-    if (session.role !== 'ADMIN') {
+    if (session.role === 'CLIENT') {
       let allowedFacilityIds = (session.authorizedFacilityIds || []).map((id) => id.toUpperCase());
-      if (session.role === 'CLIENT' && session.clientGroupId) {
+      if (session.clientGroupId) {
         const companyFacilityIds = await getClientFacilityIds(session.clientGroupId);
         allowedFacilityIds = [...new Set([...allowedFacilityIds, ...companyFacilityIds])];
       }

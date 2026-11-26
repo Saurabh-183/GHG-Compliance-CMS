@@ -38,6 +38,7 @@ export async function GET(request: NextRequest) {
           avatarUrl: user.avatarUrl,
           clientGroupId,
           clientGroupName: clientGroupDisplayName,
+          clientGroupIds: (user.clientGroupIds || []).map((id) => id.toString()),
           authorizedFacilityIds: user.authorizedFacilityIds,
         },
       });

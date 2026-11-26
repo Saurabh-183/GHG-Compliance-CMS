@@ -79,7 +79,7 @@ export function authorizeRole(session: IAuthUserSession | null, allowedRoles: Us
 
 export function isAuthorizedForFacility(session: IAuthUserSession | null, facilityId: string): boolean {
   if (!session || !facilityId) return false;
-  if (session.role === 'ADMIN') return true;
+  if (session.role === 'ADMIN' || session.role === 'CONSULTANT') return true;
   const allowed = (session.authorizedFacilityIds || []).map((id) => id.toUpperCase());
   return allowed.includes(facilityId.toUpperCase());
 }

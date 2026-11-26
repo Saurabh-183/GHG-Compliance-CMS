@@ -210,6 +210,30 @@ export async function PATCH(
 
     await facility.save();
 
+    if (facility.clientGroupId) {
+      try {
+        const { ClientGroupModel } = await import('@/models/ClientGroup');
+        const allClientFacs = await FacilityModel.find({ clientGroupId: facility.clientGroupId }).select('enabledFrameworks').lean();
+        const combinedFrameworks = Array.from(
+          new Set(
+            allClientFacs.flatMap((f) =>
+              Array.isArray(f.enabledFrameworks) && f.enabledFrameworks.length > 0
+                ? f.enabledFrameworks
+                : []
+            )
+          )
+        );
+        if (combinedFrameworks.length > 0) {
+          await ClientGroupModel.updateOne(
+            { _id: facility.clientGroupId },
+            { $set: { enabledFrameworks: combinedFrameworks } }
+          );
+        }
+      } catch (syncErr) {
+        console.warn('Could not sync parent client group frameworks on facility update:', syncErr);
+      }
+    }
+
     return NextResponse.json({
       success: true,
       message: 'Facility updated successfully',

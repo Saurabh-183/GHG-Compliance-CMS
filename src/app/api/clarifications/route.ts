@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  if (session.role !== 'ADMIN' && !session.authorizedFacilityIds?.length) {
+  if (session.role === 'CLIENT' && !session.authorizedFacilityIds?.length) {
     return NextResponse.json(
       { success: false, error: 'No facilities are assigned to your account.' },
       { status: 403 }
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
       query.facilityId = facilityId.toUpperCase();
-    } else if (session && session.role !== 'ADMIN') {
+    } else if (session && session.role === 'CLIENT') {
       query.facilityId = { $in: session.authorizedFacilityIds || [] };
     }
 

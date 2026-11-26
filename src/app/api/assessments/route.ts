@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
       query.facilityId = facilityId.toUpperCase();
-    } else if (session && session.role !== 'ADMIN') {
+    } else if (session && session.role === 'CLIENT') {
       query.facilityId = { $in: session.authorizedFacilityIds || [] };
     }
 

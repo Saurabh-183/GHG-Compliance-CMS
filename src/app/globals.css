@@ -139,6 +139,10 @@ a.bg-rose-600 *,
 [class*="bg-[#8C594E]"] *,
 .btn-primary,
 .btn-primary *,
+span[class*="bg-[#17365D]"],
+span[class*="bg-[#17365D]"] *,
+span[class*="bg-emerald-700"],
+span[class*="bg-emerald-700"] *,
 .\!text-white,
 .\!text-white * {
   color: #FFFFFF !important;
@@ -420,6 +424,16 @@ html.light [class*="bg-[#102947]"] {
   border-color: #17365D !important;
 }
 
+/* Framework selection badges: High contrast white text in light and dark mode */
+html.light span[class*="!bg-emerald-600"],
+html:not(.dark) span[class*="!bg-emerald-600"],
+button span[class*="!bg-emerald-600"],
+button[class*="border-emerald"] span[class*="!bg-emerald-600"],
+div span[class*="!bg-emerald-600"] {
+  background-color: #059669 !important;
+  color: #FFFFFF !important;
+}
+
 html:not(.dark) button.bg-emerald-700:hover,
 html:not(.dark) button.bg-emerald-600:hover,
 html:not(.dark) a.bg-emerald-700:hover,
@@ -519,8 +533,8 @@ html:not(.dark) div[class*="bg-slate-"] > div.text-white:not(button):not(button 
 html:not(.dark) div[class*="bg-slate-"] > .text-white:not(button):not(button *):not(a):not(a *):not(.user-avatar):not(.user-avatar *):not([class*="bg-emerald"]):not([class*="bg-[#17365D]"]):not(.\!text-white):not(.\!text-white *),
 html.light div[class*="bg-slate-"] > div.text-white:not(button):not(button *):not(a):not(a *):not(.user-avatar):not(.user-avatar *):not([class*="bg-emerald"]):not([class*="bg-[#17365D]"]):not(.\!text-white):not(.\!text-white *),
 html.light div[class*="bg-slate-"] > .text-white:not(button):not(button *):not(a):not(a *):not(.user-avatar):not(.user-avatar *):not([class*="bg-emerald"]):not([class*="bg-[#17365D]"]):not(.\!text-white):not(.\!text-white *),
-html:not(.dark) .text-white:not(button.bg-emerald-700):not(button.bg-emerald-700 *):not(button.bg-emerald-600):not(button.bg-emerald-600 *):not(button.bg-emerald-800):not(button.bg-emerald-800 *):not(a.bg-emerald-700):not(a.bg-emerald-700 *):not(a.bg-emerald-600):not(a.bg-emerald-600 *):not(button.bg-rose-600):not(button.bg-rose-600 *):not(button.bg-rose-700):not(button.bg-rose-700 *):not(a.bg-rose-600):not(a.bg-rose-600 *):not([class*="bg-[#17365D]"]):not([class*="bg-[#17365D]"] *):not([class*="bg-[#102947]"]):not([class*="bg-[#102947]"] *):not([class*="bg-[#A56F63]"]):not([class*="bg-[#A56F63]"] *):not([class*="bg-[#8C594E]"]):not([class*="bg-[#8C594E]"] *):not(.user-avatar):not(.user-avatar *):not(.notification-badge):not(.notification-badge *):not(.\!text-white):not(.\!text-white *):not(.text-white\!),
-html.light .text-white:not(button.bg-emerald-700):not(button.bg-emerald-700 *):not(button.bg-emerald-600):not(button.bg-emerald-600 *):not(button.bg-emerald-800):not(button.bg-emerald-800 *):not(a.bg-emerald-700):not(a.bg-emerald-700 *):not(a.bg-emerald-600):not(a.bg-emerald-600 *):not(button.bg-rose-600):not(button.bg-rose-600 *):not(button.bg-rose-700):not(button.bg-rose-700 *):not(a.bg-rose-600):not(a.bg-rose-600 *):not([class*="bg-[#17365D]"]):not([class*="bg-[#17365D]"] *):not([class*="bg-[#102947]"]):not([class*="bg-[#102947]"] *):not([class*="bg-[#A56F63]"]):not([class*="bg-[#A56F63]"] *):not([class*="bg-[#8C594E]"]):not([class*="bg-[#8C594E]"] *):not(.user-avatar):not(.user-avatar *):not(.notification-badge):not(.notification-badge *):not(.\!text-white):not(.\!text-white *):not(.text-white\!) {
+html:not(.dark) .text-white:not(button.bg-emerald-700):not(button.bg-emerald-700 *):not(button.bg-emerald-600):not(button.bg-emerald-600 *):not(button.bg-emerald-800):not(button.bg-emerald-800 *):not(a.bg-emerald-700):not(a.bg-emerald-700 *):not(a.bg-emerald-600):not(a.bg-emerald-600 *):not(button.bg-rose-600):not(button.bg-rose-600 *):not(button.bg-rose-700):not(button.bg-rose-700 *):not(a.bg-rose-600):not(a.bg-rose-600 *):not([class*="bg-[#17365D]"]):not([class*="bg-[#17365D]"] *):not([class*="bg-[#102947]"]):not([class*="bg-[#102947]"] *):not([class*="bg-[#A56F63]"]):not([class*="bg-[#A56F63]"] *):not([class*="bg-[#8C594E]"]):not([class*="bg-[#8C594E]"] *):not(.user-avatar):not(.user-avatar *):not(.notification-badge):not(.notification-badge *):not(.\!text-white):not(.\!text-white *):not(.text-white\!):not(.framework-badge-enabled):not(.framework-badge-enabled *):not([class*="bg-emerald"]):not([class*="bg-emerald"] *),
+html.light .text-white:not(button.bg-emerald-700):not(button.bg-emerald-700 *):not(button.bg-emerald-600):not(button.bg-emerald-600 *):not(button.bg-emerald-800):not(button.bg-emerald-800 *):not(a.bg-emerald-700):not(a.bg-emerald-700 *):not(a.bg-emerald-600):not(a.bg-emerald-600 *):not(button.bg-rose-600):not(button.bg-rose-600 *):not(button.bg-rose-700):not(button.bg-rose-700 *):not(a.bg-rose-600):not(a.bg-rose-600 *):not([class*="bg-[#17365D]"]):not([class*="bg-[#17365D]"] *):not([class*="bg-[#102947]"]):not([class*="bg-[#102947]"] *):not([class*="bg-[#A56F63]"]):not([class*="bg-[#A56F63]"] *):not([class*="bg-[#8C594E]"]):not([class*="bg-[#8C594E]"] *):not(.user-avatar):not(.user-avatar *):not(.notification-badge):not(.notification-badge *):not(.\!text-white):not(.\!text-white *):not(.text-white\!):not(.framework-badge-enabled):not(.framework-badge-enabled *):not([class*="bg-emerald"]):not([class*="bg-emerald"] *) {
   color: #1E293B !important;
 }
 
@@ -1306,4 +1320,16 @@ html.dark .Toastify__progress-bar--warning { background: #F59E0B !important; }
 
 .animate-cc-logo {
   animation: cc-spin-clean 6s linear infinite;
+}
+
+/* Framework selection badges: Strict high-contrast white text in both light and dark mode */
+html.light .framework-badge-enabled,
+html:not(.dark) .framework-badge-enabled,
+.framework-badge-enabled,
+button .framework-badge-enabled,
+div .framework-badge-enabled,
+span.framework-badge-enabled {
+  background-color: #059669 !important;
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
 }

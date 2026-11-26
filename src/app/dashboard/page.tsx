@@ -12,6 +12,7 @@ import {
   CheckCircle2,
   ArrowRight,
   TrendingUp,
+  Factory,
 } from 'lucide-react';
 import {
   ICalendarItem,
@@ -54,15 +55,16 @@ export default function DashboardPage() {
   const [groups, setGroups] = useState<IClientGroup[]>([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>('ALL');
   const [checklistFacilityId, setChecklistFacilityId] = useState<string>('');
+  const [dashTab, setDashTab] = useState<'companies' | 'facilities'>('companies');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
       try {
         const [calRes, clarRes, groupsRes] = await Promise.all([
-          fetch('/api/calendar').catch(() => null),
-          fetch('/api/clarifications').catch(() => null),
-          fetch('/api/client-groups').catch(() => null),
+          fetch('/api/calendar', { credentials: 'include', cache: 'no-store' }).catch(() => null),
+          fetch('/api/clarifications', { credentials: 'include', cache: 'no-store' }).catch(() => null),
+          fetch('/api/client-groups', { credentials: 'include', cache: 'no-store' }).catch(() => null),
         ]);
 
         if (calRes?.ok) {
@@ -84,11 +86,20 @@ export default function DashboardPage() {
             data: IClientGroup[];
           };
 
-          setGroups(
-            groupsData.data?.length
-              ? groupsData.data
-              : buildMockGroupsWithFacilities()
+          const dbGroups = groupsData.data || [];
+          const mockGroups = buildMockGroupsWithFacilities();
+          const dbNames = new Set(dbGroups.map((g) => g.name.trim().toLowerCase()));
+          const dbCodes = new Set(dbGroups.map((g) => (g.code || '').trim().toLowerCase()));
+          const dbIds = new Set(dbGroups.map((g) => String(g._id)));
+
+          const filteredMocks = mockGroups.filter(
+            (m) =>
+              !dbIds.has(String(m._id)) &&
+              !dbNames.has(m.name.trim().toLowerCase()) &&
+              !dbCodes.has((m.code || '').trim().toLowerCase())
           );
+
+          setGroups([...dbGroups, ...filteredMocks]);
         } else {
           setGroups(buildMockGroupsWithFacilities());
         }
@@ -203,14 +214,40 @@ export default function DashboardPage() {
       </div>
 
       {/* Dynamic Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {/* Client Companies */}
+        <Link
+          href="/clients"
+          className="p-5 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm hover:border-emerald-500/50 transition-all block group cursor-pointer"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-slate-500 dark:text-slate-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
+              Client Companies
+            </span>
+            <Building2 className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+          </div>
+
+          <div className="text-2xl font-bold text-slate-900 dark:text-white mt-2">
+            {groups.length}
+          </div>
+
+          <div className="text-[11px] text-emerald-700 dark:text-emerald-400 mt-1 truncate">
+            {groups.length > 0
+              ? groups
+                  .slice(0, 3)
+                  .map((g) => g.name.split(' ')[0])
+                  .join(', ') + (groups.length > 3 ? '...' : '')
+              : 'No client companies registered'}
+          </div>
+        </Link>
+
         {/* Assigned Facilities */}
         <div className="p-5 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
               {selectedGroup ? 'Assigned Operating Units' : 'Assigned Facilities'}
             </span>
-            <Building2 className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+            <Factory className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
           </div>
 
           <div className="text-2xl font-bold text-slate-900 dark:text-white mt-2">
@@ -226,7 +263,12 @@ export default function DashboardPage() {
                     .join(', ') +
                   (currentFacilities.length > 3 ? '...' : '')
                 : 'No facilities registered'
-              : 'Trident, UltraTech, Hero, Jindal...'}
+              : allFacilities.length > 0
+                ? allFacilities
+                    .slice(0, 3)
+                    .map((f) => f.name.split(' ')[0])
+                    .join(', ') + (allFacilities.length > 3 ? '...' : '')
+                : 'No operating units'}
           </div>
         </div>
 
@@ -443,22 +485,47 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Registered Client Facilities */}
+        {/* Registered Client Companies & Operating Facilities */}
         <div className="rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-5 shadow-sm space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
               <Building2 className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
 
-              <span>
-                {selectedGroup
-                  ? `${selectedGroup.name} Facilities (${currentFacilities.length})`
-                  : 'Registered Client Facilities'}
-              </span>
-            </h3>
+              {selectedGroup ? (
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                  {selectedGroup.name} Facilities ({currentFacilities.length})
+                </h3>
+              ) : (
+                <div className="inline-flex items-center p-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                  <button
+                    type="button"
+                    onClick={() => setDashTab('companies')}
+                    className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-all ${
+                      dashTab === 'companies'
+                        ? 'bg-white dark:bg-slate-900 text-emerald-800 dark:text-emerald-400 shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    Client Companies ({groups.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDashTab('facilities')}
+                    className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-all ${
+                      dashTab === 'facilities'
+                        ? 'bg-white dark:bg-slate-900 text-emerald-800 dark:text-emerald-400 shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    Operating Units ({totalUnitsCount})
+                  </button>
+                </div>
+              )}
+            </div>
 
             <Link
               href={selectedGroup ? `/clients/${selectedGroup._id}` : '/clients'}
-              className="text-xs text-emerald-700 dark:text-emerald-400 hover:underline"
+              className="text-xs text-emerald-700 dark:text-emerald-400 hover:underline shrink-0"
             >
               {selectedGroup
                 ? `View All ${currentFacilities.length} Units →`
@@ -467,43 +534,115 @@ export default function DashboardPage() {
           </div>
 
           <div className="space-y-3">
-            {currentFacilities.slice(0, 4).map((facility) => (
-              <div
-                key={facility._id || facility.facilityId}
-                className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 hover:border-emerald-500/40 transition-colors"
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <div className="min-w-0">
-                    <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
-                      {facility.name}
-                    </h4>
+            {!selectedGroup && dashTab === 'companies' ? (
+              <>
+                {groups.slice(0, 5).map((group) => {
+                  const facCount = group.totalFacilitiesCount ?? (group.facilities?.length || 0);
+                  const fws = Array.isArray(group.enabledFrameworks) && group.enabledFrameworks.length > 0
+                    ? group.enabledFrameworks
+                    : ['RCO', 'PAT', 'CCTS'];
 
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                      {facility.location} · {facility.category}
-                    </p>
+                  return (
+                    <div
+                      key={group._id}
+                      className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 hover:border-emerald-500/40 transition-colors"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="min-w-0">
+                          <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
+                            {group.name}
+                          </h4>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                            {group.industry || 'Industrial / Manufacturing'}{group.headquarters ? ` · ${group.headquarters}` : ''}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedCompanyId(group._id)}
+                            className="px-2 py-1 text-[11px] rounded bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700 font-medium transition-colors cursor-pointer"
+                            title="Filter dashboard to this client company"
+                          >
+                            Scope View
+                          </button>
+                          <Link
+                            href={`/clients/${group._id}`}
+                            className="px-2.5 py-1 text-xs rounded bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20 font-semibold transition-colors"
+                          >
+                            View Units
+                          </Link>
+                        </div>
+                      </div>
+
+                      <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 text-[11px]">
+                        <div className="flex items-center gap-1">
+                          <span className="text-[10px] text-slate-500 dark:text-slate-400">Frameworks:</span>
+                          {fws.map((fw) => (
+                            <span
+                              key={fw}
+                              className="px-1.5 py-0.2 rounded text-[9px] font-bold tracking-wider bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60"
+                            >
+                              {fw}
+                            </span>
+                          ))}
+                        </div>
+
+                        <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">
+                          {facCount} {facCount === 1 ? 'Operating Unit' : 'Operating Units'}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {groups.length === 0 && (
+                  <div className="text-center py-8 text-xs text-slate-500 dark:text-slate-400">
+                    No client companies registered yet.
                   </div>
-                  <Link
-                    href={`/facilities/${facility.facilityId}`}
-                    className="px-2.5 py-1 text-xs rounded bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20 font-semibold transition-colors shrink-0"
+                )}
+              </>
+            ) : (
+              <>
+                {currentFacilities.slice(0, 5).map((facility) => (
+                  <div
+                    key={facility._id || facility.facilityId}
+                    className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 hover:border-emerald-500/40 transition-colors"
                   >
-                    Open Facility
-                  </Link>
-                </div>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="min-w-0">
+                        <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
+                          {facility.name}
+                        </h4>
 
-                <div className="mt-2.5 flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
-                  <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                    {facility.facilityId}
-                  </span>
-                  <span>·</span>
-                  <span>Active BEE/CCTS Monitoring</span>
-                </div>
-              </div>
-            ))}
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                          {facility.location} · {facility.category}
+                        </p>
+                      </div>
+                      <Link
+                        href={`/facilities/${facility.facilityId}`}
+                        className="px-2.5 py-1 text-xs rounded bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20 font-semibold transition-colors shrink-0"
+                      >
+                        Open Facility
+                      </Link>
+                    </div>
 
-            {currentFacilities.length === 0 && (
-              <div className="text-center py-8 text-xs text-slate-500 dark:text-slate-400">
-                No facilities registered for this company yet.
-              </div>
+                    <div className="mt-2.5 flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+                      <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                        {facility.facilityId}
+                      </span>
+                      <span>·</span>
+                      <span>Active BEE/CCTS Monitoring</span>
+                    </div>
+                  </div>
+                ))}
+
+                {currentFacilities.length === 0 && (
+                  <div className="text-center py-8 text-xs text-slate-500 dark:text-slate-400">
+                    No facilities registered for this company yet.
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
