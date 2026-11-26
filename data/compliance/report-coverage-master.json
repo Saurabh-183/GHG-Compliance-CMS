@@ -1,0 +1,865 @@
+{
+  "source": "Report Current Status - Copy of Status.pdf",
+  "sourceDate": "2026-11-26",
+  "notes": [
+    "PAT and CCTS checkboxes represent FY2025-26 only, as confirmed by the user.",
+    "RCO FY2024-25, RCO FY2025-26, RPO FY2024-25, and RPO FY2025-26 are separate source columns and create independent applicability records and matrix rows.",
+    "A checked checkbox means this report/year is in the supplied coverage list; unchecked means not applicable for this historical coverage matrix.",
+    "No FY2026-27 coverage is inferred.",
+    "The report-status list is authoritative for historical report coverage. The company/facility directory PDF is an older hierarchy reference and must not cause valid report rows to be dropped.",
+    "Hero MotoCorp - Jaipur is matched to the existing Hero MotoCorp - Rajasthan facility record; its stable facilityId is retained and the display name is aligned to the report list.",
+    "SPNG Group - Iron and Steel is matched to the existing Galvalia Ispat facility record; its stable facilityId is retained and the display name is aligned to the report list.",
+    "Jodhani Paper Unit 1 reuses the existing Jodhani Paper facilityId; Units 2 and 3 are provisioned as separate facilities under the Jodhani Paper client group.",
+    "Missing report-list facilities are provisioned under their report-list parent groups; existing facilities and historical records are not deleted."
+  ],
+  "facilities": [
+    {
+      "name": "ABC Impex",
+      "rco": [],
+      "rpo": [],
+      "ccts": false,
+      "pat": false
+    },
+    {
+      "name": "Anand Triplex",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ],
+      "rpo": [],
+      "ccts": true,
+      "pat": false
+    },
+    {
+      "name": "The Ganga Kisan Sahkari Chini Mills Limited, Morna",
+      "rco": [
+        "FY2024-25"
+      ]
+    },
+    {
+      "name": "Sarjoo Sahkari Chini Mills Ltd., Belrayan Kheri",
+      "rco": [
+        "FY2024-25"
+      ]
+    },
+    {
+      "name": "The Bagpath Co-op Sugar Mill Ltd., Bagpath",
+      "rco": [
+        "FY2024-25"
+      ]
+    },
+    {
+      "name": "Ramala Sahkari Chini Mills Ltd., Ramala",
+      "rco": [
+        "FY2024-25"
+      ]
+    },
+    {
+      "name": "The Kisan Sahakari Chinni Mill Ltd., Tilhar",
+      "rco": [
+        "FY2024-25"
+      ]
+    },
+    {
+      "name": "The Kisan Sahakri Chinni Mill Ltd., Sampurnanagar",
+      "rco": [
+        "FY2024-25"
+      ]
+    },
+    {
+      "name": "The Kisan Sahakari Chinni Mill Ltd., Snehroad",
+      "rco": [
+        "FY2024-25"
+      ]
+    },
+    {
+      "name": "Shravasti Kisan Sahkari Chini Mills Limited, Nanpara",
+      "rco": [
+        "FY2024-25"
+      ]
+    },
+    {
+      "name": "Kisan Sahkari Chinni Mills Ltd, Semikhera",
+      "rco": [
+        "FY2024-25"
+      ]
+    },
+    {
+      "name": "Wave Industries (Sugar Mill - Dhanaura)",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Wave Industries (Sugar Mill - Bijnor)",
+      "rco": [
+        "FY2024-25"
+      ]
+    },
+    {
+      "name": "Wave Industries (Sugar Mill - Bulandshahr)",
+      "rco": [
+        "FY2024-25"
+      ]
+    },
+    {
+      "name": "Wave Industries (Sugar Mill - Amroha)",
+      "rco": [
+        "FY2024-25"
+      ]
+    },
+    {
+      "name": "Wave Industries (Sugar Mill - Saharanpur)",
+      "rco": [
+        "FY2024-25"
+      ]
+    },
+    {
+      "name": "Gris Ceramics",
+      "rco": [
+        "FY2024-25"
+      ],
+      "aliases": [
+        "Gris Ceramics Pvt Ltd."
+      ]
+    },
+    {
+      "name": "Adhunik Metallicks",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ],
+      "clientGroupName": "Adhunik Metallicks",
+      "facilityId": "ENG_ADHUNIK_METALLICKS"
+    },
+    {
+      "name": "Sillverton Industries",
+      "rco": [
+        "FY2025-26"
+      ],
+      "pat": true,
+      "rpo": [
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Sillvertoan Papers",
+      "rco": [
+        "FY2025-26"
+      ],
+      "pat": true
+    },
+    {
+      "name": "Kotputli Cement Works (Ultratech Cement)",
+      "rco": [
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Aditya Cement Works (Ultratech Cement)",
+      "rco": [
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Jharsugda Cement Works (Ultratech Cement)",
+      "rco": [
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Pali Cement Works (Ultratech Cement)",
+      "rco": [
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Roorkee Cement Works (Ultratech Cement)",
+      "rco": [
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Vikram Cement Works (Ultratech Cement)",
+      "rco": [
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Bela Cement Works (Ultratech Cement)",
+      "rco": [
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Sidhi Cement Works (Ultratech Cement)",
+      "rco": [
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Mahihar Cement Works (Ultratech Cement)",
+      "rco": [
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Nathdwara Cement Works (Ultratech Cement)",
+      "rco": [
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Cuttack Cement Works (Ultratech Cement)",
+      "rco": [
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Nandan Denim Limited - Vraj",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ],
+      "pat": true
+    },
+    {
+      "name": "Nandan Denim Limited - Piplaj",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ],
+      "ccts": true
+    },
+    {
+      "name": "Nandan Terry Towel",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Chirpal Industries - Fabric Divison",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ],
+      "ccts": true
+    },
+    {
+      "name": "Quality Exim",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Vishal Fabrics",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Chiripal Textile Cotton Mill",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Chirpal Polyfilms Limited",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Jharkhand Ispat Limited",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Maa Chinamastika Limited",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Bhramputra Metalics",
+      "rco": [
+        "FY2024-25"
+      ]
+    },
+    {
+      "name": "Crackers Alloy India Limited",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "N R Agarwal Unit 1",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ],
+      "ccts": true
+    },
+    {
+      "name": "N R Agarwal Unit 5",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ],
+      "ccts": true
+    },
+    {
+      "name": "Trident Group - Yarn",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ],
+      "ccts": true
+    },
+    {
+      "name": "Trident Group - Home Textile",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ],
+      "ccts": true
+    },
+    {
+      "name": "Trident Group - Paper Division",
+      "rco": [
+        "FY2025-26"
+      ],
+      "ccts": true
+    },
+    {
+      "name": "GM Fabrics",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Jani Sales Pvt Ltd",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "DY Patil Sugar Mill",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Thorat Sugar Mill",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Maheshwari Logistics - Paper Division",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Kherani Paper Limited",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Gayatrishakti Paper & Board Unit 1",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Gayatrishakti Paper & Board Unit 2",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Jaincord Industries Pvt Ltd",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "R C J C",
+      "rco": [
+        "FY2024-25"
+      ],
+      "clientGroupName": "R C J C",
+      "facilityId": "PAPER_RCJC"
+    },
+    {
+      "name": "Revival Papers Pvt Ltd",
+      "rco": [
+        "FY2024-25"
+      ],
+      "clientGroupName": "Revival Papers Pvt Ltd",
+      "facilityId": "PAPER_REVIVAL_PAPERS"
+    },
+    {
+      "name": "Mehali Paper Pvt Ltd",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Sainson Paper Industries",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Nikita Paper Limited",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Janki Newsprint Limited",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Bahl Paper Mills",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ],
+      "ccts": true
+    },
+    {
+      "name": "Genus Paper & Board - MUZ",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ],
+      "ccts": true
+    },
+    {
+      "name": "Genus Paper & Board - MBD",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ],
+      "pat": true
+    },
+    {
+      "name": "Bindlas Duplux Limited",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Tehri Paper Pvt Ltd",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Agarwal Duplex Pvt Ltd",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ],
+      "ccts": true
+    },
+    {
+      "name": "Dev Priya Papers",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ],
+      "ccts": true
+    },
+    {
+      "name": "Dev Priya Industries",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ],
+      "ccts": true
+    },
+    {
+      "name": "Dev Priya Products",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ],
+      "ccts": true,
+      "cea": true
+    },
+    {
+      "name": "Sangal Papers Limited",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ],
+      "ccts": true
+    },
+    {
+      "name": "Hero MotoCorp - Dharuhera",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Hero MotoCorp - Gurgaon",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ],
+      "aliases": [
+        "Hero MotoCorp - Gurgaoon"
+      ]
+    },
+    {
+      "name": "Hero MotoCorp - Haridwar",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Hero MotoCorp - Jaipur",
+      "rco": [],
+      "rpo": [
+        "FY2024-25",
+        "FY2025-26"
+      ],
+      "clientGroupName": "Hero MotoCorp",
+      "facilityId": "HERO_RAJASTHAN",
+      "aliases": [
+        "Hero MotoCorp - Rajasthan"
+      ]
+    },
+    {
+      "name": "Hero MotoCorp - Gujarat",
+      "rco": [],
+      "rpo": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "SPNG Group - Textile",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "SPNG Group - Iron and Steel",
+      "rco": [
+        "FY2025-26"
+      ],
+      "clientGroupName": "SPNG Ltd",
+      "facilityId": "ENG_GALVALIA",
+      "aliases": [
+        "Galvalia Ispat"
+      ]
+    },
+    {
+      "name": "KIC Metaliks",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ],
+      "pat": true
+    },
+    {
+      "name": "Jindal Creations",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ],
+      "pat": true
+    },
+    {
+      "name": "Jindal Worldwide",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ],
+      "ccts": true
+    },
+    {
+      "name": "Yash Exports",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Yash Weavers",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Gayatri Weavers",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Amitara Weavers",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Bhagylaxmi Weavers",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Planet Spintex",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Belaj",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Niharika Deepshika",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Anjani Synthetics",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ],
+      "pat": true
+    },
+    {
+      "name": "Kajaria Ceramics - Gailpur",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Kajaria Ceramics - Malutana",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ],
+      "cea": true
+    },
+    {
+      "name": "Kajaria Ceramics - Sikanderabad",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Kajaria Ceramics - Srikalahasti",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "India Cements Limited (Ultratech Cement)",
+      "rco": [
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Dadri Cements Limited (Ultratech Cement)",
+      "rco": [
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Sikanderabad Cement Limited (Ultratech Cement)",
+      "rco": [
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Narmada Cement Works (Ultratech Cement)",
+      "rco": [
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Aligarh Cement Works (Ultratech Cement)",
+      "rco": [
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Tanda Cement Works (Ultratech Cement)",
+      "rco": [
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Panipat Cement Works (Ultratech Cement)",
+      "rco": [
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Parli Cement Works (Ultratech Cement)",
+      "rco": [
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Maddala Cement Works (Ultratech Cement)",
+      "rco": [
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Arakkonam Cement Works (Ultratech Cement)",
+      "rco": [
+        "FY2025-26"
+      ]
+    },
+    {
+      "name": "Himmatsingka Linnens",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ],
+      "pat": true,
+      "cea": true
+    },
+    {
+      "name": "Arvind Limited - Naroda",
+      "rco": [
+        "FY2025-26"
+      ],
+      "clientGroupName": "Arvind Limited",
+      "facilityId": "ARVIND_NARODA"
+    },
+    {
+      "name": "Arvind Limited - Intex",
+      "rco": [
+        "FY2025-26"
+      ],
+      "clientGroupName": "Arvind Limited",
+      "facilityId": "ARVIND_INTEX"
+    },
+    {
+      "name": "Arvind Limited - Gandhinagar",
+      "rco": [
+        "FY2025-26"
+      ],
+      "clientGroupName": "Arvind Limited",
+      "facilityId": "ARVIND_GANDHINAGAR"
+    },
+    {
+      "name": "Arvind Limited - Ankur",
+      "rco": [
+        "FY2025-26"
+      ],
+      "clientGroupName": "Arvind Limited",
+      "facilityId": "ARVIND_ANKUR"
+    },
+    {
+      "name": "Noble Tech",
+      "rco": []
+    },
+    {
+      "name": "Jodhani Paper Unit 1",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ],
+      "clientGroupName": "Jodhani Paper",
+      "facilityId": "PAPER_JODHANI",
+      "aliases": [
+        "Jodhani Paper"
+      ]
+    },
+    {
+      "name": "Jodhani Paper Unit 2",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ],
+      "clientGroupName": "Jodhani Paper",
+      "facilityId": "PAPER_JODHANI_UNIT_2"
+    },
+    {
+      "name": "Jodhani Paper Unit 3",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ],
+      "clientGroupName": "Jodhani Paper",
+      "facilityId": "PAPER_JODHANI_UNIT_3"
+    },
+    {
+      "name": "Indian Acrylics",
+      "rco": [
+        "FY2024-25",
+        "FY2025-26"
+      ],
+      "ccts": true,
+      "clientGroupName": "Indian Acrylics",
+      "facilityId": "ENG_INDIAN_ACRYLICS"
+    },
+    {
+      "name": "Menu Paper Ltd",
+      "rco": [
+        "FY2024-25"
+      ],
+      "aliases": [
+        "Menu Paper"
+      ]
+    }
+  ]
+}

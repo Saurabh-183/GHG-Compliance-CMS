@@ -27,8 +27,8 @@ const ClientGroupSchema = new Schema<IClientGroupDocument>(
     capacity: { type: String, trim: true },
     managerName: { type: String, trim: true },
     enabledFrameworks: {
-      type: [{ type: String, enum: ['RCO', 'PAT', 'CCTS'] }],
-      default: ['RCO', 'PAT', 'CCTS'],
+      type: [{ type: String, enum: ['RCO', 'RPO', 'PAT', 'CCTS'] }],
+      default: ['RCO', 'RPO', 'PAT', 'CCTS'],
     },
     contactPerson: {
       name: { type: String, required: true },

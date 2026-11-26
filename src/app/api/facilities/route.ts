@@ -4,7 +4,6 @@ import { connectToDatabase } from '@/lib/db';
 import { FacilityModel } from '@/models/Facility';
 import { ClientGroupModel } from '@/models/ClientGroup';
 import { UserModel } from '@/models/User';
-import { ComplianceApplicabilityModel } from '@/models/ComplianceApplicability';
 import type { ComplianceType } from '@/types';
 import { getSessionFromRequest, authorizeRole, signToken } from '@/lib/auth';
 import {
@@ -242,7 +241,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const validFrameworks: ComplianceType[] = ['RCO', 'PAT', 'CCTS'];
+    const validFrameworks: ComplianceType[] = ['RCO', 'RPO', 'PAT', 'CCTS'];
     const facilityEnabledFrameworks: ComplianceType[] =
       Array.isArray(body.enabledFrameworks)
         ? (body.enabledFrameworks.filter((f) => validFrameworks.includes(f as ComplianceType)) as ComplianceType[])
@@ -250,7 +249,7 @@ export async function POST(request: NextRequest) {
 
     if (facilityEnabledFrameworks.length === 0) {
       return NextResponse.json(
-        { error: 'At least one statutory compliance framework (RCO, PAT, or CCTS) must be enabled for this facility.' },
+        { error: 'At least one statutory compliance framework (RCO, RPO, PAT, or CCTS) must be enabled for this facility.' },
         { status: 400 }
       );
     }
@@ -273,32 +272,10 @@ export async function POST(request: NextRequest) {
         : undefined,
     });
 
-    try {
-      const { generateFacilityApplicabilities } = await import('@/lib/complianceMatrixData');
-      const defaultApps = generateFacilityApplicabilities(uniqueFacilityId, name);
-      if (defaultApps.length > 0) {
-        await ComplianceApplicabilityModel.insertMany(
-          defaultApps.map((app) => ({
-            facilityId: app.facilityId,
-            complianceType: app.complianceType,
-            period: app.period,
-            isApplicable: facilityEnabledFrameworks.includes(app.complianceType),
-            authority: app.authority,
-            ministry: app.ministry,
-            notificationReference: app.notificationReference,
-            targetValue: app.targetValue,
-            targetUnit: app.targetUnit,
-            targetMethodology: app.targetMethodology,
-            deadline: app.deadline ? new Date(app.deadline) : null,
-            workflowStatus: app.workflowStatus,
-            complianceOutcome: app.complianceOutcome,
-            notes: app.notes,
-          }))
-        );
-      }
-    } catch (appErr) {
-      console.warn('Facility initial applicability creation notice:', appErr);
-    }
+    // New facilities start with no compliance applicability. A consultant/admin
+    // must explicitly configure each framework and reporting period; do not seed
+    // generic records for every newly created facility.
+
 
     // Update authorizedFacilityIds in UserModel for the creator
     if (session.userId) {

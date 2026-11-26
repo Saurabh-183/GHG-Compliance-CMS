@@ -180,68 +180,7 @@ export async function GET(
       formattedExistingAsms as any
     );
 
-    // Persist generated applicability records only for real DB facilities.
-    if (
-      !isMockFacility &&
-      applicabilityRecords.length === 0 &&
-      applicabilities.length > 0
-    ) {
-      try {
-        await ComplianceApplicabilityModel.insertMany(
-          applicabilities.map((app) => ({
-            facilityId: app.facilityId,
-            complianceType: app.complianceType,
-            period: app.period,
-            isApplicable: app.isApplicable,
-            authority: app.authority,
-            ministry: app.ministry,
-            notificationReference: app.notificationReference,
-            targetValue: app.targetValue,
-            targetUnit: app.targetUnit,
-            targetMethodology: app.targetMethodology,
-            deadline: app.deadline ? new Date(app.deadline) : null,
-            workflowStatus: app.workflowStatus,
-            complianceOutcome: app.complianceOutcome,
-            notes: app.notes,
-          })),
-          { ordered: false }
-        );
-      } catch (insertError) {
-        console.warn(
-          'Could not persist generated applicability records:',
-          insertError
-        );
-      }
-    }
-
-    // Persist generated assessments only for real DB facilities.
-    if (
-      !isMockFacility &&
-      assessments.length === 0 &&
-      generatedAssessments.length > 0
-    ) {
-      try {
-        await AssessmentModel.insertMany(
-          generatedAssessments.map((assessment) => ({
-            facilityId: assessment.facilityId,
-            complianceType: assessment.complianceType,
-            period: assessment.period,
-            workflowStatus: assessment.workflowStatus,
-            complianceOutcome: assessment.complianceOutcome,
-            isHistorical: assessment.isHistorical || false,
-            version: assessment.version || 1,
-            documentLinks: assessment.documentLinks,
-            metrics: assessment.metrics,
-          })),
-          { ordered: false }
-        );
-      } catch (insertError) {
-        console.warn(
-          'Could not persist generated assessments:',
-          insertError
-        );
-      }
-    }
+    // Read-only endpoint: never create applicability or assessment records as a side effect.
 
     // Ensure facility enabledFrameworks are strictly respected in the matrix
     const facEnabled = (facility as any).enabledFrameworks as ComplianceType[] | undefined;

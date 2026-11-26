@@ -11,7 +11,10 @@
     "clients:reset-passwords": "node --env-file=.env migrate-company-facility-mapping.mjs --apply --reset-passwords",
     "admin:create": "node --env-file=.env scripts/create-admin.mjs",
     "account:reset-password": "node --env-file=.env scripts/set-user-password.mjs",
-    "clients:require-password-change": "node --env-file=.env scripts/require-client-password-change.mjs"
+    "clients:require-password-change": "node --env-file=.env scripts/require-client-password-change.mjs",
+    "compliance:coverage:dry-run": "node --env-file=.env scripts/sync-report-coverage-master.mjs",
+    "compliance:coverage:apply": "node --env-file=.env scripts/sync-report-coverage-master.mjs --apply",
+    "compliance:coverage:verify": "node scripts/verify-report-coverage-master.mjs"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

@@ -182,7 +182,7 @@ export async function PATCH(
     const body = await request.json();
 
     if (Array.isArray(body.enabledFrameworks)) {
-      const valid: ComplianceType[] = ['RCO', 'PAT', 'CCTS'];
+      const valid: ComplianceType[] = ['RCO', 'RPO', 'PAT', 'CCTS'];
       const filtered = body.enabledFrameworks.filter((f: any) => valid.includes(f));
       facility.enabledFrameworks = filtered;
 

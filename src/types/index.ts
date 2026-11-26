@@ -17,7 +17,7 @@ export interface IUser {
   mustChangePassword?: boolean;
 }
 
-export type ComplianceType = 'RCO' | 'PAT' | 'CCTS';
+export type ComplianceType = 'RCO' | 'RPO' | 'PAT' | 'CCTS';
 
 export type WorkflowStatus =
   | 'NOT_STARTED'

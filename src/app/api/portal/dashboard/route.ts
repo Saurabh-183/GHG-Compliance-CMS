@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
         _id: f._id.toString(),
         clientGroupId: clientGroup?._id ? clientGroup._id.toString() : String(f.clientGroupId),
         clientGroupName: clientGroup?.name || '',
-        enabledFrameworks: clientGroup?.enabledFrameworks || ['RCO', 'PAT', 'CCTS'],
+        enabledFrameworks: clientGroup?.enabledFrameworks || ['RCO', 'RPO', 'PAT', 'CCTS'],
       };
     };
 
@@ -202,7 +202,7 @@ export async function GET(request: NextRequest) {
       .lean();
 
     // 10. Return dashboard data.
-    let groupEnabledFrameworks: string[] = ['RCO', 'PAT', 'CCTS'];
+    let groupEnabledFrameworks: string[] = ['RCO', 'RPO', 'PAT', 'CCTS'];
     if (session?.clientGroupId) {
       const cg = isMongoObjectId(session.clientGroupId)
         ? await ClientGroupModel.findById(session.clientGroupId).select('enabledFrameworks').lean()

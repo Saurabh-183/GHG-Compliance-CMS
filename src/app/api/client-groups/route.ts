@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
         const enabledFrameworks =
           Array.isArray(group.enabledFrameworks) && group.enabledFrameworks.length > 0
             ? group.enabledFrameworks
-            : ['RCO', 'PAT', 'CCTS'];
+            : ['RCO', 'RPO', 'PAT', 'CCTS'];
 
         return {
           ...group,
