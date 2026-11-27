@@ -246,14 +246,7 @@ export async function POST(request: NextRequest) {
     const facilityEnabledFrameworks: ComplianceType[] =
       Array.isArray(body.enabledFrameworks)
         ? (body.enabledFrameworks.filter((f) => validFrameworks.includes(f as ComplianceType)) as ComplianceType[])
-        : validFrameworks;
-
-    if (facilityEnabledFrameworks.length === 0) {
-      return NextResponse.json(
-        { error: 'At least one statutory compliance framework (RCO, RPO, PAT, or CCTS) must be enabled for this facility.' },
-        { status: 400 }
-      );
-    }
+        : [];
 
     const newFacility = await FacilityModel.create({
       facilityId: uniqueFacilityId,

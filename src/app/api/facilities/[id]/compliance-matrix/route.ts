@@ -182,21 +182,22 @@ export async function GET(
 
     // Read-only endpoint: never create applicability or assessment records as a side effect.
 
-    // Ensure facility enabledFrameworks are strictly respected in the matrix
+    // enabledFrameworks is the facility-wide union of frameworks enabled in any
+    // financial year. Per-year applicability remains controlled by the
+    // ComplianceApplicability records used by buildMultiYearComplianceMatrix.
     const facEnabled = (facility as any).enabledFrameworks as ComplianceType[] | undefined;
+    const configuredInRecords = applicabilityRecords
+      .filter((record: any) => record.isApplicable !== false)
+      .map((record: any) => record.complianceType as ComplianceType);
+    const configuredFrameworks = Array.from(
+      new Set([...(facEnabled || []), ...configuredInRecords])
+    );
     const activeFrameworks: ComplianceType[] =
-      facEnabled && Array.isArray(facEnabled) && facEnabled.length > 0
-        ? (COMPLIANCE_FRAMEWORKS as ComplianceType[]).filter((c) => facEnabled.includes(c))
+      configuredFrameworks.length > 0
+        ? (COMPLIANCE_FRAMEWORKS as ComplianceType[]).filter((framework) =>
+            configuredFrameworks.includes(framework)
+          )
         : (COMPLIANCE_FRAMEWORKS as ComplianceType[]);
-
-    (COMPLIANCE_FRAMEWORKS as ComplianceType[]).forEach((comp) => {
-      if (!activeFrameworks.includes(comp) && matrix[comp]) {
-        for (const period of Object.keys(matrix[comp])) {
-          matrix[comp][period].isApplicable = false;
-          matrix[comp][period].complianceOutcome = 'NOT_APPLICABLE';
-        }
-      }
-    });
 
     return NextResponse.json({
       success: true,
@@ -293,21 +294,15 @@ export async function GET(
         resolvedFacility.name
       );
 
-      // Ensure facility enabledFrameworks are strictly respected in the matrix
+      // Mock facilities use the same facility-wide framework union. The matrix
+      // builder still determines applicability independently for each period.
       const facFallbackEnabled = (resolvedFacility as any).enabledFrameworks as ComplianceType[] | undefined;
       const activeFallbackFrameworks: ComplianceType[] =
-        facFallbackEnabled && Array.isArray(facFallbackEnabled) && facFallbackEnabled.length > 0
-          ? (COMPLIANCE_FRAMEWORKS as ComplianceType[]).filter((c) => facFallbackEnabled.includes(c))
+        facFallbackEnabled && facFallbackEnabled.length > 0
+          ? (COMPLIANCE_FRAMEWORKS as ComplianceType[]).filter((framework) =>
+              facFallbackEnabled.includes(framework)
+            )
           : (COMPLIANCE_FRAMEWORKS as ComplianceType[]);
-
-      (COMPLIANCE_FRAMEWORKS as ComplianceType[]).forEach((comp) => {
-        if (!activeFallbackFrameworks.includes(comp) && matrix[comp]) {
-          for (const period of Object.keys(matrix[comp])) {
-            matrix[comp][period].isApplicable = false;
-            matrix[comp][period].complianceOutcome = 'NOT_APPLICABLE';
-          }
-        }
-      });
 
       return NextResponse.json({
         success: true,

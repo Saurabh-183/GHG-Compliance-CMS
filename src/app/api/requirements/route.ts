@@ -4,6 +4,7 @@ import '@/models/Dataset';
 import { connectToDatabase } from '@/lib/db';
 import { DataRequirementModel, type IDataRequirementDocument } from '@/models/DataRequirement';
 import { FacilityModel } from '@/models/Facility';
+import { ComplianceApplicabilityModel } from '@/models/ComplianceApplicability';
 import { ClientGroupModel } from '@/models/ClientGroup';
 import { getSessionFromRequest, isAuthorizedForFacility, authorizeRole } from '@/lib/auth';
 import { ComplianceType, RequestFieldType, ReportingFrequency } from '@/types';
@@ -264,6 +265,22 @@ export async function POST(request: NextRequest) {
         targetFacility.assignedConsultantId.toString() !== session!.userId
       ) {
         return NextResponse.json({ error: `Facility ${fid} is not assigned to you.` }, { status: 403 });
+      }
+
+      // Every linked framework must be explicitly enabled for this facility
+      // and the requested financial year. Facility-wide flags alone are not enough.
+      const normalizedPeriod = /^FY/i.test(body.period) ? body.period.toUpperCase() : `FY${body.period}`;
+      const activeApplicabilities = await ComplianceApplicabilityModel.find({
+        facilityId: fid,
+        complianceType: { $in: linkedCompliances },
+        isApplicable: true,
+        period: { $in: [body.period, normalizedPeriod] },
+      }).select('complianceType').lean();
+      const activeTypes = new Set(activeApplicabilities.map((row) => row.complianceType));
+      const facilityAllowList = Array.isArray(targetFacility.enabledFrameworks) ? targetFacility.enabledFrameworks : [];
+      const invalidFrameworks = linkedCompliances.filter((framework) => !activeTypes.has(framework) || (facilityAllowList.length > 0 && !facilityAllowList.includes(framework)));
+      if (invalidFrameworks.length) {
+        return NextResponse.json({ error: `Cannot request ${invalidFrameworks.join(', ')} data for ${fid} in ${body.period}: the Admin has not enabled it for this financial year.` }, { status: 400 });
       }
 
       const requestId = `DR-${new Date().getFullYear()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;

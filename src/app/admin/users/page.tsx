@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { notify } from '@/lib/notify';
 import { ComplianceType } from '@/types';
+import FacilityComplianceYearSettings from '@/components/admin/FacilityComplianceYearSettings';
 import {
   TextField,
   FormControl,
@@ -476,10 +477,6 @@ export default function AdminUsersPage() {
       notify.error('Please select the Client Company for this facility.');
       return;
     }
-    if (facilityForm.enabledFrameworks.length === 0) {
-      notify.error('Please enable at least one statutory compliance framework for this facility.');
-      return;
-    }
     setFacilityBusy(true);
     setMessage(null);
     try {
@@ -489,7 +486,7 @@ export default function AdminUsersPage() {
         clientGroupId: facilityForm.clientGroupId,
         location: facilityForm.location.trim() || undefined,
         category: facilityForm.category || undefined,
-        enabledFrameworks: facilityForm.enabledFrameworks,
+        enabledFrameworks: [],
         utilityConnection: {
           consumerAccountNumber: facilityForm.consumerAccountNumber.trim() || undefined,
           contractDemand: facilityForm.contractDemand.trim() || undefined,
@@ -1133,12 +1130,7 @@ export default function AdminUsersPage() {
             <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
               <button
                 type="submit"
-                disabled={facilityBusy || facilityForm.enabledFrameworks.length === 0}
-                title={
-                  facilityForm.enabledFrameworks.length === 0
-                    ? 'Enable at least one statutory compliance framework above to register facility'
-                    : undefined
-                }
+                disabled={facilityBusy}
                 className="inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-6 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-emerald-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
               >
                 {facilityBusy ? (
@@ -1156,6 +1148,7 @@ export default function AdminUsersPage() {
             </div>
           </form>
         )}
+        {activeTab === 'FACILITY' && <FacilityComplianceYearSettings />}
 
         {/* 3. Consultant Form */}
         {activeTab === 'CONSULTANT' && (
