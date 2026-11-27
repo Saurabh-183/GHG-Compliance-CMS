@@ -58,13 +58,17 @@ export async function syncClientDeadlineNotifications(session?: {
       req.facilityId
     )}&period=${encodeURIComponent(req.period)}#req-${reqIdStr}`;
 
-    // Deduplication: Avoid duplicate reminders within 24h for the same requirement
+    const isOverdue = daysRemaining < 0;
+    const isToday = daysRemaining === 0;
+
+    // For overdue requirements (due date passed): strictly only allow ONE reminder notification ever.
+    // For upcoming requirements (<= 5 days): deduplicate within the past 24 hours.
     const existing = await Notification.findOne({
       recipientRole: 'CLIENT',
       type: 'DEADLINE_REMINDER',
       facilityId: req.facilityId,
       linkUrl,
-      createdAt: { $gte: past24h },
+      ...(isOverdue ? {} : { createdAt: { $gte: past24h } }),
     });
 
     if (existing) continue;
@@ -75,9 +79,6 @@ export async function syncClientDeadlineNotifications(session?: {
       month: 'short',
       year: 'numeric',
     });
-
-    const isOverdue = daysRemaining < 0;
-    const isToday = daysRemaining === 0;
 
     let title = '';
     let message = '';
@@ -130,13 +131,16 @@ export async function syncClientDeadlineNotifications(session?: {
     const linkUrl = `/calendar?facilityId=${encodeURIComponent(item.facilityId)}`;
     const calKey = `cal-${String(item._id)}`;
 
+    const isOverdue = daysRemaining < 0;
+    const isToday = daysRemaining === 0;
+
     const existing = await Notification.findOne({
       recipientRole: 'CLIENT',
       type: 'DEADLINE_REMINDER',
       facilityId: item.facilityId,
       linkUrl: { $regex: encodeURIComponent(item.facilityId) },
       title: { $regex: item.complianceType, $options: 'i' },
-      createdAt: { $gte: past24h },
+      ...(isOverdue ? {} : { createdAt: { $gte: past24h } }),
     });
 
     if (existing) continue;
@@ -147,9 +151,6 @@ export async function syncClientDeadlineNotifications(session?: {
       month: 'short',
       year: 'numeric',
     });
-
-    const isOverdue = daysRemaining < 0;
-    const isToday = daysRemaining === 0;
 
     let title = '';
     let message = '';

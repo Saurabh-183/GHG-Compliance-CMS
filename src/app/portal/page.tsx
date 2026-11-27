@@ -15,7 +15,6 @@ import {
   TrendingUp,
   CheckCheck,
   CalendarRange,
-  Plus,
   Factory,
 } from 'lucide-react';
 import {
@@ -25,11 +24,6 @@ import {
   SelectChangeEvent,
   TextField,
   InputLabel,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  CircularProgress,
 } from '@mui/material';
 import { notify } from '@/lib/notify';
 import { IDataRequirement, IFacility, IClarification, ComplianceType } from '@/types';
@@ -79,73 +73,6 @@ export default function ClientPortalDashboard() {
   const [selectedPeriod, setSelectedPeriod] = useState(() => readPortalPeriod());
   const hasLoadedOnceRef = useRef(false);
 
-  // Facility Registration Modal State
-  const [isCreateFacilityOpen, setIsCreateFacilityOpen] = useState(false);
-  const [facilityForm, setFacilityForm] = useState({
-    name: '',
-    facilityId: '',
-    location: '',
-    category: 'Pulp & Paper',
-    consumerAccountNumber: '',
-    contractDemand: '',
-  });
-  const [facilityCodeManuallyEdited, setFacilityCodeManuallyEdited] = useState(false);
-  const [isCreatingFacility, setIsCreatingFacility] = useState(false);
-  const [createFacilityError, setCreateFacilityError] = useState<string | null>(null);
-
-  const handleCreateFacility = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!facilityForm.name.trim()) {
-      setCreateFacilityError('Facility name is required');
-      return;
-    }
-    setIsCreatingFacility(true);
-    setCreateFacilityError(null);
-    try {
-      const payload = {
-        name: facilityForm.name.trim(),
-        facilityId: facilityForm.facilityId.trim().toUpperCase() || undefined,
-        location: facilityForm.location.trim() || 'India',
-        category: facilityForm.category || 'General Manufacturing',
-        utilityConnection: {
-          consumerAccountNumber: facilityForm.consumerAccountNumber.trim(),
-          contractDemand: facilityForm.contractDemand.trim(),
-        },
-      };
-
-      const res = await fetch('/api/facilities', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(payload),
-      });
-
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || 'Failed to create facility.');
-
-      notify.success(`Operating facility "${json.data?.name || payload.name}" created successfully!`);
-      setIsCreateFacilityOpen(false);
-      setFacilityForm({
-        name: '',
-        facilityId: '',
-        location: '',
-        category: 'Pulp & Paper',
-        consumerAccountNumber: '',
-        contractDemand: '',
-      });
-      setFacilityCodeManuallyEdited(false);
-
-      await loadPortal(selectedPeriod);
-      if (json.data?.facilityId) {
-        setSelectedFacilityId(json.data.facilityId);
-      }
-    } catch (err) {
-      setCreateFacilityError(err instanceof Error ? err.message : 'Failed to create facility.');
-    } finally {
-      setIsCreatingFacility(false);
-    }
-  };
-
   const loadPortal = useCallback(async (period?: string) => {
     try {
       if (!hasLoadedOnceRef.current) setLoading(true);
@@ -180,7 +107,7 @@ export default function ClientPortalDashboard() {
         setRequestProgress(computePortalDataRequestPercentages(scoped));
         setSubmissionFiles(listClientSubmittedDriveFiles(scoped));
         const directAlerts = extractPortalDeadlineAlerts(scoped);
-        setPortalAlerts((prev) => (directAlerts.length > 0 ? directAlerts : prev));
+        setPortalAlerts(directAlerts);
       } else {
         setRequestProgress(computePortalDataRequestPercentages([]));
         setSubmissionFiles([]);
@@ -383,12 +310,12 @@ export default function ClientPortalDashboard() {
         </div>
       </div>
 
-      {/* Critical Deadline Alert Banner (<= 5 Days or Overdue) */}
+      {/* Critical Deadline Alert Banner (<= 5 Days) */}
       {portalAlerts.length > 0 && (
-        <div className="rounded-2xl border-2 border-rose-500 bg-rose-50 dark:bg-rose-950/60 p-5 sm:p-6 shadow-xl space-y-4 animate-fade-in">
+        <div className="rounded-2xl border-2 bogray-rose-50gray-rose-50 dargray-rose-950/60 p-5 sm:p-6 shadow-xl space-y-4 animate-fade-in">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-rose-600 text-white shadow-md shrink-0 animate-pulse">
+              <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-600 text-white shadow-md shrink-0 animate-pulse">
                 <AlertTriangle className="w-5 h-5" />
               </span>
               <div>
@@ -397,17 +324,17 @@ export default function ClientPortalDashboard() {
                     Urgent Compliance Deadlines ({portalAlerts.length})
                   </h3>
                   <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-2xs">
-                    Due in &le; 5 Days or Past Due
+                    Due in &le; 5 Days
                   </span>
                 </div>
                 <p className="text-xs text-rose-800 dark:text-rose-300 mt-0.5 font-medium">
-                  The following requirements require immediate submission. Please upload your Google Drive evidence and complete submissions to prevent statutory compliance penalties.
+                  The following requirements require immediate submission.<span className='text-black'> Please upload your Google Drive evidence and complete submissions to prevent statutory compliance penalties.</span>
                 </p>
               </div>
             </div>
             <Link
-              href={`/portal/requests${buildPortalScopeQuery(selectedFacilityId, selectedPeriod)}`}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-md transition-colors whitespace-nowrap self-start sm:self-center"
+              href={`/portal/requests${buildPortalScopeQuery(portalAlerts[0]?.facilityId || selectedFacilityId, portalAlerts[0]?.period || selectedPeriod)}`}
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-bluye-600 hover:bg-blue-700 text-black font-bold text-xs shadow-md transition-colors whitespace-nowrap self-start sm:self-center"
             >
               <span>View Data Requests</span>
               <ArrowRight className="w-4 h-4" />
@@ -427,18 +354,14 @@ export default function ClientPortalDashboard() {
                     </span>
                     <span
                       className={`px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wide ${
-                        alert.isOverdue
+                        alert.isToday
                           ? 'bg-rose-600 text-white animate-pulse'
-                          : alert.isToday
-                            ? 'bg-rose-600 text-white'
-                            : 'bg-amber-600 text-white'
+                          : 'bg-amber-600 text-white'
                       }`}
                     >
-                      {alert.isOverdue
-                        ? `${Math.abs(alert.daysRemaining)}d Overdue`
-                        : alert.isToday
-                          ? 'Due Today'
-                          : `Due in ${alert.daysRemaining} day${alert.daysRemaining === 1 ? '' : 's'}`}
+                      {alert.isToday
+                        ? 'Due Today'
+                        : `Due in ${alert.daysRemaining} day${alert.daysRemaining === 1 ? '' : 's'}`}
                     </span>
                   </div>
                   <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white line-clamp-2" title={alert.title}>
@@ -533,14 +456,6 @@ export default function ClientPortalDashboard() {
               <FileSpreadsheet className="w-3.5 h-3.5" />
               Data Requests
             </Link>
-            <button
-              type="button"
-              onClick={() => setIsCreateFacilityOpen(true)}
-              className="inline-flex items-center gap-1.5 h-[36px] rounded-lg bg-[#17365D] hover:bg-[#102947] dark:bg-emerald-700 dark:hover:bg-emerald-800 px-3.5 font-semibold text-white transition-colors shadow-2xs text-xs cursor-pointer"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Register Facility</span>
-            </button>
           </div>
         </div>
         <p className="text-[11px] text-slate-500 dark:text-slate-400">
@@ -557,18 +472,8 @@ export default function ClientPortalDashboard() {
               No Operating Facilities Registered Yet
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto">
-              Register your organization&apos;s manufacturing complexes or industrial operating units to enable compliance data requests and verification.
+              Please contact your system administrator to register and link operating facilities to your client account.
             </p>
-            <div className="pt-1">
-              <button
-                type="button"
-                onClick={() => setIsCreateFacilityOpen(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs shadow-sm transition cursor-pointer"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Register First Facility</span>
-              </button>
-            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -693,345 +598,6 @@ export default function ClientPortalDashboard() {
         onClose={() => setIsExcelModalOpen(false)}
         facilityId={primaryFacilityId}
       />
-
-      {/* Client Register Facility Modal via MUI Dialog */}
-      <Dialog
-        open={isCreateFacilityOpen}
-        onClose={() => !isCreatingFacility && setIsCreateFacilityOpen(false)}
-        maxWidth="sm"
-        fullWidth
-        slotProps={{
-          paper: {
-            sx: {
-              borderRadius: '16px',
-              backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
-              color: isDark ? '#FFFFFF' : '#0F172A',
-              border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0'}`,
-              p: 1,
-            },
-          },
-        }}
-      >
-        <DialogTitle sx={{ fontWeight: 700, fontSize: '18px', pb: 0.5 }}>
-          <div className="flex items-center gap-2">
-            <Building2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-            <span>Register New Operating Facility</span>
-          </div>
-        </DialogTitle>
-        <DialogContent sx={{ pt: 1.5 }}>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mb-5">
-            Register a manufacturing unit, complex, or facility under{' '}
-            <strong className="text-slate-700 dark:text-slate-200">{clientOrgName}</strong>.
-          </p>
-
-          {createFacilityError && (
-            <div className="mb-4 rounded-lg border border-rose-200 bg-rose-50 p-3 text-xs text-rose-800 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-300 font-medium">
-              {createFacilityError}
-            </div>
-          )}
-
-          <form id="create-facility-form" onSubmit={handleCreateFacility} className="space-y-4 pt-1">
-            <TextField
-              required
-              fullWidth
-              label="Facility / Unit Name"
-              placeholder="e.g. Trident Paper Complex — Ludhiana"
-              value={facilityForm.name}
-              onChange={(e) => {
-                const newName = e.target.value;
-                setFacilityForm((prev) => ({
-                  ...prev,
-                  name: newName,
-                  facilityId: facilityCodeManuallyEdited
-                    ? prev.facilityId
-                    : newName.toUpperCase().replace(/[^A-Z0-9]/g, '_').slice(0, 24),
-                }));
-              }}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: '8px',
-                  backgroundColor: isDark ? '#020617' : '#FFFFFF',
-                  color: isDark ? '#FFFFFF' : '#0F172A',
-                  fontSize: '13px',
-                  '& fieldset': {
-                    borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
-                  },
-                  '&:hover fieldset': {
-                    borderColor: isDark ? '#34D399' : '#059669',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: isDark ? '#34D399' : '#059669',
-                    borderWidth: '1.5px',
-                  },
-                },
-                '& .MuiInputLabel-root': {
-                  color: isDark ? '#94A3B8' : '#64748B',
-                  fontSize: '13px',
-                  '&.Mui-focused': {
-                    color: isDark ? '#34D399' : '#059669',
-                  },
-                },
-              }}
-            />
-
-            <TextField
-              required
-              fullWidth
-              label="Facility Code / Identifier (Uppercase)"
-              placeholder="e.g. TRIDENT_PAPER_LUDHIANA"
-              helperText="Unique uppercase identifier for compliance data requests & audits."
-              value={facilityForm.facilityId}
-              onChange={(e) => {
-                setFacilityCodeManuallyEdited(true);
-                setFacilityForm((prev) => ({
-                  ...prev,
-                  facilityId: e.target.value.toUpperCase().replace(/[^A-Z0-9_]/g, ''),
-                }));
-              }}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: '8px',
-                  backgroundColor: isDark ? '#020617' : '#FFFFFF',
-                  color: isDark ? '#FFFFFF' : '#0F172A',
-                  fontSize: '13px',
-                  fontFamily: 'monospace',
-                  '& fieldset': {
-                    borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
-                  },
-                  '&:hover fieldset': {
-                    borderColor: isDark ? '#34D399' : '#059669',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: isDark ? '#34D399' : '#059669',
-                    borderWidth: '1.5px',
-                  },
-                },
-                '& .MuiInputLabel-root': {
-                  color: isDark ? '#94A3B8' : '#64748B',
-                  fontSize: '13px',
-                  '&.Mui-focused': {
-                    color: isDark ? '#34D399' : '#059669',
-                  },
-                },
-                '& .MuiFormHelperText-root': {
-                  color: isDark ? '#94A3B8' : '#64748B',
-                  fontSize: '11px',
-                },
-              }}
-            />
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <TextField
-                required
-                fullWidth
-                label="Location / State"
-                placeholder="e.g. Barnala, Punjab"
-                value={facilityForm.location}
-                onChange={(e) =>
-                  setFacilityForm((prev) => ({ ...prev, location: e.target.value }))
-                }
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '8px',
-                    backgroundColor: isDark ? '#020617' : '#FFFFFF',
-                    color: isDark ? '#FFFFFF' : '#0F172A',
-                    fontSize: '13px',
-                    '& fieldset': {
-                      borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
-                    },
-                    '&:hover fieldset': {
-                      borderColor: isDark ? '#34D399' : '#059669',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: isDark ? '#34D399' : '#059669',
-                      borderWidth: '1.5px',
-                    },
-                  },
-                  '& .MuiInputLabel-root': {
-                    color: isDark ? '#94A3B8' : '#64748B',
-                    fontSize: '13px',
-                    '&.Mui-focused': {
-                      color: isDark ? '#34D399' : '#059669',
-                    },
-                  },
-                }}
-              />
-
-              <FormControl fullWidth>
-                <InputLabel id="facility-cat-label" sx={{ color: isDark ? '#94A3B8' : '#64748B', fontSize: '13px' }}>
-                  Industry Category
-                </InputLabel>
-                <Select
-                  labelId="facility-cat-label"
-                  label="Industry Category"
-                  value={facilityForm.category}
-                  onChange={(e: SelectChangeEvent) =>
-                    setFacilityForm((prev) => ({ ...prev, category: e.target.value }))
-                  }
-                  sx={{
-                    borderRadius: '8px',
-                    backgroundColor: isDark ? '#020617' : '#FFFFFF',
-                    color: isDark ? '#FFFFFF' : '#0F172A',
-                    fontSize: '13px',
-                    '& .MuiOutlinedInput-notchedOutline': {
-                      borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
-                    },
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: isDark ? '#34D399' : '#059669',
-                    },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: isDark ? '#34D399' : '#059669',
-                      borderWidth: '1.5px',
-                    },
-                  }}
-                  MenuProps={{
-                    slotProps: {
-                      paper: {
-                        sx: {
-                          mt: 0.5,
-                          maxHeight: 280,
-                          borderRadius: '8px',
-                          backgroundColor: isDark ? '#0F172A !important' : '#FFFFFF !important',
-                          color: isDark ? '#FFFFFF' : '#0F172A',
-                          border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0'}`,
-                          boxShadow: isDark
-                            ? '0 10px 25px -5px rgba(0, 0, 0, 0.7)'
-                            : '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
-                          '& .MuiMenuItem-root': {
-                            fontSize: '13px',
-                            color: isDark ? '#E2E8F0' : '#0F172A',
-                            '&:hover, &.Mui-focusVisible': {
-                              backgroundColor: isDark ? '#1E293B' : '#F1F5F9',
-                              color: isDark ? '#34D399' : '#059669',
-                            },
-                            '&.Mui-selected': {
-                              backgroundColor: isDark ? '#1E293B !important' : '#E2E8F0 !important',
-                              color: isDark ? '#34D399' : '#059669',
-                              fontWeight: 600,
-                            },
-                          },
-                        },
-                      },
-                    },
-                  }}
-                >
-                  <MenuItem value="Pulp & Paper">Pulp & Paper</MenuItem>
-                  <MenuItem value="Textiles & Spinning">Textiles & Spinning</MenuItem>
-                  <MenuItem value="Iron & Steel">Iron & Steel</MenuItem>
-                  <MenuItem value="Chemicals & Fertilizers">Chemicals & Fertilizers</MenuItem>
-                  <MenuItem value="Cement & Building Materials">Cement & Building Materials</MenuItem>
-                  <MenuItem value="Power Generation & Utilities">Power Generation & Utilities</MenuItem>
-                  <MenuItem value="Food Processing & Sugar">Food Processing & Sugar</MenuItem>
-                  <MenuItem value="General Manufacturing">General Manufacturing</MenuItem>
-                  <MenuItem value="Commercial Complex">Commercial Complex</MenuItem>
-                </Select>
-              </FormControl>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <TextField
-                fullWidth
-                label="Utility Consumer Account No. (Optional)"
-                placeholder="e.g. 3002948192"
-                value={facilityForm.consumerAccountNumber}
-                onChange={(e) =>
-                  setFacilityForm((prev) => ({ ...prev, consumerAccountNumber: e.target.value }))
-                }
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '8px',
-                    backgroundColor: isDark ? '#020617' : '#FFFFFF',
-                    color: isDark ? '#FFFFFF' : '#0F172A',
-                    fontSize: '13px',
-                    '& fieldset': {
-                      borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
-                    },
-                    '&:hover fieldset': {
-                      borderColor: isDark ? '#34D399' : '#059669',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: isDark ? '#34D399' : '#059669',
-                      borderWidth: '1.5px',
-                    },
-                  },
-                  '& .MuiInputLabel-root': {
-                    color: isDark ? '#94A3B8' : '#64748B',
-                    fontSize: '13px',
-                    '&.Mui-focused': {
-                      color: isDark ? '#34D399' : '#059669',
-                    },
-                  },
-                }}
-              />
-
-              <TextField
-                fullWidth
-                label="Contract Demand / Capacity (Optional)"
-                placeholder="e.g. 25,000 kVA"
-                value={facilityForm.contractDemand}
-                onChange={(e) =>
-                  setFacilityForm((prev) => ({ ...prev, contractDemand: e.target.value }))
-                }
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '8px',
-                    backgroundColor: isDark ? '#020617' : '#FFFFFF',
-                    color: isDark ? '#FFFFFF' : '#0F172A',
-                    fontSize: '13px',
-                    '& fieldset': {
-                      borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
-                    },
-                    '&:hover fieldset': {
-                      borderColor: isDark ? '#34D399' : '#059669',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: isDark ? '#34D399' : '#059669',
-                      borderWidth: '1.5px',
-                    },
-                  },
-                  '& .MuiInputLabel-root': {
-                    color: isDark ? '#94A3B8' : '#64748B',
-                    fontSize: '13px',
-                    '&.Mui-focused': {
-                      color: isDark ? '#34D399' : '#059669',
-                    },
-                  },
-                }}
-              />
-            </div>
-          </form>
-        </DialogContent>
-
-        <DialogActions sx={{ p: 2, gap: 1 }}>
-          <button
-            type="button"
-            disabled={isCreatingFacility}
-            onClick={() => setIsCreateFacilityOpen(false)}
-            className="rounded-lg border border-slate-300 dark:border-slate-700 px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            form="create-facility-form"
-            disabled={isCreatingFacility}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 px-5 py-2 text-xs font-bold text-white hover:bg-emerald-800 transition shadow-sm disabled:opacity-50 cursor-pointer"
-          >
-            {isCreatingFacility ? (
-              <>
-                <CircularProgress size={14} color="inherit" />
-                <span>Registering...</span>
-              </>
-            ) : (
-              <>
-                <Building2 className="w-3.5 h-3.5" />
-                <span>Register Facility</span>
-              </>
-            )}
-          </button>
-        </DialogActions>
-      </Dialog>
-
     </div>
   );
 }

@@ -83,14 +83,11 @@ export async function POST(request: NextRequest) {
       const companyFacilityIds = await getClientFacilityIds(String(user.clientGroupId));
       authorizedFacilityIds = [...new Set([...authorizedFacilityIds.map((id: string) => id.toUpperCase()), ...companyFacilityIds])];
     }
-    if (user.role === 'CONSULTANT' && authorizedFacilityIds.length === 0) {
-      return NextResponse.json({ error: 'No facilities have been assigned to this consultant account. Contact your administrator.' }, { status: 403 });
-    }
     const payload = { userId: user._id.toString(), name: user.name, email: user.email, role: user.role,
       clientGroupId: user.clientGroupId?.toString(), authorizedFacilityIds, mustChangePassword: !!user.mustChangePassword };
     const token = signToken(payload);
     const response = NextResponse.json({ success: true, user: { ...userPayload(user), authorizedFacilityIds } });
-    response.cookies.set(COOKIE_NAME, token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/', maxAge: 30 * 60 });
+    response.cookies.set(COOKIE_NAME, token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/', maxAge: 7 * 24 * 60 * 60 });
     return response;
   } catch (error) {
     console.error('Login error:', error);

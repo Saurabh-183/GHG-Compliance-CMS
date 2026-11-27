@@ -18,18 +18,18 @@ export async function GET(
     }
 
     const facilityQuery: Record<string, unknown> = { clientGroupId: id };
-    if (session.role !== 'ADMIN') facilityQuery.facilityId = { $in: session.authorizedFacilityIds || [] };
+    if (session.role === 'CLIENT') facilityQuery.facilityId = { $in: session.authorizedFacilityIds || [] };
     const facilities = await FacilityModel.find(facilityQuery)
       .populate('assignedConsultantId', 'name email')
       .populate('assignedReviewerId', 'name email')
       .lean();
 
     let result =
-      session.role !== 'ADMIN' && session.authorizedFacilityIds
+      session.role === 'CLIENT' && session.authorizedFacilityIds
         ? facilities.filter((f) => session.authorizedFacilityIds?.includes(f.facilityId))
         : facilities;
 
-    if (result.length === 0 && session.role === 'ADMIN') {
+    if (result.length === 0 && session.role !== 'CLIENT') {
       const { MOCK_CLIENT_GROUPS, MOCK_FACILITIES } = await import('@/lib/mockFallback');
       const group = MOCK_CLIENT_GROUPS.find(
         (g) => g._id === id || g.code.toUpperCase() === id.toUpperCase()

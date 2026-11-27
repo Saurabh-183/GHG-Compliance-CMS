@@ -4,7 +4,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Select, MenuItem, FormControl } from '@mui/material';
+import { Select, MenuItem, FormControl, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField } from '@mui/material';
 import { useAuth } from '@/context/AuthContext';
 import { COMPLIANCE_PERIODS } from '@/lib/complianceMatrixData';
 import { buildAssessmentId } from '@/lib/assessmentIds';
@@ -15,8 +15,12 @@ import {
   FileSpreadsheet,
   CheckCircle2,
   ChevronRight,
+  FileText,
+  ExternalLink,
+  Upload,
 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
+import { notify } from '@/lib/notify';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import { FacilityDataChecklistPanel } from '@/components/checklist/FacilityDataChecklistPanel';
 import { DEFAULT_CHECKLIST_PERIOD } from '@/lib/facilityDataChecklistTemplate';
@@ -35,6 +39,46 @@ export default function AssessmentDetailPage() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
   const [checklistOpen, setChecklistOpen] = useState(false);
+
+  // Final Report Attachment State
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [finalReportUrl, setFinalReportUrl] = useState('');
+  const [reportNotes, setReportNotes] = useState('');
+  const [submittingReport, setSubmittingReport] = useState(false);
+
+  const handleAttachReport = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!finalReportUrl.trim()) {
+      notify.error('Please enter a valid report URL');
+      return;
+    }
+    setSubmittingReport(true);
+    try {
+      const res = await fetch('/api/reports', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          assessmentId: assessment?._id,
+          reportUrl: finalReportUrl.trim(),
+          notes: reportNotes.trim() || undefined,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Failed to attach final report');
+      notify.success('Final verified report attached successfully');
+      setAssessment(data.assessment || {
+        ...assessment!,
+        documentLinks: { ...assessment!.documentLinks, finalReportUrl: finalReportUrl.trim() },
+      });
+      setReportModalOpen(false);
+      setFinalReportUrl('');
+      setReportNotes('');
+    } catch (err: any) {
+      notify.error(err.message || 'Error attaching report');
+    } finally {
+      setSubmittingReport(false);
+    }
+  };
 
   const checklistAnchorRef = useRef<HTMLDivElement>(null);
 
@@ -324,6 +368,28 @@ export default function AssessmentDetailPage() {
               <FileSpreadsheet className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
               <span>Client Submissions Table</span>
             </Link>
+
+            {assessment.documentLinks?.finalReportUrl ? (
+              <a
+                href={assessment.documentLinks.finalReportUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 text-xs font-semibold border border-emerald-300 dark:border-emerald-800 transition-colors shadow-2xs"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>Final Report</span>
+                <ExternalLink className="w-3 h-3 ml-0.5" />
+              </a>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setReportModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-white hover:bg-slate-50 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 text-xs font-semibold border border-slate-300 dark:border-slate-700 transition-colors shadow-2xs cursor-pointer"
+              >
+                <Upload className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
+                <span>Attach Report</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -340,9 +406,6 @@ export default function AssessmentDetailPage() {
         </div>
       )}
 
-      {/* Regulatory metrics are sourced only from a final-approved summary sheet.
-          The legacy assessment.metrics array can contain demo/provisional values,
-          so it must not be presented as statutory client-submitted data. */}
       {(['RCO', 'PAT', 'CCTS'] as string[]).includes(assessment.complianceType) ? (
         <RegulatoryApprovedMetricsTable
           assessmentId={assessment._id}
@@ -350,8 +413,7 @@ export default function AssessmentDetailPage() {
         />
       ) : null}
 
-      {/* Framework-specific regulatory data collection and approval */}
-      {(['RCO', 'RPO', 'PAT', 'CCTS'] as string[]).includes(assessment.complianceType) && (
+      {(['RCO', 'PAT', 'CCTS'] as string[]).includes(assessment.complianceType) && (
         <RegulatoryMetricsPanel
           assessmentId={assessment._id}
           framework={assessment.complianceType as 'RCO' | 'RPO' | 'PAT' | 'CCTS'}
@@ -359,6 +421,88 @@ export default function AssessmentDetailPage() {
           facilityId={assessment.facilityId}
         />
       )}
+
+      {/* Attach Final Verified Report Dialog */}
+      <Dialog
+        open={reportModalOpen}
+        onClose={() => setReportModalOpen(false)}
+        maxWidth="sm"
+        fullWidth
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: '16px',
+              backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+              color: isDark ? '#FFFFFF' : '#0F172A',
+              border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0'}`,
+              p: 1,
+            },
+          },
+        }}
+      >
+        <form onSubmit={handleAttachReport}>
+          <DialogTitle sx={{ fontWeight: 600, color: isDark ? '#FFFFFF' : '#0F172A' }}>
+            Attach Final Verified Compliance Report
+          </DialogTitle>
+          <DialogContent>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
+              Enter the Google Drive or cloud document URL for the verified audit report for {assessment.facilityName} ({assessment.complianceType} · {assessment.period}).
+            </p>
+            <div className="space-y-3.5">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  Report Document URL:
+                </label>
+                <input
+                  type="url"
+                  required
+                  placeholder="https://drive.google.com/file/d/.../view"
+                  value={finalReportUrl}
+                  onChange={(e) => setFinalReportUrl(e.target.value)}
+                  className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  Audit / Signoff Notes (Optional):
+                </label>
+                <textarea
+                  rows={3}
+                  placeholder="e.g. Verified by lead auditor. All Scope 1 & 2 fuel and electricity records reconciled."
+                  value={reportNotes}
+                  onChange={(e) => setReportNotes(e.target.value)}
+                  className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 resize-none"
+                />
+              </div>
+            </div>
+          </DialogContent>
+          <DialogActions sx={{ p: 2, gap: 1 }}>
+            <Button
+              onClick={() => setReportModalOpen(false)}
+              color="inherit"
+              disabled={submittingReport}
+              sx={{ textTransform: 'none', borderRadius: '8px' }}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={submittingReport}
+              sx={{
+                textTransform: 'none',
+                borderRadius: '8px',
+                fontWeight: 600,
+                backgroundColor: '#059669',
+                '&:hover': { backgroundColor: '#047857' },
+              }}
+            >
+              {submittingReport ? 'Attaching...' : 'Attach Report'}
+            </Button>
+          </DialogActions>
+        </form>
+      </Dialog>
     </div>
   );
 }

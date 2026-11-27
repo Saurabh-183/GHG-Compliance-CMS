@@ -33,7 +33,7 @@ function inferMonth(value: string): string | undefined {
 export async function GET(request: NextRequest) {
   const session = getSessionFromRequest(request);
   if (!session) return NextResponse.json({ success: false, error: 'Authentication required.' }, { status: 401 });
-  if (session.role !== 'ADMIN' && session.role !== 'CONSULTANT') {
+  if (session.role !== 'ADMIN' && session.role !== 'CONSULTANT' && session.role !== 'CLIENT') {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 

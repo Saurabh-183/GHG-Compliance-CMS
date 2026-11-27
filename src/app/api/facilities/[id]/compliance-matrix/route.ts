@@ -182,18 +182,22 @@ export async function GET(
 
     // Read-only endpoint: never create applicability or assessment records as a side effect.
 
-    // Ensure facility enabledFrameworks are strictly respected in the matrix
+    // enabledFrameworks is the facility-wide union of frameworks enabled in any
+    // financial year. Per-year applicability remains controlled by the
+    // ComplianceApplicability records used by buildMultiYearComplianceMatrix.
     const facEnabled = (facility as any).enabledFrameworks as ComplianceType[] | undefined;
-    if (facEnabled && Array.isArray(facEnabled) && facEnabled.length > 0) {
-      (COMPLIANCE_FRAMEWORKS as ComplianceType[]).forEach((comp) => {
-        if (!facEnabled.includes(comp) && matrix[comp]) {
-          for (const period of Object.keys(matrix[comp])) {
-            matrix[comp][period].isApplicable = false;
-            matrix[comp][period].complianceOutcome = 'NOT_APPLICABLE';
-          }
-        }
-      });
-    }
+    const configuredInRecords = applicabilityRecords
+      .filter((record: any) => record.isApplicable !== false)
+      .map((record: any) => record.complianceType as ComplianceType);
+    const configuredFrameworks = Array.from(
+      new Set([...(facEnabled || []), ...configuredInRecords])
+    );
+    const activeFrameworks: ComplianceType[] =
+      configuredFrameworks.length > 0
+        ? (COMPLIANCE_FRAMEWORKS as ComplianceType[]).filter((framework) =>
+            configuredFrameworks.includes(framework)
+          )
+        : (COMPLIANCE_FRAMEWORKS as ComplianceType[]);
 
     return NextResponse.json({
       success: true,
@@ -210,9 +214,11 @@ export async function GET(
           clientGroupCode: clientGroupCode || rawGroupId,
         },
         periods: COMPLIANCE_PERIODS,
-        compliances: COMPLIANCE_FRAMEWORKS,
+        compliances: activeFrameworks,
         matrix,
-        rawApplicability: applicabilities,
+        rawApplicability: applicabilities.filter((a) =>
+          activeFrameworks.includes(a.complianceType as ComplianceType)
+        ),
       },
     });
   } catch (error) {
@@ -288,28 +294,27 @@ export async function GET(
         resolvedFacility.name
       );
 
-      // Ensure facility enabledFrameworks are strictly respected in the matrix
+      // Mock facilities use the same facility-wide framework union. The matrix
+      // builder still determines applicability independently for each period.
       const facFallbackEnabled = (resolvedFacility as any).enabledFrameworks as ComplianceType[] | undefined;
-      if (facFallbackEnabled && Array.isArray(facFallbackEnabled) && facFallbackEnabled.length > 0) {
-        (COMPLIANCE_FRAMEWORKS as ComplianceType[]).forEach((comp) => {
-          if (!facFallbackEnabled.includes(comp) && matrix[comp]) {
-            for (const period of Object.keys(matrix[comp])) {
-              matrix[comp][period].isApplicable = false;
-              matrix[comp][period].complianceOutcome = 'NOT_APPLICABLE';
-            }
-          }
-        });
-      }
+      const activeFallbackFrameworks: ComplianceType[] =
+        facFallbackEnabled && facFallbackEnabled.length > 0
+          ? (COMPLIANCE_FRAMEWORKS as ComplianceType[]).filter((framework) =>
+              facFallbackEnabled.includes(framework)
+            )
+          : (COMPLIANCE_FRAMEWORKS as ComplianceType[]);
 
-    return NextResponse.json({
+      return NextResponse.json({
         success: true,
         source: 'development-fallback',
         data: {
           facility: resolvedFacility,
           periods: COMPLIANCE_PERIODS,
-          compliances: COMPLIANCE_FRAMEWORKS,
+          compliances: activeFallbackFrameworks,
           matrix,
-          rawApplicability: applicabilities,
+          rawApplicability: applicabilities.filter((a) =>
+            activeFallbackFrameworks.includes(a.complianceType as ComplianceType)
+          ),
         },
       });
     } catch (fallbackError) {

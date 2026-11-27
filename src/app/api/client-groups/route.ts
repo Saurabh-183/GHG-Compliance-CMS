@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { ClientGroupModel } from '@/models/ClientGroup';
 import { FacilityModel } from '@/models/Facility';
+import { UserModel } from '@/models/User';
 import { ComplianceApplicabilityModel } from '@/models/ComplianceApplicability';
 import { getSessionFromRequest, authorizeRole } from '@/lib/auth';
 
@@ -25,27 +26,24 @@ export async function GET(request: NextRequest) {
     await connectToDatabase();
 
     let query: Record<string, unknown> = {};
-    if (session.role === 'CLIENT' && session.clientGroupId) query = { _id: session.clientGroupId };
-    else if (session.role === 'CONSULTANT') {
-      const assigned = session.authorizedFacilityIds || [];
-      if (!assigned.length) return NextResponse.json({ success: true, data: [] });
-      const assignedFacilities = await FacilityModel.find({ facilityId: { $in: assigned } }).select('clientGroupId').lean();
-      query = { _id: { $in: [...new Set(assignedFacilities.map((f) => f.clientGroupId.toString()))] } };
+    if (session.role === 'CLIENT' && session.clientGroupId) {
+      query = { _id: session.clientGroupId };
     }
 
     let groups = await ClientGroupModel.find(query)
-      .sort({ name: 1 })
+      .sort({ createdAt: -1, name: 1 })
       .lean();
 
     // Do not seed/reset persistent data from a read or login request.
 
     if (groups.length === 0) return NextResponse.json({ success: true, data: [] });
 
-
     const data = await Promise.all(
       groups.map(async (group) => {
         const facilityQuery: Record<string, unknown> = { clientGroupId: group._id };
-        if (session.role !== 'ADMIN') facilityQuery.facilityId = { $in: session.authorizedFacilityIds || [] };
+        if (session.role === 'CLIENT') {
+          facilityQuery.facilityId = { $in: session.authorizedFacilityIds || [] };
+        }
         const facilities = await FacilityModel.find(facilityQuery)
           .sort({ name: 1 })
           .lean();
@@ -59,10 +57,26 @@ export async function GET(request: NextRequest) {
             })
           : 0;
 
+        const facFws = Array.from(
+          new Set(
+            facilities.flatMap((facility) =>
+              Array.isArray(facility.enabledFrameworks) && facility.enabledFrameworks.length > 0
+                ? facility.enabledFrameworks
+                : []
+            )
+          )
+        );
+
         const enabledFrameworks =
-          Array.isArray(group.enabledFrameworks) && group.enabledFrameworks.length > 0
+          facFws.length > 0
+            ? facFws
+            : Array.isArray(group.enabledFrameworks) && group.enabledFrameworks.length > 0
             ? group.enabledFrameworks
             : ['RCO', 'RPO', 'PAT', 'CCTS'];
+
+        if (facFws.length > 0 && JSON.stringify(facFws) !== JSON.stringify(group.enabledFrameworks)) {
+          ClientGroupModel.updateOne({ _id: group._id }, { $set: { enabledFrameworks: facFws } }).catch(() => {});
+        }
 
         return {
           ...group,
@@ -74,6 +88,10 @@ export async function GET(request: NextRequest) {
             ...facility,
             _id: facility._id.toString(),
             clientGroupId: facility.clientGroupId.toString(),
+            enabledFrameworks:
+              Array.isArray(facility.enabledFrameworks) && facility.enabledFrameworks.length > 0
+                ? facility.enabledFrameworks
+                : enabledFrameworks,
           })),
         };
       })
@@ -104,6 +122,10 @@ export async function POST(request: NextRequest) {
     };
 
     const newGroup = await ClientGroupModel.create(body);
+    await UserModel.updateMany(
+      { role: 'CONSULTANT' },
+      { $addToSet: { clientGroupIds: newGroup._id } }
+    );
     return NextResponse.json(
       { success: true, message: 'Client Group created', data: newGroup },
       { status: 201 }

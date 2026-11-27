@@ -35,19 +35,24 @@ import {
   normalizeDocumentSpecsForDriveXlsx,
 } from '@/lib/submissionPolicy';
 
-
 interface FacilityDataRequestPanelProps {
   facilityId: string;
   facilityName?: string;
   period?: string;
+  initialCompliances?: ComplianceType[];
   className?: string;
+  onPeriodChange?: (period: string) => void;
+  onSent?: () => void;
 }
 
 export function FacilityDataRequestPanel({
   facilityId: initialFacilityId,
   facilityName: initialFacilityName,
   period: defaultPeriod = DEFAULT_CHECKLIST_PERIOD,
+  initialCompliances,
   className = '',
+  onPeriodChange,
+  onSent,
 }: FacilityDataRequestPanelProps) {
   const { currentUser, theme } = useAuth();
   const isDark = theme === 'dark';
@@ -137,7 +142,9 @@ export function FacilityDataRequestPanel({
   const [customCategory, setCustomCategory] = useState('');
   const [period, setPeriod] = useState(defaultPeriod);
   const [priority, setPriority] = useState<'LOW' | 'MEDIUM' | 'HIGH'>('MEDIUM');
-  const [linkedCompliances, setLinkedCompliances] = useState<ComplianceType[]>([]);
+  const [linkedCompliances, setLinkedCompliances] = useState<ComplianceType[]>(
+    initialCompliances ? [...initialCompliances] : []
+  );
   const [applicableFrameworks, setApplicableFrameworks] = useState<ComplianceType[]>([]);
   const [applicabilityLoading, setApplicabilityLoading] = useState(false);
 
@@ -261,26 +268,58 @@ export function FacilityDataRequestPanel({
 
   useEffect(() => {
     let cancelled = false;
+
     async function loadApplicableFrameworks() {
-      if (!facilityId || !period) { setApplicableFrameworks([]); setLinkedCompliances([]); return; }
+      if (!facilityId || !period) {
+        setApplicableFrameworks([]);
+        setLinkedCompliances([]);
+        return;
+      }
+
       setApplicabilityLoading(true);
       try {
-        const response = await fetch(`/api/compliance-applicability?facilityId=${encodeURIComponent(facilityId)}`, { credentials: 'include', cache: 'no-store' });
+        const response = await fetch(
+          `/api/compliance-applicability?facilityId=${encodeURIComponent(facilityId)}`,
+          { credentials: 'include', cache: 'no-store' }
+        );
         const json = await response.json();
-        if (!response.ok) throw new Error(json.error || 'Unable to load applicable compliance frameworks.');
+        if (!response.ok) {
+          throw new Error(json.error || 'Unable to load applicable compliance frameworks.');
+        }
+
         const normalizedPeriod = /^FY/i.test(period) ? period.toUpperCase() : `FY${period}`;
-        const allowed = (json.data || []).filter((row: { period: string; isApplicable: boolean }) => row.isApplicable && String(row.period).toUpperCase() === normalizedPeriod).map((row: { complianceType: ComplianceType }) => row.complianceType);
+        const allowed: ComplianceType[] = (json.data || [])
+          .filter(
+            (row: { period: string; isApplicable: boolean }) =>
+              row.isApplicable && String(row.period).toUpperCase() === normalizedPeriod
+          )
+          .map((row: { complianceType: ComplianceType }) => row.complianceType);
+
         if (!cancelled) {
           setApplicableFrameworks(allowed);
-          setLinkedCompliances((current) => current.filter((framework) => allowed.includes(framework)));
+          setLinkedCompliances((current) => {
+            const preferred = current.length ? current : initialCompliances || [];
+            return preferred.filter((framework) => allowed.includes(framework));
+          });
         }
       } catch (error) {
-        if (!cancelled) { setApplicableFrameworks([]); setLinkedCompliances([]); notify.error(error instanceof Error ? error.message : 'Unable to load compliance settings.'); }
-      } finally { if (!cancelled) setApplicabilityLoading(false); }
+        if (!cancelled) {
+          setApplicableFrameworks([]);
+          setLinkedCompliances([]);
+          notify.error(
+            error instanceof Error ? error.message : 'Unable to load compliance settings.'
+          );
+        }
+      } finally {
+        if (!cancelled) setApplicabilityLoading(false);
+      }
     }
+
     void loadApplicableFrameworks();
-    return () => { cancelled = true; };
-  }, [facilityId, period]);
+    return () => {
+      cancelled = true;
+    };
+  }, [facilityId, period, initialCompliances]);
 
   useEffect(() => {
     setFacilityId(initialFacilityId);
@@ -305,7 +344,9 @@ export function FacilityDataRequestPanel({
 
   const toggleCompliance = (value: ComplianceType) => {
     if (!applicableFrameworks.includes(value)) return;
-    setLinkedCompliances((prev) => prev.includes(value) ? prev.filter((c) => c !== value) : [...prev, value]);
+    setLinkedCompliances((prev) =>
+      prev.includes(value) ? prev.filter((c) => c !== value) : [...prev, value]
+    );
   };
 
   const applyChecklistSelection = (itemKey: string) => {
@@ -357,9 +398,13 @@ export function FacilityDataRequestPanel({
     setFields((master.structuredFields || []).map((f) => ({ ...f })));
     setDocuments(normalizeDocumentSpecsForDriveXlsx(master.documentSpecs || []));
     setReportingFrequency((master.reportingFrequency as ReportingFrequency) || 'ANNUAL');
-    setLinkedCompliances(master.defaultCompliances || []);
+    setLinkedCompliances(
+      (master.defaultCompliances || []).filter((framework) =>
+        applicableFrameworks.includes(framework)
+      )
+    );
     setOpenSections({ 1: true, 2: Boolean(master.structuredFields?.length), 3: true, 4: true, 5: false });
-    notify.success(`Loaded checklist fields for “${master.name}”.`);
+    notify.success(`Loaded checklist fields for ΓÇ£${master.name}ΓÇ¥.`);
   };
 
   const handleOrganizationChange = (orgId: string) => {
@@ -389,7 +434,7 @@ export function FacilityDataRequestPanel({
       return false;
     }
     if (!dataCategory.trim() && selectedChecklistKey !== '__OTHER__') {
-      notify.error('Data category is missing — re-select a checklist requirement.');
+      notify.error('Data category is missing ΓÇö re-select a checklist requirement.');
       return false;
     }
     if (!instructions.trim()) {
@@ -469,7 +514,7 @@ export function FacilityDataRequestPanel({
       if (saveAsDraft) {
         notify.success('Draft saved. Send when ready from Track or send now.');
       } else {
-        notify.success(notifyClient ? 'Request sent — client notified.' : json.message || 'Request sent.');
+        notify.success(notifyClient ? 'Request sent ΓÇö client notified.' : json.message || 'Request sent.');
       }
 
       setTitle('');
@@ -483,6 +528,7 @@ export function FacilityDataRequestPanel({
       setDueDate('');
       setSelectedMonths([]);
       await load();
+      onSent?.();
     } catch (e) {
       notify.error(e instanceof Error ? e.message : 'Failed to save request');
     } finally {
@@ -512,7 +558,7 @@ export function FacilityDataRequestPanel({
         <FormSection
           step={1}
           title="Request details"
-          subtitle="Organization, facility, FY, checklist — and client submission due date"
+          subtitle="Organization, facility, FY, checklist ΓÇö and client submission due date"
           open={!!openSections[1]}
           onToggle={() => toggleSection(1)}
         >
@@ -554,14 +600,14 @@ export function FacilityDataRequestPanel({
                   renderValue={(val) => {
                     if (!val) return <span className="text-slate-400 dark:text-slate-500 font-sans text-xs">Select facility</span>;
                     const found = facilitiesInOrg.find((f) => f.facilityId === val);
-                    return <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">{found ? `${found.name} · ${found.facilityId}` : val}</span>;
+                    return <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">{found ? `${found.name} ┬╖ ${found.facilityId}` : val}</span>;
                   }}
                   sx={muiSelectSx}
                   MenuProps={muiMenuProps}
                 >
                   {facilitiesInOrg.map((f) => (
                     <MenuItem key={f.facilityId} value={f.facilityId} sx={{ fontSize: '12px' }}>
-                      {f.name} · {f.facilityId}
+                      {f.name} ┬╖ {f.facilityId}
                     </MenuItem>
                   ))}
                 </Select>
@@ -573,7 +619,11 @@ export function FacilityDataRequestPanel({
               <FormControl size="small" fullWidth>
                 <Select
                   value={period}
-                  onChange={(e) => setPeriod(e.target.value)}
+                  onChange={(e) => {
+                    const nextP = e.target.value;
+                    setPeriod(nextP);
+                    onPeriodChange?.(nextP);
+                  }}
                   sx={muiSelectSx}
                   MenuProps={muiMenuProps}
                 >
@@ -608,14 +658,14 @@ export function FacilityDataRequestPanel({
                     if (!selected) {
                       return (
                         <span className="text-slate-400 dark:text-slate-500 font-sans text-xs">
-                          {checklistLoading ? 'Loading checklist…' : 'Select requirement for this facility'}
+                          {checklistLoading ? 'Loading checklistΓÇª' : 'Select requirement for this facility'}
                         </span>
                       );
                     }
                     if (selected === '__OTHER__') {
                       return (
                         <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
-                          Other — custom requirement (manual fields)
+                          Other ΓÇö custom requirement (manual fields)
                         </span>
                       );
                     }
@@ -702,9 +752,9 @@ export function FacilityDataRequestPanel({
                           }}
                         >
                           {row.master.name}
-                          {row.needsVerification ? ' — needs verification' : ''}
+                          {row.needsVerification ? ' ΓÇö needs verification' : ''}
                           {row.applicability === 'NOT_REQUIRED' || row.applicability === 'NOT_APPLICABLE'
-                            ? ' — N/A'
+                            ? ' ΓÇö N/A'
                             : ''}
                         </MenuItem>
                       );
@@ -748,7 +798,7 @@ export function FacilityDataRequestPanel({
                     Custom
                   </ListSubheader>
                   <MenuItem value="__OTHER__" sx={{ fontSize: '12px', pl: 3 }}>
-                    Other — custom requirement (manual fields)
+                    Other ΓÇö custom requirement (manual fields)
                   </MenuItem>
                 </Select>
               </FormControl>
@@ -774,7 +824,13 @@ export function FacilityDataRequestPanel({
             <div className="space-y-1">
               <span className="font-bold text-slate-600 dark:text-slate-400 uppercase text-[10px]">Linked frameworks</span>
               <div className="flex flex-wrap gap-2">
-                {applicabilityLoading ? <span className="text-[10px] text-slate-500">Loading facility compliance…</span> : applicableFrameworks.length === 0 ? <span className="text-[10px] text-amber-600">No compliance framework is configured for this facility and financial year. Ask the Admin to configure it first.</span> : applicableFrameworks.map((c) => (
+                {applicabilityLoading ? (
+                  <span className="text-[10px] text-slate-500">Loading facility compliance…</span>
+                ) : applicableFrameworks.length === 0 ? (
+                  <span className="text-[10px] text-amber-600">
+                    No compliance framework is configured for this facility and financial year. Ask the Admin to configure it first.
+                  </span>
+                ) : applicableFrameworks.map((c) => (
                   <button
                     key={c}
                     type="button"
@@ -811,7 +867,7 @@ export function FacilityDataRequestPanel({
           title="Required information"
           subtitle={
             selectedChecklistKey && selectedChecklistKey !== '__OTHER__'
-              ? 'Pre-filled from checklist — adjust if needed'
+              ? 'Pre-filled from checklist ΓÇö adjust if needed'
               : 'Build fields for your custom requirement'
           }
           open={!!openSections[2]}
@@ -829,7 +885,7 @@ export function FacilityDataRequestPanel({
         <FormSection
           step={3}
           title="Reporting period & documents"
-          subtitle="Google Drive link · .xlsx workbooks only"
+          subtitle="Google Drive link ┬╖ .xlsx workbooks only"
           open={!!openSections[3]}
           onToggle={() => toggleSection(3)}
         >
@@ -917,7 +973,7 @@ export function FacilityDataRequestPanel({
                 rows={3}
                 value={purpose}
                 onChange={(e) => setPurpose(e.target.value)}
-                placeholder="Why this data is required for compliance…"
+                placeholder="Why this data is required for complianceΓÇª"
                 sx={{
                   ...muiFieldSx,
                   '& .MuiInputBase-root': { p: 1.25 },
@@ -934,7 +990,7 @@ export function FacilityDataRequestPanel({
                 rows={4}
                 value={instructions}
                 onChange={(e) => setInstructions(e.target.value)}
-                placeholder="Upload .xlsx to Google Drive, grant consultant view access, paste the share link. Note any missing months…"
+                placeholder="Upload .xlsx to Google Drive, grant consultant view access, paste the share link. Note any missing monthsΓÇª"
                 sx={{
                   ...muiFieldSx,
                   '& .MuiInputBase-root': { p: 1.25 },
@@ -1053,10 +1109,10 @@ function PanelHeader({
     <div className="rounded-2xl border border-emerald-200 dark:border-emerald-900/50 bg-gradient-to-br from-emerald-50/80 to-white dark:from-emerald-950/20 dark:to-slate-900 p-5">
       <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
         <Send className="w-5 h-5 text-emerald-700" />
-        Create data request — client portal
+        Create data request ΓÇö client portal
       </h3>
       <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-        {orgName} · <strong>{facilityLabel}</strong> · FY {period}
+        {orgName ? `${orgName} ┬╖ ` : ''}<strong>{facilityLabel}</strong> ┬╖ {period?.startsWith('FY') ? period : `FY ${period}`}
       </p>
       <p className="text-[11px] text-slate-500 mt-1">{openCount} open request(s) for this facility.</p>
     </div>
@@ -1074,10 +1130,10 @@ function RecentRequestsList({
 }) {
   return (
     <div className="border-t border-slate-200 dark:border-slate-800 pt-4 space-y-2">
-      <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Recent requests — {facilityId}</span>
+      <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Recent requests ΓÇö {facilityId}</span>
       {loading ? (
         <div className="flex items-center gap-2 text-xs text-slate-500 py-4">
-          <Loader2 className="w-4 h-4 animate-spin" /> Loading…
+          <Loader2 className="w-4 h-4 animate-spin" /> LoadingΓÇª
         </div>
       ) : requirements.length === 0 ? (
         <p className="text-xs text-slate-500 py-2">No portal requests for this facility yet.</p>

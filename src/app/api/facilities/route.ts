@@ -4,6 +4,7 @@ import { connectToDatabase } from '@/lib/db';
 import { FacilityModel } from '@/models/Facility';
 import { ClientGroupModel } from '@/models/ClientGroup';
 import { UserModel } from '@/models/User';
+import { ComplianceApplicabilityModel } from '@/models/ComplianceApplicability';
 import type { ComplianceType } from '@/types';
 import { getSessionFromRequest, authorizeRole, signToken } from '@/lib/auth';
 import {
@@ -265,10 +266,56 @@ export async function POST(request: NextRequest) {
         : undefined,
     });
 
-    // New facilities start with no compliance applicability. A consultant/admin
-    // must explicitly configure each framework and reporting period; do not seed
-    // generic records for every newly created facility.
+    // Synchronize parent ClientGroup's enabledFrameworks with its facilities
+    try {
+      const allClientFacs = await FacilityModel.find({ clientGroupId: targetClientGroupId }).select('enabledFrameworks').lean();
+      const combinedFrameworks = Array.from(
+        new Set(
+          allClientFacs.flatMap((f) =>
+            Array.isArray(f.enabledFrameworks) && f.enabledFrameworks.length > 0
+              ? f.enabledFrameworks
+              : []
+          )
+        )
+      );
+      const updatedFrameworks = combinedFrameworks.length > 0 ? combinedFrameworks : facilityEnabledFrameworks;
+      await ClientGroupModel.updateOne(
+        { _id: targetClientGroupId },
+        { $set: { enabledFrameworks: updatedFrameworks } }
+      );
+    } catch (syncErr) {
+      console.warn('Could not sync parent client group frameworks:', syncErr);
+    }
 
+    try {
+      const { generateFacilityApplicabilities } = await import('@/lib/complianceMatrixData');
+      const defaultApps = generateFacilityApplicabilities(uniqueFacilityId, name);
+      const activeApps = defaultApps.filter((app) =>
+        facilityEnabledFrameworks.includes(app.complianceType as ComplianceType)
+      );
+      if (activeApps.length > 0) {
+        await ComplianceApplicabilityModel.insertMany(
+          activeApps.map((app) => ({
+            facilityId: app.facilityId,
+            complianceType: app.complianceType,
+            period: app.period,
+            isApplicable: true,
+            authority: app.authority,
+            ministry: app.ministry,
+            notificationReference: app.notificationReference,
+            targetValue: app.targetValue,
+            targetUnit: app.targetUnit,
+            targetMethodology: app.targetMethodology,
+            deadline: app.deadline ? new Date(app.deadline) : null,
+            workflowStatus: app.workflowStatus,
+            complianceOutcome: app.complianceOutcome,
+            notes: app.notes,
+          }))
+        );
+      }
+    } catch (appErr) {
+      console.warn('Facility initial applicability creation notice:', appErr);
+    }
 
     // Update authorizedFacilityIds in UserModel for the creator
     if (session.userId) {
@@ -278,13 +325,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Also update consultant if assigned
-    if (finalConsultantId) {
-      await UserModel.updateOne(
-        { _id: finalConsultantId },
-        { $addToSet: { authorizedFacilityIds: uniqueFacilityId } }
-      );
-    }
+    // Also update all consultants so the new facility and client reflect immediately in consultant scope
+    await UserModel.updateMany(
+      { role: 'CONSULTANT' },
+      {
+        $addToSet: {
+          authorizedFacilityIds: uniqueFacilityId,
+          clientGroupIds: targetClientGroupId,
+        },
+      }
+    );
 
     try {
       const { Notification } = await import('@/models/Notification');
