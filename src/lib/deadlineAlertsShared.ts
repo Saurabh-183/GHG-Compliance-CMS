@@ -42,9 +42,16 @@ export function isDueWithinFiveDaysOrOverdue(dueDate?: Date | string | null): bo
   return days !== null && days <= 5;
 }
 
+export function isDueWithinFiveDays(dueDate?: Date | string | null): boolean {
+  const days = calculateDaysRemaining(dueDate);
+  return days !== null && days >= 0 && days <= 5;
+}
+
 /**
  * Extracts urgent deadline alert items from a list of data requirements for instant UI banners.
  * Pure function: safe to call from both Client and Server components.
+ * ONLY includes upcoming requirements due within 5 days (0 <= daysRemaining <= 5).
+ * Passed/overdue items (daysRemaining < 0) are excluded from the banner per user specification.
  */
 export function extractPortalDeadlineAlerts(
   requirements: IDataRequirement[]
@@ -62,9 +69,9 @@ export function extractPortalDeadlineAlerts(
     if (!rawDue) continue;
 
     const daysRemaining = calculateDaysRemaining(rawDue);
-    if (daysRemaining === null || daysRemaining > 5) continue;
+    // Only show in banner if due date is coming up within 5 days (not passed / overdue)
+    if (daysRemaining === null || daysRemaining < 0 || daysRemaining > 5) continue;
 
-    const isOverdue = daysRemaining < 0;
     const isToday = daysRemaining === 0;
 
     alerts.push({
@@ -74,9 +81,9 @@ export function extractPortalDeadlineAlerts(
       period: req.period,
       dueDate: new Date(rawDue).toISOString(),
       daysRemaining,
-      isOverdue,
+      isOverdue: false,
       isToday,
-      urgency: isOverdue ? 'critical' : isToday ? 'urgent' : 'warning',
+      urgency: isToday ? 'critical' : daysRemaining <= 2 ? 'urgent' : 'warning',
       linkUrl: `/portal/requests?facilityId=${encodeURIComponent(
         req.facilityId
       )}&period=${encodeURIComponent(req.period)}#req-${req._id}`,

@@ -4,6 +4,7 @@ import { connectToDatabase } from '@/lib/db';
 import { FacilityModel } from '@/models/Facility';
 import { ClientGroupModel } from '@/models/ClientGroup';
 import { UserModel } from '@/models/User';
+import { ComplianceApplicabilityModel } from '@/models/ComplianceApplicability';
 import type { ComplianceType } from '@/types';
 import { getSessionFromRequest, authorizeRole, signToken } from '@/lib/auth';
 import {

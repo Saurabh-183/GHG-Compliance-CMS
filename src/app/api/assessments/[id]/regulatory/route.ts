@@ -330,7 +330,7 @@ export async function PATCH(request: NextRequest, { params }: Ctx) {
       action === 'REJECT_FIELD' ||
       action === 'VERIFY_ALL'
     ) {
-      if (!['SUBMITTED', 'UNDER_REVIEW'].includes(submission.status)) {
+      if (!['SUBMITTED', 'UNDER_REVIEW', 'RETURNED'].includes(submission.status)) {
         return jsonError('Report is not open for field review', 409);
       }
 
@@ -359,6 +359,8 @@ export async function PATCH(request: NextRequest, { params }: Ctx) {
           return value === undefined || value === null || value === '';
         })
       );
+
+      let currentReviewedField: typeof inputFields[number] | undefined;
 
       if (action === 'VERIFY_ALL') {
         if (missingRequired.length) {
@@ -397,6 +399,7 @@ export async function PATCH(request: NextRequest, { params }: Ctx) {
         if (!fieldHasValue(field)) {
           return jsonError('This field has no entered value and cannot be verified.', 409);
         }
+        currentReviewedField = field;
         const review = {
           fieldKey: field.key,
           status: action === 'VERIFY_FIELD' ? 'VERIFIED' : 'REJECTED',
@@ -419,18 +422,30 @@ export async function PATCH(request: NextRequest, { params }: Ctx) {
       const allVerified = eligibleFields.length > 0 && eligibleFields.every(field =>
         reviews.some(item => item.fieldKey === field.key && item.status === 'VERIFIED')
       );
-      submission.status = allVerified ? 'VERIFIED' : 'UNDER_REVIEW';
-      if (allVerified) {
+      const anyRejected = reviews.some(item => item.status === 'REJECTED');
+
+      if (anyRejected) {
+        submission.status = 'RETURNED';
+        submission.auditTrail.push({
+          ...auditBase,
+          action: 'RETURN',
+          details: currentReviewedField
+            ? `Returned for correction due to rejected field: ${currentReviewedField.label}`
+            : 'Returned for correction due to rejected field(s)',
+        });
+      } else if (allVerified) {
+        submission.status = 'VERIFIED';
         submission.auditTrail.push({
           ...auditBase,
           action: 'REPORT_VERIFIED',
           details: 'All eligible input fields have been verified.',
         });
+      } else {
+        submission.status = 'UNDER_REVIEW';
       }
     } else if (action === 'RETURN') {
-      if (!['SUBMITTED', 'UNDER_REVIEW', 'VERIFIED'].includes(submission.status)) return jsonError('Only submitted, under-review or verified reports can be returned',409);
+      if (!['SUBMITTED', 'UNDER_REVIEW', 'VERIFIED', 'RETURNED'].includes(submission.status)) return jsonError('Only submitted, under-review or verified reports can be returned',409);
       submission.status = 'RETURNED';
-      submission.fieldReviews = [];
       submission.auditTrail.push({ ...auditBase, action, details: String(body.comments || 'Returned for correction').slice(0,2000) });
     } else if (action === 'VERIFY_REPORT') {
       if (!['SUBMITTED', 'UNDER_REVIEW'].includes(submission.status)) {
@@ -473,7 +488,7 @@ export async function PATCH(request: NextRequest, { params }: Ctx) {
     }
     submission.version += 1;
     await submission.save();
-    if (action === 'APPROVE' || action === 'RETURN') {
+    if (action === 'APPROVE' || action === 'RETURN' || (action === 'REJECT_FIELD' && submission.status === 'RETURNED')) {
       try {
         const approved = action === 'APPROVE';
         await Notification.create({
@@ -482,7 +497,7 @@ export async function PATCH(request: NextRequest, { params }: Ctx) {
           title: approved ? `${submission.framework} summary sheet approved` : `${submission.framework} summary sheet returned for correction`,
           message: approved
             ? `${ctx.session.name} approved ${submission.templateId} for ${submission.facilityId} (${submission.period}). Approved values are now available in the compliance assessment.`
-            : `${ctx.session.name} returned ${submission.templateId} for ${submission.facilityId} (${submission.period}). ${String(body.comments || 'Please review the consultant feedback and correct the values.')}`,
+            : `${ctx.session.name} returned ${submission.templateId} for ${submission.facilityId} (${submission.period}) for correction. ${String(body.comments || 'Please review the consultant feedback and correct the values.')}`,
           facilityId: submission.facilityId, linkUrl: `/portal/regulatory/${ctx.assessment._id}`, isRead: false,
         });
       } catch (notificationError) { console.error('Regulatory review notification failed:', notificationError); }

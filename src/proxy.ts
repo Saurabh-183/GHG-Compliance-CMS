@@ -3,7 +3,13 @@ import { verifyToken } from '@/lib/auth';
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const isPublic = pathname.startsWith('/_next') || pathname.startsWith('/api/auth/login') || pathname.startsWith('/api/auth/logout') || pathname === '/login' || pathname === '/change-password' || pathname.startsWith('/api/auth/change-password') || pathname === '/favicon.ico' || /\.(png|jpg|jpeg|gif|svg|webp|ico)$/i.test(pathname);
+  const isPublic =
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/api/auth/') ||
+    pathname === '/login' ||
+    pathname === '/change-password' ||
+    pathname === '/favicon.ico' ||
+    /\.(png|jpg|jpeg|gif|svg|webp|ico)$/i.test(pathname);
   if (isPublic) return NextResponse.next();
 
   const token = request.cookies.get('cc_auth_token')?.value;

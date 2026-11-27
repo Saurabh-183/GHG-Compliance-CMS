@@ -12,13 +12,13 @@ import { FileSpreadsheet } from 'lucide-react';
 export default function DataRequestsPage() {
   const router = useRouter();
   const { theme, currentRole, currentUser } = useAuth();
-  const isAdmin = currentRole === 'ADMIN' || currentUser?.role === 'ADMIN';
+  const isClient = currentRole === 'CLIENT' || currentUser?.role === 'CLIENT';
 
   useEffect(() => {
-    if (isAdmin) {
-      router.replace('/dashboard');
+    if (isClient) {
+      router.replace('/portal');
     }
-  }, [isAdmin, router]);
+  }, [isClient, router]);
 
   const isDark = theme === 'dark';
   const [selectedFacilityId, setSelectedFacilityId] = useState('');
@@ -94,7 +94,7 @@ export default function DataRequestsPage() {
     if (found?.clientGroupId) setOrganizationId(found.clientGroupId);
   };
 
-  if (isAdmin) {
+  if (isClient) {
     return null;
   }
 

@@ -71,10 +71,6 @@ export default function DriveExplorerPage() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const facilityContainerRef = useRef<HTMLDivElement>(null);
 
-  // Folder Search Debounce State
-  const [folderSearchInput, setFolderSearchInput] = useState('');
-  const [debouncedFolderSearch, setDebouncedFolderSearch] = useState('');
-
   // Fetch facilities catalog on mount for suggestions
   useEffect(() => {
     let mounted = true;
@@ -106,14 +102,6 @@ export default function DriveExplorerPage() {
     }, 250);
     return () => clearTimeout(timer);
   }, [facilityInput]);
-
-  // Debounce Folder Search Input
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedFolderSearch(folderSearchInput);
-    }, 200);
-    return () => clearTimeout(timer);
-  }, [folderSearchInput]);
 
   // Close suggestions popover when clicking outside
   useEffect(() => {
@@ -200,18 +188,11 @@ export default function DriveExplorerPage() {
       .slice(0, 10);
   }, [allFacilities, debouncedFacilityQuery]);
 
-  const visibleItems = useMemo(
-    () =>
-      items.filter((item) =>
-        item.name.toLowerCase().includes(debouncedFolderSearch.toLowerCase())
-      ),
-    [items, debouncedFolderSearch]
-  );
+  const visibleItems = items;
 
   const openFolder = async (item: DriveItem) => {
     if (item.isFolder && (await loadItems(item.driveId))) {
       setStack((current) => [...current, { id: item.driveId, name: item.name }]);
-      setFolderSearchInput('');
     }
   };
 
@@ -219,7 +200,6 @@ export default function DriveExplorerPage() {
     const next = stack.slice(0, -1);
     if (await loadItems(next.at(-1)?.id || '')) {
       setStack(next);
-      setFolderSearchInput('');
     }
   };
 
@@ -231,7 +211,6 @@ export default function DriveExplorerPage() {
     void loadItems('', id).then((ok) => {
       if (ok) {
         setStack([]);
-        setFolderSearchInput('');
         setSelected(null);
       }
     });
@@ -243,7 +222,6 @@ export default function DriveExplorerPage() {
       setFacilityId(target);
       setShowSuggestions(false);
       setStack([]);
-      setFolderSearchInput('');
       setSelected(null);
     }
   };
@@ -461,31 +439,6 @@ export default function DriveExplorerPage() {
           >
             {loading ? 'Loading...' : 'Load facility'}
           </button>
-
-          <div className="min-w-56 flex-1 text-sm text-slate-700 dark:text-slate-300">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-              Search this folder
-            </label>
-            <div className="relative mt-1">
-              <input
-                value={folderSearchInput}
-                onChange={(e) => setFolderSearchInput(e.target.value)}
-                placeholder="Search by file or folder name..."
-                className="w-full rounded-lg border border-slate-300 bg-white dark:bg-slate-800 py-2 pl-9 pr-4 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:border-slate-700 focus:outline-none focus:border-[#17365D] dark:focus:border-emerald-500 shadow-2xs"
-              />
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
-              {folderSearchInput && (
-                <button
-                  type="button"
-                  onClick={() => setFolderSearchInput('')}
-                  className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer p-0.5"
-                  title="Clear folder search"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
-          </div>
         </section>
 
         {vaultUnavailable && <p role="status" className="text-sm text-amber-700 dark:text-amber-400">The facility vault is temporarily unavailable. Showing indexed Drive items.</p>}
@@ -499,7 +452,7 @@ export default function DriveExplorerPage() {
             {stack.map((crumb) => <span key={crumb.id} className="flex items-center gap-2 text-sm text-slate-500"><ChevronRight size={14} />{crumb.name}</span>)}
             <span className="ml-auto text-xs text-slate-500">{visibleItems.length} items</span>
           </div>
-          {loading ? <div className="p-12 text-center text-sm text-slate-500">Loading Drive contents…</div> : visibleItems.length === 0 ? <div className="p-12 text-center text-sm text-slate-500">{folderSearchInput ? 'No matching files or folders.' : activeFacility ? 'No files or folders found here.' : 'Load a facility to browse its Drive vault.'}</div> : (
+          {loading ? <div className="p-12 text-center text-sm text-slate-500">Loading Drive contents…</div> : visibleItems.length === 0 ? <div className="p-12 text-center text-sm text-slate-500">{activeFacility ? 'No files or folders found here.' : 'Load a facility to browse its Drive vault.'}</div> : (
             <div className="divide-y divide-slate-100 dark:divide-slate-800">
               {visibleItems.map((item) => <div key={item.driveId} className="flex flex-wrap items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50">
                 <button onClick={() => openFolder(item)} disabled={!item.isFolder} className="flex min-w-0 flex-1 items-center gap-3 text-left disabled:cursor-default">

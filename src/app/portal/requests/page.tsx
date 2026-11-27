@@ -390,7 +390,7 @@ function ClientRequestsContent() {
       </div>
 
       {urgentDeadlineAlerts.length > 0 && (
-        <div className="rounded-2xl border-2 border-rose-500 bg-rose-50 dark:bg-rose-950/60 p-4 sm:p-5 shadow-lg space-y-2 animate-fade-in">
+        <div className="rounded-2xl border-2 border-rose-400 bg-gray-50 dark:bg-rose-950/60 p-4 sm:p-5 space-y-2 animate-fade-in">
           <div className="flex items-center gap-3">
             <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-rose-600 text-white font-bold shrink-0 animate-pulse">
               <AlertTriangle className="w-4 h-4" />
@@ -398,13 +398,13 @@ function ClientRequestsContent() {
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <h3 className="font-extrabold text-sm sm:text-base text-rose-950 dark:text-rose-100">
-                  Urgent Deadlines: {urgentDeadlineAlerts.length} Submission{urgentDeadlineAlerts.length > 1 ? 's' : ''} Due Within 5 Days or Past Due
+                  Urgent Deadlines: {urgentDeadlineAlerts.length} Submission{urgentDeadlineAlerts.length > 1 ? 's' : ''} Due Within 5 Days
                 </h3>
                 <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-2xs">
                   Critical Alert
                 </span>
               </div>
-              <p className="text-xs text-rose-800 dark:text-rose-300 mt-0.5 font-medium">
+              <p className="text-xs text-gray-900 dark:text-rose-300 mt-0.5 font-medium">
                 The highlighted cards below require urgent submission before the statutory cutoff to avoid non-compliance notices.
               </p>
             </div>

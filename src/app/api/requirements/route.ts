@@ -121,16 +121,29 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
-    const session = getSessionFromRequest(request);
-    if (session?.role === 'ADMIN') {
+    let session = getSessionFromRequest(request);
+
+    // Development fallback: if no session or stale token, fall back to Consultant Priya Sharma
+    if (!session && process.env.NODE_ENV === 'development') {
+      session = {
+        userId: '6afe993562c738b0be61bd57',
+        name: 'Priya Sharma',
+        email: 'consultant@carboncrunch.com',
+        role: 'CONSULTANT',
+        authorizedFacilityIds: ['TRIDENT_PAPER', 'TRIDENT_YARN', 'TRIDENT_TEXTILES'],
+      };
+    }
+
+    if (!session) {
       return NextResponse.json(
-        { error: 'Forbidden: Admins have view-only access and cannot request data. Only consultants can create data requests.' },
-        { status: 403 }
+        { error: 'Unauthorized: Session expired or invalid. Please sign in again.' },
+        { status: 401 }
       );
     }
-    if (!authorizeRole(session, ['CONSULTANT'])) {
+
+    if (!authorizeRole(session, ['CONSULTANT', 'ADMIN'])) {
       return NextResponse.json(
-        { error: 'Forbidden: Only Consultants can create requirements' },
+        { error: 'Forbidden: Only Consultants and Administrators can create requirements' },
         { status: 403 }
       );
     }
@@ -140,6 +153,8 @@ export async function POST(request: NextRequest) {
       facilityIds?: string[];
       period: string;
       title: string;
+      sourceChecklistItemKey?: string;
+      masterRequirementId?: string;
       category: 'COMMON_ENERGY' | 'COMPLIANCE_SPECIFIC';
       linkedCompliances?: ComplianceType[];
       description: string;
@@ -260,32 +275,80 @@ export async function POST(request: NextRequest) {
         ...(body.requiredDocumentSpecs || []).map((d) => d.name),
       ].filter(Boolean);
 
-      const newReq = await DataRequirementModel.create({
-        ...body,
-        linkedCompliances,
-        requestId,
-        title: body.title.trim(),
-        description: body.description.trim(),
-        submissionInstructions: body.submissionInstructions || body.description.trim(),
-        requiredDocuments: [...new Set(docNames)],
-        requiredDocumentSpecs: body.requiredDocumentSpecs,
-        reportingFrequency,
-        monthlyFrequency,
-        requestedBy: session!.userId,
-        requestedByName: session!.name,
-        assignedClientContact: body.assignedClientContact,
-        allowPartialSubmission: body.allowPartialSubmission !== false,
-        facilityId: fid,
-        submissionStatus,
-        verificationStatus: 'NOT_STARTED',
-        workflowStatus,
-        history: [{ status: workflowStatus, changedAt: new Date(), changedBy: session!.name }],
-        requestedAt: body.saveAsDraft ? undefined : new Date(),
-        dueDate: body.dueDate ? new Date(body.dueDate) : undefined,
-      });
-      created.push(newReq);
+      let targetReq: IDataRequirementDocument | null = null;
 
-      if (!body.saveAsDraft) {
+      if (body.sourceChecklistItemKey) {
+        targetReq = await DataRequirementModel.findOne({
+          facilityId: fid,
+          period: body.period,
+          sourceChecklistItemKey: body.sourceChecklistItemKey,
+        });
+      }
+
+      if (targetReq) {
+        targetReq.title = body.title.trim();
+        targetReq.description = body.description.trim();
+        targetReq.submissionInstructions = body.submissionInstructions || body.description.trim();
+        targetReq.category = body.category;
+        targetReq.linkedCompliances = linkedCompliances;
+        targetReq.dataCategory = body.dataCategory;
+        targetReq.purpose = body.purpose;
+        targetReq.priority = body.priority || targetReq.priority;
+        targetReq.reportingFrequency = reportingFrequency;
+        targetReq.monthlyFrequency = monthlyFrequency;
+        targetReq.reportingPeriodStart = body.reportingPeriodStart;
+        targetReq.reportingPeriodEnd = body.reportingPeriodEnd;
+        if (body.reportingMonths) targetReq.reportingMonths = body.reportingMonths;
+        targetReq.requiredFields = body.requiredFields?.map((f) => ({ ...f, required: Boolean(f.required) }));
+        targetReq.requiredDocuments = [...new Set(docNames)];
+        targetReq.requiredDocumentSpecs = body.requiredDocumentSpecs?.map((d) => ({ ...d, required: d.required !== false }));
+        targetReq.dueDate = body.dueDate ? new Date(body.dueDate) : targetReq.dueDate;
+        targetReq.assignedClientContact = body.assignedClientContact;
+        targetReq.allowPartialSubmission = body.allowPartialSubmission !== false;
+        targetReq.workflowStatus = workflowStatus;
+        targetReq.submissionStatus = submissionStatus;
+        targetReq.requestedBy = session!.userId;
+        targetReq.requestedByName = session!.name;
+        if (!body.saveAsDraft) {
+          targetReq.requestedAt = new Date();
+        }
+        targetReq.history = targetReq.history || [];
+        targetReq.history.push({
+          status: workflowStatus,
+          changedAt: new Date(),
+          changedBy: session!.name,
+        });
+        await targetReq.save();
+        created.push(targetReq);
+      } else {
+        const newReq = await DataRequirementModel.create({
+          ...body,
+          linkedCompliances,
+          requestId,
+          title: body.title.trim(),
+          description: body.description.trim(),
+          submissionInstructions: body.submissionInstructions || body.description.trim(),
+          requiredDocuments: [...new Set(docNames)],
+          requiredDocumentSpecs: body.requiredDocumentSpecs,
+          reportingFrequency,
+          monthlyFrequency,
+          requestedBy: session!.userId,
+          requestedByName: session!.name,
+          assignedClientContact: body.assignedClientContact,
+          allowPartialSubmission: body.allowPartialSubmission !== false,
+          facilityId: fid,
+          submissionStatus,
+          verificationStatus: 'NOT_STARTED',
+          workflowStatus,
+          history: [{ status: workflowStatus, changedAt: new Date(), changedBy: session!.name }],
+          requestedAt: body.saveAsDraft ? undefined : new Date(),
+          dueDate: body.dueDate ? new Date(body.dueDate) : undefined,
+        });
+        targetReq = newReq;
+        created.push(newReq);
+      }
+
+      if (!body.saveAsDraft && targetReq) {
         try {
           await Notification.create({
             recipientRole: 'CLIENT',
@@ -293,9 +356,9 @@ export async function POST(request: NextRequest) {
             senderName: session!.name,
             type: 'DATA_CHECKLIST_SHARED',
             title: `New data request — ${targetFacility.name}`,
-            message: `${session!.name} requested ${body.title.trim()} (${requestId}) for ${body.period}. Open Data Requests to respond.`,
+            message: `${session!.name} requested ${body.title.trim()} (${targetReq.requestId || requestId}) for ${body.period}. Open Data Requests to respond.`,
             facilityId: targetFacility.facilityId,
-            linkUrl: `/portal/requests/${newReq._id.toString()}`,
+            linkUrl: `/portal/requests/${targetReq._id.toString()}`,
             isRead: false,
           });
         } catch (notificationError) {
@@ -314,8 +377,14 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating requirement:', error);
-    return NextResponse.json({ error: 'Unable to create data request. Check database connection and request details.' }, { status: 500 });
+    if (error?.code === 11000) {
+      return NextResponse.json(
+        { error: 'A data request for this checklist item and reporting period already exists for this facility.' },
+        { status: 409 }
+      );
+    }
+    return NextResponse.json({ error: error?.message || 'Unable to create data request. Check database connection and request details.' }, { status: 500 });
   }
 }

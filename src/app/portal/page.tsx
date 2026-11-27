@@ -107,7 +107,7 @@ export default function ClientPortalDashboard() {
         setRequestProgress(computePortalDataRequestPercentages(scoped));
         setSubmissionFiles(listClientSubmittedDriveFiles(scoped));
         const directAlerts = extractPortalDeadlineAlerts(scoped);
-        setPortalAlerts((prev) => (directAlerts.length > 0 ? directAlerts : prev));
+        setPortalAlerts(directAlerts);
       } else {
         setRequestProgress(computePortalDataRequestPercentages([]));
         setSubmissionFiles([]);
@@ -310,12 +310,12 @@ export default function ClientPortalDashboard() {
         </div>
       </div>
 
-      {/* Critical Deadline Alert Banner (<= 5 Days or Overdue) */}
+      {/* Critical Deadline Alert Banner (<= 5 Days) */}
       {portalAlerts.length > 0 && (
-        <div className="rounded-2xl border-2 border-rose-500 bg-rose-50 dark:bg-rose-950/60 p-5 sm:p-6 shadow-xl space-y-4 animate-fade-in">
+        <div className="rounded-2xl border-2 bogray-rose-50gray-rose-50 dargray-rose-950/60 p-5 sm:p-6 shadow-xl space-y-4 animate-fade-in">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-rose-600 text-white shadow-md shrink-0 animate-pulse">
+              <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-600 text-white shadow-md shrink-0 animate-pulse">
                 <AlertTriangle className="w-5 h-5" />
               </span>
               <div>
@@ -324,17 +324,17 @@ export default function ClientPortalDashboard() {
                     Urgent Compliance Deadlines ({portalAlerts.length})
                   </h3>
                   <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-2xs">
-                    Due in &le; 5 Days or Past Due
+                    Due in &le; 5 Days
                   </span>
                 </div>
                 <p className="text-xs text-rose-800 dark:text-rose-300 mt-0.5 font-medium">
-                  The following requirements require immediate submission. Please upload your Google Drive evidence and complete submissions to prevent statutory compliance penalties.
+                  The following requirements require immediate submission.<span className='text-black'> Please upload your Google Drive evidence and complete submissions to prevent statutory compliance penalties.</span>
                 </p>
               </div>
             </div>
             <Link
-              href={`/portal/requests${buildPortalScopeQuery(selectedFacilityId, selectedPeriod)}`}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-md transition-colors whitespace-nowrap self-start sm:self-center"
+              href={`/portal/requests${buildPortalScopeQuery(portalAlerts[0]?.facilityId || selectedFacilityId, portalAlerts[0]?.period || selectedPeriod)}`}
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-bluye-600 hover:bg-blue-700 text-black font-bold text-xs shadow-md transition-colors whitespace-nowrap self-start sm:self-center"
             >
               <span>View Data Requests</span>
               <ArrowRight className="w-4 h-4" />
@@ -354,18 +354,14 @@ export default function ClientPortalDashboard() {
                     </span>
                     <span
                       className={`px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wide ${
-                        alert.isOverdue
+                        alert.isToday
                           ? 'bg-rose-600 text-white animate-pulse'
-                          : alert.isToday
-                            ? 'bg-rose-600 text-white'
-                            : 'bg-amber-600 text-white'
+                          : 'bg-amber-600 text-white'
                       }`}
                     >
-                      {alert.isOverdue
-                        ? `${Math.abs(alert.daysRemaining)}d Overdue`
-                        : alert.isToday
-                          ? 'Due Today'
-                          : `Due in ${alert.daysRemaining} day${alert.daysRemaining === 1 ? '' : 's'}`}
+                      {alert.isToday
+                        ? 'Due Today'
+                        : `Due in ${alert.daysRemaining} day${alert.daysRemaining === 1 ? '' : 's'}`}
                     </span>
                   </div>
                   <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white line-clamp-2" title={alert.title}>

@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
       clientGroupId: user.clientGroupId?.toString(), authorizedFacilityIds, mustChangePassword: !!user.mustChangePassword };
     const token = signToken(payload);
     const response = NextResponse.json({ success: true, user: { ...userPayload(user), authorizedFacilityIds } });
-    response.cookies.set(COOKIE_NAME, token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/', maxAge: 30 * 60 });
+    response.cookies.set(COOKIE_NAME, token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/', maxAge: 7 * 24 * 60 * 60 });
     return response;
   } catch (error) {
     console.error('Login error:', error);

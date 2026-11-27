@@ -41,14 +41,20 @@ interface FacilityDataRequestPanelProps {
   facilityId: string;
   facilityName?: string;
   period?: string;
+  initialCompliances?: ComplianceType[];
   className?: string;
+  onPeriodChange?: (period: string) => void;
+  onSent?: () => void;
 }
 
 export function FacilityDataRequestPanel({
   facilityId: initialFacilityId,
   facilityName: initialFacilityName,
   period: defaultPeriod = DEFAULT_CHECKLIST_PERIOD,
+  initialCompliances,
   className = '',
+  onPeriodChange,
+  onSent,
 }: FacilityDataRequestPanelProps) {
   const { currentUser, theme } = useAuth();
   const isDark = theme === 'dark';
@@ -138,7 +144,9 @@ export function FacilityDataRequestPanel({
   const [customCategory, setCustomCategory] = useState('');
   const [period, setPeriod] = useState(defaultPeriod);
   const [priority, setPriority] = useState<'LOW' | 'MEDIUM' | 'HIGH'>('MEDIUM');
-  const [linkedCompliances, setLinkedCompliances] = useState<ComplianceType[]>(['PAT', 'RCO']);
+  const [linkedCompliances, setLinkedCompliances] = useState<ComplianceType[]>(
+    initialCompliances && initialCompliances.length > 0 ? initialCompliances : ['PAT', 'RCO']
+  );
 
   const [fields, setFields] = useState<IRequestField[]>([]);
   const [documents, setDocuments] = useState<IRequestDocumentSpec[]>([]);
@@ -460,6 +468,7 @@ export function FacilityDataRequestPanel({
       setDueDate('');
       setSelectedMonths([]);
       await load();
+      onSent?.();
     } catch (e) {
       notify.error(e instanceof Error ? e.message : 'Failed to save request');
     } finally {
@@ -550,7 +559,11 @@ export function FacilityDataRequestPanel({
               <FormControl size="small" fullWidth>
                 <Select
                   value={period}
-                  onChange={(e) => setPeriod(e.target.value)}
+                  onChange={(e) => {
+                    const nextP = e.target.value;
+                    setPeriod(nextP);
+                    onPeriodChange?.(nextP);
+                  }}
                   sx={muiSelectSx}
                   MenuProps={muiMenuProps}
                 >
@@ -1033,7 +1046,7 @@ function PanelHeader({
         Create data request — client portal
       </h3>
       <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-        {orgName} · <strong>{facilityLabel}</strong> · FY {period}
+        {orgName ? `${orgName} · ` : ''}<strong>{facilityLabel}</strong> · {period?.startsWith('FY') ? period : `FY ${period}`}
       </p>
       <p className="text-[11px] text-slate-500 mt-1">{openCount} open request(s) for this facility.</p>
     </div>
