@@ -3,12 +3,13 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import * as XLSX from 'xlsx';
 import { Select, MenuItem, FormControl } from '@mui/material';
-import { FileSpreadsheet, Send, Save, Loader2 } from 'lucide-react';
+import { FileSpreadsheet, Send, Save, Loader2, Check, X } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import {
   RegulatoryTemplate, RegulatoryField, getTemplatesForFramework,
   getRegulatoryTemplate, calculateRegulatoryValues, RegulatoryFramework
 } from '@/lib/regulatory/regulatoryTemplates';
+import { MuiDatePicker } from '@/components/common/MuiDatePicker';
 
 type Props = { assessmentId: string; framework: RegulatoryFramework; period: string; facilityId: string };
 type Review = { fieldKey: string; status: string; comments?: string; reviewedByName?: string };
@@ -114,6 +115,26 @@ export function RegulatoryMetricsPanel({ assessmentId, framework, period, facili
   async function review(action: string, fieldKey?: string, comments?: string) {
     if (fieldKey) {
       setReviewingAction({ key: fieldKey, action });
+      if (action === 'VERIFY_FIELD' || action === 'REJECT_FIELD') {
+        const nextStatus = action === 'VERIFY_FIELD' ? 'VERIFIED' : 'REJECTED';
+        setReviews(prev => {
+          const idx = prev.findIndex(r => r.fieldKey === fieldKey);
+          const updated = {
+            fieldKey,
+            status: nextStatus,
+            comments: comments || (action === 'REJECT_FIELD' ? 'Please review the supporting source and correct this value.' : ''),
+          };
+          if (idx >= 0) {
+            const copy = [...prev];
+            copy[idx] = { ...copy[idx], ...updated };
+            return copy;
+          }
+          return [...prev, updated];
+        });
+        if (action === 'REJECT_FIELD') {
+          setStatus('RETURNED');
+        }
+      }
     } else {
       setBusy(true);
     }
@@ -138,6 +159,8 @@ export function RegulatoryMetricsPanel({ assessmentId, framework, period, facili
       setMessage(
         data.submission.status === 'VERIFIED'
           ? 'Verification completed. All eligible fields are verified. The report is ready for final approval.'
+          : data.submission.status === 'RETURNED'
+          ? 'Field rejected. The report has been returned to the client for correction.'
           : `Action ${action.replaceAll('_', ' ').toLowerCase()} completed.`
       );
     } catch (e) {
@@ -209,7 +232,15 @@ export function RegulatoryMetricsPanel({ assessmentId, framework, period, facili
         <div>
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">Regulatory reporting</span>
-            <span className="rounded-full bg-slate-100 dark:bg-slate-800 px-2 py-1 text-[10px] font-semibold">{status.replaceAll('_',' ')}</span>
+            <span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${
+              status === 'RETURNED'
+                ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300'
+                : status === 'VERIFIED'
+                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'
+                : 'bg-slate-100 dark:bg-slate-800'
+            }`}>
+              {status === 'RETURNED' ? 'Returned for correction' : status.replaceAll('_',' ')}
+            </span>
           </div>
           <h2 className="mt-1 text-lg font-bold text-slate-900 dark:text-white">Structured Regulatory Compliance Metrics</h2>
           <p className="mt-1 text-xs text-slate-500">Facility: {facilityId} · Period: {period} · Version: {version || 'New'}</p>
@@ -433,16 +464,26 @@ export function RegulatoryMetricsPanel({ assessmentId, framework, period, facili
                         const isComputed=field.input===false;
                         const raw=isComputed && col==='VALUE' ? computed[field.key] : computed[key];
                         const val=raw === undefined || raw === null ? '' : String(raw);
+                        const isDisabled = isComputed || locked || !canEdit;
                         return <td key={col} className="px-3 py-2 min-w-36">
-                          <input
-                            type={field.kind==='date'?'date':(field.kind==='text'||col==='NOT_APPLICABLE')?'text':'number'}
-                            step={field.unit.includes('%')?'0.01':'any'}
-                            value={val}
-                            readOnly={isComputed || locked || !canEdit}
-                            onChange={e=>setValue(key,field.kind==='text'||field.kind==='date'||col==='NOT_APPLICABLE'?e.target.value:(e.target.value===''?'':Number(e.target.value)))}
-                            className={`w-full rounded-md border px-2.5 py-2 text-xs ${isComputed?'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300':'bg-white dark:bg-slate-950'} border-slate-200 dark:border-slate-700`}
-                            placeholder={isComputed?'Calculated':'Enter value'}
-                          />
+                          {field.kind === 'date' ? (
+                            <MuiDatePicker
+                              value={val}
+                              onChange={(nextVal) => setValue(key, nextVal)}
+                              placeholder="dd-mm-yyyy"
+                              disabled={isDisabled}
+                            />
+                          ) : (
+                            <input
+                              type={(field.kind==='text'||col==='NOT_APPLICABLE')?'text':'number'}
+                              step={field.unit.includes('%')?'0.01':'any'}
+                              value={val}
+                              readOnly={isDisabled}
+                              onChange={e=>setValue(key,field.kind==='text'||col==='NOT_APPLICABLE'?e.target.value:(e.target.value===''?'':Number(e.target.value)))}
+                              className={`w-full rounded-md border px-2.5 py-2 text-xs ${isComputed?'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300':'bg-white dark:bg-slate-950'} border-slate-200 dark:border-slate-700`}
+                              placeholder={isComputed?'Calculated':'Enter value'}
+                            />
+                          )}
                         </td>;
                       })}
                       {isReviewer && <td className="px-3 py-2 min-w-36">
@@ -450,16 +491,16 @@ export function RegulatoryMetricsPanel({ assessmentId, framework, period, facili
                           <span className="text-[10px] text-slate-400">Calculated</span>
                         ) : (
                           <>
-                            <div className={`text-[10px] mb-1 font-medium ${reviewState?.status === 'VERIFIED' ? 'text-emerald-600' : reviewState?.status === 'REJECTED' ? 'text-rose-600' : 'text-slate-500'}`}>
-                              {reviewState?.status || 'PENDING'}
-                            </div>
                             {(() => {
-                              const isEligible = ['SUBMITTED', 'UNDER_REVIEW'].includes(status);
+                              const isEligible = ['SUBMITTED', 'UNDER_REVIEW', 'RETURNED'].includes(status);
                               const isThisFieldReviewing = reviewingAction?.key === field.key;
                               const isThisVerifying = isThisFieldReviewing && reviewingAction?.action === 'VERIFY_FIELD';
                               const isThisRejecting = isThisFieldReviewing && reviewingAction?.action === 'REJECT_FIELD';
                               const isOtherRowBusy = Boolean(reviewingAction && !isThisFieldReviewing);
                               const isButtonDisabled = !isEligible || busy || isThisFieldReviewing || isOtherRowBusy;
+
+                              const isVerified = reviewState?.status === 'VERIFIED';
+                              const isRejected = reviewState?.status === 'REJECTED';
 
                               return (
                                 <div className="flex gap-1.5 items-center">
@@ -467,10 +508,16 @@ export function RegulatoryMetricsPanel({ assessmentId, framework, period, facili
                                     type="button"
                                     disabled={isButtonDisabled}
                                     onClick={() => review('VERIFY_FIELD', field.key)}
-                                    className={`inline-flex items-center justify-center gap-1 rounded bg-emerald-700 hover:bg-emerald-800 text-white px-2.5 py-1 text-[10px] font-medium transition-all shadow-2xs ${
+                                    className={`inline-flex items-center justify-center gap-1 rounded px-2.5 py-1 text-[10px] font-medium transition-all shadow-2xs ${
+                                      isVerified
+                                        ? 'bg-green-600 hover:bg-green-700 text-white font-semibold ring-1 ring-green-500'
+                                        : isRejected
+                                        ? 'border border-emerald-300 dark:border-emerald-800 bg-emerald-50/60 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-950/40'
+                                        : 'bg-emerald-700 hover:bg-emerald-800 text-white'
+                                    } ${
                                       !isEligible ? 'opacity-40 cursor-not-allowed' : ''
                                     } ${
-                                      isThisVerifying ? 'opacity-90 ring-2 ring-emerald-400 scale-[0.98]' : ''
+                                      isThisVerifying ? 'opacity-90 ring-2 ring-green-400 scale-[0.98]' : ''
                                     } ${
                                       isOtherRowBusy ? 'cursor-not-allowed' : ''
                                     }`}
@@ -480,6 +527,11 @@ export function RegulatoryMetricsPanel({ assessmentId, framework, period, facili
                                         <Loader2 className="w-2.5 h-2.5 animate-spin" />
                                         <span>Verifying…</span>
                                       </>
+                                    ) : isVerified ? (
+                                      <>
+                                        <Check className="w-3 h-3" />
+                                        <span>Verified</span>
+                                      </>
                                     ) : (
                                       'Verify'
                                     )}
@@ -488,10 +540,16 @@ export function RegulatoryMetricsPanel({ assessmentId, framework, period, facili
                                     type="button"
                                     disabled={isButtonDisabled}
                                     onClick={() => review('REJECT_FIELD', field.key)}
-                                    className={`inline-flex items-center justify-center gap-1 rounded bg-rose-700 hover:bg-rose-800 text-white px-2.5 py-1 text-[10px] font-medium transition-all shadow-2xs ${
+                                    className={`inline-flex items-center justify-center gap-1 rounded px-2.5 py-1 text-[10px] font-medium transition-all shadow-2xs ${
+                                      isRejected
+                                        ? 'bg-red-600 hover:bg-red-700 text-white font-semibold ring-1 ring-red-500'
+                                        : isVerified
+                                        ? 'border border-rose-300 dark:border-rose-800 bg-rose-50/60 dark:bg-rose-950/20 text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-950/40'
+                                        : 'bg-rose-700 hover:bg-rose-800 text-white'
+                                    } ${
                                       !isEligible ? 'opacity-40 cursor-not-allowed' : ''
                                     } ${
-                                      isThisRejecting ? 'opacity-90 ring-2 ring-rose-400 scale-[0.98]' : ''
+                                      isThisRejecting ? 'opacity-90 ring-2 ring-red-400 scale-[0.98]' : ''
                                     } ${
                                       isOtherRowBusy ? 'cursor-not-allowed' : ''
                                     }`}
@@ -500,6 +558,11 @@ export function RegulatoryMetricsPanel({ assessmentId, framework, period, facili
                                       <>
                                         <Loader2 className="w-2.5 h-2.5 animate-spin" />
                                         <span>Rejecting…</span>
+                                      </>
+                                    ) : isRejected ? (
+                                      <>
+                                        <X className="w-3 h-3" />
+                                        <span>Rejected</span>
                                       </>
                                     ) : (
                                       'Reject'
@@ -534,7 +597,7 @@ export function RegulatoryMetricsPanel({ assessmentId, framework, period, facili
           <div className="flex flex-wrap gap-2.5 border-t border-slate-200 dark:border-slate-700 pt-4">
             <button
               type="button"
-              disabled={busy || Boolean(reviewingAction) || !['SUBMITTED', 'UNDER_REVIEW'].includes(status) || reviewableFields.length === 0}
+              disabled={busy || Boolean(reviewingAction) || !['SUBMITTED', 'UNDER_REVIEW', 'RETURNED'].includes(status) || reviewableFields.length === 0}
               onClick={() => {
                 const confirmed = window.confirm(
                   `Verify all ${reviewableFields.length} eligible input fields? Make sure you have checked the submitted values and supporting evidence.`

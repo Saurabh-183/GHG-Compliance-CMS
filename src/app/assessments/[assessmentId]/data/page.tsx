@@ -4,10 +4,10 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { COMPLIANCE_PERIODS } from '@/lib/complianceMatrixData';
-import { buildAssessmentId } from '@/lib/assessmentIds';
+import { buildAssessmentId, parseAssessmentId } from '@/lib/assessmentIds';
 import type { IDataRequirement, IAssessment } from '@/types';
 import { DataRequestStatsBar } from '@/components/requests/DataRequestStatsBar';
-import { ChecklistDrivenRequestWizard } from '@/components/requests/ChecklistDrivenRequestWizard';
+import { FacilityDataRequestPanel } from '@/components/requests/FacilityDataRequestPanel';
 import { RequirementsReviewTable } from '@/components/requests/RequirementsReviewTable';
 import { matchesQuickFilter } from '@/lib/dataRequestDisplay';
 import { computeRequestStats } from '@/lib/requestStats';
@@ -43,11 +43,48 @@ export default function AssessmentDataPage() {
         credentials: 'include',
       });
       const assessmentPayload = await assessmentResponse.json().catch(() => null);
-      if (!assessmentResponse.ok || !assessmentPayload?.data) {
-        throw new Error(assessmentPayload?.error || 'Unable to load assessment details.');
+
+      let currentAssessment: IAssessment | null = null;
+      if (assessmentResponse.ok && assessmentPayload?.data) {
+        currentAssessment = assessmentPayload.data as IAssessment;
+      } else {
+        const parsed = parseAssessmentId(assessmentId);
+        if (parsed) {
+          let facilityName = parsed.facilityId;
+          let clientGroupName: string | undefined;
+          try {
+            const facRes = await fetch(`/api/facilities/${encodeURIComponent(parsed.facilityId)}`, {
+              cache: 'no-store',
+              credentials: 'include',
+            });
+            const facJson = await facRes.json().catch(() => null);
+            if (facJson?.data?.name) facilityName = facJson.data.name;
+            if (facJson?.data?.clientGroupName) clientGroupName = facJson.data.clientGroupName;
+          } catch {
+            // fallback
+          }
+
+          currentAssessment = {
+            _id: assessmentId,
+            facilityId: parsed.facilityId,
+            complianceType: parsed.complianceType,
+            period: parsed.period,
+            facilityName,
+            clientGroupName,
+            workflowStatus: 'NOT_STARTED',
+            complianceOutcome: 'PENDING_DETERMINATION',
+            isHistorical: false,
+            metrics: [],
+            documentLinks: {},
+            version: 0,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          } as unknown as IAssessment;
+        } else {
+          throw new Error(assessmentPayload?.error || 'Unable to load assessment details.');
+        }
       }
 
-      const currentAssessment = assessmentPayload.data as IAssessment;
       setAssessment(currentAssessment);
 
       const query = new URLSearchParams({
@@ -306,12 +343,12 @@ export default function AssessmentDataPage() {
       )}
 
       {showCreate && !isAdmin && assessment && (
-        <ChecklistDrivenRequestWizard
+        <FacilityDataRequestPanel
           key={`${assessment.facilityId}-${assessment.period}`}
           facilityId={assessment.facilityId}
           facilityName={assessment.facilityName}
           period={assessment.period}
-          initialFrameworks={assessment.complianceType ? [assessment.complianceType] : undefined}
+          initialCompliances={assessment.complianceType ? [assessment.complianceType] : undefined}
           onPeriodChange={(nextPeriod) => {
             const nextId = buildAssessmentId(
               assessment.facilityId,

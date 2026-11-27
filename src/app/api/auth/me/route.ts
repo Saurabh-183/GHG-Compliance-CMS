@@ -9,10 +9,15 @@ import { isMongoUnavailableError } from '@/lib/db';
 
 export async function GET(request: NextRequest) {
   const session = getSessionFromRequest(request);
-  if (!session || !mongoose.Types.ObjectId.isValid(session.userId)) return NextResponse.json({ authenticated: false }, { status: 401 });
+  if (!session) {
+    return NextResponse.json({ authenticated: false, user: null }, { status: 200 });
+  }
+
   try {
     await connectToDatabase();
-    const user = await findUserForSession(session);
+    const user = mongoose.Types.ObjectId.isValid(session.userId)
+      ? await findUserForSession(session)
+      : null;
     if (user) {
       const clientGroupId = user.clientGroupId ? user.clientGroupId.toString() : undefined;
       let clientGroupCode: string | undefined;

@@ -51,15 +51,19 @@ const WEEKDAY_NAMES = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 
 // Helpers for date conversions
 function parseIsoDate(isoStr?: string): { year: number; month: number; day: number } | null {
-  if (!isoStr || !/^\d{4}-\d{2}-\d{2}$/.test(isoStr)) return null;
-  const [y, m, d] = isoStr.split('-').map(Number);
+  if (!isoStr) return null;
+  const datePart = isoStr.includes('T') ? isoStr.split('T')[0] : isoStr.trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(datePart)) return null;
+  const [y, m, d] = datePart.split('-').map(Number);
   if (!y || !m || !d) return null;
   return { year: y, month: m - 1, day: d };
 }
 
 function parseIsoMonth(isoStr?: string): { year: number; month: number } | null {
-  if (!isoStr || !/^\d{4}-\d{2}$/.test(isoStr)) return null;
-  const [y, m] = isoStr.split('-').map(Number);
+  if (!isoStr) return null;
+  const monthPart = isoStr.includes('T') ? isoStr.split('T')[0].slice(0, 7) : isoStr.trim();
+  if (!/^\d{4}-\d{2}$/.test(monthPart)) return null;
+  const [y, m] = monthPart.split('-').map(Number);
   if (!y || !m) return null;
   return { year: y, month: m - 1 };
 }

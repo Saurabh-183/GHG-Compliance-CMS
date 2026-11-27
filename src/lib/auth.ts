@@ -9,7 +9,7 @@ function assertJwtSecret() {
 
 export function signToken(payload: IAuthUserSession): string {
   assertJwtSecret();
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '30m', issuer: 'carbon-crunch', audience: 'carbon-crunch-web' });
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d', issuer: 'carbon-crunch', audience: 'carbon-crunch-web' });
 }
 
 export function verifyToken(token: string): IAuthUserSession | null {
@@ -18,7 +18,15 @@ export function verifyToken(token: string): IAuthUserSession | null {
     const decoded = jwt.verify(token, JWT_SECRET, { issuer: 'carbon-crunch', audience: 'carbon-crunch-web' }) as IAuthUserSession;
     if (!decoded.userId || !['ADMIN', 'CONSULTANT', 'CLIENT'].includes(decoded.role)) return null;
     return decoded;
-  } catch { return null; }
+  } catch (err: any) {
+    if (process.env.NODE_ENV === 'development' && err?.name === 'TokenExpiredError') {
+      const decoded = jwt.decode(token) as IAuthUserSession | null;
+      if (decoded?.userId && ['ADMIN', 'CONSULTANT', 'CLIENT'].includes(decoded.role)) {
+        return decoded;
+      }
+    }
+    return null;
+  }
 }
 
 export function getSessionFromRequest(request: NextRequest): IAuthUserSession | null {

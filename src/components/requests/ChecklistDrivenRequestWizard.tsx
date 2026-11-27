@@ -397,7 +397,7 @@ export function ChecklistDrivenRequestWizard({
 
         <div>
           <MuiDatePicker
-            label="Due date"
+            label="Due date*"
             value={dueDate}
             onChange={setDueDate}
             placeholder="dd-mm-yyyy"

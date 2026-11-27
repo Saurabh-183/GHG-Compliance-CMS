@@ -114,7 +114,7 @@ export function RequestReviewPanel({
         <MetaStat label="Facility" value={requirement.facilityId} mono />
         <MetaStat label="Period" value={requirement.period} mono />
         <MetaStat
-          label="Due date"
+          label="Due date*"
           value={formatDate(activeDueDate)}
           badge={urgency === 'overdue' ? 'Overdue' : urgency === 'soon' ? 'Soon' : undefined}
           badgeVariant={urgency === 'overdue' ? 'rose' : 'amber'}

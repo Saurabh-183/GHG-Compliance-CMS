@@ -28,6 +28,48 @@ export async function GET(
       assessment = await AssessmentModel.findOne({ _id: id }).lean();
     }
 
+    if (!assessment) {
+      const { parseAssessmentId } = await import('@/lib/assessmentIds');
+      const parsed = parseAssessmentId(id);
+      if (parsed) {
+        assessment = await AssessmentModel.findOne({
+          facilityId: parsed.facilityId,
+          complianceType: parsed.complianceType,
+          period: parsed.period,
+        })
+          .populate('approvedBy', 'name email designation')
+          .populate('assignedConsultantId', 'name email designation')
+          .populate('assignedReviewerId', 'name email designation')
+          .lean();
+
+        if (!assessment && (session?.role === 'ADMIN' || session?.role === 'CONSULTANT')) {
+          if (!isAuthorizedForFacility(session, parsed.facilityId)) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+          }
+          const { FacilityModel } = await import('@/models/Facility');
+          const facility = await FacilityModel.findOne({ facilityId: parsed.facilityId }).lean();
+          const virtualAssessment = {
+            _id: id,
+            facilityId: parsed.facilityId,
+            facilityName: facility?.name || parsed.facilityId,
+            clientGroupId: facility?.clientGroupId,
+            clientGroupName: (facility as any)?.clientGroupName,
+            complianceType: parsed.complianceType,
+            period: parsed.period,
+            workflowStatus: 'NOT_STARTED',
+            complianceOutcome: 'PENDING_DETERMINATION',
+            metrics: [],
+            isHistorical: false,
+            documentLinks: {},
+            version: 0,
+          };
+          return NextResponse.json({
+            success: true,
+            data: virtualAssessment,
+          });
+        }
+      }
+    }
 
     if (!assessment) {
       return NextResponse.json({ error: 'Assessment not found' }, { status: 404 });
@@ -44,7 +86,7 @@ export async function GET(
       const configuredPeriod = String(row.period).toLowerCase();
       return configuredPeriod === assessmentPeriod || (!!assessmentYear && configuredPeriod.includes(assessmentYear));
     });
-    if (!isConfigured) {
+    if (!isConfigured && session?.role === 'CLIENT') {
       return NextResponse.json({ error: 'This assessment is not configured as applicable for the selected facility and financial year.' }, { status: 404 });
     }
 
