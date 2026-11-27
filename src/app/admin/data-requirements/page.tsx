@@ -7,6 +7,7 @@ import { Loader2, RefreshCw, Upload, Calendar, Factory, Filter, ChevronDown } fr
 import { Select, MenuItem, FormControl, SelectChangeEvent, Menu } from '@mui/material';
 import { useAuth } from '@/context/AuthContext';
 import { COMPLIANCE_PERIODS } from '@/lib/complianceMatrixData';
+import { getCurrentFinancialYear } from '@/lib/financialYears';
 import { notify } from '@/lib/notify';
 
 const APPLICABILITY_OPTIONS: ChecklistApplicabilityStatus[] = [
@@ -37,7 +38,7 @@ export default function AdminDataRequirementsPage() {
   const isDark = theme === 'dark';
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
-  const [period, setPeriod] = useState('FY2025-26');
+  const [period, setPeriod] = useState(getCurrentFinancialYear());
   const [matrix, setMatrix] = useState<{
     versionId: string;
     columns: Array<{ itemKey: string; label: string }>;

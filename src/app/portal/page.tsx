@@ -26,6 +26,7 @@ import {
   InputLabel,
 } from '@mui/material';
 import { notify } from '@/lib/notify';
+import { normalizeFinancialYearPeriod } from '@/lib/financialYears';
 import { IDataRequirement, IFacility, IClarification, ComplianceType } from '@/types';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import { computePortalDataRequestPercentages } from '@/lib/requestStats';
@@ -71,6 +72,7 @@ export default function ClientPortalDashboard() {
     return sessionStorage.getItem('portalSelectedFacilityId') || '';
   });
   const [selectedPeriod, setSelectedPeriod] = useState(() => readPortalPeriod());
+  const [applicabilityByFacility, setApplicabilityByFacility] = useState<Record<string, ComplianceType[]>>({});
   const hasLoadedOnceRef = useRef(false);
 
   const loadPortal = useCallback(async (period?: string) => {
@@ -124,6 +126,31 @@ export default function ClientPortalDashboard() {
   useEffect(() => {
     void loadPortal(selectedPeriod);
   }, [loadPortal, selectedPeriod]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/compliance-applicability', { credentials: 'include', cache: 'no-store' })
+      .then(async (response) => {
+        const json = await response.json();
+        if (!response.ok) throw new Error(json.error || 'Unable to load compliance applicability.');
+        const next: Record<string, ComplianceType[]> = {};
+        const normalizedSelectedPeriod = normalizeFinancialYearPeriod(selectedPeriod);
+        for (const record of (json.data || []) as Array<{
+          facilityId: string; complianceType: ComplianceType; period: string; isApplicable: boolean;
+        }>) {
+          if (!record.isApplicable || normalizeFinancialYearPeriod(record.period) !== normalizedSelectedPeriod) continue;
+          const id = record.facilityId.toUpperCase();
+          if (!next[id]) next[id] = [];
+          if (!next[id].includes(record.complianceType)) next[id].push(record.complianceType);
+        }
+        if (!cancelled) setApplicabilityByFacility(next);
+      })
+      .catch((error) => {
+        console.error('Unable to load portal compliance applicability:', error);
+        if (!cancelled) setApplicabilityByFacility({});
+      });
+    return () => { cancelled = true; };
+  }, [selectedPeriod]);
 
   useEffect(() => {
     if (!data?.facilities?.length) return;
@@ -505,14 +532,11 @@ export default function ClientPortalDashboard() {
 
                 <div className="pt-4 mt-4 border-t border-slate-200 dark:border-slate-800/80 flex items-center justify-between">
                   <span className="text-[11px] text-slate-600 dark:text-slate-400">
-                    Obligations:{' '}
+                    Obligations ({selectedPeriod}):{' '}
                     <strong className="text-slate-800 dark:text-slate-200">
-                      {((facility as any).enabledFrameworks && (facility as any).enabledFrameworks.length > 0
-                        ? (facility as any).enabledFrameworks
-                        : data?.enabledFrameworks && data.enabledFrameworks.length > 0
-                        ? data.enabledFrameworks
-                        : ['RCO', 'PAT', 'CCTS']
-                      ).join(', ')}
+                      {(applicabilityByFacility[facility.facilityId.toUpperCase()] || []).length
+                        ? applicabilityByFacility[facility.facilityId.toUpperCase()].join(', ')
+                        : 'No frameworks assigned for this year'}
                     </strong>
                   </span>
                   <Link

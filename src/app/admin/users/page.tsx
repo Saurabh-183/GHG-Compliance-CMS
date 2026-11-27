@@ -324,7 +324,6 @@ export default function AdminUsersPage() {
     category: '',
     consumerAccountNumber: '',
     contractDemand: '',
-    enabledFrameworks: [] as ComplianceType[],
   });
   const [facilityCodeManuallyEdited, setFacilityCodeManuallyEdited] = useState(false);
   const [facilityBusy, setFacilityBusy] = useState(false);
@@ -516,7 +515,6 @@ export default function AdminUsersPage() {
         category: '',
         consumerAccountNumber: '',
         contractDemand: '',
-        enabledFrameworks: [],
       });
       setFacilityCodeManuallyEdited(false);
 
@@ -1028,104 +1026,9 @@ export default function AdminUsersPage() {
               />
             </div>
 
-            {/* Applicable Compliance Frameworks for this Facility */}
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-4 bg-slate-50/70 dark:bg-slate-950/40">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-                <div>
-                  <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                    Applicable Statutory Compliance Frameworks
-                  </h3>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                    Admin decision: Choose which statutory compliance frameworks are active for this facility ({facilityForm.enabledFrameworks.length} enabled).
-                    {facilityForm.enabledFrameworks.length === 0 && (
-                      <span className="text-amber-600 dark:text-amber-400 font-semibold ml-1.5">
-                        * Enable at least 1 framework to create facility.
-                      </span>
-                    )}
-                  </p>
-                </div>
-                <div className="flex items-center gap-1.5 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => setFacilityForm({ ...facilityForm, enabledFrameworks: ['RCO', 'PAT', 'CCTS'] })}
-                    className="text-[11px] text-emerald-700 dark:text-emerald-400 hover:underline font-semibold cursor-pointer"
-                  >
-                    Select All (3)
-                  </button>
-                  <span className="text-slate-300 dark:text-slate-700">|</span>
-                  <button
-                    type="button"
-                    onClick={() => setFacilityForm({ ...facilityForm, enabledFrameworks: [] })}
-                    className="text-[11px] text-slate-500 hover:underline cursor-pointer"
-                  >
-                    Clear All
-                  </button>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {[
-                  {
-                    type: 'RCO' as const,
-                    title: 'RCO / RPO',
-                    badge: 'Renewable',
-                    desc: 'Renewable purchase obligation reconciliation.',
-                  },
-                  {
-                    type: 'PAT' as const,
-                    title: 'PAT Scheme',
-                    badge: 'Energy Savings',
-                    desc: 'Perform, Achieve & Trade cycles & ESCerts.',
-                  },
-                  {
-                    type: 'CCTS' as const,
-                    title: 'CCTS Carbon',
-                    badge: 'BEE / MoEFCC',
-                    desc: 'Carbon Credit Trading Scheme & CCC intensity.',
-                  },
-                ].map((fw) => {
-                  const isEnabled = facilityForm.enabledFrameworks.includes(fw.type);
-                  return (
-                    <button
-                      key={fw.type}
-                      type="button"
-                      onClick={() => {
-                        const next = isEnabled
-                          ? facilityForm.enabledFrameworks.filter((f) => f !== fw.type)
-                          : [...facilityForm.enabledFrameworks, fw.type];
-                        setFacilityForm({ ...facilityForm, enabledFrameworks: next });
-                      }}
-                      className={`flex flex-col text-left p-3 rounded-lg border transition-all cursor-pointer ${
-                        isEnabled
-                          ? 'border-emerald-600 bg-emerald-50/50 dark:border-emerald-500 dark:bg-emerald-950/30'
-                          : 'border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 opacity-60 hover:opacity-100'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-bold text-slate-900 dark:text-white">{fw.title}</span>
-                        <span
-                          className={`text-[10px] font-bold px-2 py-0.5 rounded transition-colors ${
-                            isEnabled
-                              ? 'framework-badge-enabled !bg-emerald-600 !text-white'
-                              : '!bg-slate-200 dark:!bg-slate-800 text-slate-600 dark:text-slate-400'
-                          }`}
-                          style={
-                            isEnabled
-                              ? { color: '#FFFFFF', backgroundColor: '#059669' }
-                              : undefined
-                          }
-                        >
-                          {isEnabled ? 'Enabled' : 'Disabled'}
-                        </span>
-                      </div>
-                      <span className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2">
-                        {fw.desc}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+            <p className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-xs text-blue-800 dark:border-blue-900 dark:bg-blue-950/30 dark:text-blue-200">
+              Register the facility first. You can configure its compliance frameworks by financial year in the panel below, including for existing facilities and multiple facilities together.
+            </p>
 
             <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
               <button
@@ -1459,22 +1362,6 @@ export default function AdminUsersPage() {
                           Reset Password
                         </button>
 
-                        {isClient && userGroup && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setFrameworkModalGroup(userGroup);
-                              setModalFrameworks(
-                                userGroup.enabledFrameworks && userGroup.enabledFrameworks.length > 0
-                                  ? userGroup.enabledFrameworks
-                                  : ['RCO', 'PAT', 'CCTS']
-                              );
-                            }}
-                            className="rounded-lg border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-1 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-[11px] font-semibold transition cursor-pointer"
-                          >
-                            Frameworks
-                          </button>
-                        )}
 
                         {isConsultant && (
                           <button

@@ -153,7 +153,7 @@ export async function GET(
     const {
       buildMultiYearComplianceMatrix,
       COMPLIANCE_FRAMEWORKS,
-      COMPLIANCE_PERIODS,
+      getCompliancePeriods,
     } = await import('@/lib/complianceMatrixData');
 
     const formattedExistingApps = applicabilityRecords.map((record) => ({
@@ -182,22 +182,12 @@ export async function GET(
 
     // Read-only endpoint: never create applicability or assessment records as a side effect.
 
-    // enabledFrameworks is the facility-wide union of frameworks enabled in any
-    // financial year. Per-year applicability remains controlled by the
-    // ComplianceApplicability records used by buildMultiYearComplianceMatrix.
-    const facEnabled = (facility as any).enabledFrameworks as ComplianceType[] | undefined;
-    const configuredInRecords = applicabilityRecords
-      .filter((record: any) => record.isApplicable !== false)
-      .map((record: any) => record.complianceType as ComplianceType);
-    const configuredFrameworks = Array.from(
-      new Set([...(facEnabled || []), ...configuredInRecords])
-    );
-    const activeFrameworks: ComplianceType[] =
-      configuredFrameworks.length > 0
-        ? (COMPLIANCE_FRAMEWORKS as ComplianceType[]).filter((framework) =>
-            configuredFrameworks.includes(framework)
-          )
-        : (COMPLIANCE_FRAMEWORKS as ComplianceType[]);
+    // A framework is shown only when it is enabled in at least one of the
+    // three active financial years for this facility.
+    const activeFrameworks: ComplianceType[] = (COMPLIANCE_FRAMEWORKS as ComplianceType[])
+      .filter((framework) =>
+        getCompliancePeriods().some((period) => matrix[framework]?.[period]?.isApplicable)
+      );
 
     return NextResponse.json({
       success: true,
@@ -213,7 +203,7 @@ export async function GET(
             'Client Group',
           clientGroupCode: clientGroupCode || rawGroupId,
         },
-        periods: COMPLIANCE_PERIODS,
+        periods: getCompliancePeriods(),
         compliances: activeFrameworks,
         matrix,
         rawApplicability: applicabilities.filter((a) =>
@@ -283,7 +273,7 @@ export async function GET(
       const {
         buildMultiYearComplianceMatrix,
         COMPLIANCE_FRAMEWORKS,
-        COMPLIANCE_PERIODS,
+        getCompliancePeriods,
       } = await import('@/lib/complianceMatrixData');
 
       const {
@@ -294,22 +284,16 @@ export async function GET(
         resolvedFacility.name
       );
 
-      // Mock facilities use the same facility-wide framework union. The matrix
-      // builder still determines applicability independently for each period.
-      const facFallbackEnabled = (resolvedFacility as any).enabledFrameworks as ComplianceType[] | undefined;
-      const activeFallbackFrameworks: ComplianceType[] =
-        facFallbackEnabled && facFallbackEnabled.length > 0
-          ? (COMPLIANCE_FRAMEWORKS as ComplianceType[]).filter((framework) =>
-              facFallbackEnabled.includes(framework)
-            )
-          : (COMPLIANCE_FRAMEWORKS as ComplianceType[]);
+      // Mock facilities have no assigned frameworks without explicit
+      // applicability records; do not infer assignments from facility flags.
+      const activeFallbackFrameworks: ComplianceType[] = [];
 
       return NextResponse.json({
         success: true,
         source: 'development-fallback',
         data: {
           facility: resolvedFacility,
-          periods: COMPLIANCE_PERIODS,
+          periods: getCompliancePeriods(),
           compliances: activeFallbackFrameworks,
           matrix,
           rawApplicability: applicabilities.filter((a) =>

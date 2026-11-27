@@ -38,7 +38,7 @@ const FacilitySchema = new Schema<IFacilityDocument>(
     assignedReviewerId: { type: Schema.Types.ObjectId, ref: 'User' },
     enabledFrameworks: {
       type: [{ type: String, enum: ['RCO', 'RPO', 'PAT', 'CCTS'] }],
-      default: ['RCO', 'RPO', 'PAT', 'CCTS'],
+      default: [],
     },
     status: { type: String, enum: ['ACTIVE', 'INACTIVE'], default: 'ACTIVE' },
     utilityConnection: {

@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSessionFromRequest, isAuthorizedForFacility } from '@/lib/auth';
+import { connectToDatabase } from '@/lib/db';
+import { ComplianceApplicabilityModel } from '@/models/ComplianceApplicability';
+import { CHECKLIST_MASTER_VERSION, getMasterRequirement } from '@/lib/dataRequirementMaster';
+import { normalizeFinancialYearPeriod } from '@/lib/financialYears';
 import { getFacilityDataChecklist } from '@/lib/facilityDataChecklistStore';
 import { DEFAULT_CHECKLIST_PERIOD } from '@/lib/facilityDataChecklistTemplate';
 import { buildApplicableRequirementsList, dataReadinessByCategory } from '@/lib/applicableRequirements';
-import { CHECKLIST_MASTER_VERSION } from '@/lib/dataRequirementMaster';
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -15,10 +18,33 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const period = request.nextUrl.searchParams.get('period') || DEFAULT_CHECKLIST_PERIOD;
+    const requestedPeriod = request.nextUrl.searchParams.get('period') || DEFAULT_CHECKLIST_PERIOD;
+    const normalizedPeriod = normalizeFinancialYearPeriod(requestedPeriod);
+    const period = normalizedPeriod || requestedPeriod;
     const facilityName = request.nextUrl.searchParams.get('facilityName') || undefined;
     const checklist = await getFacilityDataChecklist(facilityId, period, facilityName);
-    const items = buildApplicableRequirementsList(checklist);
+    let items = buildApplicableRequirementsList(checklist);
+
+    // Consultants only receive checklist rows linked to frameworks that Admin
+    // enabled for this exact facility and financial year.
+    if (session.role === 'CONSULTANT') {
+      if (!normalizedPeriod) {
+        return NextResponse.json({ error: 'Select a valid financial year.' }, { status: 400 });
+      }
+      await connectToDatabase();
+      const frameworkRows = await ComplianceApplicabilityModel.find({
+        facilityId,
+        period: { $in: [normalizedPeriod, normalizedPeriod.replace(/^FY/, '')] },
+        isApplicable: true,
+      }).select('complianceType').lean();
+      const allowedFrameworks = new Set(frameworkRows.map((row) => row.complianceType));
+      items = items.filter((row) => {
+        const master = getMasterRequirement(row.master.itemKey);
+        const frameworks = row.master.defaultCompliances || master?.defaultCompliances || [];
+        return frameworks.some((framework) => allowedFrameworks.has(framework));
+      });
+    }
+
     const readiness = dataReadinessByCategory(items);
 
     const stats = {

@@ -1,5 +1,6 @@
 import { DEFAULT_CHECKLIST_PERIOD } from '@/lib/facilityDataChecklistTemplate';
 import { COMPLIANCE_PERIODS } from '@/lib/complianceMatrixData';
+import { getCurrentFinancialYear, isRollingFinancialYear } from '@/lib/financialYears';
 import type { IAuthUserSession, IUser } from '@/types';
 
 /** Demo Trident units — default client portal scope when JWT has no facility list */
@@ -64,7 +65,8 @@ export function readPortalFacilityId(): string {
 
 export function readPortalPeriod(): string {
   if (typeof window === 'undefined') return DEFAULT_CHECKLIST_PERIOD;
-  return sessionStorage.getItem(PORTAL_PERIOD_KEY) || DEFAULT_CHECKLIST_PERIOD;
+  const saved = sessionStorage.getItem(PORTAL_PERIOD_KEY);
+  return saved && isRollingFinancialYear(saved) ? saved : getCurrentFinancialYear();
 }
 
 export function writePortalScope(facilityId: string, period: string): void {

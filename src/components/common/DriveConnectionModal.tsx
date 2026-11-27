@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { notify } from '@/lib/notify';
 import { GOOGLE_DRIVE_FOLDER_URL, GOOGLE_DRIVE_FOLDER_ID } from '@/lib/gdrive';
+import { getCurrentFinancialYear, getRollingFinancialYears } from '@/lib/financialYears';
 
 interface DriveConnectionModalProps {
   isOpen: boolean;
@@ -38,6 +39,8 @@ export const DriveConnectionModal: React.FC<DriveConnectionModalProps> = ({
   );
   const [folderName, setFolderName] = useState('Carbon Crunch · Compliance Documents & Evidence Vault');
   const [spreadsheetUrl, setSpreadsheetUrl] = useState('');
+  const [period, setPeriod] = useState(getCurrentFinancialYear());
+  const financialYears = getRollingFinancialYears();
   const [isSyncing, setIsSyncing] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [lastSynced, setLastSynced] = useState<string | null>(null);
@@ -93,7 +96,7 @@ export const DriveConnectionModal: React.FC<DriveConnectionModalProps> = ({
           folderName: folderName.trim(),
           spreadsheetUrl: spreadsheetUrl.trim(),
           datasetType: 'GRID_ELECTRICITY',
-          period: 'FY2025-26',
+          period,
         }),
       });
 
@@ -273,6 +276,19 @@ export const DriveConnectionModal: React.FC<DriveConnectionModalProps> = ({
                 />
                 <Folder className="w-4 h-4   absolute right-3 top-2.5" />
               </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+                Financial year for this sync:
+              </label>
+              <select
+                value={period}
+                onChange={(event) => setPeriod(event.target.value)}
+                className="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white text-xs"
+              >
+                {financialYears.map((year) => <option key={year} value={year}>{year}</option>)}
+              </select>
             </div>
 
             <div>

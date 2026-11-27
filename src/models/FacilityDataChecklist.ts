@@ -1,5 +1,6 @@
 import mongoose, { Schema, Model, Document } from 'mongoose';
 import type { DataChecklistItemStatus } from '@/types';
+import { getCurrentFinancialYear } from '@/lib/financialYears';
 
 export interface IFacilityDataChecklistDocument extends Document {
   facilityId: string;
@@ -25,7 +26,12 @@ const FacilityDataChecklistSchema = new Schema<IFacilityDataChecklistDocument>(
   {
     facilityId: { type: String, required: true, uppercase: true, trim: true, index: true },
     facilityName: { type: String },
-    period: { type: String, required: true, trim: true, default: 'FY2025-26' },
+    period: {
+      type: String,
+      required: true,
+      trim: true,
+      default: () => getCurrentFinancialYear(),
+    },
     items: [
       {
         itemKey: { type: String, required: true },

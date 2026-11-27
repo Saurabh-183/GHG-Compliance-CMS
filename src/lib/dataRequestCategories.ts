@@ -1,6 +1,7 @@
 import type { IRequestField, IRequestDocumentSpec } from '@/types';
 import { slugifyFieldKey } from '@/lib/requestFieldUtils';
 import { MASTER_REQUIREMENT_CATEGORIES } from '@/lib/dataRequirementMaster';
+import { getRollingFinancialYears } from '@/lib/financialYears';
 
 export const DATA_CATEGORIES = [
   ...Object.values(MASTER_REQUIREMENT_CATEGORIES),
@@ -37,15 +38,9 @@ export function suggestRequestTitle(category: string, facilityName?: string, per
   return `${base}${facility}${fy}`.trim();
 }
 
-export function financialYearOptions(count = 6): string[] {
-  const now = new Date();
-  const startYear = now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1;
-  const years: string[] = [];
-  for (let i = 0; i < count; i++) {
-    const y = startYear - i;
-    years.push(`${y}-${String(y + 1).slice(-2)}`);
-  }
-  return years;
+export function financialYearOptions(): string[] {
+  // Keep request forms aligned with the three-year admin and compliance views.
+  return getRollingFinancialYears().map((period) => period.replace(/^FY/, ''));
 }
 
 export function generateMonthRange(start: string, end: string): string[] {

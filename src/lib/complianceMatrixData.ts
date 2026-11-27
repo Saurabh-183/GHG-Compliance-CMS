@@ -1,4 +1,5 @@
-import {
+import { getRollingFinancialYears, normalizeFinancialYearPeriod } from '@/lib/financialYears';
+import type {
   ComplianceType,
   IComplianceMatrixCell,
   IComplianceApplicability,
@@ -7,14 +8,16 @@ import {
 } from '@/types';
 
 /**
- * Compliance matrix configuration.
- *
- * IMPORTANT: The matrix is a read model of explicitly configured applicability
- * and real assessment records. It must never invent historical applicability,
- * workflow statuses, evidence links, or assessment IDs.
+ * Matrix rows are a live view of the rolling previous/current/upcoming FYs.
+ * Historical records stay in MongoDB but are not expanded into active columns.
  */
 export const COMPLIANCE_FRAMEWORKS: ComplianceType[] = ['RCO', 'RPO', 'PAT', 'CCTS'];
-export const COMPLIANCE_PERIODS = Array.from({ length: 12 }, (_, index) => { const year = 2024 + index; return `FY${year}-${String(year + 1).slice(-2)}`; });
+export const COMPLIANCE_PERIODS = getRollingFinancialYears();
+
+/** Call at request/render time when the current FY must be recalculated. */
+export function getCompliancePeriods(): string[] {
+  return getRollingFinancialYears();
+}
 
 const WORKFLOW_STATUS_RANK: Record<string, number> = {
   NOT_STARTED: 0,
@@ -25,13 +28,8 @@ const WORKFLOW_STATUS_RANK: Record<string, number> = {
 };
 
 function resolveMatrixPeriod(period: string): string | undefined {
-  const normalized = String(period || '').trim().toLowerCase();
-  const exact = COMPLIANCE_PERIODS.find((p) => p.toLowerCase() === normalized);
-  if (exact) return exact;
-  const match = normalized.match(/(20\d{2})-(\d{2})/);
-  if (!match) return undefined;
-  const canonical = `FY${match[1]}-${match[2]}`;
-  return COMPLIANCE_PERIODS.some((period) => period.toLowerCase() === canonical.toLowerCase()) ? canonical : undefined;
+  const normalized = normalizeFinancialYearPeriod(period);
+  return normalized && getCompliancePeriods().includes(normalized) ? normalized : undefined;
 }
 
 function preferWorkflowStatus(current: WorkflowStatus, next: WorkflowStatus): WorkflowStatus {
@@ -40,7 +38,7 @@ function preferWorkflowStatus(current: WorkflowStatus, next: WorkflowStatus): Wo
   return nextRank >= currentRank ? next : current;
 }
 
-/** Kept for backwards compatibility with existing imports. No defaults are fabricated. */
+/** Kept for backwards compatibility. No defaults are fabricated. */
 export function generateFacilityApplicabilities(
   _facilityId: string,
   _facilityName?: string
@@ -48,7 +46,7 @@ export function generateFacilityApplicabilities(
   return [];
 }
 
-/** Kept for backwards compatibility with existing imports. Assessments must be real DB records. */
+/** Kept for backwards compatibility. Assessments must be real DB records. */
 export function generateFacilityAssessments(
   _facilityId: string,
   _facilityName?: string
@@ -66,9 +64,10 @@ export function buildMultiYearComplianceMatrix(
   applicabilities: IComplianceApplicability[];
   assessments: IAssessment[];
 } {
+  const periods = getCompliancePeriods();
   const cleanId = String(facilityId || '').toUpperCase();
   const applicabilities = existingApplicabilities.filter(
-    (app) => String(app.facilityId || '').toUpperCase() === cleanId && app.isApplicable === true
+    (app) => String(app.facilityId || '').toUpperCase() === cleanId
   );
   const assessments = existingAssessments.filter(
     (assessment) => String(assessment.facilityId || '').toUpperCase() === cleanId
@@ -76,10 +75,8 @@ export function buildMultiYearComplianceMatrix(
 
   const assessmentMap = new Map<string, string>();
   for (const assessment of assessments) {
-    assessmentMap.set(
-      `${assessment.complianceType}_${resolveMatrixPeriod(assessment.period) || assessment.period}`,
-      String(assessment._id)
-    );
+    const period = resolveMatrixPeriod(assessment.period);
+    if (period) assessmentMap.set(`${assessment.complianceType}_${period}`, String(assessment._id));
   }
 
   const matrix: Record<ComplianceType, Record<string, IComplianceMatrixCell>> = {
@@ -87,7 +84,7 @@ export function buildMultiYearComplianceMatrix(
   };
 
   for (const framework of COMPLIANCE_FRAMEWORKS) {
-    for (const period of COMPLIANCE_PERIODS) {
+    for (const period of periods) {
       matrix[framework][period] = {
         period,
         complianceType: framework,
@@ -98,7 +95,7 @@ export function buildMultiYearComplianceMatrix(
     }
   }
 
-  // An applicability record is the only source that can turn a cell on.
+  // Applicability for an exact facility + framework + FY is the source of truth.
   for (const app of applicabilities) {
     const framework = app.complianceType as ComplianceType;
     const period = resolveMatrixPeriod(app.period);
@@ -116,7 +113,7 @@ export function buildMultiYearComplianceMatrix(
     };
   }
 
-  // Overlay status only from an assessment that really exists in MongoDB.
+  // Overlay status only from real assessments; never fabricate assessment IDs.
   for (const assessment of assessments) {
     const framework = assessment.complianceType as ComplianceType;
     const period = resolveMatrixPeriod(assessment.period);
@@ -131,7 +128,6 @@ export function buildMultiYearComplianceMatrix(
   return { matrix, applicabilities, assessments };
 }
 
-/** Synthetic IDs are not assessments. Only database-backed assessment IDs resolve. */
 export function resolveAssessmentById(_id: string, _facilityName?: string): IAssessment | null {
   return null;
 }
