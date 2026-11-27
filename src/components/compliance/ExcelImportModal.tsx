@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { notify } from '@/lib/notify';
 import { GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
+import { getCurrentFinancialYear, getRollingFinancialYears } from '@/lib/financialYears';
 
 interface ExcelImportModalProps {
   isOpen: boolean;
@@ -32,6 +33,8 @@ export const ExcelImportModal: React.FC<ExcelImportModalProps> = ({
   onImportSuccess,
 }) => {
   const [activeTab, setActiveTab] = useState<'upload' | 'templates'>('upload');
+  const [period, setPeriod] = useState(getCurrentFinancialYear());
+  const financialYears = getRollingFinancialYears();
   const [selectedCategory, setSelectedCategory] = useState<
     'GRID_ELECTRICITY' | 'RENEWABLE_PURCHASE' | 'FUEL_CONSUMPTION' | 'PRODUCTION'
   >('GRID_ELECTRICITY');
@@ -119,7 +122,7 @@ export const ExcelImportModal: React.FC<ExcelImportModalProps> = ({
       '2026-02,1285000,1285000,kWh,PSPCL-BARNALA-0042,L&T-EM-99214,https://drive.google.com/file/d/PSPCL_Feb26.pdf,Feb import\n' +
       '2026-03,1360000,1360000,kWh,PSPCL-BARNALA-0042,L&T-EM-99214,https://drive.google.com/file/d/PSPCL_Mar26.pdf,Mar import\n';
 
-    setSelectedFileName(`${facilityId}_${selectedCategory}_FY25-26.csv`);
+    setSelectedFileName(`${facilityId}_${selectedCategory}_${period.replace(/^FY/, 'FY')}.csv`);
     setCsvContent(sample);
     parseAndPreviewRows(sample);
   };
@@ -140,7 +143,7 @@ export const ExcelImportModal: React.FC<ExcelImportModalProps> = ({
         body: JSON.stringify({
           facilityId,
           datasetType: selectedCategory,
-          period: 'FY2025-26',
+          period,
           driveFolderUrl,
           tolerance: 0,
           rows: parsedRows,
@@ -291,6 +294,19 @@ export const ExcelImportModal: React.FC<ExcelImportModalProps> = ({
                     </button>
                   ))}
                 </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+                  Financial year for this import:
+                </label>
+                <select
+                  value={period}
+                  onChange={(event) => setPeriod(event.target.value)}
+                  className="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white text-xs"
+                >
+                  {financialYears.map((year) => <option key={year} value={year}>{year}</option>)}
+                </select>
               </div>
 
               {/* Google Drive Master Link for Evidence Mapping */}

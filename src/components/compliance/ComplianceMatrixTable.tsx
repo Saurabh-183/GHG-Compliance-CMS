@@ -5,9 +5,11 @@ import Link from 'next/link';
 import { IFacilityComplianceMatrix, ComplianceType } from '@/types';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { ArrowUpRight, HelpCircle } from 'lucide-react';
+import { getRollingFinancialYears } from '@/lib/financialYears';
 
 interface ComplianceMatrixTableProps {
   data: IFacilityComplianceMatrix;
+  readOnly?: boolean;
 }
 
 const complianceLabels: Record<ComplianceType, { title: string; subtitle: string }> = {
@@ -29,22 +31,9 @@ const complianceLabels: Record<ComplianceType, { title: string; subtitle: string
   },
 };
 
-export const ComplianceMatrixTable: React.FC<ComplianceMatrixTableProps> = ({ data }) => {
-  const { periods, compliances, matrix, facility } = data;
-// Company started operating in 2024.
-// FY2022-23 and FY2023-24 should not show compliance statuses.
-const COMPANY_FOUNDING_FY = 'FY2024-25';
-
-const isBeforeFoundingYear = (period: string) => {
-  const yearMatch = period.match(/^FY(\d{4})-\d{2}$/);
-
-  if (!yearMatch) return false;
-
-  const periodStartYear = Number(yearMatch[1]);
-  const foundingStartYear = Number(COMPANY_FOUNDING_FY.match(/\d{4}/)?.[0]);
-
-  return periodStartYear < foundingStartYear;
-};
+export const ComplianceMatrixTable: React.FC<ComplianceMatrixTableProps> = ({ data, readOnly = false }) => {
+  const { compliances, matrix, facility } = data;
+  const periods = getRollingFinancialYears();
   return (
     <div className="overflow-hidden rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-md">
       <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950/40">
@@ -80,6 +69,13 @@ const isBeforeFoundingYear = (period: string) => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 dark:divide-slate-800/80 text-xs">
+            {compliances.length === 0 ? (
+              <tr>
+                <td colSpan={periods.length + 1} className="px-4 py-8 text-center text-sm text-slate-500">
+                  No compliance frameworks have been assigned to this facility for the previous, current or upcoming financial year.
+                </td>
+              </tr>
+            ) : null}
             {compliances.map((comp) => {
               const info = complianceLabels[comp as ComplianceType];
                 if (!info) return null;
@@ -94,7 +90,7 @@ const isBeforeFoundingYear = (period: string) => {
                   {/* Matrix Cells */}
                   {periods.map((period) => {
               const cell = matrix[comp as ComplianceType]?.[period];
-if (isBeforeFoundingYear(period) || !cell || !cell.isApplicable) {
+if (!cell || !cell.isApplicable) {
                       return (
                         <td key={period} className="py-4 px-3 align-top text-center">
                           <div className="p-3 rounded-lg bg-slate-100/70 dark:bg-slate-950/30 border border-slate-200 dark:border-slate-800/40 text-slate-400 dark:text-slate-500">
@@ -124,7 +120,9 @@ if (isBeforeFoundingYear(period) || !cell || !cell.isApplicable) {
 
                     return (
                       <td key={period} className="py-3 px-3 align-top">
-                        {targetAssessmentId ? (
+                        {readOnly ? (
+                          cellContent
+                        ) : targetAssessmentId ? (
                           <Link href={`/assessments/${targetAssessmentId}`} className="block focus:outline-none">
                             {cellContent}
                           </Link>

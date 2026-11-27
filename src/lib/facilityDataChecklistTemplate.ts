@@ -1,5 +1,6 @@
 import type { IFacilityDataChecklistItem } from '@/types';
 import { DATA_REQUIREMENT_MASTER } from '@/lib/dataRequirementMaster';
+import { getCurrentFinancialYear } from '@/lib/financialYears';
 
 /** @deprecated use DATA_REQUIREMENT_MASTER — re-exported for backward compatibility */
 export const DATA_CHECKLIST_TEMPLATE_ITEMS: Omit<IFacilityDataChecklistItem, 'status' | 'notes'>[] =
@@ -12,7 +13,7 @@ export const DATA_CHECKLIST_TEMPLATE_ITEMS: Omit<IFacilityDataChecklistItem, 'st
     categoryKey: row.category,
   }));
 
-export const DEFAULT_CHECKLIST_PERIOD = 'FY2025-26';
+export const DEFAULT_CHECKLIST_PERIOD = getCurrentFinancialYear();
 
 export function buildDefaultChecklistItems(): IFacilityDataChecklistItem[] {
   return DATA_REQUIREMENT_MASTER.map((row, index) => ({

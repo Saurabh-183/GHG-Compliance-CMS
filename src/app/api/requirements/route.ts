@@ -5,6 +5,7 @@ import { connectToDatabase } from '@/lib/db';
 import { DataRequirementModel, type IDataRequirementDocument } from '@/models/DataRequirement';
 import { FacilityModel } from '@/models/Facility';
 import { ComplianceApplicabilityModel } from '@/models/ComplianceApplicability';
+import { isRollingFinancialYear, normalizeFinancialYearPeriod } from '@/lib/financialYears';
 import { ClientGroupModel } from '@/models/ClientGroup';
 import { getSessionFromRequest, isAuthorizedForFacility, authorizeRole } from '@/lib/auth';
 import { ComplianceType, RequestFieldType, ReportingFrequency } from '@/types';
@@ -17,7 +18,7 @@ export async function GET(request: NextRequest) {
     await connectToDatabase();
     const session = getSessionFromRequest(request);
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    if (session.role === 'CLIENT' && !session.authorizedFacilityIds?.length) {
+    if (session.role !== 'ADMIN' && !session.authorizedFacilityIds?.length) {
       return NextResponse.json({ success: true, data: [] });
     }
     const searchParams = request.nextUrl.searchParams;
@@ -34,7 +35,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
       query.facilityId = facilityId.toUpperCase();
-    } else if (session.role === 'CLIENT') {
+    } else if (session.role !== 'ADMIN') {
       query.facilityId = { $in: session.authorizedFacilityIds || [] };
     } else if (!['ADMIN', 'CONSULTANT'].includes(session.role)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -122,29 +123,16 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
-    let session = getSessionFromRequest(request);
-
-    // Development fallback: if no session or stale token, fall back to Consultant Priya Sharma
-    if (!session && process.env.NODE_ENV === 'development') {
-      session = {
-        userId: '6afe993562c738b0be61bd57',
-        name: 'Priya Sharma',
-        email: 'consultant@carboncrunch.com',
-        role: 'CONSULTANT',
-        authorizedFacilityIds: ['TRIDENT_PAPER', 'TRIDENT_YARN', 'TRIDENT_TEXTILES'],
-      };
-    }
-
-    if (!session) {
+    const session = getSessionFromRequest(request);
+    if (session?.role === 'ADMIN') {
       return NextResponse.json(
-        { error: 'Unauthorized: Session expired or invalid. Please sign in again.' },
-        { status: 401 }
+        { error: 'Forbidden: Admins have view-only access and cannot request data. Only consultants can create data requests.' },
+        { status: 403 }
       );
     }
-
-    if (!authorizeRole(session, ['CONSULTANT', 'ADMIN'])) {
+    if (!authorizeRole(session, ['CONSULTANT'])) {
       return NextResponse.json(
-        { error: 'Forbidden: Only Consultants and Administrators can create requirements' },
+        { error: 'Forbidden: Only Consultants can create requirements' },
         { status: 403 }
       );
     }
@@ -154,8 +142,6 @@ export async function POST(request: NextRequest) {
       facilityIds?: string[];
       period: string;
       title: string;
-      sourceChecklistItemKey?: string;
-      masterRequirementId?: string;
       category: 'COMMON_ENERGY' | 'COMPLIANCE_SPECIFIC';
       linkedCompliances?: ComplianceType[];
       description: string;
@@ -207,17 +193,24 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: payloadError }, { status: 400 });
   }
 
+    const normalizedPeriod = normalizeFinancialYearPeriod(body.period);
+    if (!normalizedPeriod || !isRollingFinancialYear(normalizedPeriod)) {
+      return NextResponse.json(
+        { error: 'Select one of the previous, current or upcoming financial years.' },
+        { status: 400 }
+      );
+    }
+    body.period = normalizedPeriod;
+
     if (!body.facilityId?.trim() || !body.period?.trim() || !body.title?.trim() || !body.description?.trim()) {
       return NextResponse.json({ error: 'facilityId, period, title and description are required.' }, { status: 400 });
     }
     if (!['COMMON_ENERGY', 'COMPLIANCE_SPECIFIC'].includes(body.category)) {
       return NextResponse.json({ error: 'Select a valid requirement category.' }, { status: 400 });
     }
-    const linkedCompliances: ComplianceType[] =
-      Array.isArray(body.linkedCompliances) && body.linkedCompliances.length > 0
-        ? body.linkedCompliances
-        : ['RCO'];
-    if (linkedCompliances.some((c) => !['RCO', 'RPO', 'PAT', 'CCTS'].includes(c))) {
+    const requestedLinkedCompliances: ComplianceType[] =
+      Array.isArray(body.linkedCompliances) ? body.linkedCompliances : [];
+    if (requestedLinkedCompliances.some((c) => !['RCO', 'RPO', 'PAT', 'CCTS'].includes(c))) {
       return NextResponse.json({ error: 'Select valid compliance frameworks.' }, { status: 400 });
     }
     if (body.priority && !['LOW', 'MEDIUM', 'HIGH'].includes(body.priority)) {
@@ -267,20 +260,37 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: `Facility ${fid} is not assigned to you.` }, { status: 403 });
       }
 
-      // Every linked framework must be explicitly enabled for this facility
-      // and the requested financial year. Facility-wide flags alone are not enough.
-      const normalizedPeriod = /^FY/i.test(body.period) ? body.period.toUpperCase() : `FY${body.period}`;
-      const activeApplicabilities = await ComplianceApplicabilityModel.find({
+      // Server-side enforcement: a consultant cannot request a framework that
+      // Admin has not enabled for this exact facility and financial year.
+      const applicableRows = await ComplianceApplicabilityModel.find({
         facilityId: fid,
-        complianceType: { $in: linkedCompliances },
+        period: { $in: [normalizedPeriod, normalizedPeriod.replace(/^FY/, '')] },
         isApplicable: true,
-        period: { $in: [body.period, normalizedPeriod] },
       }).select('complianceType').lean();
-      const activeTypes = new Set(activeApplicabilities.map((row) => row.complianceType));
-      const facilityAllowList = Array.isArray(targetFacility.enabledFrameworks) ? targetFacility.enabledFrameworks : [];
-      const invalidFrameworks = linkedCompliances.filter((framework) => !activeTypes.has(framework) || (facilityAllowList.length > 0 && !facilityAllowList.includes(framework)));
-      if (invalidFrameworks.length) {
-        return NextResponse.json({ error: `Cannot request ${invalidFrameworks.join(', ')} data for ${fid} in ${body.period}: the Admin has not enabled it for this financial year.` }, { status: 400 });
+      const allowedFrameworks = new Set(
+        applicableRows.map((row: { complianceType: string }) => row.complianceType)
+      );
+      if (allowedFrameworks.size === 0) {
+        return NextResponse.json(
+          { error: `No compliance frameworks are enabled for ${fid} in ${normalizedPeriod}. Ask an Admin to configure this facility first.` },
+          { status: 400 }
+        );
+      }
+
+      // Consultants receive the complete Admin-approved framework set. They
+      // cannot reduce or expand it by editing the browser payload.
+      const linkedCompliances: ComplianceType[] = requestedLinkedCompliances.length
+        ? requestedLinkedCompliances
+        : Array.from(allowedFrameworks) as ComplianceType[];
+
+      const disallowedFrameworks = linkedCompliances.filter((framework) => !allowedFrameworks.has(framework));
+      if (disallowedFrameworks.length) {
+        return NextResponse.json(
+          {
+            error: `These frameworks are not enabled for ${fid} in ${normalizedPeriod}: ${disallowedFrameworks.join(', ')}.`,
+          },
+          { status: 400 }
+        );
       }
 
       const requestId = `DR-${new Date().getFullYear()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
@@ -292,80 +302,32 @@ export async function POST(request: NextRequest) {
         ...(body.requiredDocumentSpecs || []).map((d) => d.name),
       ].filter(Boolean);
 
-      let targetReq: IDataRequirementDocument | null = null;
+      const newReq = await DataRequirementModel.create({
+        ...body,
+        linkedCompliances,
+        requestId,
+        title: body.title.trim(),
+        description: body.description.trim(),
+        submissionInstructions: body.submissionInstructions || body.description.trim(),
+        requiredDocuments: [...new Set(docNames)],
+        requiredDocumentSpecs: body.requiredDocumentSpecs,
+        reportingFrequency,
+        monthlyFrequency,
+        requestedBy: session!.userId,
+        requestedByName: session!.name,
+        assignedClientContact: body.assignedClientContact,
+        allowPartialSubmission: body.allowPartialSubmission !== false,
+        facilityId: fid,
+        submissionStatus,
+        verificationStatus: 'NOT_STARTED',
+        workflowStatus,
+        history: [{ status: workflowStatus, changedAt: new Date(), changedBy: session!.name }],
+        requestedAt: body.saveAsDraft ? undefined : new Date(),
+        dueDate: body.dueDate ? new Date(body.dueDate) : undefined,
+      });
+      created.push(newReq);
 
-      if (body.sourceChecklistItemKey) {
-        targetReq = await DataRequirementModel.findOne({
-          facilityId: fid,
-          period: body.period,
-          sourceChecklistItemKey: body.sourceChecklistItemKey,
-        });
-      }
-
-      if (targetReq) {
-        targetReq.title = body.title.trim();
-        targetReq.description = body.description.trim();
-        targetReq.submissionInstructions = body.submissionInstructions || body.description.trim();
-        targetReq.category = body.category;
-        targetReq.linkedCompliances = linkedCompliances;
-        targetReq.dataCategory = body.dataCategory;
-        targetReq.purpose = body.purpose;
-        targetReq.priority = body.priority || targetReq.priority;
-        targetReq.reportingFrequency = reportingFrequency;
-        targetReq.monthlyFrequency = monthlyFrequency;
-        targetReq.reportingPeriodStart = body.reportingPeriodStart;
-        targetReq.reportingPeriodEnd = body.reportingPeriodEnd;
-        if (body.reportingMonths) targetReq.reportingMonths = body.reportingMonths;
-        targetReq.requiredFields = body.requiredFields?.map((f) => ({ ...f, required: Boolean(f.required) }));
-        targetReq.requiredDocuments = [...new Set(docNames)];
-        targetReq.requiredDocumentSpecs = body.requiredDocumentSpecs?.map((d) => ({ ...d, required: d.required !== false }));
-        targetReq.dueDate = body.dueDate ? new Date(body.dueDate) : targetReq.dueDate;
-        targetReq.assignedClientContact = body.assignedClientContact;
-        targetReq.allowPartialSubmission = body.allowPartialSubmission !== false;
-        targetReq.workflowStatus = workflowStatus;
-        targetReq.submissionStatus = submissionStatus;
-        targetReq.requestedBy = session!.userId;
-        targetReq.requestedByName = session!.name;
-        if (!body.saveAsDraft) {
-          targetReq.requestedAt = new Date();
-        }
-        targetReq.history = targetReq.history || [];
-        targetReq.history.push({
-          status: workflowStatus,
-          changedAt: new Date(),
-          changedBy: session!.name,
-        });
-        await targetReq.save();
-        created.push(targetReq);
-      } else {
-        const newReq = await DataRequirementModel.create({
-          ...body,
-          linkedCompliances,
-          requestId,
-          title: body.title.trim(),
-          description: body.description.trim(),
-          submissionInstructions: body.submissionInstructions || body.description.trim(),
-          requiredDocuments: [...new Set(docNames)],
-          requiredDocumentSpecs: body.requiredDocumentSpecs,
-          reportingFrequency,
-          monthlyFrequency,
-          requestedBy: session!.userId,
-          requestedByName: session!.name,
-          assignedClientContact: body.assignedClientContact,
-          allowPartialSubmission: body.allowPartialSubmission !== false,
-          facilityId: fid,
-          submissionStatus,
-          verificationStatus: 'NOT_STARTED',
-          workflowStatus,
-          history: [{ status: workflowStatus, changedAt: new Date(), changedBy: session!.name }],
-          requestedAt: body.saveAsDraft ? undefined : new Date(),
-          dueDate: body.dueDate ? new Date(body.dueDate) : undefined,
-        });
-        targetReq = newReq;
-        created.push(newReq);
-      }
-
-      if (!body.saveAsDraft && targetReq) {
+      if (!body.saveAsDraft) {
         try {
           await Notification.create({
             recipientRole: 'CLIENT',
@@ -373,9 +335,9 @@ export async function POST(request: NextRequest) {
             senderName: session!.name,
             type: 'DATA_CHECKLIST_SHARED',
             title: `New data request — ${targetFacility.name}`,
-            message: `${session!.name} requested ${body.title.trim()} (${targetReq.requestId || requestId}) for ${body.period}. Open Data Requests to respond.`,
+            message: `${session!.name} requested ${body.title.trim()} (${requestId}) for ${body.period}. Open Data Requests to respond.`,
             facilityId: targetFacility.facilityId,
-            linkUrl: `/portal/requests/${targetReq._id.toString()}`,
+            linkUrl: `/portal/requests/${newReq._id.toString()}`,
             isRead: false,
           });
         } catch (notificationError) {
@@ -394,14 +356,8 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error creating requirement:', error);
-    if (error?.code === 11000) {
-      return NextResponse.json(
-        { error: 'A data request for this checklist item and reporting period already exists for this facility.' },
-        { status: 409 }
-      );
-    }
-    return NextResponse.json({ error: error?.message || 'Unable to create data request. Check database connection and request details.' }, { status: 500 });
+    return NextResponse.json({ error: 'Unable to create data request. Check database connection and request details.' }, { status: 500 });
   }
 }

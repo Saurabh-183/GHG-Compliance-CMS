@@ -5,6 +5,7 @@ import { getSessionFromRequest, authorizeRole, isAuthorizedForFacility } from '@
 import { calculateReconciliation } from '@/lib/utils';
 import { GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
 import { IMonthlyRecord } from '@/types';
+import { getCurrentFinancialYear } from '@/lib/financialYears';
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,7 +17,7 @@ export async function POST(request: NextRequest) {
     const facilityId = (body.facilityId || 'TRIDENT_PAPER').toUpperCase().trim();
     if (!isAuthorizedForFacility(session, facilityId)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     const datasetType = body.datasetType || 'GRID_ELECTRICITY';
-    const period = body.period || 'FY2025-26';
+    const period = body.period || getCurrentFinancialYear();
     const driveFolderUrl = body.driveFolderUrl || GOOGLE_DRIVE_FOLDER_URL;
     const tolerance = typeof body.tolerance === 'number' ? body.tolerance : 0;
     const rawRows = body.rows || [];

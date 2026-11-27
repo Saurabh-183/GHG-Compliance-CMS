@@ -2,10 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { getSessionFromRequest, authorizeRole, isAuthorizedForFacility } from '@/lib/auth';
 import { FacilityModel } from '@/models/Facility';
+import { ComplianceApplicabilityModel } from '@/models/ComplianceApplicability';
+import { normalizeFinancialYearPeriod, isRollingFinancialYear } from '@/lib/financialYears';
 import { createBulkChecklistRequirements } from '@/lib/bulkChecklistRequests';
 import { isRequestableApplicability } from '@/lib/dataRequirementMaster';
 import { getFacilityDataChecklist } from '@/lib/facilityDataChecklistStore';
 import { buildApplicableRequirementsList } from '@/lib/applicableRequirements';
+import { getMasterRequirement } from '@/lib/dataRequirementMaster';
+import type { ComplianceType } from '@/types';
 
 export async function POST(request: NextRequest) {
   try {
@@ -52,6 +56,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Select at least one checklist requirement.' }, { status: 400 });
     }
 
+    const normalizedPeriod = normalizeFinancialYearPeriod(body.period);
+    if (!normalizedPeriod || !isRollingFinancialYear(normalizedPeriod)) {
+      return NextResponse.json({ error: 'Select one of the previous, current or upcoming financial years.' }, { status: 400 });
+    }
+    body.period = normalizedPeriod;
+
     if (!isAuthorizedForFacility(session, facilityId)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
@@ -66,7 +76,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'This facility is not assigned to you.' }, { status: 403 });
     }
 
-    const checklist = await getFacilityDataChecklist(facilityId, body.period, facility.name);
+    const frameworkRows = await ComplianceApplicabilityModel.find({
+      facilityId,
+      period: { $in: [normalizedPeriod, normalizedPeriod.replace(/^FY/, '')] },
+      isApplicable: true,
+    }).select('complianceType').lean();
+    const allowedFrameworks: ComplianceType[] = Array.from(new Set<ComplianceType>(frameworkRows.map((row: { complianceType: string }) => row.complianceType as ComplianceType)));
+    if (!allowedFrameworks.length) {
+      return NextResponse.json({ error: `No frameworks are enabled for ${facilityId} in ${normalizedPeriod}. Ask an Admin to configure this facility first.` }, { status: 400 });
+    }
+
+    const checklist = await getFacilityDataChecklist(facilityId, normalizedPeriod, facility.name);
     const applicable = buildApplicableRequirementsList(checklist);
     const byKey = new Map(applicable.map((row) => [row.master.itemKey, row]));
 
@@ -77,7 +97,9 @@ export async function POST(request: NextRequest) {
       blocked.push(key);
       continue;
     }
-    if (row.needsVerification || !isRequestableApplicability(row.applicability)) {
+    const rowFrameworks = row.master.defaultCompliances || getMasterRequirement(key)?.defaultCompliances || [];
+    const matchesEnabledFramework = rowFrameworks.some((framework) => allowedFrameworks.includes(framework));
+    if (row.needsVerification || !isRequestableApplicability(row.applicability) || !matchesEnabledFramework) {
       blocked.push(key);
     }
   }
@@ -102,14 +124,14 @@ export async function POST(request: NextRequest) {
 
     const result = await createBulkChecklistRequirements({
       facilityId,
-      period: body.period,
+      period: normalizedPeriod,
       itemKeys: body.itemKeys,
       bundleTitle: body.bundleTitle.trim(),
       purpose: body.purpose,
       instructions: body.instructions,
       dueDate: body.dueDate,
       priority: body.priority,
-      linkedCompliances: body.linkedCompliances as ('RCO' | 'PAT' | 'CCTS')[] | undefined,
+      linkedCompliances: allowedFrameworks,
       reportingPeriodStart: body.reportingPeriodStart,
       reportingPeriodEnd: body.reportingPeriodEnd,
       selectedMonths: body.selectedMonths,

@@ -1,63 +1,304 @@
 'use client';
+
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { CheckCircle2, Loader2, Save } from 'lucide-react';
 import type { ComplianceType } from '@/types';
 import { notify } from '@/lib/notify';
-type Facility = { facilityId: string; name: string; clientGroupName?: string };
-type Applicability = { facilityId: string; complianceType: ComplianceType; period: string; isApplicable: boolean };
-const FRAMEWORKS: { type: ComplianceType; title: string; detail: string }[] = [
+import { getCurrentFinancialYear, getRollingFinancialYears, normalizeFinancialYearPeriod } from '@/lib/financialYears';
+
+type Facility = {
+  facilityId: string;
+  name: string;
+  clientGroupName?: string;
+};
+
+type Applicability = {
+  facilityId: string;
+  complianceType: ComplianceType;
+  period: string;
+  isApplicable: boolean;
+};
+
+type FrameworkOption = {
+  type: ComplianceType;
+  title: string;
+  detail: string;
+};
+
+const FRAMEWORKS: FrameworkOption[] = [
   { type: 'RCO', title: 'RCO', detail: 'Renewable Consumption Obligation' },
   { type: 'RPO', title: 'RPO', detail: 'Renewable Purchase Obligation' },
   { type: 'PAT', title: 'PAT', detail: 'Perform, Achieve and Trade' },
   { type: 'CCTS', title: 'CCTS', detail: 'Carbon Credit Trading Scheme' },
 ];
-function getFinancialYears() {
-  const now = new Date(); const first = now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1;
-  return Array.from({ length: 7 }, (_, i) => `FY${first - i}-${String(first - i + 1).slice(-2)}`);
-}
-export default function FacilityComplianceYearSettings() {
+
+export default function FacilityComplianceYearSettings({ initialFacilityId, onSaved }: { initialFacilityId?: string; onSaved?: () => void } = {}) {
+  const years = useMemo(() => getRollingFinancialYears(), []);
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [records, setRecords] = useState<Applicability[]>([]);
-  const [facilityId, setFacilityId] = useState('');
-  const [period, setPeriod] = useState(getFinancialYears()[0]);
+  const [facilityId, setFacilityId] = useState(initialFacilityId || '');
+  const [bulkFacilityIds, setBulkFacilityIds] = useState<string[]>([]);
+  const [mode, setMode] = useState<'single' | 'bulk'>('single');
+  const [period, setPeriod] = useState(getCurrentFinancialYear());
   const [selected, setSelected] = useState<ComplianceType[]>([]);
-  const [loading, setLoading] = useState(true); const [saving, setSaving] = useState(false);
-  const years = useMemo(() => getFinancialYears(), []);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [fr, ar] = await Promise.all([fetch('/api/facilities', { cache: 'no-store', credentials: 'include' }), fetch('/api/compliance-applicability', { cache: 'no-store', credentials: 'include' })]);
-      const fj = await fr.json(); const aj = await ar.json();
-      if (!fr.ok) throw new Error(fj.error || 'Unable to load facilities.');
-      if (!ar.ok) throw new Error(aj.error || 'Unable to load compliance settings.');
-      const list: Facility[] = fj.data || []; setFacilities(list); setRecords(aj.data || []);
-      setFacilityId((current) => current || list[0]?.facilityId || '');
-    } catch (error) { notify.error(error instanceof Error ? error.message : 'Unable to load compliance settings.'); }
-    finally { setLoading(false); }
-  }, []);
-  useEffect(() => { void load(); }, [load]);
-  useEffect(() => { setSelected(records.filter((r) => r.facilityId === facilityId && r.period.toUpperCase() === period.toUpperCase() && r.isApplicable).map((r) => r.complianceType)); }, [facilityId, period, records]);
-  async function save() {
-    if (!facilityId) return notify.error('Select a facility first.'); setSaving(true);
-    try {
-      for (const fw of FRAMEWORKS) {
-        const response = await fetch('/api/compliance-applicability', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ facilityId, complianceType: fw.type, period, isApplicable: selected.includes(fw.type), authority: 'BEE', ministry: 'Ministry of Power', targetValue: null, targetUnit: '%', workflowStatus: 'NOT_STARTED', complianceOutcome: selected.includes(fw.type) ? 'PENDING_DETERMINATION' : 'NOT_APPLICABLE' }) });
-        const json = await response.json(); if (!response.ok) throw new Error(json.error || `Unable to save ${fw.type}.`);
+      const [facilityResponse, applicabilityResponse] = await Promise.all([
+        fetch('/api/facilities', { cache: 'no-store', credentials: 'include' }),
+        fetch('/api/compliance-applicability', { cache: 'no-store', credentials: 'include' }),
+      ]);
+      const facilityJson = await facilityResponse.json();
+      const applicabilityJson = await applicabilityResponse.json();
+
+      if (!facilityResponse.ok) {
+        throw new Error(facilityJson.error || 'Unable to load facilities.');
       }
-      notify.success(`Compliance settings saved for ${facilityId} — ${period}.`); await load();
-    } catch (error) { notify.error(error instanceof Error ? error.message : 'Unable to save compliance settings.'); }
-    finally { setSaving(false); }
+      if (!applicabilityResponse.ok) {
+        throw new Error(applicabilityJson.error || 'Unable to load compliance settings.');
+      }
+
+      const facilityList: Facility[] = Array.isArray(facilityJson.data) ? facilityJson.data : [];
+      setFacilities(facilityList);
+      setRecords(Array.isArray(applicabilityJson.data) ? applicabilityJson.data : []);
+      setFacilityId((current) => current || facilityList[0]?.facilityId || '');
+      setBulkFacilityIds((current) =>
+        current.filter((id) => facilityList.some((facility) => facility.facilityId === id))
+      );
+    } catch (error) {
+      notify.error(error instanceof Error ? error.message : 'Unable to load compliance settings.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  useEffect(() => {
+    const normalizedPeriod = period.toUpperCase();
+    const activeForFacility = records
+      .filter(
+        (record) =>
+          record.facilityId.toUpperCase() === facilityId.toUpperCase() &&
+          normalizeFinancialYearPeriod(record.period) === normalizedPeriod &&
+          record.isApplicable
+      )
+      .map((record) => record.complianceType);
+    setSelected(activeForFacility);
+  }, [facilityId, period, records]);
+
+  const toggleBulkFacility = (id: string) => {
+    setBulkFacilityIds((current) =>
+      current.includes(id) ? current.filter((item) => item !== id) : [...current, id]
+    );
+  };
+
+  const toggleFramework = (framework: ComplianceType) => {
+    setSelected((current) =>
+      current.includes(framework)
+        ? current.filter((item) => item !== framework)
+        : [...current, framework]
+    );
+  };
+
+  async function save() {
+    const targetFacilityIds = mode === 'single' ? [facilityId] : bulkFacilityIds;
+    if (!targetFacilityIds.length || targetFacilityIds.some((id) => !id)) {
+      notify.error(mode === 'single' ? 'Select a facility first.' : 'Select at least one facility.');
+      return;
+    }
+
+    if (mode === 'bulk') {
+      const confirmed = window.confirm(
+        `Apply the selected frameworks for ${period} to ${targetFacilityIds.length} facilities? Existing settings for these facilities and this financial year will be updated. Other financial years will not change.`
+      );
+      if (!confirmed) return;
+    }
+
+    setSaving(true);
+    try {
+      const response = await fetch('/api/compliance-applicability', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          facilityIds: targetFacilityIds,
+          period,
+          frameworks: FRAMEWORKS.map((framework) => ({
+            complianceType: framework.type,
+            isApplicable: selected.includes(framework.type),
+          })),
+        }),
+      });
+      const json = await response.json();
+      if (!response.ok) throw new Error(json.error || 'Unable to save compliance settings.');
+
+      notify.success(
+        `Compliance settings saved for ${targetFacilityIds.length} ${targetFacilityIds.length === 1 ? 'facility' : 'facilities'} — ${period}.`
+      );
+      await load();
+      onSaved?.();
+    } catch (error) {
+      notify.error(error instanceof Error ? error.message : 'Unable to save compliance settings.');
+    } finally {
+      setSaving(false);
+    }
   }
-  const facility = facilities.find((f) => f.facilityId === facilityId);
-  return <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-    <div className="mb-4"><h2 className="text-sm font-bold text-slate-900 dark:text-white">Facility compliance by financial year</h2><p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Set the compliance frameworks that apply to each facility for each financial year. Consultants can request data only for enabled frameworks in that year.</p></div>
-    {loading ? <div className="flex items-center gap-2 py-6 text-sm text-slate-500"><Loader2 className="h-4 w-4 animate-spin"/>Loading…</div> : <>
-      <div className="grid gap-3 md:grid-cols-2"><label className="space-y-1 text-xs font-semibold text-slate-600 dark:text-slate-300">Facility<select value={facilityId} onChange={(e) => setFacilityId(e.target.value)} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-950">{facilities.map((f) => <option key={f.facilityId} value={f.facilityId}>{f.name} ({f.facilityId})</option>)}</select></label>
-      <label className="space-y-1 text-xs font-semibold text-slate-600 dark:text-slate-300">Financial year<select value={period} onChange={(e) => setPeriod(e.target.value)} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-950">{years.map((y) => <option key={y} value={y}>{y}</option>)}</select></label></div>
-      {facility && <div className="mt-4 rounded-lg bg-slate-50 p-3 text-xs text-slate-600 dark:bg-slate-950 dark:text-slate-300">{facility.name} · {facility.clientGroupName || 'Organization'} · {period}</div>}
-      {!facilities.length && <p className="py-4 text-sm text-slate-500">Create a facility first to configure compliance.</p>}
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">{FRAMEWORKS.map((fw) => { const checked = selected.includes(fw.type); return <button key={fw.type} type="button" disabled={!facilityId} onClick={() => setSelected((current) => checked ? current.filter((x) => x !== fw.type) : [...current, fw.type])} className={`flex items-center justify-between rounded-xl border p-4 text-left transition ${checked ? 'border-emerald-600 bg-emerald-50 dark:border-emerald-500 dark:bg-emerald-950/30' : 'border-slate-200 dark:border-slate-700'}`}><span><span className="block text-sm font-bold text-slate-900 dark:text-white">{fw.title}</span><span className="mt-1 block text-xs text-slate-500 dark:text-slate-400">{fw.detail}</span></span>{checked ? <CheckCircle2 className="h-5 w-5 text-emerald-600"/> : <span className="rounded border border-slate-300 px-2 py-1 text-[10px] text-slate-500">Not applicable</span>}</button>; })}</div>
-      <div className="mt-4 flex justify-end"><button type="button" onClick={save} disabled={saving || !facilityId} className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2.5 text-xs font-bold text-white hover:bg-emerald-800 disabled:opacity-50">{saving ? <Loader2 className="h-4 w-4 animate-spin"/> : <Save className="h-4 w-4"/>}Save financial-year compliance</button></div>
-    </>}
-  </section>;
+
+  const facility = facilities.find((item) => item.facilityId === facilityId);
+  const selectedCount = mode === 'single' ? (facilityId ? 1 : 0) : bulkFacilityIds.length;
+
+  return (
+    <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="mb-4">
+        <h2 className="text-sm font-bold text-slate-900 dark:text-white">
+          Facility compliance by financial year
+        </h2>
+        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          Configure existing or newly registered facilities. Settings are stored separately for each financial year; changing one year does not change another.
+        </p>
+      </div>
+
+      {loading ? (
+        <div className="flex items-center gap-2 py-6 text-sm text-slate-500">
+          <Loader2 className="h-4 w-4 animate-spin" /> Loading…
+        </div>
+      ) : (
+        <>
+          <div className="mb-4 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setMode('single')}
+              className={`rounded-lg border px-3 py-2 text-xs font-semibold ${mode === 'single' ? 'border-emerald-600 bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300' : 'border-slate-200 text-slate-600 dark:border-slate-700 dark:text-slate-300'}`}
+            >
+              One facility
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setBulkFacilityIds((current) => current.length ? current : facilityId ? [facilityId] : []);
+                setMode('bulk');
+              }}
+              className={`rounded-lg border px-3 py-2 text-xs font-semibold ${mode === 'bulk' ? 'border-emerald-600 bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300' : 'border-slate-200 text-slate-600 dark:border-slate-700 dark:text-slate-300'}`}
+            >
+              Multiple facilities
+            </button>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-2">
+            {mode === 'single' ? (
+              <label className="space-y-1 text-xs font-semibold text-slate-600 dark:text-slate-300">
+                Facility
+                <select
+                  value={facilityId}
+                  onChange={(event) => setFacilityId(event.target.value)}
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+                >
+                  {facilities.map((item) => (
+                    <option key={item.facilityId} value={item.facilityId}>
+                      {item.name} ({item.facilityId})
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs font-semibold text-slate-600 dark:text-slate-300">
+                  <span>Choose facilities / companies</span>
+                  <span>{bulkFacilityIds.length} selected</span>
+                </div>
+                <div className="flex gap-3 text-[11px]">
+                  <button type="button" onClick={() => setBulkFacilityIds(facilities.map((item) => item.facilityId))} className="font-semibold text-emerald-700 hover:underline dark:text-emerald-400">Select all</button>
+                  <button type="button" onClick={() => setBulkFacilityIds([])} className="font-semibold text-slate-500 hover:underline">Clear</button>
+                </div>
+                <div className="max-h-48 space-y-1 overflow-y-auto rounded-lg border border-slate-200 p-2 dark:border-slate-700">
+                  {facilities.map((item) => (
+                    <label key={item.facilityId} className="flex cursor-pointer items-start gap-2 rounded-md px-2 py-1.5 text-xs hover:bg-slate-50 dark:hover:bg-slate-800">
+                      <input
+                        type="checkbox"
+                        checked={bulkFacilityIds.includes(item.facilityId)}
+                        onChange={() => toggleBulkFacility(item.facilityId)}
+                        className="mt-0.5 accent-emerald-600"
+                      />
+                      <span className="min-w-0">
+                        <span className="block font-semibold text-slate-800 dark:text-slate-200">{item.name}</span>
+                        <span className="text-slate-500">{item.clientGroupName || 'Organization'} · {item.facilityId}</span>
+                      </span>
+                    </label>
+                  ))}
+                  {!facilities.length && <p className="p-2 text-xs text-slate-500">No facilities found.</p>}
+                </div>
+              </div>
+            )}
+
+            <label className="space-y-1 text-xs font-semibold text-slate-600 dark:text-slate-300">
+              Financial year
+              <select
+                value={period}
+                onChange={(event) => setPeriod(event.target.value)}
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+              >
+                {years.map((year) => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
+              </select>
+              <span className="block font-normal text-slate-500">Only the previous, current and upcoming financial years are shown.</span>
+            </label>
+          </div>
+
+          {mode === 'single' && facility && (
+            <div className="mt-4 rounded-lg bg-slate-50 p-3 text-xs text-slate-600 dark:bg-slate-950 dark:text-slate-300">
+              {facility.name} · {facility.clientGroupName || 'Organization'} · {period}
+            </div>
+          )}
+          {mode === 'bulk' && (
+            <div className="mt-4 rounded-lg bg-amber-50 p-3 text-xs text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+              The same framework selection will be applied to all {bulkFacilityIds.length} selected facilities for {period}. Other financial years are not modified.
+            </div>
+          )}
+
+          {!facilities.length && <p className="py-4 text-sm text-slate-500">Create a facility first to configure compliance.</p>}
+
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            {FRAMEWORKS.map((framework) => {
+              const checked = selected.includes(framework.type);
+              return (
+                <button
+                  key={framework.type}
+                  type="button"
+                  disabled={!selectedCount}
+                  onClick={() => toggleFramework(framework.type)}
+                  className={`flex items-center justify-between rounded-xl border p-4 text-left transition disabled:cursor-not-allowed disabled:opacity-50 ${checked ? 'border-emerald-600 bg-emerald-50 dark:border-emerald-500 dark:bg-emerald-950/30' : 'border-slate-200 dark:border-slate-700'}`}
+                >
+                  <span>
+                    <span className="block text-sm font-bold text-slate-900 dark:text-white">{framework.title}</span>
+                    <span className="mt-1 block text-xs text-slate-500 dark:text-slate-400">{framework.detail}</span>
+                  </span>
+                  {checked ? <CheckCircle2 className="h-5 w-5 text-emerald-600" /> : <span className="rounded border border-slate-300 px-2 py-1 text-[10px] text-slate-500">Not applicable</span>}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-xs text-slate-500">{selected.length} framework(s) enabled · {selectedCount} facility/facilities targeted</p>
+            <button
+              type="button"
+              onClick={() => void save()}
+              disabled={saving || !selectedCount}
+              className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2.5 text-xs font-bold text-white hover:bg-emerald-800 disabled:opacity-50"
+            >
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              {saving ? 'Saving…' : mode === 'single' ? 'Save financial-year compliance' : `Apply to ${bulkFacilityIds.length} facilities`}
+            </button>
+          </div>
+        </>
+      )}
+    </section>
+  );
 }

@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import { MOCK_CLIENT_GROUPS, MOCK_FACILITIES } from '@/lib/mockFallback';
+import { getCurrentFinancialYear, getRollingFinancialYears, normalizeFinancialYearPeriod } from '@/lib/financialYears';
 
 export default function ClientGroupDetailPage() {
   const params = useParams();
@@ -24,6 +25,10 @@ export default function ClientGroupDetailPage() {
   const [group, setGroup] = useState<(IClientGroup & { facilities?: IFacility[] }) | null>(null);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [period, setPeriod] = useState(getCurrentFinancialYear());
+  const [applicabilityRecords, setApplicabilityRecords] = useState<Array<{
+    facilityId: string; complianceType: string; period: string; isApplicable: boolean;
+  }>>([]);
 
   useEffect(() => {
     async function loadGroup() {
@@ -69,6 +74,21 @@ export default function ClientGroupDetailPage() {
     if (groupId) loadGroup();
   }, [groupId]);
 
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/compliance-applicability', { credentials: 'include', cache: 'no-store' })
+      .then(async (response) => {
+        const json = await response.json();
+        if (!response.ok) throw new Error(json.error || 'Unable to load facility compliance settings.');
+        if (!cancelled) setApplicabilityRecords(Array.isArray(json.data) ? json.data : []);
+      })
+      .catch((error) => {
+        console.error('Unable to load client group compliance applicability:', error);
+        if (!cancelled) setApplicabilityRecords([]);
+      });
+    return () => { cancelled = true; };
+  }, [groupId]);
+
   if (loading) {
     return <CarbonCrunchLoader message="Loading Company & Operating Facilities..." />;
   }
@@ -85,22 +105,25 @@ export default function ClientGroupDetailPage() {
   }
 
   const allFacilities = group.facilities || [];
-  const facilityFrameworks = Array.from(
-    new Set(
-      allFacilities.flatMap((f: any) =>
-        Array.isArray(f.enabledFrameworks) && f.enabledFrameworks.length > 0
-          ? f.enabledFrameworks
-          : []
+  const facilityIds = new Set(allFacilities.map((facility) => facility.facilityId.toUpperCase()));
+  const activeFrameworks = Array.from(new Set(
+    applicabilityRecords
+      .filter((record) =>
+        facilityIds.has(record.facilityId.toUpperCase()) &&
+        record.isApplicable &&
+        normalizeFinancialYearPeriod(record.period) === period
       )
-    )
-  ) as string[];
-
-  const activeFrameworks: string[] =
-    facilityFrameworks.length > 0
-      ? facilityFrameworks
-      : Array.isArray(group.enabledFrameworks) && group.enabledFrameworks.length > 0
-      ? group.enabledFrameworks
-      : ['RCO', 'PAT', 'CCTS'];
+      .map((record) => record.complianceType)
+  ));
+  const frameworksForFacility = (facilityId: string) => Array.from(new Set(
+    applicabilityRecords
+      .filter((record) =>
+        record.facilityId.toUpperCase() === facilityId.toUpperCase() &&
+        record.isApplicable &&
+        normalizeFinancialYearPeriod(record.period) === period
+      )
+      .map((record) => record.complianceType)
+  ));
 
   const filteredFacilities = allFacilities.filter((f) => {
     const q = search.toLowerCase();
@@ -178,12 +201,25 @@ export default function ClientGroupDetailPage() {
               Statutory Compliance Frameworks
             </h3>
             <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-              Governed at the client conglomerate level by the Administrator.
+              Facility-specific applicability configured by the Administrator for the selected financial year.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
+            <label className="flex items-center gap-2 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
+              Financial year
+              <select
+                value={period}
+                onChange={(event) => setPeriod(event.target.value)}
+                className="rounded-md border border-slate-300 bg-white px-2 py-1.5 text-xs dark:border-slate-700 dark:bg-slate-950"
+              >
+                {getRollingFinancialYears().map((year) => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
+              </select>
+            </label>
             {[
-              { type: 'RCO', label: 'RCO / RPO', name: 'Renewable Energy Obligation' },
+              { type: 'RCO', label: 'RCO', name: 'Renewable Consumption Obligation' },
+              { type: 'RPO', label: 'RPO', name: 'Renewable Purchase Obligation' },
               { type: 'PAT', label: 'PAT Scheme', name: 'Perform, Achieve & Trade' },
               { type: 'CCTS', label: 'CCTS Carbon', name: 'Carbon Credit Trading Scheme' },
             ].map((fw) => {
@@ -269,19 +305,19 @@ export default function ClientGroupDetailPage() {
                     <span>Assigned: <strong className="text-slate-700 dark:text-slate-300">Priya Sharma</strong> (Consultant)</span>
                   </div>
                   <div className="flex items-center gap-1.5 pt-0.5">
-                    <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Frameworks:</span>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Frameworks for {period}:</span>
                     <div className="flex flex-wrap gap-1">
-                      {((Array.isArray((facility as any).enabledFrameworks) && (facility as any).enabledFrameworks.length > 0
-                        ? (facility as any).enabledFrameworks
-                        : activeFrameworks) || ['RCO', 'PAT', 'CCTS']).map((fw: string) => (
+                      {frameworksForFacility(facility.facilityId).length ? frameworksForFacility(facility.facilityId).map((fw) => (
                         <span
                           key={fw}
-                          title={`${fw}: Active statutory obligation for this facility`}
+                          title={`${fw}: Admin-approved for ${period}`}
                           className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shadow-2xs"
                         >
                           {fw}
                         </span>
-                      ))}
+                      )) : (
+                        <span className="text-[9px] text-slate-400">None assigned</span>
+                      )}
                     </div>
                   </div>
                 </div>

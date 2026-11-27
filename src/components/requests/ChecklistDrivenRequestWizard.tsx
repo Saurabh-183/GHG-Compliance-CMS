@@ -6,12 +6,10 @@ import { Select, MenuItem, FormControl, TextField, Checkbox } from '@mui/materia
 import { MuiDatePicker } from '@/components/common/MuiDatePicker';
 import { useAuth } from '@/context/AuthContext';
 import type { ComplianceType, IFacilityApplicableRequirement } from '@/types';
-import { DEFAULT_CHECKLIST_PERIOD } from '@/lib/facilityDataChecklistTemplate';
 import { masterRowsByCategory, getMasterRequirement } from '@/lib/dataRequirementMaster';
 import { notify } from '@/lib/notify';
 import { generateMonthRange, financialYearOptions } from '@/lib/dataRequestCategories';
-
-const COMPLIANCE_OPTIONS: ComplianceType[] = ['RCO', 'PAT', 'CCTS'];
+import { getCurrentFinancialYear, normalizeFinancialYearPeriod } from '@/lib/financialYears';
 
 interface ChecklistDrivenRequestWizardProps {
   facilityId: string;
@@ -34,23 +32,33 @@ function getRowCompliances(row: IFacilityApplicableRequirement): ComplianceType[
     return row.master.defaultCompliances;
   }
   const master = getMasterRequirement(row.master.itemKey);
-  return master?.defaultCompliances || ['RCO', 'PAT'];
+  return master?.defaultCompliances || [];
+}
+
+function financialYearMonthRange(period: string): { start: string; end: string } {
+  const normalized = normalizeFinancialYearPeriod(period);
+  const match = normalized?.match(/^FY(20\d{2})-(\d{2})$/);
+  if (!match) return { start: '2026-04', end: '2027-03' };
+  const startYear = Number(match[1]);
+  return {
+    start: `${startYear}-04`,
+    end: `${startYear + 1}-03`,
+  };
 }
 
 export function ChecklistDrivenRequestWizard({
   facilityId,
   facilityName,
-  period: defaultPeriod = DEFAULT_CHECKLIST_PERIOD,
-  initialFrameworks,
+  period: defaultPeriod = getCurrentFinancialYear(),
   onSent,
   onPeriodChange,
 }: ChecklistDrivenRequestWizardProps) {
   const { theme } = useAuth();
   const isDark = theme === 'dark';
-  const [period, setPeriod] = useState(defaultPeriod);
+  const [period, setPeriod] = useState(normalizeFinancialYearPeriod(defaultPeriod) || getCurrentFinancialYear());
 
   useEffect(() => {
-    setPeriod(defaultPeriod);
+    setPeriod(normalizeFinancialYearPeriod(defaultPeriod) || getCurrentFinancialYear());
   }, [defaultPeriod]);
 
   const [loading, setLoading] = useState(true);
@@ -61,31 +69,13 @@ export function ChecklistDrivenRequestWizard({
   const [instructions, setInstructions] = useState('');
   const [purpose, setPurpose] = useState('Operational data collection per published client checklist.');
   const [dueDate, setDueDate] = useState('');
-  const [linkedCompliances, setLinkedCompliances] = useState<ComplianceType[]>(
-    initialFrameworks && initialFrameworks.length > 0 ? initialFrameworks : ['RCO', 'PAT']
-  );
-  const [reportingPeriodStart, setReportingPeriodStart] = useState('2025-04');
-  const [reportingPeriodEnd, setReportingPeriodEnd] = useState('2026-03');
+  const [linkedCompliances, setLinkedCompliances] = useState<ComplianceType[]>([]);
+  const [applicabilityLoading, setApplicabilityLoading] = useState(false);
+  const initialMonthRange = financialYearMonthRange(period);
+  const [reportingPeriodStart, setReportingPeriodStart] = useState(initialMonthRange.start);
+  const [reportingPeriodEnd, setReportingPeriodEnd] = useState(initialMonthRange.end);
   const [showPreview, setShowPreview] = useState(false);
 
-  useEffect(() => {
-    if (initialFrameworks && initialFrameworks.length > 0) {
-      setLinkedCompliances(initialFrameworks);
-    }
-  }, [initialFrameworks]);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const sp = new URLSearchParams(window.location.search);
-      const fw = sp.get('framework') || sp.get('compliance');
-      if (fw) {
-        const upper = fw.toUpperCase() as ComplianceType;
-        if (COMPLIANCE_OPTIONS.includes(upper)) {
-          setLinkedCompliances([upper]);
-        }
-      }
-    }
-  }, []);
 
   const monthOptions = useMemo(
     () => generateMonthRange(reportingPeriodStart, reportingPeriodEnd),
@@ -97,41 +87,62 @@ export function ChecklistDrivenRequestWizard({
     setSelectedMonths(monthOptions);
   }, [monthOptions]);
 
+  useEffect(() => {
+    const range = financialYearMonthRange(period);
+    setReportingPeriodStart(range.start);
+    setReportingPeriodEnd(range.end);
+  }, [period]);
+
   const load = useCallback(async () => {
     setLoading(true);
+    setApplicabilityLoading(true);
     try {
-      const q = new URLSearchParams({ period });
-      if (facilityName) q.set('facilityName', facilityName);
-      const res = await fetch(`/api/facilities/${facilityId}/applicable-requirements?${q}`, {
-        credentials: 'include',
-        cache: 'no-store',
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || 'Failed to load checklist');
-      const rows = (json.data?.requirements || []) as IFacilityApplicableRequirement[];
+      const [applicabilityResponse, checklistResponse] = await Promise.all([
+        fetch(`/api/compliance-applicability?facilityId=${encodeURIComponent(facilityId)}`, {
+          credentials: 'include',
+          cache: 'no-store',
+        }),
+        fetch(`/api/facilities/${facilityId}/applicable-requirements?period=${encodeURIComponent(period)}${facilityName ? `&facilityName=${encodeURIComponent(facilityName)}` : ''}`, {
+          credentials: 'include',
+          cache: 'no-store',
+        }),
+      ]);
+      const applicabilityJson = await applicabilityResponse.json();
+      const checklistJson = await checklistResponse.json();
+      if (!applicabilityResponse.ok) throw new Error(applicabilityJson.error || 'Unable to load facility compliance settings.');
+      if (!checklistResponse.ok) throw new Error(checklistJson.error || 'Failed to load checklist');
+
+      const normalizedPeriod = normalizeFinancialYearPeriod(period);
+      const allowed = [...new Set((applicabilityJson.data || [])
+        .filter((row: { period: string; isApplicable: boolean }) =>
+          row.isApplicable && normalizeFinancialYearPeriod(row.period) === normalizedPeriod
+        )
+        .map((row: { complianceType: ComplianceType }) => row.complianceType))] as ComplianceType[];
+
+      setLinkedCompliances(allowed);
+      const allRows = (checklistJson.data?.requirements || []) as IFacilityApplicableRequirement[];
+      const rows = allRows.filter((row) =>
+        getRowCompliances(row).some((framework) => allowed.includes(framework))
+      );
       setRequirements(rows);
 
-      // Pre-select requestable items that match currently linked frameworks
-      const activeFws = linkedCompliances.length > 0 ? linkedCompliances : ['RCO', 'PAT'];
       const preselect = rows
-        .filter((r) => {
-          if (!r.requestable || r.needsVerification) return false;
-          const compliances = getRowCompliances(r);
-          return compliances.some((c) => activeFws.includes(c));
-        })
-        .map((r) => r.master.itemKey);
+        .filter((row) => row.requestable && !row.needsVerification)
+        .map((row) => row.master.itemKey);
       setSelected(new Set(preselect));
       setBundleTitle((prev) =>
-        prev.trim()
-          ? prev
-          : `Operational data request — ${facilityName || facilityId} (${period})`
+        prev.trim() ? prev : `Operational data request — ${facilityName || facilityId} (${period})`
       );
     } catch (err) {
+      setLinkedCompliances([]);
+      setRequirements([]);
+      setSelected(new Set());
       notify.error(err instanceof Error ? err.message : 'Unable to load applicable requirements');
     } finally {
+      setApplicabilityLoading(false);
       setLoading(false);
     }
-  }, [facilityId, facilityName, period, linkedCompliances]);
+  }, [facilityId, facilityName, period]);
 
   useEffect(() => {
     void load();
@@ -159,36 +170,6 @@ export function ChecklistDrivenRequestWizard({
       .filter((g) => g.rows.length > 0);
   }, [filteredRequirements, requirements]);
 
-  const handleToggleCompliance = (c: ComplianceType) => {
-    const isChecked = linkedCompliances.includes(c);
-    const nextCompliances = isChecked
-      ? linkedCompliances.filter((x) => x !== c)
-      : [...linkedCompliances, c];
-
-    setLinkedCompliances(nextCompliances);
-
-    setSelected((prevSelected) => {
-      const nextSelected = new Set(prevSelected);
-      if (!isChecked) {
-        requirements.forEach((r) => {
-          if (!r.requestable || r.needsVerification) return;
-          const compliances = getRowCompliances(r);
-          if (compliances.includes(c)) {
-            nextSelected.add(r.master.itemKey);
-          }
-        });
-      } else {
-        requirements.forEach((r) => {
-          const compliances = getRowCompliances(r);
-          const stillMatches = compliances.some((comp) => nextCompliances.includes(comp));
-          if (!stillMatches) {
-            nextSelected.delete(r.master.itemKey);
-          }
-        });
-      }
-      return nextSelected;
-    });
-  };
 
   const selectedItems = useMemo(() => {
     return filteredRequirements.filter((r) => selected.has(r.master.itemKey));
@@ -218,6 +199,10 @@ export function ChecklistDrivenRequestWizard({
 
   const submit = async (saveAsDraft: boolean) => {
     const itemKeys = [...selected];
+    if (!linkedCompliances.length) {
+      notify.error('No Admin-approved frameworks are enabled for this facility and financial year.');
+      return;
+    }
     if (!itemKeys.length) {
       notify.error('Select at least one applicable requirement.');
       return;
@@ -409,7 +394,7 @@ export function ChecklistDrivenRequestWizard({
         <div className="lg:col-span-2 space-y-3 max-h-[28rem] overflow-y-auto pr-1">
           {linkedCompliances.length === 0 ? (
             <div className="rounded-xl border border-dashed border-amber-300 bg-amber-50/50 dark:border-amber-900/50 dark:bg-amber-950/20 p-8 text-center text-xs text-amber-800 dark:text-amber-300">
-              Please select at least one linked compliance framework on the right to view and select applicable data requests.
+              No Admin-approved framework is enabled for this facility and financial year. Ask Admin to configure it first.
             </div>
           ) : grouped.length === 0 ? (
             <div className="rounded-xl border border-dashed border-slate-200 dark:border-slate-800 p-8 text-center text-xs text-slate-500">
@@ -540,36 +525,22 @@ export function ChecklistDrivenRequestWizard({
 
           <div>
             <span className="mb-1.5 block font-semibold text-slate-700 dark:text-slate-300">
-              Linked frameworks
+              Admin-approved frameworks
             </span>
             <div className="flex flex-wrap gap-2">
-              {COMPLIANCE_OPTIONS.map((c) => {
-                const isChecked = linkedCompliances.includes(c);
-                return (
-                  <label
-                    key={c}
-                    className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium cursor-pointer transition-colors ${
-                      isChecked
-                        ? 'border-emerald-500 bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-700 shadow-2xs'
-                        : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/60'
-                    }`}
-                  >
-                    <Checkbox
-                      checked={isChecked}
-                      onChange={() => handleToggleCompliance(c)}
-                      size="small"
-                      sx={{
-                        padding: 0,
-                        color: isDark ? '#64748B' : '#94A3B8',
-                        '&.Mui-checked': {
-                          color: isDark ? '#34D399' : '#059669',
-                        },
-                      }}
-                    />
-                    <span className="font-mono text-xs font-semibold">{c}</span>
-                  </label>
-                );
-              })}
+              {applicabilityLoading ? (
+                <span className="text-xs text-slate-500">Loading facility compliance…</span>
+              ) : linkedCompliances.length ? (
+                linkedCompliances.map((framework) => (
+                  <span key={framework} className="inline-flex rounded-lg border border-emerald-300 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800">
+                    {framework}
+                  </span>
+                ))
+              ) : (
+                <span className="text-xs text-amber-700">
+                  No frameworks are enabled for this facility and financial year. Ask Admin to configure them first.
+                </span>
+              )}
             </div>
           </div>
 

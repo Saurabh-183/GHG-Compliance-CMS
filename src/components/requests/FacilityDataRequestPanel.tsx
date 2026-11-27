@@ -16,6 +16,7 @@ import type {
   ReportingFrequency,
 } from '@/types';
 import { DEFAULT_CHECKLIST_PERIOD } from '@/lib/facilityDataChecklistTemplate';
+import { normalizeFinancialYearPeriod } from '@/lib/financialYears';
 import { getMasterRequirement } from '@/lib/dataRequirementMaster';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { notify } from '@/lib/notify';
@@ -30,6 +31,7 @@ import {
   suggestRequestTitle,
 } from '@/lib/dataRequestCategories';
 import { validateFields } from '@/lib/requestFieldUtils';
+import { getCurrentFinancialYear } from '@/lib/financialYears';
 import {
   DEFAULT_SUBMISSION_FORMAT,
   normalizeDocumentSpecsForDriveXlsx,
@@ -48,7 +50,7 @@ interface FacilityDataRequestPanelProps {
 export function FacilityDataRequestPanel({
   facilityId: initialFacilityId,
   facilityName: initialFacilityName,
-  period: defaultPeriod = DEFAULT_CHECKLIST_PERIOD,
+  period: defaultPeriod = getCurrentFinancialYear(),
   initialCompliances,
   className = '',
   onPeriodChange,
@@ -140,7 +142,7 @@ export function FacilityDataRequestPanel({
   const [title, setTitle] = useState('');
   const [dataCategory, setDataCategory] = useState('');
   const [customCategory, setCustomCategory] = useState('');
-  const [period, setPeriod] = useState(defaultPeriod);
+  const [period, setPeriod] = useState(normalizeFinancialYearPeriod(defaultPeriod) || getCurrentFinancialYear());
   const [priority, setPriority] = useState<'LOW' | 'MEDIUM' | 'HIGH'>('MEDIUM');
   const [linkedCompliances, setLinkedCompliances] = useState<ComplianceType[]>(
     initialCompliances ? [...initialCompliances] : []
@@ -291,16 +293,16 @@ export function FacilityDataRequestPanel({
         const allowed: ComplianceType[] = (json.data || [])
           .filter(
             (row: { period: string; isApplicable: boolean }) =>
-              row.isApplicable && String(row.period).toUpperCase() === normalizedPeriod
+              row.isApplicable && normalizeFinancialYearPeriod(row.period) === normalizedPeriod
           )
           .map((row: { complianceType: ComplianceType }) => row.complianceType);
 
         if (!cancelled) {
           setApplicableFrameworks(allowed);
-          setLinkedCompliances((current) => {
-            const preferred = current.length ? current : initialCompliances || [];
-            return preferred.filter((framework) => allowed.includes(framework));
-          });
+          const requestedContext = initialCompliances?.length
+            ? initialCompliances.filter((framework) => allowed.includes(framework))
+            : allowed;
+          setLinkedCompliances(requestedContext);
         }
       } catch (error) {
         if (!cancelled) {
@@ -326,6 +328,10 @@ export function FacilityDataRequestPanel({
   }, [initialFacilityId]);
 
   useEffect(() => {
+    setPeriod(normalizeFinancialYearPeriod(defaultPeriod) || getCurrentFinancialYear());
+  }, [defaultPeriod]);
+
+  useEffect(() => {
     if (selectedChecklistKey === '__OTHER__') return;
     if (dataCategory && !title.trim() && selectedChecklistKey) {
       setTitle(suggestRequestTitle(dataCategory, selectedFacility?.name || initialFacilityName, period));
@@ -342,12 +348,7 @@ export function FacilityDataRequestPanel({
     setOpenSections((s) => ({ ...s, [step]: !s[step] }));
   };
 
-  const toggleCompliance = (value: ComplianceType) => {
-    if (!applicableFrameworks.includes(value)) return;
-    setLinkedCompliances((prev) =>
-      prev.includes(value) ? prev.filter((c) => c !== value) : [...prev, value]
-    );
-  };
+
 
   const applyChecklistSelection = (itemKey: string) => {
     setSelectedChecklistKey(itemKey);
@@ -398,11 +399,6 @@ export function FacilityDataRequestPanel({
     setFields((master.structuredFields || []).map((f) => ({ ...f })));
     setDocuments(normalizeDocumentSpecsForDriveXlsx(master.documentSpecs || []));
     setReportingFrequency((master.reportingFrequency as ReportingFrequency) || 'ANNUAL');
-    setLinkedCompliances(
-      (master.defaultCompliances || []).filter((framework) =>
-        applicableFrameworks.includes(framework)
-      )
-    );
     setOpenSections({ 1: true, 2: Boolean(master.structuredFields?.length), 3: true, 4: true, 5: false });
     notify.success(`Loaded checklist fields for ΓÇ£${master.name}ΓÇ¥.`);
   };
@@ -825,22 +821,18 @@ export function FacilityDataRequestPanel({
               <span className="font-bold text-slate-600 dark:text-slate-400 uppercase text-[10px]">Linked frameworks</span>
               <div className="flex flex-wrap gap-2">
                 {applicabilityLoading ? (
-                  <span className="text-[10px] text-slate-500">Loading facility compliance…</span>
-                ) : applicableFrameworks.length === 0 ? (
+                  <span className="text-[10px] text-slate-500">Loading Admin-approved frameworks…</span>
+                ) : linkedCompliances.length === 0 ? (
                   <span className="text-[10px] text-amber-600">
                     No compliance framework is configured for this facility and financial year. Ask the Admin to configure it first.
                   </span>
-                ) : applicableFrameworks.map((c) => (
-                  <button
-                    key={c}
-                    type="button"
-                    onClick={() => toggleCompliance(c)}
-                    className={`px-2 py-1 rounded-md text-[10px] font-mono font-bold border ${
-                      linkedCompliances.includes(c) ? 'bg-emerald-700 text-white' : 'border-slate-300'
-                    }`}
+                ) : linkedCompliances.map((framework) => (
+                  <span
+                    key={framework}
+                    className="px-2 py-1 rounded-md text-[10px] font-mono font-bold border border-emerald-300 bg-emerald-50 text-emerald-800"
                   >
-                    {c}
-                  </button>
+                    {framework}
+                  </span>
                 ))}
               </div>
             </div>

@@ -4,7 +4,6 @@ import { connectToDatabase } from '@/lib/db';
 import { FacilityModel } from '@/models/Facility';
 import { ClientGroupModel } from '@/models/ClientGroup';
 import { UserModel } from '@/models/User';
-import { ComplianceApplicabilityModel } from '@/models/ComplianceApplicability';
 import type { ComplianceType } from '@/types';
 import { getSessionFromRequest, authorizeRole, signToken } from '@/lib/auth';
 import {
@@ -242,12 +241,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const validFrameworks: ComplianceType[] = ['RCO', 'RPO', 'PAT', 'CCTS'];
-    const facilityEnabledFrameworks: ComplianceType[] =
-      Array.isArray(body.enabledFrameworks)
-        ? (body.enabledFrameworks.filter((f) => validFrameworks.includes(f as ComplianceType)) as ComplianceType[])
-        : [];
-
+    // Framework applicability is deliberately not configurable during facility
+    // registration. Admin assigns frameworks after creation, per financial year.
     const newFacility = await FacilityModel.create({
       facilityId: uniqueFacilityId,
       name,
@@ -256,7 +251,7 @@ export async function POST(request: NextRequest) {
       category: facilityCategory,
       assignedConsultantId: finalConsultantId || undefined,
       assignedReviewerId: body.assignedReviewerId || undefined,
-      enabledFrameworks: facilityEnabledFrameworks,
+      enabledFrameworks: [],
       status: 'ACTIVE',
       utilityConnection: body.utilityConnection
         ? {
@@ -265,57 +260,6 @@ export async function POST(request: NextRequest) {
           }
         : undefined,
     });
-
-    // Synchronize parent ClientGroup's enabledFrameworks with its facilities
-    try {
-      const allClientFacs = await FacilityModel.find({ clientGroupId: targetClientGroupId }).select('enabledFrameworks').lean();
-      const combinedFrameworks = Array.from(
-        new Set(
-          allClientFacs.flatMap((f) =>
-            Array.isArray(f.enabledFrameworks) && f.enabledFrameworks.length > 0
-              ? f.enabledFrameworks
-              : []
-          )
-        )
-      );
-      const updatedFrameworks = combinedFrameworks.length > 0 ? combinedFrameworks : facilityEnabledFrameworks;
-      await ClientGroupModel.updateOne(
-        { _id: targetClientGroupId },
-        { $set: { enabledFrameworks: updatedFrameworks } }
-      );
-    } catch (syncErr) {
-      console.warn('Could not sync parent client group frameworks:', syncErr);
-    }
-
-    try {
-      const { generateFacilityApplicabilities } = await import('@/lib/complianceMatrixData');
-      const defaultApps = generateFacilityApplicabilities(uniqueFacilityId, name);
-      const activeApps = defaultApps.filter((app) =>
-        facilityEnabledFrameworks.includes(app.complianceType as ComplianceType)
-      );
-      if (activeApps.length > 0) {
-        await ComplianceApplicabilityModel.insertMany(
-          activeApps.map((app) => ({
-            facilityId: app.facilityId,
-            complianceType: app.complianceType,
-            period: app.period,
-            isApplicable: true,
-            authority: app.authority,
-            ministry: app.ministry,
-            notificationReference: app.notificationReference,
-            targetValue: app.targetValue,
-            targetUnit: app.targetUnit,
-            targetMethodology: app.targetMethodology,
-            deadline: app.deadline ? new Date(app.deadline) : null,
-            workflowStatus: app.workflowStatus,
-            complianceOutcome: app.complianceOutcome,
-            notes: app.notes,
-          }))
-        );
-      }
-    } catch (appErr) {
-      console.warn('Facility initial applicability creation notice:', appErr);
-    }
 
     // Update authorizedFacilityIds in UserModel for the creator
     if (session.userId) {

@@ -8,6 +8,7 @@ import { getSessionFromRequest, isAuthorizedForFacility, authorizeRole } from '@
 import { calculateReconciliation } from '@/lib/utils';
 import { GOOGLE_DRIVE_FOLDER_URL } from '@/lib/gdrive';
 import { IMonthlyRecord, ReconciliationResult } from '@/types';
+import { getCurrentFinancialYear } from '@/lib/financialYears';
 
 // Default standard monthly compliance records with Google Drive evidence links
 function generateDefaultDriveRecords(facilityId: string, folderUrl: string): IMonthlyRecord[] {
@@ -109,7 +110,7 @@ export async function POST(request: NextRequest) {
     const facilityId = (body.facilityId || 'TRIDENT_PAPER').toUpperCase().trim();
     if (!isAuthorizedForFacility(session, facilityId)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     const datasetType = body.datasetType || 'GRID_ELECTRICITY';
-    const period = body.period || 'FY2025-26';
+    const period = body.period || getCurrentFinancialYear();
     const folderUrl = body.folderUrl || GOOGLE_DRIVE_FOLDER_URL;
     const folderName = body.folderName || 'Carbon Crunch · Compliance Documents & Evidence Vault';
     const spreadsheetUrl = body.spreadsheetUrl || '';
