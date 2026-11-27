@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { notify } from '@/lib/notify';
 import { ComplianceType } from '@/types';
+import FacilityComplianceYearSettings from '@/components/admin/FacilityComplianceYearSettings';
 import {
   TextField,
   FormControl,
@@ -452,10 +453,6 @@ export default function AdminUsersPage() {
       notify.error('Please select the Client Company for this facility.');
       return;
     }
-    if (facilityForm.enabledFrameworks.length === 0) {
-      notify.error('Please enable at least one statutory compliance framework for this facility.');
-      return;
-    }
     setFacilityBusy(true);
     setMessage(null);
     try {
@@ -465,7 +462,7 @@ export default function AdminUsersPage() {
         clientGroupId: facilityForm.clientGroupId,
         location: facilityForm.location.trim() || undefined,
         category: facilityForm.category || undefined,
-        enabledFrameworks: facilityForm.enabledFrameworks,
+        enabledFrameworks: [],
         utilityConnection: {
           consumerAccountNumber: facilityForm.consumerAccountNumber.trim() || undefined,
           contractDemand: facilityForm.contractDemand.trim() || undefined,
@@ -1007,109 +1004,10 @@ export default function AdminUsersPage() {
               />
             </div>
 
-            {/* Applicable Compliance Frameworks for this Facility */}
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-4 bg-slate-50/70 dark:bg-slate-950/40">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-                <div>
-                  <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                    Applicable Statutory Compliance Frameworks
-                  </h3>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                    Admin decision: Choose which statutory compliance frameworks are active for this facility ({facilityForm.enabledFrameworks.length} enabled).
-                    {facilityForm.enabledFrameworks.length === 0 && (
-                      <span className="text-amber-600 dark:text-amber-400 font-semibold ml-1.5">
-                        * Enable at least 1 framework to create facility.
-                      </span>
-                    )}
-                  </p>
-                </div>
-                <div className="flex items-center gap-1.5 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => setFacilityForm({ ...facilityForm, enabledFrameworks: ['RCO', 'PAT', 'CCTS'] })}
-                    className="text-[11px] text-emerald-700 dark:text-emerald-400 hover:underline font-semibold cursor-pointer"
-                  >
-                    Select All (3)
-                  </button>
-                  <span className="text-slate-300 dark:text-slate-700">|</span>
-                  <button
-                    type="button"
-                    onClick={() => setFacilityForm({ ...facilityForm, enabledFrameworks: [] })}
-                    className="text-[11px] text-slate-500 hover:underline cursor-pointer"
-                  >
-                    Clear All
-                  </button>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {[
-                  {
-                    type: 'RCO' as const,
-                    title: 'RCO / RPO',
-                    badge: 'Renewable',
-                    desc: 'Renewable purchase obligation reconciliation.',
-                  },
-                  {
-                    type: 'PAT' as const,
-                    title: 'PAT Scheme',
-                    badge: 'Energy Savings',
-                    desc: 'Perform, Achieve & Trade cycles & ESCerts.',
-                  },
-                  {
-                    type: 'CCTS' as const,
-                    title: 'CCTS Carbon',
-                    badge: 'BEE / MoEFCC',
-                    desc: 'Carbon Credit Trading Scheme & CCC intensity.',
-                  },
-                ].map((fw) => {
-                  const isEnabled = facilityForm.enabledFrameworks.includes(fw.type);
-                  return (
-                    <button
-                      key={fw.type}
-                      type="button"
-                      onClick={() => {
-                        const next = isEnabled
-                          ? facilityForm.enabledFrameworks.filter((f) => f !== fw.type)
-                          : [...facilityForm.enabledFrameworks, fw.type];
-                        setFacilityForm({ ...facilityForm, enabledFrameworks: next });
-                      }}
-                      className={`flex flex-col text-left p-3 rounded-lg border transition-all cursor-pointer ${
-                        isEnabled
-                          ? 'border-emerald-600 bg-emerald-50/50 dark:border-emerald-500 dark:bg-emerald-950/30'
-                          : 'border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 opacity-60 hover:opacity-100'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-bold text-slate-900 dark:text-white">{fw.title}</span>
-                        <span
-                          className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                            isEnabled
-                              ? 'bg-emerald-600 text-white dark:bg-emerald-500'
-                              : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-                          }`}
-                        >
-                          {isEnabled ? 'Enabled' : 'Disabled'}
-                        </span>
-                      </div>
-                      <span className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2">
-                        {fw.desc}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
             <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
               <button
                 type="submit"
-                disabled={facilityBusy || facilityForm.enabledFrameworks.length === 0}
-                title={
-                  facilityForm.enabledFrameworks.length === 0
-                    ? 'Enable at least one statutory compliance framework above to register facility'
-                    : undefined
-                }
+                disabled={facilityBusy}
                 className="inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-6 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-emerald-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
               >
                 {facilityBusy ? (
@@ -1127,6 +1025,7 @@ export default function AdminUsersPage() {
             </div>
           </form>
         )}
+        {activeTab === 'FACILITY' && <FacilityComplianceYearSettings />}
 
         {/* 3. Consultant Form */}
         {activeTab === 'CONSULTANT' && (

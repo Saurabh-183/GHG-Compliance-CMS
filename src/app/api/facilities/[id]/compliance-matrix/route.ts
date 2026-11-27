@@ -184,7 +184,7 @@ export async function GET(
 
     // Ensure facility enabledFrameworks are strictly respected in the matrix
     const facEnabled = (facility as any).enabledFrameworks as ComplianceType[] | undefined;
-    if (facEnabled && Array.isArray(facEnabled)) {
+    if (facEnabled && Array.isArray(facEnabled) && facEnabled.length > 0) {
       (COMPLIANCE_FRAMEWORKS as ComplianceType[]).forEach((comp) => {
         if (!facEnabled.includes(comp) && matrix[comp]) {
           for (const period of Object.keys(matrix[comp])) {
@@ -290,7 +290,7 @@ export async function GET(
 
       // Ensure facility enabledFrameworks are strictly respected in the matrix
       const facFallbackEnabled = (resolvedFacility as any).enabledFrameworks as ComplianceType[] | undefined;
-      if (facFallbackEnabled && Array.isArray(facFallbackEnabled)) {
+      if (facFallbackEnabled && Array.isArray(facFallbackEnabled) && facFallbackEnabled.length > 0) {
         (COMPLIANCE_FRAMEWORKS as ComplianceType[]).forEach((comp) => {
           if (!facFallbackEnabled.includes(comp) && matrix[comp]) {
             for (const period of Object.keys(matrix[comp])) {

@@ -47,9 +47,9 @@ export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
     const session = getSessionFromRequest(request);
-    if (!authorizeRole(session, ['ADMIN', 'CONSULTANT'])) {
+    if (!authorizeRole(session, ['ADMIN'])) {
       return NextResponse.json(
-        { error: 'Forbidden: Only Consultants or Admins can register compliance applicability' },
+        { error: 'Forbidden: Only Admins can configure facility compliance applicability.' },
         { status: 403 }
       );
     }
@@ -73,7 +73,15 @@ export async function POST(request: NextRequest) {
       notes?: string;
     };
 
+    if (!body.facilityId || !body.complianceType || !body.period) {
+      return NextResponse.json({ error: 'facilityId, complianceType and financial year are required.' }, { status: 400 });
+    }
+    if (!['RCO', 'RPO', 'PAT', 'CCTS'].includes(body.complianceType)) {
+      return NextResponse.json({ error: 'Invalid compliance framework.' }, { status: 400 });
+    }
     if (!isAuthorizedForFacility(session, body.facilityId)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    const facility = await (await import('@/models/Facility')).FacilityModel.findOne({ facilityId: body.facilityId.toUpperCase() });
+    if (!facility) return NextResponse.json({ error: 'Facility not found.' }, { status: 404 });
 
     const doc = await ComplianceApplicabilityModel.findOneAndUpdate(
       {
@@ -86,8 +94,17 @@ export async function POST(request: NextRequest) {
         facilityId: body.facilityId.toUpperCase(),
         deadline: body.deadline ? new Date(body.deadline) : null,
       },
-      { upsert: true, new: true }
+      { upsert: true, new: true, runValidators: true }
     );
+
+    // enabledFrameworks is the facility-wide allow-list (union across years).
+    // ComplianceApplicability remains the source of truth for each financial year.
+    const activeFrameworks = await ComplianceApplicabilityModel.distinct('complianceType', {
+      facilityId: facility.facilityId,
+      isApplicable: true,
+    });
+    facility.enabledFrameworks = activeFrameworks as ComplianceType[];
+    await facility.save();
 
     return NextResponse.json({
       success: true,

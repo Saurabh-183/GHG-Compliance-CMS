@@ -35,7 +35,6 @@ import {
   normalizeDocumentSpecsForDriveXlsx,
 } from '@/lib/submissionPolicy';
 
-const COMPLIANCE_OPTIONS: ComplianceType[] = ['RCO', 'PAT', 'CCTS'];
 
 interface FacilityDataRequestPanelProps {
   facilityId: string;
@@ -138,7 +137,9 @@ export function FacilityDataRequestPanel({
   const [customCategory, setCustomCategory] = useState('');
   const [period, setPeriod] = useState(defaultPeriod);
   const [priority, setPriority] = useState<'LOW' | 'MEDIUM' | 'HIGH'>('MEDIUM');
-  const [linkedCompliances, setLinkedCompliances] = useState<ComplianceType[]>(['PAT', 'RCO']);
+  const [linkedCompliances, setLinkedCompliances] = useState<ComplianceType[]>([]);
+  const [applicableFrameworks, setApplicableFrameworks] = useState<ComplianceType[]>([]);
+  const [applicabilityLoading, setApplicabilityLoading] = useState(false);
 
   const [fields, setFields] = useState<IRequestField[]>([]);
   const [documents, setDocuments] = useState<IRequestDocumentSpec[]>([]);
@@ -259,6 +260,29 @@ export function FacilityDataRequestPanel({
   }, [loadChecklist]);
 
   useEffect(() => {
+    let cancelled = false;
+    async function loadApplicableFrameworks() {
+      if (!facilityId || !period) { setApplicableFrameworks([]); setLinkedCompliances([]); return; }
+      setApplicabilityLoading(true);
+      try {
+        const response = await fetch(`/api/compliance-applicability?facilityId=${encodeURIComponent(facilityId)}`, { credentials: 'include', cache: 'no-store' });
+        const json = await response.json();
+        if (!response.ok) throw new Error(json.error || 'Unable to load applicable compliance frameworks.');
+        const normalizedPeriod = /^FY/i.test(period) ? period.toUpperCase() : `FY${period}`;
+        const allowed = (json.data || []).filter((row: { period: string; isApplicable: boolean }) => row.isApplicable && String(row.period).toUpperCase() === normalizedPeriod).map((row: { complianceType: ComplianceType }) => row.complianceType);
+        if (!cancelled) {
+          setApplicableFrameworks(allowed);
+          setLinkedCompliances((current) => current.filter((framework) => allowed.includes(framework)));
+        }
+      } catch (error) {
+        if (!cancelled) { setApplicableFrameworks([]); setLinkedCompliances([]); notify.error(error instanceof Error ? error.message : 'Unable to load compliance settings.'); }
+      } finally { if (!cancelled) setApplicabilityLoading(false); }
+    }
+    void loadApplicableFrameworks();
+    return () => { cancelled = true; };
+  }, [facilityId, period]);
+
+  useEffect(() => {
     setFacilityId(initialFacilityId);
   }, [initialFacilityId]);
 
@@ -280,9 +304,8 @@ export function FacilityDataRequestPanel({
   };
 
   const toggleCompliance = (value: ComplianceType) => {
-    setLinkedCompliances((prev) =>
-      prev.includes(value) ? prev.filter((c) => c !== value) : [...prev, value]
-    );
+    if (!applicableFrameworks.includes(value)) return;
+    setLinkedCompliances((prev) => prev.includes(value) ? prev.filter((c) => c !== value) : [...prev, value]);
   };
 
   const applyChecklistSelection = (itemKey: string) => {
@@ -751,7 +774,7 @@ export function FacilityDataRequestPanel({
             <div className="space-y-1">
               <span className="font-bold text-slate-600 dark:text-slate-400 uppercase text-[10px]">Linked frameworks</span>
               <div className="flex flex-wrap gap-2">
-                {COMPLIANCE_OPTIONS.map((c) => (
+                {applicabilityLoading ? <span className="text-[10px] text-slate-500">Loading facility compliance…</span> : applicableFrameworks.length === 0 ? <span className="text-[10px] text-amber-600">No compliance framework is configured for this facility and financial year. Ask the Admin to configure it first.</span> : applicableFrameworks.map((c) => (
                   <button
                     key={c}
                     type="button"

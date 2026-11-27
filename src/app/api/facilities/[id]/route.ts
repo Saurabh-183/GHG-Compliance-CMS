@@ -181,27 +181,14 @@ export async function PATCH(
 
     const body = await request.json();
 
+    // Facility-wide enabledFrameworks is maintained as the union of all
+    // year-specific applicability records. Editing a facility must not
+    // accidentally enable/disable compliance for every financial year.
     if (Array.isArray(body.enabledFrameworks)) {
-      const valid: ComplianceType[] = ['RCO', 'RPO', 'PAT', 'CCTS'];
-      const filtered = body.enabledFrameworks.filter((f: any) => valid.includes(f));
-      facility.enabledFrameworks = filtered;
-
-      // Sync facility applicability
-      const disabled = valid.filter((f) => !filtered.includes(f));
-      if (disabled.length > 0) {
-        const { ComplianceApplicabilityModel } = await import('@/models/ComplianceApplicability');
-        await ComplianceApplicabilityModel.updateMany(
-          { facilityId: facility.facilityId, complianceType: { $in: disabled } },
-          { $set: { isApplicable: false } }
-        );
-      }
-      if (filtered.length > 0) {
-        const { ComplianceApplicabilityModel } = await import('@/models/ComplianceApplicability');
-        await ComplianceApplicabilityModel.updateMany(
-          { facilityId: facility.facilityId, complianceType: { $in: filtered } },
-          { $set: { isApplicable: true } }
-        );
-      }
+      return NextResponse.json({
+        success: false,
+        error: 'Configure compliance by financial year using the compliance settings panel.',
+      }, { status: 400 });
     }
 
     if (body.name && typeof body.name === 'string') facility.name = body.name.trim();

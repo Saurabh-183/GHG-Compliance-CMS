@@ -110,10 +110,11 @@ export async function POST(request: NextRequest) {
 
     // Assessment creation is permitted only for a facility/framework/year that
     // has an explicit applicable record. This blocks empty/fabricated reports.
+    const normalizedPeriod = /^FY/i.test(body.period) ? body.period.toUpperCase() : `FY${body.period}`;
     const applicability = await ComplianceApplicabilityModel.findOne({
       facilityId: body.facilityId.toUpperCase(),
       complianceType: body.complianceType,
-      period: body.period,
+      period: { $in: [body.period, normalizedPeriod] },
       isApplicable: true,
     }).lean();
     if (!applicability) {

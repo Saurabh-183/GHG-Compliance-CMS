@@ -14,7 +14,7 @@ import {
  * workflow statuses, evidence links, or assessment IDs.
  */
 export const COMPLIANCE_FRAMEWORKS: ComplianceType[] = ['RCO', 'RPO', 'PAT', 'CCTS'];
-export const COMPLIANCE_PERIODS = ['FY2024-25', 'FY2025-26', 'FY2026-27'];
+export const COMPLIANCE_PERIODS = Array.from({ length: 12 }, (_, index) => { const year = 2024 + index; return `FY${year}-${String(year + 1).slice(-2)}`; });
 
 const WORKFLOW_STATUS_RANK: Record<string, number> = {
   NOT_STARTED: 0,
@@ -28,10 +28,10 @@ function resolveMatrixPeriod(period: string): string | undefined {
   const normalized = String(period || '').trim().toLowerCase();
   const exact = COMPLIANCE_PERIODS.find((p) => p.toLowerCase() === normalized);
   if (exact) return exact;
-  if (normalized.includes('2024-25')) return 'FY2024-25';
-  if (normalized.includes('2025-26')) return 'FY2025-26';
-  if (normalized.includes('2026-27')) return 'FY2026-27';
-  return undefined;
+  const match = normalized.match(/(20\d{2})-(\d{2})/);
+  if (!match) return undefined;
+  const canonical = `FY${match[1]}-${match[2]}`;
+  return COMPLIANCE_PERIODS.some((period) => period.toLowerCase() === canonical.toLowerCase()) ? canonical : undefined;
 }
 
 function preferWorkflowStatus(current: WorkflowStatus, next: WorkflowStatus): WorkflowStatus {
