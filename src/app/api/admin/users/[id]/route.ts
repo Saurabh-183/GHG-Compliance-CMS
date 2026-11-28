@@ -466,6 +466,58 @@ export async function DELETE(
       );
     }
 
+    // Clean up client group and associated facility data if deleting a CLIENT user
+    if (user.role === 'CLIENT') {
+      const { ClientGroupModel } = await import('@/models/ClientGroup');
+      const { ComplianceApplicabilityModel } = await import('@/models/ComplianceApplicability');
+      const { AssessmentModel } = await import('@/models/Assessment');
+      const { DataRequirementModel } = await import('@/models/DataRequirement');
+      const { RegulatorySubmissionModel } = await import('@/models/RegulatorySubmission');
+
+      let targetGroupId = user.clientGroupId;
+      if (!targetGroupId) {
+        const matchingGroup = await ClientGroupModel.findOne({
+          $or: [
+            { 'contactPerson.email': user.email },
+            { contactEmail: user.email },
+          ],
+        });
+        if (matchingGroup) {
+          targetGroupId = matchingGroup._id;
+        }
+      }
+
+      if (targetGroupId) {
+        // Check if any other user belongs to this client group
+        const otherUsersInGroup = await UserModel.countDocuments({
+          clientGroupId: targetGroupId,
+          _id: { $ne: user._id },
+        });
+
+        if (otherUsersInGroup === 0) {
+          // No other users belong to this client company.
+          // Delete all facilities (units) under this client company and associated records
+          const facilities = await FacilityModel.find({ clientGroupId: targetGroupId }).select('facilityId').lean();
+          const facilityIds = facilities.map((f) => f.facilityId);
+
+          if (facilityIds.length > 0) {
+            await FacilityModel.deleteMany({ clientGroupId: targetGroupId });
+            await ComplianceApplicabilityModel.deleteMany({ facilityId: { $in: facilityIds } });
+            await AssessmentModel.deleteMany({ facilityId: { $in: facilityIds } });
+            await DataRequirementModel.deleteMany({ facilityId: { $in: facilityIds } });
+            await RegulatorySubmissionModel.deleteMany({ facilityId: { $in: facilityIds } });
+            await UserModel.updateMany({}, { $pull: { authorizedFacilityIds: { $in: facilityIds } } });
+          }
+
+          // Remove the client group from consultants' clientGroupIds
+          await UserModel.updateMany({}, { $pull: { clientGroupIds: targetGroupId } });
+
+          // Delete the client company from ClientGroupModel
+          await ClientGroupModel.deleteOne({ _id: targetGroupId });
+        }
+      }
+    }
+
     await user.deleteOne();
 
     return NextResponse.json({

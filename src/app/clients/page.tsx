@@ -13,10 +13,20 @@ import {
   ChevronLeft,
   ChevronRight,
   Filter,
+  Trash2,
 } from 'lucide-react';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+} from '@mui/material';
 import { ComplianceType, IClientGroup } from '@/types';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import { MOCK_CLIENT_GROUPS, MOCK_FACILITIES } from '@/lib/mockFallback';
+import { useAuth } from '@/context/AuthContext';
+import { notify } from '@/lib/notify';
 
 type ClientGroupWithFacilities = IClientGroup & {
   totalFacilitiesCount?: number;
@@ -94,11 +104,35 @@ const FILTER_TABS: Array<{ id: FrameworkFilter; label: string; badgeLabel: strin
 const ITEMS_PER_PAGE = 12;
 
 export default function ClientsPage() {
+  const { currentRole, theme } = useAuth();
+  const isDark = theme === 'dark';
   const [groups, setGroups] = useState<ClientGroupWithFacilities[]>([]);
   const [search, setSearch] = useState('');
   const [selectedFramework, setSelectedFramework] = useState<FrameworkFilter>('ALL');
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [deleteConfirmGroup, setDeleteConfirmGroup] = useState<ClientGroupWithFacilities | null>(null);
+  const [isDeletingGroup, setIsDeletingGroup] = useState(false);
+
+  async function handleDeleteGroup() {
+    if (!deleteConfirmGroup) return;
+    setIsDeletingGroup(true);
+    try {
+      const res = await fetch(`/api/client-groups/${deleteConfirmGroup._id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Failed to delete client company');
+      notify.success(`Company "${deleteConfirmGroup.name}" deleted successfully.`);
+      setGroups((prev) => prev.filter((g) => String(g._id) !== String(deleteConfirmGroup._id)));
+      setDeleteConfirmGroup(null);
+    } catch (err: any) {
+      notify.error(err.message || 'Error deleting company');
+    } finally {
+      setIsDeletingGroup(false);
+    }
+  }
 
   useEffect(() => {
     async function fetchGroups() {
@@ -345,11 +379,27 @@ export default function ClientsPage() {
                         <Building2 className="h-5 w-5" />
                       </div>
 
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300">
-                        <Factory className="h-3.5 w-3.5" />
-                        {facilityCount}{' '}
-                        {facilityCount === 1 ? 'Facility' : 'Facilities'}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300">
+                          <Factory className="h-3.5 w-3.5" />
+                          {facilityCount}{' '}
+                          {facilityCount === 1 ? 'Facility' : 'Facilities'}
+                        </span>
+                        {currentRole === 'ADMIN' && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setDeleteConfirmGroup(company);
+                            }}
+                            className="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer"
+                            title={`Delete company ${company.name}`}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
                     </div>
 
                     <h2 className="mt-4 text-lg font-bold text-slate-900 dark:text-white">
@@ -497,6 +547,56 @@ export default function ClientsPage() {
           )}
         </div>
       )}
+
+      {/* Delete Client Company Confirmation Dialog */}
+      <Dialog
+        open={Boolean(deleteConfirmGroup)}
+        onClose={() => setDeleteConfirmGroup(null)}
+        maxWidth="xs"
+        fullWidth
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: '16px',
+              backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+              color: isDark ? '#FFFFFF' : '#0F172A',
+              border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0'}`,
+              p: 1,
+            },
+          },
+        }}
+      >
+        <DialogTitle sx={{ fontWeight: 600, color: isDark ? '#FFFFFF' : '#0F172A' }}>
+          Delete Client Company
+        </DialogTitle>
+        <DialogContent>
+          <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
+            Are you sure you want to delete <strong>{deleteConfirmGroup?.name}</strong>?
+          </p>
+          <p className="text-xs text-rose-600 dark:text-rose-400 mt-2 font-medium">
+            This action will permanently delete the company profile, its operating units/facilities, and any associated client accounts.
+          </p>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, gap: 1 }}>
+          <Button
+            onClick={() => setDeleteConfirmGroup(null)}
+            color="inherit"
+            disabled={isDeletingGroup}
+            sx={{ textTransform: 'none', borderRadius: '8px' }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleDeleteGroup}
+            variant="contained"
+            color="error"
+            disabled={isDeletingGroup}
+            sx={{ textTransform: 'none', borderRadius: '8px', fontWeight: 600 }}
+          >
+            {isDeletingGroup ? 'Deleting...' : 'Delete Company'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </main>
   );
 }

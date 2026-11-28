@@ -32,28 +32,45 @@ export async function GET(
       const { parseAssessmentId } = await import('@/lib/assessmentIds');
       const parsed = parseAssessmentId(id);
       if (parsed) {
+        const periodNorm = parsed.period.replace(/^FY/i, '').trim();
         assessment = await AssessmentModel.findOne({
-          facilityId: parsed.facilityId,
+          facilityId: new RegExp(`^${parsed.facilityId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i'),
           complianceType: parsed.complianceType,
-          period: parsed.period,
+          $or: [
+            { period: parsed.period },
+            { period: `FY${periodNorm}` },
+            { period: periodNorm },
+            { period: new RegExp(`^FY\\s*${periodNorm}$`, 'i') },
+          ],
         })
           .populate('approvedBy', 'name email designation')
           .populate('assignedConsultantId', 'name email designation')
           .populate('assignedReviewerId', 'name email designation')
           .lean();
 
-        if (!assessment && (session?.role === 'ADMIN' || session?.role === 'CONSULTANT')) {
-          if (!isAuthorizedForFacility(session, parsed.facilityId)) {
+        if (!assessment) {
+          let authorized = isAuthorizedForFacility(session, parsed.facilityId);
+          if (!authorized && session?.role === 'CLIENT' && session.clientGroupId) {
+            const companyFacilityIds = await getClientFacilityIds(session.clientGroupId);
+            authorized = companyFacilityIds.includes(parsed.facilityId.toUpperCase());
+          }
+          if (!authorized) {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
           }
+
           const { FacilityModel } = await import('@/models/Facility');
-          const facility = await FacilityModel.findOne({ facilityId: parsed.facilityId }).lean();
+          const facility = await FacilityModel.findOne({
+            facilityId: new RegExp(`^${parsed.facilityId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i'),
+          }).populate('clientGroupId', 'name').lean();
+
+          const clientGroupName = (facility?.clientGroupId as any)?.name || (facility as any)?.clientGroupName;
+
           const virtualAssessment = {
             _id: id,
             facilityId: parsed.facilityId,
             facilityName: facility?.name || parsed.facilityId,
-            clientGroupId: facility?.clientGroupId,
-            clientGroupName: (facility as any)?.clientGroupName,
+            clientGroupId: facility?.clientGroupId?._id || facility?.clientGroupId,
+            clientGroupName,
             complianceType: parsed.complianceType,
             period: parsed.period,
             workflowStatus: 'NOT_STARTED',
