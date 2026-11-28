@@ -5,15 +5,29 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { COMPLIANCE_PERIODS } from '@/lib/complianceMatrixData';
 import { buildAssessmentId, parseAssessmentId } from '@/lib/assessmentIds';
-import type { IDataRequirement, IAssessment } from '@/types';
+import { normalizeFinancialYearPeriod } from '@/lib/financialYears';
+import type { IDataRequirement, IAssessment, ComplianceType } from '@/types';
 import { DataRequestStatsBar } from '@/components/requests/DataRequestStatsBar';
 import { FacilityDataRequestPanel } from '@/components/requests/FacilityDataRequestPanel';
 import { RequirementsReviewTable } from '@/components/requests/RequirementsReviewTable';
 import { matchesQuickFilter } from '@/lib/dataRequestDisplay';
 import { computeRequestStats } from '@/lib/requestStats';
-import { ChevronRight, ExternalLink, FileSpreadsheet, Plus, RefreshCw, ChevronDown } from 'lucide-react';
+import { ChevronRight, ExternalLink, FileSpreadsheet, Plus, RefreshCw, ChevronDown, Filter } from 'lucide-react';
 import { Select, MenuItem, FormControl, SelectChangeEvent } from '@mui/material';
 import { useAuth } from '@/context/AuthContext';
+
+type FrameworkOption = {
+  type: ComplianceType;
+  label: string;
+  name: string;
+};
+
+const STATUTORY_FRAMEWORKS: FrameworkOption[] = [
+  { type: 'RCO', label: 'RCO', name: 'Renewable Consumption Obligation' },
+  { type: 'RPO', label: 'RPO', name: 'Renewable Purchase Obligation' },
+  { type: 'PAT', label: 'PAT Scheme', name: 'Perform, Achieve & Trade' },
+  { type: 'CCTS', label: 'CCTS Carbon', name: 'Carbon Credit Trading Scheme' },
+];
 
 export default function AssessmentDataPage() {
   const { theme, currentRole, currentUser } = useAuth();
@@ -29,6 +43,15 @@ export default function AssessmentDataPage() {
   const [error, setError] = useState('');
   const [quickFilter, setQuickFilter] = useState('all');
   const [frameworkOnly, setFrameworkOnly] = useState(false);
+  const [selectedFramework, setSelectedFramework] = useState<string>('ALL');
+  const [applicabilityRecords, setApplicabilityRecords] = useState<
+    Array<{
+      facilityId: string;
+      complianceType: ComplianceType;
+      period: string;
+      isApplicable: boolean;
+    }>
+  >([]);
   const [showCreate, setShowCreate] = useState(false);
 
   const loadData = useCallback(async () => {
@@ -92,10 +115,16 @@ export default function AssessmentDataPage() {
         period: currentAssessment.period,
       });
 
-      const requirementsResponse = await fetch(`/api/requirements?${query.toString()}`, {
-        cache: 'no-store',
-        credentials: 'include',
-      });
+      const [requirementsResponse, applicabilityResponse] = await Promise.all([
+        fetch(`/api/requirements?${query.toString()}`, {
+          cache: 'no-store',
+          credentials: 'include',
+        }),
+        fetch(`/api/compliance-applicability?facilityId=${encodeURIComponent(currentAssessment.facilityId)}`, {
+          cache: 'no-store',
+          credentials: 'include',
+        }),
+      ]);
 
       const requirementsPayload = await requirementsResponse.json().catch(() => null);
       if (!requirementsResponse.ok) {
@@ -103,6 +132,11 @@ export default function AssessmentDataPage() {
       }
 
       setRequirements(Array.isArray(requirementsPayload?.data) ? requirementsPayload.data : []);
+
+      const applicabilityPayload = await applicabilityResponse.json().catch(() => null);
+      if (applicabilityResponse.ok && Array.isArray(applicabilityPayload?.data)) {
+        setApplicabilityRecords(applicabilityPayload.data);
+      }
     } catch (loadError) {
       console.error('Error loading assessment data requests:', loadError);
       setError(loadError instanceof Error ? loadError.message : 'Unable to load data requests.');
@@ -115,14 +149,75 @@ export default function AssessmentDataPage() {
     void loadData();
   }, [loadData]);
 
+  const applicableFrameworks = useMemo<ComplianceType[]>(() => {
+    if (!assessment) return [];
+
+    const normPeriod = normalizeFinancialYearPeriod(assessment.period) || assessment.period?.toUpperCase();
+
+    // 1. Check explicit records configured in compliance-applicability
+    const matchedRecords = applicabilityRecords.filter((rec) => {
+      const recNorm = normalizeFinancialYearPeriod(rec.period) || rec.period?.toUpperCase();
+      return (
+        rec.facilityId?.toUpperCase() === assessment.facilityId?.toUpperCase() &&
+        recNorm === normPeriod
+      );
+    });
+
+    if (matchedRecords.length > 0) {
+      const activeFromRecords = matchedRecords
+        .filter((rec) => rec.isApplicable)
+        .map((rec) => rec.complianceType);
+
+      // Ensure current assessment's complianceType is included if not explicitly false
+      const currentExplicitFalse = matchedRecords.some(
+        (rec) => rec.complianceType === assessment.complianceType && !rec.isApplicable
+      );
+      if (
+        assessment.complianceType &&
+        !currentExplicitFalse &&
+        !activeFromRecords.includes(assessment.complianceType)
+      ) {
+        activeFromRecords.push(assessment.complianceType);
+      }
+      return activeFromRecords;
+    }
+
+    // 2. Fallback: frameworks appearing in current requirements or matching current assessment
+    const activeFromReqs = requirements
+      .flatMap((r) => (Array.isArray(r.linkedCompliances) ? r.linkedCompliances : []))
+      .filter(Boolean) as ComplianceType[];
+
+    const combined = Array.from(
+      new Set([
+        ...(assessment.complianceType ? [assessment.complianceType] : []),
+        ...activeFromReqs,
+      ])
+    );
+
+    if (combined.length > 0) {
+      return combined;
+    }
+
+    return ['RCO', 'RPO', 'PAT', 'CCTS'];
+  }, [applicabilityRecords, assessment, requirements]);
+
+  useEffect(() => {
+    if (selectedFramework !== 'ALL' && !applicableFrameworks.includes(selectedFramework as any)) {
+      setSelectedFramework('ALL');
+    }
+  }, [applicableFrameworks, selectedFramework]);
+
   const periodScopedRequirements = useMemo(() => {
     return requirements.filter((req) => {
-      if (frameworkOnly && assessment) {
+      if (selectedFramework !== 'ALL') {
+        const compliances = Array.isArray(req.linkedCompliances) ? req.linkedCompliances : [];
+        if (!compliances.includes(selectedFramework as any)) return false;
+      } else if (frameworkOnly && assessment) {
         if (!req.linkedCompliances?.includes(assessment.complianceType)) return false;
       }
       return true;
     });
-  }, [requirements, frameworkOnly, assessment]);
+  }, [requirements, selectedFramework, frameworkOnly, assessment]);
 
   const stats = useMemo(
     () => computeRequestStats(periodScopedRequirements),
@@ -288,7 +383,116 @@ export default function AssessmentDataPage() {
             )}
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300">
+              <Filter className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <FormControl size="small" sx={{ minWidth: 140 }}>
+                <Select
+                  value={selectedFramework}
+                  onChange={(e: SelectChangeEvent) => setSelectedFramework(e.target.value)}
+                  displayEmpty
+                  renderValue={(value) => {
+                    if (value === 'ALL') return 'All Frameworks';
+                    const fw = STATUTORY_FRAMEWORKS.find((f) => f.type === value);
+                    return fw ? fw.label : value;
+                  }}
+                  IconComponent={() => (
+                    <ChevronDown
+                      className="w-4 h-4 pointer-events-none"
+                      style={{ color: isDark ? '#94A3B8' : '#64748B', marginRight: 8 }}
+                    />
+                  )}
+                  sx={{
+                    height: 34,
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    borderRadius: '8px',
+                    backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                    color: isDark ? '#FFFFFF' : '#0F172A',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDark ? '#34D399' : '#059669',
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDark ? '#34D399' : '#059669',
+                      borderWidth: '1.5px',
+                    },
+                    '& .MuiSelect-select': {
+                      py: '5px',
+                      px: '10px',
+                      display: 'flex',
+                      alignItems: 'center',
+                    },
+                  }}
+                  MenuProps={{
+                    slotProps: {
+                      paper: {
+                        sx: {
+                          mt: 0.5,
+                          borderRadius: '8px',
+                          backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+                          color: isDark ? '#FFFFFF' : '#0F172A',
+                          border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0'}`,
+                          boxShadow: isDark
+                            ? '0 10px 25px -5px rgba(0, 0, 0, 0.6)'
+                            : '0 10px 25px -5px rgba(16, 185, 129, 0.12)',
+                          '& .MuiList-root': { py: '4px' },
+                        },
+                      },
+                    },
+                  }}
+                >
+                  <MenuItem
+                    value="ALL"
+                    sx={{
+                      fontSize: '12px',
+                      fontWeight: selectedFramework === 'ALL' ? 600 : 400,
+                      py: 0.75,
+                      px: 1.5,
+                      borderRadius: '6px',
+                      mx: 0.5,
+                      my: 0.25,
+                      '&.Mui-selected': {
+                        backgroundColor: isDark ? 'rgba(52, 211, 153, 0.15)' : 'rgba(16, 185, 129, 0.1)',
+                        color: isDark ? '#34D399' : '#059669',
+                      },
+                    }}
+                  >
+                    All Frameworks
+                  </MenuItem>
+                  {STATUTORY_FRAMEWORKS.filter((fw) => applicableFrameworks.includes(fw.type)).map((fw) => {
+                    return (
+                      <MenuItem
+                        key={fw.type}
+                        value={fw.type}
+                        sx={{
+                          fontSize: '12px',
+                          fontWeight: selectedFramework === fw.type ? 600 : 400,
+                          py: 0.75,
+                          px: 1.5,
+                          borderRadius: '6px',
+                          mx: 0.5,
+                          my: 0.25,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1.5,
+                          '&.Mui-selected': {
+                            backgroundColor: isDark ? 'rgba(52, 211, 153, 0.15)' : 'rgba(16, 185, 129, 0.1)',
+                            color: isDark ? '#34D399' : '#059669',
+                          },
+                        }}
+                      >
+                        <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" />
+                        <span>{fw.label}</span>
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+              </FormControl>
+            </div>
+
             <button
               type="button"
               onClick={() => void loadData()}
@@ -328,8 +532,16 @@ export default function AssessmentDataPage() {
         <label className="mt-4 inline-flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
           <input
             type="checkbox"
-            checked={frameworkOnly}
-            onChange={(e) => setFrameworkOnly(e.target.checked)}
+            checked={frameworkOnly || selectedFramework === assessment?.complianceType}
+            onChange={(e) => {
+              const checked = e.target.checked;
+              setFrameworkOnly(checked);
+              if (checked && assessment) {
+                setSelectedFramework(assessment.complianceType);
+              } else if (!checked && selectedFramework === assessment?.complianceType) {
+                setSelectedFramework('ALL');
+              }
+            }}
             className="accent-emerald-700"
           />
           Show only requests linked to {assessment?.complianceType}

@@ -120,7 +120,6 @@ export function RequestReviewPanel({
           badgeVariant={urgency === 'overdue' ? 'rose' : 'amber'}
         />
       </div>
-
       {latestSubmission?.structuredData && (
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-4 space-y-2">
           <h4 className="font-bold text-slate-900 dark:text-white">Submitted information</h4>

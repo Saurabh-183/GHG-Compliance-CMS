@@ -14,7 +14,6 @@ import {
 } from '@/lib/clientMonthlyEvidenceRows';
 import { PORTAL_PERIOD_OPTIONS, readPortalPeriod, writePortalScope } from '@/lib/portalScope';
 import { ComplianceMatrixTable } from '@/components/compliance/ComplianceMatrixTable';
-import FacilityComplianceYearSettings from '@/components/admin/FacilityComplianceYearSettings';
 import { ExcelImportModal } from '@/components/compliance/ExcelImportModal';
 import { DriveConnectionModal } from '@/components/common/DriveConnectionModal';
 import { StatusBadge } from '@/components/common/StatusBadge';
@@ -485,9 +484,6 @@ export default function FacilityDashboardPage() {
       </div>
 
       {/* Module 1: Multi-Year Compliance Matrix (Section 5.2) */}
-      {currentUser?.role === 'ADMIN' && (
-        <FacilityComplianceYearSettings initialFacilityId={facilityId} onSaved={() => void loadMatrix()} />
-      )}
       <ComplianceMatrixTable data={matrixData} />
 
       {/* Client-Submitted Evidence Section */}

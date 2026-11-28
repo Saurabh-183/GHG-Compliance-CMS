@@ -18,11 +18,13 @@ export async function GET(request: NextRequest) {
     await connectToDatabase();
     const session = getSessionFromRequest(request);
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    if (session.role !== 'ADMIN' && !session.authorizedFacilityIds?.length) {
+    if (session.role === 'CLIENT' && !session.authorizedFacilityIds?.length) {
       return NextResponse.json({ success: true, data: [] });
     }
     const searchParams = request.nextUrl.searchParams;
     const facilityId = searchParams.get('facilityId');
+    const facilityIdsParam = searchParams.get('facilityIds');
+    const clientGroupId = searchParams.get('clientGroupId');
     const period = searchParams.get('period');
 
     const query: {
@@ -35,9 +37,53 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
       query.facilityId = facilityId.toUpperCase();
+    } else if (facilityIdsParam) {
+      const parsedIds = facilityIdsParam
+        .split(',')
+        .map((id) => id.trim().toUpperCase())
+        .filter(Boolean);
+      if (session.role === 'CLIENT') {
+        const allowed = (session.authorizedFacilityIds || []).map((id) => id.toUpperCase());
+        query.facilityId = { $in: parsedIds.filter((id) => allowed.includes(id)) };
+      } else {
+        query.facilityId = { $in: parsedIds };
+      }
+    } else if (clientGroupId) {
+      let groupFacilities = await FacilityModel.find({ clientGroupId }).select('facilityId').lean();
+      if (!groupFacilities.length) {
+        const group = await ClientGroupModel.findOne({
+          $or: [{ _id: clientGroupId }, { code: clientGroupId.toUpperCase() }],
+        })
+          .select('_id')
+          .lean();
+        if (group?._id) {
+          groupFacilities = await FacilityModel.find({ clientGroupId: group._id })
+            .select('facilityId')
+            .lean();
+        }
+      }
+      const ids = groupFacilities.map((f) => f.facilityId.toUpperCase());
+      if (session.role === 'CLIENT') {
+        const allowed = (session.authorizedFacilityIds || []).map((id) => id.toUpperCase());
+        query.facilityId = { $in: ids.filter((id) => allowed.includes(id)) };
+      } else {
+        query.facilityId = { $in: ids };
+      }
+    } else if (session.role === 'CLIENT') {
+      query.facilityId = { $in: (session.authorizedFacilityIds || []).map((id) => id.toUpperCase()) };
+    } else if (session.role === 'CONSULTANT') {
+      const authorized = (session.authorizedFacilityIds || []).map((id) => id.toUpperCase());
+      const assigned = await FacilityModel.find({
+        $or: [{ assignedConsultantId: session.userId }, { assignedReviewerId: session.userId }],
+      })
+        .select('facilityId')
+        .lean();
+      const assignedIds = assigned.map((f) => f.facilityId.toUpperCase());
+      const allAllowed = Array.from(new Set([...authorized, ...assignedIds]));
+      if (allAllowed.length > 0) {
+        query.facilityId = { $in: allAllowed };
+      }
     } else if (session.role !== 'ADMIN') {
-      query.facilityId = { $in: session.authorizedFacilityIds || [] };
-    } else if (!['ADMIN', 'CONSULTANT'].includes(session.role)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

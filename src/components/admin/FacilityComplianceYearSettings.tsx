@@ -154,9 +154,9 @@ export default function FacilityComplianceYearSettings({ initialFacilityId, onSa
   const selectedCount = mode === 'single' ? (facilityId ? 1 : 0) : bulkFacilityIds.length;
 
   return (
-    <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div className="mb-4">
-        <h2 className="text-sm font-bold text-slate-900 dark:text-white">
+    <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+      <div className="mb-5 pb-4 border-b border-slate-100 dark:border-slate-800/80">
+        <h2 className="text-base font-bold text-slate-900 dark:text-white">
           Facility compliance by financial year
         </h2>
         <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
@@ -165,16 +165,20 @@ export default function FacilityComplianceYearSettings({ initialFacilityId, onSa
       </div>
 
       {loading ? (
-        <div className="flex items-center gap-2 py-6 text-sm text-slate-500">
-          <Loader2 className="h-4 w-4 animate-spin" /> Loading…
+        <div className="flex items-center gap-2 py-6 text-xs font-medium text-slate-500 dark:text-slate-400">
+          <Loader2 className="h-4 w-4 animate-spin text-emerald-600" /> Loading compliance settings…
         </div>
       ) : (
         <>
-          <div className="mb-4 flex flex-wrap gap-2">
+          <div className="mb-5 flex flex-wrap gap-2">
             <button
               type="button"
               onClick={() => setMode('single')}
-              className={`rounded-lg border px-3 py-2 text-xs font-semibold ${mode === 'single' ? 'border-emerald-600 bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300' : 'border-slate-200 text-slate-600 dark:border-slate-700 dark:text-slate-300'}`}
+              className={`rounded-lg border px-3.5 py-1.5 text-xs font-bold transition-all cursor-pointer ${
+                mode === 'single'
+                  ? 'border-emerald-600 bg-emerald-50 text-emerald-800 dark:border-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 shadow-2xs'
+                  : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300'
+              }`}
             >
               One facility
             </button>
@@ -184,20 +188,24 @@ export default function FacilityComplianceYearSettings({ initialFacilityId, onSa
                 setBulkFacilityIds((current) => current.length ? current : facilityId ? [facilityId] : []);
                 setMode('bulk');
               }}
-              className={`rounded-lg border px-3 py-2 text-xs font-semibold ${mode === 'bulk' ? 'border-emerald-600 bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300' : 'border-slate-200 text-slate-600 dark:border-slate-700 dark:text-slate-300'}`}
+              className={`rounded-lg border px-3.5 py-1.5 text-xs font-bold transition-all cursor-pointer ${
+                mode === 'bulk'
+                  ? 'border-emerald-600 bg-emerald-50 text-emerald-800 dark:border-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 shadow-2xs'
+                  : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300'
+              }`}
             >
               Multiple facilities
             </button>
           </div>
 
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2">
             {mode === 'single' ? (
-              <label className="space-y-1 text-xs font-semibold text-slate-600 dark:text-slate-300">
+              <label className="space-y-1.5 text-xs font-bold text-slate-700 dark:text-slate-300">
                 Facility
                 <select
                   value={facilityId}
                   onChange={(event) => setFacilityId(event.target.value)}
-                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-900 shadow-2xs focus:border-emerald-600 focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                 >
                   {facilities.map((item) => (
                     <option key={item.facilityId} value={item.facilityId}>
@@ -208,15 +216,15 @@ export default function FacilityComplianceYearSettings({ initialFacilityId, onSa
               </label>
             ) : (
               <div className="space-y-2">
-                <div className="flex items-center justify-between text-xs font-semibold text-slate-600 dark:text-slate-300">
+                <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
                   <span>Choose facilities / companies</span>
-                  <span>{bulkFacilityIds.length} selected</span>
+                  <span className="font-semibold text-emerald-700 dark:text-emerald-400">{bulkFacilityIds.length} selected</span>
                 </div>
                 <div className="flex gap-3 text-[11px]">
-                  <button type="button" onClick={() => setBulkFacilityIds(facilities.map((item) => item.facilityId))} className="font-semibold text-emerald-700 hover:underline dark:text-emerald-400">Select all</button>
-                  <button type="button" onClick={() => setBulkFacilityIds([])} className="font-semibold text-slate-500 hover:underline">Clear</button>
+                  <button type="button" onClick={() => setBulkFacilityIds(facilities.map((item) => item.facilityId))} className="font-bold text-emerald-700 hover:underline dark:text-emerald-400 cursor-pointer">Select all</button>
+                  <button type="button" onClick={() => setBulkFacilityIds([])} className="font-semibold text-slate-500 hover:underline cursor-pointer">Clear</button>
                 </div>
-                <div className="max-h-48 space-y-1 overflow-y-auto rounded-lg border border-slate-200 p-2 dark:border-slate-700">
+                <div className="max-h-48 space-y-1 overflow-y-auto rounded-lg border border-slate-200 p-2 dark:border-slate-700 bg-white dark:bg-slate-950">
                   {facilities.map((item) => (
                     <label key={item.facilityId} className="flex cursor-pointer items-start gap-2 rounded-md px-2 py-1.5 text-xs hover:bg-slate-50 dark:hover:bg-slate-800">
                       <input
@@ -226,8 +234,8 @@ export default function FacilityComplianceYearSettings({ initialFacilityId, onSa
                         className="mt-0.5 accent-emerald-600"
                       />
                       <span className="min-w-0">
-                        <span className="block font-semibold text-slate-800 dark:text-slate-200">{item.name}</span>
-                        <span className="text-slate-500">{item.clientGroupName || 'Organization'} · {item.facilityId}</span>
+                        <span className="block font-bold text-slate-800 dark:text-slate-200">{item.name}</span>
+                        <span className="text-[11px] text-slate-500">{item.clientGroupName || 'Organization'} · <span className="font-mono">{item.facilityId}</span></span>
                       </span>
                     </label>
                   ))}
@@ -236,33 +244,39 @@ export default function FacilityComplianceYearSettings({ initialFacilityId, onSa
               </div>
             )}
 
-            <label className="space-y-1 text-xs font-semibold text-slate-600 dark:text-slate-300">
+            <label className="space-y-1.5 text-xs font-bold text-slate-700 dark:text-slate-300">
               Financial year
               <select
                 value={period}
                 onChange={(event) => setPeriod(event.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-900 shadow-2xs focus:border-emerald-600 focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
               >
                 {years.map((year) => (
                   <option key={year} value={year}>{year}</option>
                 ))}
               </select>
-              <span className="block font-normal text-slate-500">Only the previous, current and upcoming financial years are shown.</span>
+              <span className="block font-normal text-[11px] text-slate-500 dark:text-slate-400">Only the previous, current and upcoming financial years are shown.</span>
             </label>
           </div>
 
           {mode === 'single' && facility && (
-            <div className="mt-4 rounded-lg bg-slate-50 p-3 text-xs text-slate-600 dark:bg-slate-950 dark:text-slate-300">
-              {facility.name} · {facility.clientGroupName || 'Organization'} · {period}
+            <div className="mt-4 rounded-lg bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 p-3 text-xs flex flex-wrap items-center gap-2 text-slate-600 dark:text-slate-300">
+              <span className="font-bold text-slate-900 dark:text-white">{facility.name}</span>
+              <span className="text-slate-400">·</span>
+              <span className="text-slate-500 dark:text-slate-400">{facility.clientGroupName || 'Organization'}</span>
+              <span className="text-slate-400">·</span>
+              <span className="font-mono font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+                {period}
+              </span>
             </div>
           )}
           {mode === 'bulk' && (
-            <div className="mt-4 rounded-lg bg-amber-50 p-3 text-xs text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
-              The same framework selection will be applied to all {bulkFacilityIds.length} selected facilities for {period}. Other financial years are not modified.
+            <div className="mt-4 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 p-3 text-xs text-amber-900 dark:text-amber-200">
+              The same framework selection will be applied to all <strong className="font-bold">{bulkFacilityIds.length}</strong> selected facilities for <strong className="font-bold font-mono">{period}</strong>. Other financial years are not modified.
             </div>
           )}
 
-          {!facilities.length && <p className="py-4 text-sm text-slate-500">Create a facility first to configure compliance.</p>}
+          {!facilities.length && <p className="py-4 text-xs font-medium text-slate-500">Create a facility first to configure compliance.</p>}
 
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             {FRAMEWORKS.map((framework) => {
@@ -273,25 +287,45 @@ export default function FacilityComplianceYearSettings({ initialFacilityId, onSa
                   type="button"
                   disabled={!selectedCount}
                   onClick={() => toggleFramework(framework.type)}
-                  className={`flex items-center justify-between rounded-xl border p-4 text-left transition disabled:cursor-not-allowed disabled:opacity-50 ${checked ? 'border-emerald-600 bg-emerald-50 dark:border-emerald-500 dark:bg-emerald-950/30' : 'border-slate-200 dark:border-slate-700'}`}
+                  className={`flex items-center justify-between rounded-xl border p-4 text-left transition-all cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 ${
+                    checked
+                      ? 'border-emerald-500 bg-emerald-50/70 dark:border-emerald-600 dark:bg-emerald-950/40 shadow-2xs'
+                      : 'border-slate-200 bg-white hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900/60 dark:hover:border-slate-700'
+                  }`}
                 >
-                  <span>
-                    <span className="block text-sm font-bold text-slate-900 dark:text-white">{framework.title}</span>
-                    <span className="mt-1 block text-xs text-slate-500 dark:text-slate-400">{framework.detail}</span>
+                  <span className="space-y-0.5">
+                    <span className="block text-sm font-bold text-slate-900 dark:text-white tracking-wide">
+                      {framework.title}
+                    </span>
+                    <span className="block text-xs text-slate-500 dark:text-slate-400 font-normal">
+                      {framework.detail}
+                    </span>
                   </span>
-                  {checked ? <CheckCircle2 className="h-5 w-5 text-emerald-600" /> : <span className="rounded border border-slate-300 px-2 py-1 text-[10px] text-slate-500">Not applicable</span>}
+                  {checked ? (
+                    <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100/70 dark:bg-emerald-900/50 px-2.5 py-1 rounded-full border border-emerald-300 dark:border-emerald-700">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                      Applicable
+                    </span>
+                  ) : (
+                    <span className="rounded-md border border-slate-200 bg-slate-100/80 px-2 py-0.5 text-[11px] font-medium text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">
+                      Not applicable
+                    </span>
+                  )}
                 </button>
               );
             })}
           </div>
 
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-            <p className="text-xs text-slate-500">{selected.length} framework(s) enabled · {selectedCount} facility/facilities targeted</p>
+          <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+              <strong className="text-slate-900 dark:text-white font-bold">{selected.length}</strong> framework(s) enabled ·{' '}
+              <strong className="text-slate-900 dark:text-white font-bold">{selectedCount}</strong> facility/facilities targeted
+            </p>
             <button
               type="button"
               onClick={() => void save()}
               disabled={saving || !selectedCount}
-              className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2.5 text-xs font-bold text-white hover:bg-emerald-800 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-5 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-emerald-800 disabled:opacity-50 cursor-pointer"
             >
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               {saving ? 'Saving…' : mode === 'single' ? 'Save financial-year compliance' : `Apply to ${bulkFacilityIds.length} facilities`}
