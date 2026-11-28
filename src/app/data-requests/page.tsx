@@ -8,6 +8,7 @@ import { FacilityDataRequestPanel } from '@/components/requests/FacilityDataRequ
 import { ChecklistDrivenRequestWizard } from '@/components/requests/ChecklistDrivenRequestWizard';
 import type { IFacility, IClientGroup } from '@/types';
 import { FileSpreadsheet } from 'lucide-react';
+import { watchClientDirectory } from '@/lib/watchClientDirectory';
 
 export default function DataRequestsPage() {
   const router = useRouter();
@@ -21,77 +22,52 @@ export default function DataRequestsPage() {
   }, [isClient, router]);
 
   const isDark = theme === 'dark';
-  const [selectedFacilityId, setSelectedFacilityId] = useState('');
-  const [facilityName, setFacilityName] = useState('');
+  const [requestedFacilityId, setRequestedFacilityId] = useState(() =>
+    typeof window === 'undefined' ? '' : new URLSearchParams(window.location.search).get('facilityId')?.toUpperCase() || ''
+  );
   const [facilities, setFacilities] = useState<IFacility[]>([]);
   const [organizations, setOrganizations] = useState<IClientGroup[]>([]);
-  const [organizationId, setOrganizationId] = useState('');
+  const [requestedOrganizationId, setRequestedOrganizationId] = useState('');
 
   useEffect(() => {
-    void (async () => {
+    return watchClientDirectory(async () => {
       try {
         const [orgRes, facRes] = await Promise.all([
           fetch('/api/client-groups', { credentials: 'include', cache: 'no-store' }),
           fetch('/api/facilities', { credentials: 'include', cache: 'no-store' }),
         ]);
+        if (!orgRes.ok || !facRes.ok) return;
         const orgJson = await orgRes.json();
         const facJson = await facRes.json();
         const list: IFacility[] = facJson.data || [];
-        const { MOCK_CLIENT_GROUPS } = await import('@/lib/mockFallback');
-        const dbOrgs: IClientGroup[] = orgJson.data || [];
-        const dbNames = new Set(dbOrgs.map((g) => g.name.trim().toLowerCase()));
-        const dbCodes = new Set(dbOrgs.map((g) => (g.code || '').trim().toLowerCase()));
-        const dbIds = new Set(dbOrgs.map((g) => String(g._id)));
-        const filteredMocks = MOCK_CLIENT_GROUPS.filter(
-          (m) =>
-            !dbIds.has(String(m._id)) &&
-            !dbNames.has(m.name.trim().toLowerCase()) &&
-            !dbCodes.has((m.code || '').trim().toLowerCase())
-        );
-        const orgs = [...dbOrgs, ...filteredMocks];
+        const orgs: IClientGroup[] = orgJson.data || [];
         setFacilities(list);
         setOrganizations(orgs);
-        if (orgs.length > 0) {
-          setOrganizationId((prev) => prev || orgs[0]._id);
-        }
-        if (list.length > 0) {
-          const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-          const urlFac = urlParams?.get('facilityId');
-          const matchedFac = urlFac ? list.find((x) => x.facilityId.toLowerCase() === urlFac.toLowerCase()) : null;
-
-          const activeFac = matchedFac || list[0];
-          setSelectedFacilityId(activeFac.facilityId);
-          setFacilityName(activeFac.name);
-          if (activeFac.clientGroupId) setOrganizationId(activeFac.clientGroupId);
-        }
       } catch {
         /* optional */
       }
-    })();
+    });
   }, []);
 
+  const requestedFacility = facilities.find((facility) => facility.facilityId === requestedFacilityId);
+  const organizationId = organizations.find((org) => org._id === requestedOrganizationId)?._id ||
+    organizations.find((org) => org._id === requestedFacility?.clientGroupId)?._id ||
+    organizations[0]?._id || '';
   const facilitiesInOrg = useMemo(() => {
-    if (!organizationId) return facilities;
     return facilities.filter((f) => f.clientGroupId === organizationId);
   }, [facilities, organizationId]);
+  const selectedFacility = facilitiesInOrg.find((facility) => facility.facilityId === requestedFacilityId) || facilitiesInOrg[0];
+  const selectedFacilityId = selectedFacility?.facilityId || '';
+  const facilityName = selectedFacility?.name || '';
 
   const handleOrganizationChange = (orgId: string) => {
-    setOrganizationId(orgId);
-    const inOrg = facilities.filter((f) => f.clientGroupId === orgId);
-    if (inOrg.length > 0) {
-      setSelectedFacilityId(inOrg[0].facilityId);
-      setFacilityName(inOrg[0].name);
-    } else {
-      setSelectedFacilityId('');
-      setFacilityName('');
-    }
+    setRequestedOrganizationId(orgId);
+    setRequestedFacilityId('');
   };
 
   const handleFacilityChange = (id: string) => {
-    setSelectedFacilityId(id);
-    const found = facilities.find((f) => f.facilityId === id);
-    setFacilityName(found?.name || '');
-    if (found?.clientGroupId) setOrganizationId(found.clientGroupId);
+    setRequestedFacilityId(id);
+    setRequestedOrganizationId(organizationId);
   };
 
   if (isClient) {

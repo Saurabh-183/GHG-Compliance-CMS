@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import { connectToDatabase } from '@/lib/db';
+import { connectToDatabase, isMongoObjectId } from '@/lib/db';
 import { FacilityModel } from '@/models/Facility';
 import { ClientGroupModel } from '@/models/ClientGroup';
 import { UserModel } from '@/models/User';
@@ -60,32 +60,6 @@ export async function GET(request: NextRequest) {
       .populate('assignedReviewerId', 'name email designation')
       .lean();
 
-    // GET requests must not seed or reset persistent data.
-    // Internal users receive the read-only demo directory fallback
-    // below when MongoDB has no records.
-
-    if (
-      facilities.length === 0 &&
-      process.env.NODE_ENV !== 'production' &&
-      session.role === 'ADMIN'
-    ) {
-      const { MOCK_FACILITIES } = await import('@/lib/mockFallback');
-
-      let fallbackList = MOCK_FACILITIES;
-
-      if (clientGroupIdParam) {
-        fallbackList = fallbackList.filter(
-          (facility) => facility.clientGroupId === clientGroupIdParam
-        );
-      }
-
-      return NextResponse.json({
-        success: true,
-        source: 'development-fallback',
-        data: fallbackList,
-      });
-    }
-
     let data = dedupeFacilitiesById(
       facilities.map((f) => {
         const clientGroup = f.clientGroupId as unknown as {
@@ -116,46 +90,10 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.warn('Error fetching facilities from DB:', error);
 
-    if (
-      session.role === 'CLIENT' &&
-      process.env.NODE_ENV === 'production'
-    ) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Facility directory is temporarily unavailable.',
-        },
-        { status: 503 }
-      );
-    }
-
-    if (
-      process.env.NODE_ENV === 'production' ||
-      session.role !== 'ADMIN'
-    ) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Facility directory is temporarily unavailable.',
-        },
-        { status: 503 }
-      );
-    }
-
-    // Only ADMIN can reach this development fallback.
-    // No CLIENT comparison is needed here because the role
-    // has already been narrowed to ADMIN by the condition above.
-    const { MOCK_FACILITIES } = await import('@/lib/mockFallback');
-    let fallbackList = MOCK_FACILITIES;
-    const portalScope = request.nextUrl.searchParams.get('portalScope') === 'authorized';
-    if (portalScope) {
-      fallbackList = filterFacilitiesToPortalScope(session, MOCK_FACILITIES);
-    }
-    return NextResponse.json({
-      success: true,
-      source: 'development-fallback',
-      data: MOCK_FACILITIES,
-    });
+    return NextResponse.json(
+      { success: false, error: 'Facility directory is temporarily unavailable.' },
+      { status: 503 }
+    );
   }
 }
 
@@ -200,8 +138,12 @@ export async function POST(request: NextRequest) {
       targetClientGroupId = session.clientGroupId;
     }
 
-    if (!targetClientGroupId) {
+    if (!isMongoObjectId(targetClientGroupId)) {
       return NextResponse.json({ error: 'A company group is required to register a facility.' }, { status: 400 });
+    }
+    const clientGroup = await ClientGroupModel.findById(targetClientGroupId).select('industry').lean();
+    if (!clientGroup) {
+      return NextResponse.json({ error: 'Client company not found.' }, { status: 404 });
     }
 
     let rawFacilityId = typeof body.facilityId === 'string' ? body.facilityId.trim().toUpperCase() : '';
@@ -219,16 +161,7 @@ export async function POST(request: NextRequest) {
       uniqueFacilityId = `${rawFacilityId.slice(0, 20)}_${counter++}`;
     }
 
-    let facilityCategory = typeof body.category === 'string' && body.category.trim() ? body.category.trim() : '';
-    if (!facilityCategory && targetClientGroupId) {
-      const clientGroupDoc = await ClientGroupModel.findById(targetClientGroupId).lean();
-      if (clientGroupDoc?.industry) {
-        facilityCategory = clientGroupDoc.industry;
-      }
-    }
-    if (!facilityCategory) {
-      facilityCategory = 'Manufacturing';
-    }
+    const facilityCategory = body.category?.trim() || clientGroup.industry || 'Manufacturing';
 
     let finalConsultantId = body.assignedConsultantId;
     if (!finalConsultantId && targetClientGroupId) {

@@ -24,20 +24,7 @@ export async function GET(
       .populate('assignedReviewerId', 'name email')
       .lean();
 
-    let result =
-      session.role === 'CLIENT' && session.authorizedFacilityIds
-        ? facilities.filter((f) => session.authorizedFacilityIds?.includes(f.facilityId))
-        : facilities;
-
-    if (result.length === 0 && session.role !== 'CLIENT') {
-      const { MOCK_CLIENT_GROUPS, MOCK_FACILITIES } = await import('@/lib/mockFallback');
-      const group = MOCK_CLIENT_GROUPS.find(
-        (g) => g._id === id || g.code.toUpperCase() === id.toUpperCase()
-      );
-      if (group) {
-        result = MOCK_FACILITIES.filter((f) => f.clientGroupId === group._id && (session.role === 'ADMIN' || (session.authorizedFacilityIds || []).includes(f.facilityId)));
-      }
-    }
+    const result = facilities;
 
     return NextResponse.json({
       success: true,

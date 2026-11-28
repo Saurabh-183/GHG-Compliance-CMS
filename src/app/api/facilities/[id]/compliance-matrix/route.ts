@@ -1,7 +1,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import mongoose from 'mongoose';
-import { connectToDatabase } from '@/lib/db';
+import { connectToDatabase, isMongoObjectId } from '@/lib/db';
 import { FacilityModel } from '@/models/Facility';
 import { ComplianceApplicabilityModel } from '@/models/ComplianceApplicability';
 import { AssessmentModel } from '@/models/Assessment';
@@ -22,6 +22,7 @@ export async function GET(
 
   // Authentication is required only in production.
   const session = getSessionFromRequest(request);
+  const allowMock = isDevelopment && !isMongoObjectId(session?.userId);
 
   if (!id) {
     return NextResponse.json(
@@ -57,7 +58,7 @@ export async function GET(
 
     // Do not seed or reset the database from a GET request.
     // Use mock fallback only in development.
-    if (!facility && isDevelopment) {
+    if (!facility && allowMock) {
       const { MOCK_FACILITIES } = await import('@/lib/mockFallback');
 
       const found = MOCK_FACILITIES.find(
@@ -218,7 +219,7 @@ export async function GET(
     );
 
     // Never silently serve mock records in production.
-    if (!isDevelopment) {
+    if (!allowMock) {
       return NextResponse.json(
         {
           success: false,

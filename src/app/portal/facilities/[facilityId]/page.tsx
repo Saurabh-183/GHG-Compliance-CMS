@@ -246,7 +246,12 @@ export default function ClientFacilityOverviewPage() {
 
         {matrixData && (
           <div className="mt-6">
-            <ComplianceMatrixTable data={matrixData} readOnly />
+            <ComplianceMatrixTable
+              data={matrixData}
+              requestHref={(framework, period) =>
+                `/portal/requests${buildPortalScopeQuery(facilityId, period)}&framework=${framework}`
+              }
+            />
           </div>
         )}
 

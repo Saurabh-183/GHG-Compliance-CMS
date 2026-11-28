@@ -6,10 +6,11 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { IDataRequirement, IFacility } from '@/types';
+import type { IDataRequirement, IFacility, IFacilityComplianceMatrix } from '@/types';
 import { PortalScopeSelectors } from '@/components/portal/PortalScopeSelectors';
 import {
   dedupeFacilitiesById,
@@ -33,6 +34,7 @@ import { LayoutGrid, List, RefreshCw, Search, AlertTriangle } from 'lucide-react
 import { FormControl, Select, MenuItem, SelectChangeEvent } from '@mui/material';
 import { useAuth } from '@/context/AuthContext';
 import { extractPortalDeadlineAlerts } from '@/lib/deadlineAlertsShared';
+import { normalizeFinancialYearPeriod } from '@/lib/financialYears';
 
 // The page-level Suspense boundary handles useSearchParams during prerendering.
 export default function ClientRequestsPage() {
@@ -40,15 +42,23 @@ export default function ClientRequestsPage() {
     <Suspense
       fallback={<CarbonCrunchLoader message="Loading your data requests…" />}
     >
-      <ClientRequestsContent />
+      <ClientRequestsScope />
     </Suspense>
   );
+}
+
+function ClientRequestsScope() {
+  const searchParams = useSearchParams();
+  return <ClientRequestsContent key={searchParams.toString()} />;
 }
 
 function ClientRequestsContent() {
   const { theme } = useAuth();
   const isDark = theme === 'dark';
   const searchParams = useSearchParams();
+  const [frameworkFilter, setFrameworkFilter] = useState(() => searchParams.get('framework') || 'ALL');
+  const [complianceMatrix, setComplianceMatrix] = useState<IFacilityComplianceMatrix | null>(null);
+  const activeLoad = useRef<AbortController | null>(null);
 
   const [facilities, setFacilities] = useState<IFacility[]>([]);
   const [requirements, setRequirements] = useState<IDataRequirement[]>([]);
@@ -118,6 +128,9 @@ function ClientRequestsContent() {
   const loadRequests = useCallback(async () => {
     if (!facilityFilter || !periodFilter) return;
 
+    activeLoad.current?.abort();
+    const controller = new AbortController();
+    activeLoad.current = controller;
     setLoading(true);
     setLoadError('');
 
@@ -127,13 +140,11 @@ function ClientRequestsContent() {
         period: periodFilter,
       });
 
-      const response = await fetch(
-        `/api/requirements?${params.toString()}`,
-        {
-          cache: 'no-store',
-          credentials: 'include',
-        }
-      );
+      const options = { cache: 'no-store', credentials: 'include', signal: controller.signal } as const;
+      const [response, matrixResponse] = await Promise.all([
+        fetch(`/api/requirements?${params.toString()}`, options),
+        fetch(`/api/facilities/${encodeURIComponent(facilityFilter)}/compliance-matrix`, options),
+      ]);
 
       const payload = await response.json().catch(() => null);
 
@@ -153,8 +164,13 @@ function ClientRequestsContent() {
           requirement.period === periodFilter
       );
 
+      const matrixPayload = matrixResponse.ok ? await matrixResponse.json() : null;
+      if (!matrixPayload?.data) throw new Error('Unable to load applicable compliance frameworks. Refresh to try again.');
+      if (controller.signal.aborted) return;
+      setComplianceMatrix(matrixPayload.data);
       setRequirements(scoped);
     } catch (error) {
+      if (controller.signal.aborted) return;
       const message =
         error instanceof Error
           ? error.message
@@ -163,7 +179,7 @@ function ClientRequestsContent() {
       setLoadError(message);
       notify.error(message);
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) setLoading(false);
     }
   }, [facilityFilter, periodFilter]);
 
@@ -172,21 +188,39 @@ function ClientRequestsContent() {
 
     writePortalScope(facilityFilter, periodFilter);
     void loadRequests();
+    return () => activeLoad.current?.abort();
   }, [facilityFilter, periodFilter, loadRequests]);
+
+  const applicableFrameworks = useMemo(() => {
+    if (complianceMatrix?.facility.facilityId.toUpperCase() !== facilityFilter.toUpperCase()) return [];
+    const period = normalizeFinancialYearPeriod(periodFilter) || periodFilter;
+    return complianceMatrix.compliances.filter((type) => complianceMatrix.matrix[type]?.[period]?.isApplicable);
+  }, [complianceMatrix, facilityFilter, periodFilter]);
+  const framework = applicableFrameworks.find((type) => type === frameworkFilter);
+
+  const frameworkRequests = useMemo(() => {
+    const allowed = framework ? [framework] : applicableFrameworks;
+    return requirements.filter((item) =>
+      item.facilityId?.toUpperCase() === facilityFilter.toUpperCase() &&
+      item.period === periodFilter &&
+      item.linkedCompliances?.some((linked) => allowed.includes(linked))
+    );
+  }, [framework, applicableFrameworks, requirements, facilityFilter, periodFilter]);
 
   const categoryOptions = useMemo(
     () =>
       [
         ...new Set(
-          requirements.map((item) => resolveDataCategoryLabel(item))
+          frameworkRequests.map((item) => resolveDataCategoryLabel(item))
         ),
       ].sort(),
-    [requirements]
+    [frameworkRequests]
   );
+  const activeCategory = categoryOptions.includes(categoryFilter) ? categoryFilter : 'ALL';
 
   const filteredForStats = useMemo(
     () =>
-      requirements.filter((item) => {
+      frameworkRequests.filter((item) => {
         const category = resolveDataCategoryLabel(item);
 
         const haystack =
@@ -198,10 +232,10 @@ function ClientRequestsContent() {
           (!search.trim() ||
             haystack.includes(search.trim().toLowerCase())) &&
           (statusFilter === 'ALL' || workflow === statusFilter) &&
-          (categoryFilter === 'ALL' || category === categoryFilter)
+          (activeCategory === 'ALL' || category === activeCategory)
         );
       }),
-    [requirements, search, statusFilter, categoryFilter]
+    [frameworkRequests, search, statusFilter, activeCategory]
   );
 
   const stats = useMemo(
@@ -210,8 +244,8 @@ function ClientRequestsContent() {
   );
 
   const urgentDeadlineAlerts = useMemo(
-    () => extractPortalDeadlineAlerts(requirements),
-    [requirements]
+    () => extractPortalDeadlineAlerts(frameworkRequests),
+    [frameworkRequests]
   );
 
   const visibleRequirements = useMemo(
@@ -271,10 +305,26 @@ function ClientRequestsContent() {
               />
             </div>
 
+            <select
+              aria-label="Compliance framework"
+              value={framework ?? 'ALL'}
+              disabled={loading || applicableFrameworks.length === 0}
+              onChange={(event) => {
+                setFrameworkFilter(event.target.value);
+                setCategoryFilter('ALL');
+              }}
+              className="h-[38px] rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus-visible:ring-2 focus-visible:ring-emerald-500 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+            >
+              <option value="ALL">All applicable frameworks</option>
+              {applicableFrameworks.map((type) => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
+
             {/* MUI Category Dropdown */}
             <FormControl size="small" sx={{ minWidth: 160, maxWidth: 220 }}>
               <Select
-                value={categoryFilter}
+                value={activeCategory}
                 onChange={(e: SelectChangeEvent) => setCategoryFilter(e.target.value)}
                 sx={{
                   height: 38,
@@ -421,7 +471,19 @@ function ClientRequestsContent() {
         </div>
       )}
 
-      {view === 'cards' ? (
+      {visibleRequirements.length === 0 ? (
+        <p className="py-16 text-center text-sm text-slate-500 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700">
+          {loading
+            ? 'Loading data requests…'
+            : loadError
+              ? 'Refresh to reload data requests.'
+              : applicableFrameworks.length === 0
+                ? `No compliance frameworks are applicable for this facility in ${periodFilter}.`
+                : frameworkRequests.length === 0
+                  ? `No data requests are assigned for ${framework || 'the applicable frameworks'} in ${periodFilter}.`
+                  : 'No requests match your filters. Try clearing filters or refresh.'}
+        </p>
+      ) : view === 'cards' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {visibleRequirements.map((requirement) => (
             <DataRequestCard
@@ -433,13 +495,6 @@ function ClientRequestsContent() {
             />
           ))}
 
-          {visibleRequirements.length === 0 && (
-            <p className="col-span-full py-16 text-center text-sm text-slate-500 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700">
-              {requirements.length === 0
-                ? 'No data requests are assigned to your facilities yet.'
-                : 'No requests match your filters. Try clearing filters or refresh.'}
-            </p>
-          )}
         </div>
       ) : (
         <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-x-auto shadow-sm">

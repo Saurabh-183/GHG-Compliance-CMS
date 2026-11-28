@@ -3,6 +3,7 @@ import { connectToDatabase } from '@/lib/db';
 import { DataRequirementModel } from '@/models/DataRequirement';
 import { getSessionFromRequest, authorizeRole, isAuthorizedForFacility } from '@/lib/auth';
 import { syncDriveLinksAfterRequestReview } from '@/lib/syncRequirementDriveLinks';
+import { assertTransition, hasRequestSubmission } from '@/lib/requestWorkflow';
 
 const allowedStatuses = ['PENDING', 'VERIFIED', 'MISSING', 'INCORRECT', 'CLARIFICATION_REQUIRED'] as const;
 
@@ -28,6 +29,13 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (requirement.workflowStatus === 'ACCEPTED' || requirement.requirementItemStatus === 'ACCEPTED') {
       return NextResponse.json(
         { error: 'This data request has already been accepted and locked. Its status cannot be modified or rejected.' },
+        { status: 400 }
+      );
+    }
+
+    if (!hasRequestSubmission(requirement)) {
+      return NextResponse.json(
+        { error: 'Review becomes available after the client submits data for this request.' },
         { status: 400 }
       );
     }
@@ -60,22 +68,6 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       return NextResponse.json({ error: 'Add a review comment before returning this request.' }, { status: 400 });
     }
     if (action === 'ACCEPT') {
-      const hasClientFilledData =
-        ['SUBMITTED', 'RESUBMITTED', 'UNDER_REVIEW', 'PARTIALLY_SUBMITTED', 'ACCEPTED'].includes(
-          requirement.workflowStatus || ''
-        ) ||
-        requirement.submissionStatus === 'RECEIVED' ||
-        (Array.isArray(requirement.submittedDriveLinks) && requirement.submittedDriveLinks.length > 0) ||
-        (Array.isArray(requirement.submissionHistory) && requirement.submissionHistory.length > 0) ||
-        Boolean(requirement.latestStructuredData && Object.keys(requirement.latestStructuredData).length > 0);
-
-      if (!hasClientFilledData) {
-        return NextResponse.json(
-          { error: 'Cannot accept request: Client has not filled or submitted data for this request yet.' },
-          { status: 400 }
-        );
-      }
-
       const fields = requirement.requiredFields || [];
       const reviews = requirement.fieldReviews || [];
       if (fields.length > 0) {
@@ -97,7 +89,6 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       }
     }
     try {
-      const { assertTransition } = await import('@/lib/requestWorkflow');
       assertTransition(requirement.workflowStatus as import('@/types').RequestWorkflowStatus, nextStatus);
     } catch (transitionError) {
       const message = transitionError instanceof Error ? transitionError.message : 'Invalid transition';

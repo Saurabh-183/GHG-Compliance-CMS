@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { watchClientDirectory } from '@/lib/watchClientDirectory';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { ExcelImportModal } from '@/components/compliance/ExcelImportModal';
@@ -37,7 +38,6 @@ import {
 import {
   buildPortalScopeQuery,
   dedupeFacilitiesById,
-  portalAllowListFromUser,
   readPortalPeriod,
   writePortalScope,
   PORTAL_PERIOD_OPTIONS,
@@ -89,15 +89,17 @@ export default function ClientPortalDashboard() {
         fetch(`/api/requirements${reqQs}`, { cache: 'no-store', credentials: 'include' }).catch(() => null),
       ]);
 
+      let liveFacilities: IFacility[] = [];
       if (res && res.ok) {
         const json = (await res.json()) as { data: typeof data };
         setData(json.data);
-        if (json.data?.deadlineAlerts && json.data.deadlineAlerts.length > 0) {
-          setPortalAlerts(json.data.deadlineAlerts);
-        }
+        liveFacilities = json.data?.facilities || [];
+        setPortalAlerts(json.data?.deadlineAlerts || []);
+      } else {
+        setData(null);
       }
 
-      const allowed = new Set(portalAllowListFromUser(currentUser));
+      const allowed = new Set(liveFacilities.map((facility) => facility.facilityId.toUpperCase()));
       if (reqRes && reqRes.ok) {
         const reqJson = (await reqRes.json()) as { data?: IDataRequirement[] };
         const scoped = (reqJson.data || []).filter(
@@ -121,10 +123,10 @@ export default function ClientPortalDashboard() {
       hasLoadedOnceRef.current = true;
       setLoading(false);
     }
-  }, [currentUser]);
+  }, []);
 
   useEffect(() => {
-    void loadPortal(selectedPeriod);
+    return watchClientDirectory(() => loadPortal(selectedPeriod));
   }, [loadPortal, selectedPeriod]);
 
   useEffect(() => {
@@ -153,7 +155,10 @@ export default function ClientPortalDashboard() {
   }, [selectedPeriod]);
 
   useEffect(() => {
-    if (!data?.facilities?.length) return;
+    if (!data?.facilities?.length) {
+      setSelectedFacilityId('');
+      return;
+    }
     const known = data.facilities.some((f) => f.facilityId === selectedFacilityId);
     if (!known) {
       setSelectedFacilityId(data.facilities[0].facilityId);
@@ -166,12 +171,7 @@ export default function ClientPortalDashboard() {
     }
   }, [selectedFacilityId, selectedPeriod]);
 
-  const facilities = useMemo(() => {
-    const allowed = new Set(portalAllowListFromUser(currentUser));
-    return dedupeFacilitiesById(
-      (data?.facilities || []).filter((f) => allowed.has(f.facilityId.toUpperCase()))
-    );
-  }, [data?.facilities, currentUser]);
+  const facilities = useMemo(() => dedupeFacilitiesById(data?.facilities || []), [data?.facilities]);
 
   const facilityLineSummary = useMemo(() => {
     if (!facilities.length) return '—';

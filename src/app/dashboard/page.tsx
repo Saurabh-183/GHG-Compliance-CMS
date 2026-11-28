@@ -4,6 +4,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import { watchClientDirectory } from '@/lib/watchClientDirectory';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import {
   Building2,
@@ -18,11 +19,9 @@ import {
   ICalendarItem,
   IClarification,
   IClientGroup,
-  IFacility,
 } from '@/types';
 import { formatDate } from '@/lib/utils';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
-import { MOCK_CLIENT_GROUPS, MOCK_FACILITIES } from '@/lib/mockFallback';
 import { CompanySelectMui } from '@/components/dashboard/CompanySelectMui';
 import { FacilitySelectMui } from '@/components/dashboard/FacilitySelectMui';
 import { ClientSubmissionsReviewTable } from '@/components/uploads/ClientSubmissionsReviewTable';
@@ -33,19 +32,6 @@ import {
   flattenGroupFacilities,
   resolveCompanyScope,
 } from '@/lib/clientGroupFacilities';
-
-function buildMockGroupsWithFacilities(): IClientGroup[] {
-  return MOCK_CLIENT_GROUPS.map((group) => {
-    const facilities = MOCK_FACILITIES.filter(
-      (f) => f.clientGroupId === group._id || f.clientGroupId === group.code
-    );
-    return {
-      ...group,
-      totalFacilitiesCount: facilities.length,
-      facilities: facilities.length > 0 ? (facilities as unknown as IFacility[]) : (group.facilities || []),
-    };
-  });
-}
 
 export default function DashboardPage() {
   const { currentRole, currentUser } = useAuth();
@@ -86,35 +72,16 @@ export default function DashboardPage() {
             data: IClientGroup[];
           };
 
-          const dbGroups = groupsData.data || [];
-          const mockGroups = buildMockGroupsWithFacilities();
-          const dbNames = new Set(dbGroups.map((g) => g.name.trim().toLowerCase()));
-          const dbCodes = new Set(dbGroups.map((g) => (g.code || '').trim().toLowerCase()));
-          const dbIds = new Set(dbGroups.map((g) => String(g._id)));
-
-          const filteredMocks = mockGroups.filter(
-            (m) =>
-              !dbIds.has(String(m._id)) &&
-              !dbNames.has(m.name.trim().toLowerCase()) &&
-              !dbCodes.has((m.code || '').trim().toLowerCase())
-          );
-
-          setGroups([...dbGroups, ...filteredMocks]);
-        } else {
-          setGroups(buildMockGroupsWithFacilities());
+          setGroups(groupsData.data || []);
         }
-      } catch (err) {
-        console.warn(
-          'Fallback: loading local mock client groups on dashboard:',
-          err
-        );
-        setGroups(buildMockGroupsWithFacilities());
+      } catch (error) {
+        console.warn('Unable to load dashboard data:', error);
       } finally {
         setLoading(false);
       }
     }
 
-    loadData();
+    return watchClientDirectory(loadData);
   }, []);
 
   const allFacilities = flattenGroupFacilities(groups);
@@ -385,6 +352,7 @@ export default function DashboardPage() {
           </p>
         </div>
         <ClientSubmissionsReviewTable
+          key={facilityIdsCsv(currentFacilities) || 'empty'}
           compact
           showWorkflowFilter={false}
           clientGroupId={selectedGroup?._id?.toString()}

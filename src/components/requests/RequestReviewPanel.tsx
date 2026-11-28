@@ -9,6 +9,7 @@ import { RequestTimeline } from '@/components/requests/RequestTimeline';
 import { formatDate } from '@/lib/utils';
 import { getDueUrgency } from '@/lib/dataRequestDisplay';
 import { resolveRequirementDueDate } from '@/lib/dataRequestDueDate';
+import { hasRequestSubmission } from '@/lib/requestWorkflow';
 import { notify } from '@/lib/notify';
 import { MuiDatePicker } from '@/components/common/MuiDatePicker';
 import { CheckCircle2, XCircle, RotateCcw, Eye, Calendar, ChevronDown, AlertCircle } from 'lucide-react';
@@ -69,26 +70,7 @@ export function RequestReviewPanel({
     [requirement.submissionHistory]
   );
 
-  const hasClientFilledData = useMemo(() => {
-    const isSubmittedStatus = [
-      'SUBMITTED',
-      'RESUBMITTED',
-      'UNDER_REVIEW',
-      'PARTIALLY_SUBMITTED',
-      'ACCEPTED',
-    ].includes(requirement.workflowStatus || '');
-    const hasDriveLinks =
-      Array.isArray(requirement.submittedDriveLinks) && requirement.submittedDriveLinks.length > 0;
-    const hasStructuredData = Boolean(
-      (requirement.latestStructuredData && Object.keys(requirement.latestStructuredData).length > 0) ||
-      (latestSubmission?.structuredData && Object.keys(latestSubmission.structuredData).length > 0)
-    );
-    const hasHistory =
-      Array.isArray(requirement.submissionHistory) && requirement.submissionHistory.length > 0;
-    const isReceived = requirement.submissionStatus === 'RECEIVED';
-
-    return isSubmittedStatus || hasDriveLinks || hasStructuredData || hasHistory || isReceived;
-  }, [requirement, latestSubmission]);
+  const hasSubmission = hasRequestSubmission(requirement);
 
   const allFieldsVerified = useMemo(() => {
     if (fieldReviews.length === 0) return true;
@@ -100,8 +82,8 @@ export function RequestReviewPanel({
       notify.error('This data request has already been accepted and locked. No further modifications or status changes are permitted.');
       return;
     }
-    if (action === 'ACCEPT' && !hasClientFilledData) {
-      notify.error('Client has not filled or submitted data for this request yet. Cannot accept.');
+    if (!hasSubmission) {
+      notify.error('Review becomes available after the client submits data for this request.');
       return;
     }
     if (action === 'ACCEPT' && !allFieldsVerified) {
@@ -178,7 +160,7 @@ export function RequestReviewPanel({
             return (
               <div key={review.fieldKey} className="grid grid-cols-1 sm:grid-cols-[1fr_140px] gap-2 items-center">
                 <span className="text-slate-700 dark:text-slate-300">{field?.label || review.fieldKey}</span>
-                {isAdmin || isAccepted ? (
+                {isAdmin || isAccepted || !hasSubmission ? (
                   <span className="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 text-center">
                     {review.status.replaceAll('_', ' ')}
                   </span>
@@ -261,7 +243,7 @@ export function RequestReviewPanel({
         </div>
       )}
 
-      {isAdmin ? (
+      {isAdmin || !hasSubmission ? (
         requirement.reviewNote ? (
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-4 space-y-1 bg-slate-50/70 dark:bg-slate-900/40">
             <span className="font-semibold text-slate-800 dark:text-slate-200">Consultant comment</span>
@@ -342,14 +324,14 @@ export function RequestReviewPanel({
             <CheckCircle2 className="w-3.5 h-3.5" /> Accepted
           </button>
         </div>
+      ) : !hasSubmission ? (
+        <p className="flex items-center gap-1 text-[11px] font-medium text-amber-700 dark:text-amber-400">
+          <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+          Review becomes available after the client submits data for this request.
+        </p>
       ) : (
         <div className="flex flex-wrap items-center gap-2 justify-end">
-          {!hasClientFilledData ? (
-            <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium mr-auto sm:mr-2 flex items-center gap-1">
-              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-              Client has not filled data yet. Cannot accept until submitted.
-            </span>
-          ) : !allFieldsVerified && fieldReviews.length > 0 ? (
+          {!allFieldsVerified && fieldReviews.length > 0 ? (
             <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium mr-auto sm:mr-2">
               Mark all fields as Verified to accept submission
             </span>
@@ -372,17 +354,15 @@ export function RequestReviewPanel({
           </button>
           <button
             type="button"
-            disabled={saving || !allFieldsVerified || !hasClientFilledData}
+            disabled={saving || !allFieldsVerified}
             onClick={() => void submitReview('ACCEPT')}
             title={
-              !hasClientFilledData
-                ? 'Client must fill and submit data before this request can be accepted'
-                : !allFieldsVerified
+              !allFieldsVerified
                 ? 'All fields must be marked as Verified before accepting submission'
                 : undefined
             }
             className={`inline-flex items-center gap-1 px-3 py-2 rounded-lg font-bold transition-all ${
-              saving || !allFieldsVerified || !hasClientFilledData
+              saving || !allFieldsVerified
                 ? 'bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed opacity-60 shadow-none'
                 : 'bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm cursor-pointer'
             }`}

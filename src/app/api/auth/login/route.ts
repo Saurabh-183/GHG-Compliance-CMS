@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { connectToDatabase } from '@/lib/db';
+import { connectToDatabase, isMongoObjectId } from '@/lib/db';
 import { UserModel, IUserDocument } from '@/models/User';
 import { FacilityModel } from '@/models/Facility';
 import { signToken, getSessionFromRequest } from '@/lib/auth';
@@ -103,7 +103,9 @@ export async function GET(request: NextRequest) {
 
   try {
     await connectToDatabase();
-    const user = (await findUserForSession(session)) as IUserDocument | null;
+    const user: IUserDocument | null = isMongoObjectId(session.userId)
+      ? await UserModel.findOne({ _id: session.userId, role: session.role, status: { $nin: ['DISABLED', 'LOCKED'] } })
+      : await findUserForSession(session);
 
     if (user) {
       return NextResponse.json({
@@ -121,7 +123,13 @@ export async function GET(request: NextRequest) {
       });
     }
   } catch {
-    // If DB is offline, return decoded JWT session
+    if (isMongoObjectId(session.userId)) {
+      return NextResponse.json({ authenticated: false }, { status: 503 });
+    }
+  }
+
+  if (isMongoObjectId(session.userId)) {
+    return NextResponse.json({ authenticated: false }, { status: 401 });
   }
 
   return NextResponse.json({

@@ -7,6 +7,7 @@ import { connectToDatabase } from '@/lib/db';
 import { getSessionFromRequest, authorizeRole } from '@/lib/auth';
 import { UserModel } from '@/models/User';
 import { FacilityModel } from '@/models/Facility';
+import { deleteClientCompany, runDirectoryDeletion } from '@/lib/deleteClientDirectory';
 
 type Context = {
   params: Promise<{ id: string }>;
@@ -452,25 +453,26 @@ export async function DELETE(
       }
     }
 
-    // Clear consultant assignments before deleting the account.
-    if (user.role === 'CONSULTANT') {
-      await FacilityModel.updateMany(
-        {
-          assignedConsultantId: user._id
-        } as any,
-        {
-          $unset: {
-            assignedConsultantId: 1
-          }
-        }
-      );
+    let companyDeleted = false;
+    if (user.role === 'CLIENT' && user.clientGroupId) {
+      companyDeleted = await runDirectoryDeletion(async (session) => {
+        const deleted = await deleteClientCompany(String(user.clientGroupId), session);
+        if (!deleted) await UserModel.deleteOne({ _id: user._id }, { session });
+        return deleted;
+      });
+    } else if (user.role === 'CONSULTANT') {
+      await runDirectoryDeletion(async (session) => {
+        await FacilityModel.updateMany({ assignedConsultantId: user._id }, { $unset: { assignedConsultantId: 1 } }, { session });
+        await FacilityModel.updateMany({ assignedReviewerId: user._id }, { $unset: { assignedReviewerId: 1 } }, { session });
+        await UserModel.deleteOne({ _id: user._id }, { session });
+      });
+    } else {
+      await user.deleteOne();
     }
-
-    await user.deleteOne();
 
     return NextResponse.json({
       success: true,
-      message: 'User deleted successfully.'
+      message: companyDeleted ? 'Client company and its facilities deleted.' : 'User deleted successfully.'
     });
 
   } catch (error) {

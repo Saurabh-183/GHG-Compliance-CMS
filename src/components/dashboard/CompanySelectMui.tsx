@@ -24,7 +24,7 @@ export const CompanySelectMui: React.FC<CompanySelectMuiProps> = ({
     onCompanyChange(event.target.value);
   };
 
-  const selectedGroup = groups.find((g) => g._id === selectedCompanyId);
+  const selectedGroup = groups.find((g) => g._id === selectedCompanyId || g.code === selectedCompanyId);
   const totalUnits = groups.reduce(
     (sum, g) => sum + (g.totalFacilitiesCount || g.facilities?.length || 0),
     0
@@ -33,7 +33,7 @@ export const CompanySelectMui: React.FC<CompanySelectMuiProps> = ({
   return (
     <FormControl size="small" sx={{ minWidth: 260, maxWidth: 360 }}>
       <Select
-        value={selectedCompanyId}
+        value={selectedGroup?._id || 'ALL'}
         onChange={handleChange}
         displayEmpty
         IconComponent={() => (
@@ -74,7 +74,7 @@ export const CompanySelectMui: React.FC<CompanySelectMuiProps> = ({
                       lineHeight: 1.3,
                     }}
                   >
-                    All Client Companies ({groups.length || 15} Groups)
+                    All Client Companies ({groups.length} Groups)
                   </Typography>
                 </Box>
               </Box>
@@ -183,7 +183,7 @@ export const CompanySelectMui: React.FC<CompanySelectMuiProps> = ({
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Building2 className="w-3.5 h-3.5 shrink-0" />
             <Typography sx={{ fontSize: '12px', fontWeight: 'inherit' }}>
-              All Client Companies ({groups.length || 15} Groups)
+              All Client Companies ({groups.length} Groups)
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -198,7 +198,7 @@ export const CompanySelectMui: React.FC<CompanySelectMuiProps> = ({
                 color: isDark ? '#34D399' : '#17365D',
               }}
             >
-              {totalUnits || 109} Units
+              {totalUnits} Units
             </Box>
             {selectedCompanyId === 'ALL' && (
               <Check className="w-3.5 h-3.5 shrink-0" style={{ color: isDark ? '#34D399' : '#17365D' }} />

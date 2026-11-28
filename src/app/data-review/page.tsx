@@ -8,10 +8,10 @@ import { RequirementsReviewTable, WORKFLOW_FILTER_OPTIONS } from '@/components/r
 import { CompanySelectMui } from '@/components/dashboard/CompanySelectMui';
 import { FacilitySelectMui } from '@/components/dashboard/FacilitySelectMui';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
-import { MOCK_CLIENT_GROUPS } from '@/lib/mockFallback';
 import { COMPLIANCE_PERIODS } from '@/lib/complianceMatrixData';
 import { DEFAULT_CHECKLIST_PERIOD } from '@/lib/facilityDataChecklistTemplate';
 import { useAuth } from '@/context/AuthContext';
+import { watchClientDirectory } from '@/lib/watchClientDirectory';
 import type { IClientGroup, IFacility, IDataRequirement } from '@/types';
 
 const ALL_FACILITIES_VALUE = '__ALL_FACILITIES__';
@@ -36,38 +36,30 @@ export default function DataReviewPage() {
   }, [searchInput]);
 
   useEffect(() => {
-    void (async () => {
+    return watchClientDirectory(async () => {
       try {
         const res = await fetch('/api/client-groups', { credentials: 'include', cache: 'no-store' });
         if (res.ok) {
           const json = (await res.json()) as { data?: IClientGroup[] };
-          const dbGroups = json.data || [];
-          const dbNames = new Set(dbGroups.map((g) => g.name.trim().toLowerCase()));
-          const dbCodes = new Set(dbGroups.map((g) => (g.code || '').trim().toLowerCase()));
-          const dbIds = new Set(dbGroups.map((g) => String(g._id)));
-
-          const filteredMocks = MOCK_CLIENT_GROUPS.filter(
-            (m) =>
-              !dbIds.has(String(m._id)) &&
-              !dbNames.has(m.name.trim().toLowerCase()) &&
-              !dbCodes.has((m.code || '').trim().toLowerCase())
-          );
-
-          setGroups([...dbGroups, ...filteredMocks]);
-        } else {
-          setGroups(MOCK_CLIENT_GROUPS);
+          setGroups(json.data || []);
         }
-      } catch {
-        setGroups(MOCK_CLIENT_GROUPS);
+      } catch (error) {
+        console.warn('Unable to load client companies for data review:', error);
       } finally {
         setLoading(false);
       }
-    })();
+    });
   }, []);
 
   const selectedGroup = groups.find(
     (group) => group._id === selectedCompanyId || group.code === selectedCompanyId
   );
+
+  useEffect(() => {
+    if (!loading && selectedCompanyId !== 'ALL' && !selectedGroup) {
+      setSelectedCompanyId('ALL');
+    }
+  }, [loading, selectedCompanyId, selectedGroup]);
 
   const allFacilities: IFacility[] = useMemo(
     () => groups.flatMap((group) => group.facilities || []),
@@ -107,6 +99,7 @@ export default function DataReviewPage() {
       : undefined;
 
   const activeFacilityName = currentFacilities.find((f) => f.facilityId === selectedFacilityId)?.name;
+  const activeFacilityIds = new Set(currentFacilities.map((facility) => facility.facilityId));
 
   const [requirements, setRequirements] = useState<IDataRequirement[]>([]);
   const [loadingRequirements, setLoadingRequirements] = useState(true);
@@ -437,7 +430,7 @@ export default function DataReviewPage() {
         <CarbonCrunchLoader message="Loading data review requests…" />
       ) : (
         <RequirementsReviewTable
-          requirements={requirements}
+          requirements={requirements.filter((requirement) => activeFacilityIds.has(requirement.facilityId))}
           showWorkflowFilter={false}
           hideTopFilterBar={true}
           searchQuery={searchQuery}

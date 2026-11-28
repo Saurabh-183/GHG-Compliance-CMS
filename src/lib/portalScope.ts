@@ -18,7 +18,7 @@ export function authorizedFacilityIdsForPortal(
     const fromSession = session.authorizedFacilityIds
       ?.map((id) => id.trim().toUpperCase())
       .filter(Boolean);
-    return fromSession?.length ? fromSession : [...DEFAULT_CLIENT_PORTAL_FACILITY_IDS];
+    return fromSession ?? [...DEFAULT_CLIENT_PORTAL_FACILITY_IDS];
   }
   // Portal preview (consultant/admin): same demo client units, not the full directory
   return [...DEFAULT_CLIENT_PORTAL_FACILITY_IDS];

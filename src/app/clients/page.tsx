@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { ComplianceType, IClientGroup } from '@/types';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
-import { MOCK_CLIENT_GROUPS, MOCK_FACILITIES } from '@/lib/mockFallback';
+import { watchClientDirectory } from '@/lib/watchClientDirectory';
 
 type ClientGroupWithFacilities = IClientGroup & {
   totalFacilitiesCount?: number;
@@ -27,41 +27,6 @@ type ClientGroupWithFacilities = IClientGroup & {
     enabledFrameworks?: ComplianceType[];
   }>;
 };
-
-const MOCK_FRAMEWORK_DISTRIBUTION: ComplianceType[][] = [
-  ['RCO', 'PAT', 'CCTS'],
-  ['RCO'],
-  ['PAT'],
-  ['CCTS'],
-  ['RCO', 'PAT'],
-  ['RCO', 'CCTS'],
-  ['PAT', 'CCTS'],
-];
-
-function buildMockGroupsWithFacilities(): ClientGroupWithFacilities[] {
-  return MOCK_CLIENT_GROUPS.map((group, idx) => {
-    const facilities = MOCK_FACILITIES.filter((f) => f.clientGroupId === group._id);
-    const assignedFrameworks: ComplianceType[] =
-      Array.isArray(group.enabledFrameworks) && group.enabledFrameworks.length > 0
-        ? group.enabledFrameworks
-        : MOCK_FRAMEWORK_DISTRIBUTION[idx % MOCK_FRAMEWORK_DISTRIBUTION.length];
-
-    return {
-      ...group,
-      enabledFrameworks: assignedFrameworks,
-      totalFacilitiesCount: facilities.length,
-      facilities: facilities.map((facility) => ({
-        name: facility.name,
-        facilityId: facility.facilityId,
-        location: facility.location || facility.state || 'India',
-        enabledFrameworks:
-          Array.isArray(facility.enabledFrameworks) && facility.enabledFrameworks.length > 0
-            ? facility.enabledFrameworks
-            : assignedFrameworks,
-      })),
-    };
-  });
-}
 
 function getEffectiveFrameworks(group: ClientGroupWithFacilities): ('RCO' | 'PAT' | 'CCTS')[] {
   if (Array.isArray(group.facilities) && group.facilities.length > 0) {
@@ -101,47 +66,33 @@ export default function ClientsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let activeRequest: AbortController | undefined;
     async function fetchGroups() {
+      activeRequest?.abort();
+      const controller = new AbortController();
+      activeRequest = controller;
       try {
         const res = await fetch('/api/client-groups', {
           credentials: 'include',
           cache: 'no-store',
+          signal: controller.signal,
         });
 
-        if (!res.ok) {
-          console.warn('API returned non-ok status, loading fallback client directory.');
-          setGroups(buildMockGroupsWithFacilities());
-          return;
-        }
-
-        const result = (await res.json()) as {
-          success?: boolean;
-          data?: ClientGroupWithFacilities[];
-        };
-
-        const dbGroups = result.data || [];
-        const mockGroups = buildMockGroupsWithFacilities();
-        const dbNames = new Set(dbGroups.map((g) => g.name.trim().toLowerCase()));
-        const dbCodes = new Set(dbGroups.map((g) => (g.code || '').trim().toLowerCase()));
-        const dbIds = new Set(dbGroups.map((g) => String(g._id)));
-
-        const filteredMocks = mockGroups.filter(
-          (m) =>
-            !dbIds.has(String(m._id)) &&
-            !dbNames.has(m.name.trim().toLowerCase()) &&
-            !dbCodes.has((m.code || '').trim().toLowerCase())
-        );
-
-        setGroups([...dbGroups, ...filteredMocks]);
+        if (!res.ok) throw new Error('Unable to load client companies.');
+        const result = (await res.json()) as { data?: ClientGroupWithFacilities[] };
+        if (!controller.signal.aborted) setGroups(result.data || []);
       } catch (error) {
-        console.warn('Could not fetch client groups from API, using fallback data:', error);
-        setGroups(buildMockGroupsWithFacilities());
+        if (!controller.signal.aborted) console.warn('Could not fetch client groups:', error);
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     }
 
-    fetchGroups();
+    const stop = watchClientDirectory(fetchGroups);
+    return () => {
+      stop();
+      activeRequest?.abort();
+    };
   }, []);
 
   const filteredGroups = useMemo(() => {

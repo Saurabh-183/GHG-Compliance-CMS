@@ -255,8 +255,11 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.warn('Error fetching portal dashboard from DB, returning fallback demo portal data:', error);
+    console.warn('Error fetching portal dashboard from DB:', error);
     const session = getSessionFromRequest(request);
+    if (process.env.NODE_ENV === 'production' || isMongoObjectId(session?.userId)) {
+      return NextResponse.json({ error: 'Client dashboard is temporarily unavailable.' }, { status: 503 });
+    }
     const { MOCK_FACILITIES, MOCK_REQUIREMENTS, MOCK_CLARIFICATIONS, MOCK_ASSESSMENTS, MOCK_CALENDAR_ITEMS } = await import('@/lib/mockFallback');
     const scopedFacilities = filterFacilitiesToPortalScope(session, MOCK_FACILITIES);
     const scopedFacilityIds = new Set(scopedFacilities.map((f) => f.facilityId.toUpperCase()));

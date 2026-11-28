@@ -9,7 +9,7 @@ import { getRollingFinancialYears } from '@/lib/financialYears';
 
 interface ComplianceMatrixTableProps {
   data: IFacilityComplianceMatrix;
-  readOnly?: boolean;
+  requestHref?: (framework: ComplianceType, period: string) => string;
 }
 
 const complianceLabels: Record<ComplianceType, { title: string; subtitle: string }> = {
@@ -31,7 +31,7 @@ const complianceLabels: Record<ComplianceType, { title: string; subtitle: string
   },
 };
 
-export const ComplianceMatrixTable: React.FC<ComplianceMatrixTableProps> = ({ data, readOnly = false }) => {
+export const ComplianceMatrixTable: React.FC<ComplianceMatrixTableProps> = ({ data, requestHref }) => {
   const { compliances, matrix, facility } = data;
   const periods = getRollingFinancialYears();
   return (
@@ -42,7 +42,9 @@ export const ComplianceMatrixTable: React.FC<ComplianceMatrixTableProps> = ({ da
             Facility Compliance Matrix — Multi-Year Status
           </h3>
           <p className="text-xs    dark:text-white mt-0.5">
-            Click a matrix cell to open the assessment, evidence records, and calculation workbooks. Client data requests and review feedback are tracked separately against each facility.
+            {requestHref
+              ? 'Select an applicable cell to view data requests for its framework and financial year.'
+              : 'Click a matrix cell to open the assessment, evidence records, and calculation workbooks. Client data requests and review feedback are tracked separately against each facility.'}
           </p>
         </div>
         <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 ">
@@ -120,8 +122,14 @@ if (!cell || !cell.isApplicable) {
 
                     return (
                       <td key={period} className="py-3 px-3 align-top">
-                        {readOnly ? (
-                          cellContent
+                        {requestHref ? (
+                          <Link
+                            href={requestHref(comp, period)}
+                            aria-label={`${info.title} ${period} data requests`}
+                            className="block rounded-lg focus-visible:ring-2 focus-visible:ring-emerald-600"
+                          >
+                            {cellContent}
+                          </Link>
                         ) : targetAssessmentId ? (
                           <Link href={`/assessments/${targetAssessmentId}`} className="block focus:outline-none">
                             {cellContent}

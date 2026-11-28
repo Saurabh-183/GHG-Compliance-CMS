@@ -6,6 +6,7 @@ import { FacilityModel } from '@/models/Facility';
 import { ComplianceApplicabilityModel } from '@/models/ComplianceApplicability';
 import { getSessionFromRequest, authorizeRole } from '@/lib/auth';
 import { ComplianceType } from '@/types';
+import { deleteClientCompany, runDirectoryDeletion } from '@/lib/deleteClientDirectory';
 
 export async function GET(
   request: NextRequest,
@@ -89,6 +90,31 @@ export async function GET(
   } catch (error) {
     console.error('Client group lookup failed:', error);
     return NextResponse.json({ error: 'Unable to load client group.' }, { status: 503 });
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  if (!authorizeRole(getSessionFromRequest(request), ['ADMIN'])) {
+    return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });
+  }
+
+  const { id } = await params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return NextResponse.json({ error: 'Invalid client group ID.' }, { status: 400 });
+  }
+
+  try {
+    const deleted = await runDirectoryDeletion((session) => deleteClientCompany(id, session));
+
+    return deleted
+      ? NextResponse.json({ success: true })
+      : NextResponse.json({ error: 'Client group not found.' }, { status: 404 });
+  } catch (error) {
+    console.error('Client group deletion failed:', error);
+    return NextResponse.json({ error: 'Unable to delete client group.' }, { status: 500 });
   }
 }
 

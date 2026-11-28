@@ -18,20 +18,7 @@ import {
 import { formatDate } from '@/lib/utils';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import { notify } from '@/lib/notify';
-import { MOCK_CLIENT_GROUPS, MOCK_FACILITIES } from '@/lib/mockFallback';
-
-function buildMockGroupsWithFacilities(): IClientGroup[] {
-  return MOCK_CLIENT_GROUPS.map((group) => {
-    const facilities = MOCK_FACILITIES.filter(
-      (f) => f.clientGroupId === group._id || f.clientGroupId === group.code
-    );
-    return {
-      ...group,
-      totalFacilitiesCount: facilities.length,
-      facilities: facilities.length > 0 ? (facilities as unknown as IFacility[]) : (group.facilities || []),
-    };
-  });
-}
+import { watchClientDirectory } from '@/lib/watchClientDirectory';
 import { CompanySelectMui } from '@/components/dashboard/CompanySelectMui';
 import { MuiDatePicker } from '@/components/common/MuiDatePicker';
 import { useAuth } from '@/context/AuthContext';
@@ -85,34 +72,18 @@ export default function ComplianceCalendarPage() {
 
       if (groupsRes && groupsRes.ok) {
         const json = (await groupsRes.json()) as { data: IClientGroup[] };
-        const dbGroups = json.data || [];
-        const mockGroups = buildMockGroupsWithFacilities();
-        const dbNames = new Set(dbGroups.map((g) => g.name.trim().toLowerCase()));
-        const dbCodes = new Set(dbGroups.map((g) => (g.code || '').trim().toLowerCase()));
-        const dbIds = new Set(dbGroups.map((g) => String(g._id)));
-
-        const filteredMocks = mockGroups.filter(
-          (m) =>
-            !dbIds.has(String(m._id)) &&
-            !dbNames.has(m.name.trim().toLowerCase()) &&
-            !dbCodes.has((m.code || '').trim().toLowerCase())
-        );
-
-        setGroups([...dbGroups, ...filteredMocks]);
-      } else {
-        setGroups(buildMockGroupsWithFacilities());
+        setGroups(json.data || []);
       }
-    } catch (e) {
-      console.error(e);
+    } catch (error) {
+      console.error(error);
       notify.error('Failed to load compliance calendar');
-      setGroups(buildMockGroupsWithFacilities());
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadData();
+    const stop = watchClientDirectory(loadData);
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const companyParam = params.get('company');
@@ -123,6 +94,7 @@ export default function ComplianceCalendarPage() {
         setSearchQuery(searchParam);
       }
     }
+    return stop;
   }, []);
 
   const handleExtendDeadline = async (e: React.FormEvent) => {
@@ -204,15 +176,15 @@ export default function ComplianceCalendarPage() {
   };
 
   // Identify currently selected group
-  const activeGroups = groups.length > 0 ? groups : MOCK_CLIENT_GROUPS;
-  const selectedGroup = activeGroups.find(
+
+  const selectedGroup = groups.find(
     (g) => g._id === selectedCompanyId || g.code === selectedCompanyId
   );
 
   // All facilities pool
   const allFacilities: IFacility[] = useMemo(
-    () => activeGroups.flatMap((g) => g.facilities || []),
-    [activeGroups]
+    () => groups.flatMap((g) => g.facilities || []),
+    [groups]
   );
 
   // Filter facilities based on selected company
@@ -225,10 +197,9 @@ export default function ComplianceCalendarPage() {
   }, [selectedGroup, allFacilities]);
 
   const companyItems: ICalendarItem[] = useMemo(() => {
-    if (!selectedGroup) return items;
     const facilityIds = new Set(currentFacilities.map((f) => f.facilityId.toUpperCase()));
     return items.filter((item) => facilityIds.has(item.facilityId.toUpperCase()));
-  }, [selectedGroup, currentFacilities, items]);
+  }, [currentFacilities, items]);
 
   // Apply compliance framework filter ('ALL', 'RCO', 'PAT', 'CCTS') and text search
   const filteredItems = useMemo(() => {
@@ -324,7 +295,7 @@ export default function ComplianceCalendarPage() {
           <div className="flex flex-wrap items-center justify-end gap-2.5 sm:gap-3 w-full">
             {/* MUI Company Filter Dropdown */}
             <CompanySelectMui
-              groups={activeGroups}
+              groups={groups}
               selectedCompanyId={selectedCompanyId}
               onCompanyChange={(id) => {
                 setSelectedCompanyId(id);

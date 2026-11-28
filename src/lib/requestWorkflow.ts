@@ -1,5 +1,17 @@
 import type { RequestWorkflowStatus } from '@/types';
 
+export function hasRequestSubmission(requirement: {
+  submittedDriveLinks?: readonly { url?: string }[];
+  submissionHistory?: readonly unknown[];
+  latestStructuredData?: Record<string, unknown>;
+}): boolean {
+  return Boolean(
+    requirement.submittedDriveLinks?.some((link) => link.url?.trim()) ||
+    requirement.submissionHistory?.length ||
+    (requirement.latestStructuredData && Object.keys(requirement.latestStructuredData).length)
+  );
+}
+
 const TRANSITIONS: Record<RequestWorkflowStatus, RequestWorkflowStatus[]> = {
   DRAFT: ['REQUESTED', 'CLOSED'],
   REQUESTED: ['IN_PROGRESS', 'CLOSED'],

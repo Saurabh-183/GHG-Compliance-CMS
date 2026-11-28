@@ -8,6 +8,7 @@ import {
   authorizeRole,
 } from '@/lib/auth';
 import type { ComplianceType } from '@/types';
+import { deleteFacilityRecords, runDirectoryDeletion } from '@/lib/deleteClientDirectory';
 
 export async function GET(
   request: NextRequest,
@@ -54,30 +55,6 @@ export async function GET(
         .lean();
     }
 
-    if (!facility && process.env.NODE_ENV !== 'production') {
-      const { MOCK_FACILITIES } = await import('@/lib/mockFallback');
-      facility = MOCK_FACILITIES.find(
-        (item) =>
-          item.facilityId?.toUpperCase() === id.toUpperCase() ||
-          item._id === id
-      );
-
-      if (facility) {
-        if (!isAuthorizedForFacility(session, facility.facilityId) || (session.role === 'CLIENT' && facility.clientGroupId?._id?.toString?.() !== session.clientGroupId && facility.clientGroupId?.toString?.() !== session.clientGroupId)) {
-          return NextResponse.json(
-            { success: false, error: 'You are not authorized to access this facility.' },
-            { status: 403 }
-          );
-        }
-
-        return NextResponse.json({
-          success: true,
-          source: 'development-fallback',
-          data: session.role === 'CLIENT' ? { ...facility, driveConnection: undefined } : facility,
-        });
-      }
-    }
-
     if (!facility) {
       return NextResponse.json(
         { success: false, error: 'Facility not found.' },
@@ -113,39 +90,40 @@ export async function GET(
   } catch (error) {
     console.error('Error fetching facility:', error);
 
-    if (process.env.NODE_ENV === 'production') {
-      return NextResponse.json(
-        { success: false, error: 'Facility service is temporarily unavailable.' },
-        { status: 503 }
-      );
-    }
-
-    const { MOCK_FACILITIES } = await import('@/lib/mockFallback');
-    const fallback = MOCK_FACILITIES.find(
-      (item) =>
-        item.facilityId?.toUpperCase() === id.toUpperCase() ||
-        item._id === id
+    return NextResponse.json(
+      { success: false, error: 'Facility service is temporarily unavailable.' },
+      { status: 503 }
     );
+  }
+}
 
-    if (!fallback) {
-      return NextResponse.json(
-        { success: false, error: `Facility "${id}" was not found.` },
-        { status: 404 }
-      );
-    }
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  if (!authorizeRole(getSessionFromRequest(request), ['ADMIN'])) {
+    return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });
+  }
 
-    if (!isAuthorizedForFacility(session, fallback.facilityId)) {
-      return NextResponse.json(
-        { success: false, error: 'You are not authorized to access this facility.' },
-        { status: 403 }
-      );
-    }
+  const { id } = await params;
+  try {
+    const deleted = await runDirectoryDeletion(async (session) => {
+      const filter = mongoose.Types.ObjectId.isValid(id)
+        ? { $or: [{ _id: id }, { facilityId: id.toUpperCase() }] }
+        : { facilityId: id.toUpperCase() };
+      const facility = await FacilityModel.findOne(filter, 'facilityId', { session }).lean();
+      if (!facility) return false;
 
-    return NextResponse.json({
-      success: true,
-      source: 'development-fallback',
-      data: fallback,
+      await deleteFacilityRecords([facility.facilityId], session);
+      return true;
     });
+
+    return deleted
+      ? NextResponse.json({ success: true })
+      : NextResponse.json({ error: 'Facility not found.' }, { status: 404 });
+  } catch (error) {
+    console.error('Facility deletion failed:', error);
+    return NextResponse.json({ error: 'Unable to delete facility.' }, { status: 500 });
   }
 }
 

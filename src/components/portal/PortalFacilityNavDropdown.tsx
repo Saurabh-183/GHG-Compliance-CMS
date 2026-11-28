@@ -64,6 +64,9 @@ export function PortalFacilityNavDropdown({
 
   useEffect(() => {
     void loadFacilities();
+    const refresh = () => void loadFacilities();
+    window.addEventListener('focus', refresh);
+    return () => window.removeEventListener('focus', refresh);
   }, [loadFacilities]);
 
   useEffect(() => {
@@ -149,7 +152,10 @@ export function PortalFacilityNavDropdown({
     <div className="relative" ref={rootRef}>
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => {
+          if (!open) void loadFacilities();
+          setOpen(!open);
+        }}
         aria-expanded={open}
         aria-haspopup="listbox"
         className={`inline-flex items-center gap-1.5 rounded-md border border-transparent px-2 py-1.5 xl:px-2.5 text-xs font-medium whitespace-nowrap transition-all ${getNavLinkClass(

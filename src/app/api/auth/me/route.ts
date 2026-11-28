@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import mongoose from 'mongoose';
-import { connectToDatabase } from '@/lib/db';
+import { connectToDatabase, isMongoObjectId, isMongoUnavailableError } from '@/lib/db';
 import { ClientGroupModel } from '@/models/ClientGroup';
 import { getSessionFromRequest } from '@/lib/auth';
 import { formatClientGroupDisplayName } from '@/lib/clientGroupDisplay';
-import { findUserForSession } from '@/lib/resolveSessionUser';
-import { isMongoUnavailableError } from '@/lib/db';
+import { UserModel } from '@/models/User';
 
 export async function GET(request: NextRequest) {
   const session = getSessionFromRequest(request);
@@ -15,8 +13,8 @@ export async function GET(request: NextRequest) {
 
   try {
     await connectToDatabase();
-    const user = mongoose.Types.ObjectId.isValid(session.userId)
-      ? await findUserForSession(session)
+    const user = isMongoObjectId(session.userId)
+      ? await UserModel.findOne({ _id: session.userId, role: session.role, status: { $nin: ['DISABLED', 'LOCKED'] } })
       : null;
     if (user) {
       const clientGroupId = user.clientGroupId ? user.clientGroupId.toString() : undefined;
@@ -52,6 +50,10 @@ export async function GET(request: NextRequest) {
     if (!isMongoUnavailableError(error)) {
       console.warn('DB lookup in /api/auth/me skipped:', error);
     }
+  }
+
+  if (isMongoObjectId(session.userId)) {
+    return NextResponse.json({ authenticated: false, user: null });
   }
 
   // Gracefully fallback to the verified JWT session payload

@@ -347,6 +347,8 @@ export default function AdminUsersPage() {
   // Delete User State
   const [deleteConfirmUser, setDeleteConfirmUser] = useState<Account | null>(null);
   const [isDeletingUser, setIsDeletingUser] = useState(false);
+  const deletesCompany = deleteConfirmUser?.role === 'CLIENT' && Boolean(deleteConfirmUser.clientGroupId);
+  const companyToDelete = groups.find((group) => group._id === deleteConfirmUser?.clientGroupId);
 
   async function handleDeleteUser() {
     if (!deleteConfirmUser) return;
@@ -358,9 +360,10 @@ export default function AdminUsersPage() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || 'Failed to delete user');
-      notify.success(`User ${deleteConfirmUser.email} deleted successfully`);
+      notify.success(data.message || 'User deleted.');
       setUsers((prev) => prev.filter((u) => u._id !== deleteConfirmUser._id));
       setDeleteConfirmUser(null);
+      await load();
     } catch (err: any) {
       notify.error(err.message || 'Error deleting user');
     } finally {
@@ -1444,14 +1447,16 @@ export default function AdminUsersPage() {
         }}
       >
         <DialogTitle sx={{ fontWeight: 600, color: isDark ? '#FFFFFF' : '#0F172A' }}>
-          Delete User Account
+          {deletesCompany ? 'Delete Client Company' : 'Delete User Account'}
         </DialogTitle>
         <DialogContent>
           <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
             Are you sure you want to delete <strong>{deleteConfirmUser?.name}</strong> ({deleteConfirmUser?.email})?
           </p>
           <p className="text-xs text-rose-600 dark:text-rose-400 mt-2 font-medium">
-            This action will permanently delete the user account and clear all their facility assignment mappings.
+            {deletesCompany
+              ? `This permanently deletes ${companyToDelete?.name || 'the linked client company'}, all its facilities and compliance records, and all its client login accounts.`
+              : 'This permanently deletes the user account and clears its facility assignments.'}
           </p>
         </DialogContent>
         <DialogActions sx={{ p: 2, gap: 1 }}>
@@ -1470,7 +1475,7 @@ export default function AdminUsersPage() {
             disabled={isDeletingUser}
             sx={{ textTransform: 'none', borderRadius: '8px', fontWeight: 600 }}
           >
-            {isDeletingUser ? 'Deleting...' : 'Delete User'}
+            {isDeletingUser ? 'Deleting...' : deletesCompany ? 'Delete Client Company' : 'Delete User'}
           </Button>
         </DialogActions>
       </Dialog>

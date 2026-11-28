@@ -42,8 +42,10 @@ export default function AssessmentDataPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [quickFilter, setQuickFilter] = useState('all');
-  const [frameworkOnly, setFrameworkOnly] = useState(false);
-  const [selectedFramework, setSelectedFramework] = useState<string>('ALL');
+  const [frameworkOverride, setFrameworkOverride] = useState<{
+    assessmentId: string;
+    framework: string;
+  } | null>(null);
   const [applicabilityRecords, setApplicabilityRecords] = useState<
     Array<{
       facilityId: string;
@@ -168,15 +170,7 @@ export default function AssessmentDataPage() {
         .filter((rec) => rec.isApplicable)
         .map((rec) => rec.complianceType);
 
-      // Ensure current assessment's complianceType is included if not explicitly false
-      const currentExplicitFalse = matchedRecords.some(
-        (rec) => rec.complianceType === assessment.complianceType && !rec.isApplicable
-      );
-      if (
-        assessment.complianceType &&
-        !currentExplicitFalse &&
-        !activeFromRecords.includes(assessment.complianceType)
-      ) {
+      if (!activeFromRecords.includes(assessment.complianceType)) {
         activeFromRecords.push(assessment.complianceType);
       }
       return activeFromRecords;
@@ -201,23 +195,20 @@ export default function AssessmentDataPage() {
     return ['RCO', 'RPO', 'PAT', 'CCTS'];
   }, [applicabilityRecords, assessment, requirements]);
 
-  useEffect(() => {
-    if (selectedFramework !== 'ALL' && !applicableFrameworks.includes(selectedFramework as any)) {
-      setSelectedFramework('ALL');
-    }
-  }, [applicableFrameworks, selectedFramework]);
+  const requestedFramework = frameworkOverride?.assessmentId === assessmentId
+    ? frameworkOverride.framework
+    : undefined;
+  const selectedFramework = requestedFramework === 'ALL' || applicableFrameworks.some((framework) => framework === requestedFramework)
+    ? requestedFramework
+    : assessment?.complianceType;
 
   const periodScopedRequirements = useMemo(() => {
-    return requirements.filter((req) => {
-      if (selectedFramework !== 'ALL') {
-        const compliances = Array.isArray(req.linkedCompliances) ? req.linkedCompliances : [];
-        if (!compliances.includes(selectedFramework as any)) return false;
-      } else if (frameworkOnly && assessment) {
-        if (!req.linkedCompliances?.includes(assessment.complianceType)) return false;
-      }
-      return true;
-    });
-  }, [requirements, selectedFramework, frameworkOnly, assessment]);
+    if (selectedFramework === 'ALL') return requirements;
+
+    return requirements.filter((req) =>
+      req.linkedCompliances?.some((framework) => framework === selectedFramework)
+    );
+  }, [requirements, selectedFramework]);
 
   const stats = useMemo(
     () => computeRequestStats(periodScopedRequirements),
@@ -388,8 +379,11 @@ export default function AssessmentDataPage() {
               <Filter className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
               <FormControl size="small" sx={{ minWidth: 140 }}>
                 <Select
-                  value={selectedFramework}
-                  onChange={(e: SelectChangeEvent) => setSelectedFramework(e.target.value)}
+                  value={selectedFramework ?? ''}
+                  onChange={(e: SelectChangeEvent) =>
+                    setFrameworkOverride({ assessmentId, framework: e.target.value })
+                  }
+                  inputProps={{ 'aria-label': 'Request framework' }}
                   displayEmpty
                   renderValue={(value) => {
                     if (value === 'ALL') return 'All Frameworks';
@@ -529,23 +523,6 @@ export default function AssessmentDataPage() {
           />
         </div>
 
-        <label className="mt-4 inline-flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
-          <input
-            type="checkbox"
-            checked={frameworkOnly || selectedFramework === assessment?.complianceType}
-            onChange={(e) => {
-              const checked = e.target.checked;
-              setFrameworkOnly(checked);
-              if (checked && assessment) {
-                setSelectedFramework(assessment.complianceType);
-              } else if (!checked && selectedFramework === assessment?.complianceType) {
-                setSelectedFramework('ALL');
-              }
-            }}
-            className="accent-emerald-700"
-          />
-          Show only requests linked to {assessment?.complianceType}
-        </label>
       </section>
 
       {error && (
@@ -583,7 +560,9 @@ export default function AssessmentDataPage() {
           </span>
         </h2>
         <p className="text-[11px] text-slate-500">
-          Same layout as the Data Review workspace — scoped to this facility and data collection year.
+          {selectedFramework === 'ALL'
+            ? 'Showing requests across all frameworks for this facility and data collection year.'
+            : `Showing requests linked to ${selectedFramework} for this facility and data collection year.`}
         </p>
 
         <RequirementsReviewTable
@@ -591,7 +570,9 @@ export default function AssessmentDataPage() {
           hideFacilityColumn
           showWorkflowFilter
           emptyMessage={
-            requirements.length === 0
+            periodScopedRequirements.length === 0 && selectedFramework && selectedFramework !== 'ALL'
+              ? `No requests linked to ${selectedFramework} for this facility and period.`
+              : requirements.length === 0
               ? (isAdmin
                   ? 'No requests for this facility and period.'
                   : 'No requests for this facility and period. Create one above or publish the facility checklist.')

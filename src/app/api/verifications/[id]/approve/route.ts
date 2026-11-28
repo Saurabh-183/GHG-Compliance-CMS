@@ -6,6 +6,7 @@ import { DataRequirementModel } from '@/models/DataRequirement';
 import { AssessmentModel } from '@/models/Assessment';
 import { ComplianceApplicabilityModel } from '@/models/ComplianceApplicability';
 import { getSessionFromRequest, authorizeRole, isAuthorizedForFacility } from '@/lib/auth';
+import { hasRequestSubmission } from '@/lib/requestWorkflow';
 
 export async function POST(
   request: NextRequest,
@@ -25,6 +26,9 @@ export async function POST(
     }
     if (!isAuthorizedForFacility(session, dataset.facilityId)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
+    const linkedRequirement = dataset.dataRequirementId
+      ? await DataRequirementModel.findById(dataset.dataRequirementId)
+      : null;
     const body = (await request.json().catch(() => ({}))) as { comments?: string };
 
     const reviewerId = new mongoose.Types.ObjectId(session!.userId);
@@ -52,9 +56,8 @@ export async function POST(
 
     await dataset.save();
 
-    // Also update linked DataRequirement if available
-    if (dataset.dataRequirementId) {
-      await DataRequirementModel.findByIdAndUpdate(dataset.dataRequirementId, {
+    if (linkedRequirement && hasRequestSubmission(linkedRequirement)) {
+      await DataRequirementModel.findByIdAndUpdate(linkedRequirement._id, {
         verificationStatus: 'APPROVED',
         workflowStatus: 'ACCEPTED',
         approvedByRole: session!.role,
