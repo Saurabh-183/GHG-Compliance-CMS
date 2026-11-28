@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import { MOCK_CLIENT_GROUPS, MOCK_FACILITIES } from '@/lib/mockFallback';
-import { getCurrentFinancialYear, getRollingFinancialYears, normalizeFinancialYearPeriod } from '@/lib/financialYears';
+import { getCurrentFinancialYear, normalizeFinancialYearPeriod } from '@/lib/financialYears';
 
 export default function ClientGroupDetailPage() {
   const params = useParams();
@@ -25,7 +25,7 @@ export default function ClientGroupDetailPage() {
   const [group, setGroup] = useState<(IClientGroup & { facilities?: IFacility[] }) | null>(null);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
-  const [period, setPeriod] = useState(getCurrentFinancialYear());
+  const [period] = useState(getCurrentFinancialYear());
   const [applicabilityRecords, setApplicabilityRecords] = useState<Array<{
     facilityId: string; complianceType: string; period: string; isApplicable: boolean;
   }>>([]);
@@ -193,57 +193,6 @@ export default function ClientGroupDetailPage() {
         </div>
       </div>
 
-      {/* Statutory Frameworks Applicability Bar */}
-      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-4 shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-              Statutory Compliance Frameworks
-            </h3>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-              Facility-specific applicability configured by the Administrator for the selected financial year.
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <label className="flex items-center gap-2 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
-              Financial year
-              <select
-                value={period}
-                onChange={(event) => setPeriod(event.target.value)}
-                className="rounded-md border border-slate-300 bg-white px-2 py-1.5 text-xs dark:border-slate-700 dark:bg-slate-950"
-              >
-                {getRollingFinancialYears().map((year) => (
-                  <option key={year} value={year}>{year}</option>
-                ))}
-              </select>
-            </label>
-            {[
-              { type: 'RCO', label: 'RCO', name: 'Renewable Consumption Obligation' },
-              { type: 'RPO', label: 'RPO', name: 'Renewable Purchase Obligation' },
-              { type: 'PAT', label: 'PAT Scheme', name: 'Perform, Achieve & Trade' },
-              { type: 'CCTS', label: 'CCTS Carbon', name: 'Carbon Credit Trading Scheme' },
-            ].map((fw) => {
-              const isEnabled = activeFrameworks.includes(fw.type);
-              return (
-                <div
-                  key={fw.type}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-medium ${
-                    isEnabled
-                      ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
-                      : 'bg-slate-100 text-slate-400 dark:bg-slate-800/80 dark:text-slate-500 border-slate-200 dark:border-slate-800 line-through opacity-70'
-                  }`}
-                >
-                  <span className={`w-2 h-2 rounded-full ${isEnabled ? 'bg-emerald-500' : 'bg-slate-400'}`} />
-                  <span className="font-bold">{fw.label}</span>
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-normal">
-                    ({isEnabled ? 'Applicable' : 'Not Applicable'})
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
 
       {/* Facilities Section Header & Search */}
       <div className="space-y-4">

@@ -60,6 +60,22 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       return NextResponse.json({ error: 'Add a review comment before returning this request.' }, { status: 400 });
     }
     if (action === 'ACCEPT') {
+      const hasClientFilledData =
+        ['SUBMITTED', 'RESUBMITTED', 'UNDER_REVIEW', 'PARTIALLY_SUBMITTED', 'ACCEPTED'].includes(
+          requirement.workflowStatus || ''
+        ) ||
+        requirement.submissionStatus === 'RECEIVED' ||
+        (Array.isArray(requirement.submittedDriveLinks) && requirement.submittedDriveLinks.length > 0) ||
+        (Array.isArray(requirement.submissionHistory) && requirement.submissionHistory.length > 0) ||
+        Boolean(requirement.latestStructuredData && Object.keys(requirement.latestStructuredData).length > 0);
+
+      if (!hasClientFilledData) {
+        return NextResponse.json(
+          { error: 'Cannot accept request: Client has not filled or submitted data for this request yet.' },
+          { status: 400 }
+        );
+      }
+
       const fields = requirement.requiredFields || [];
       const reviews = requirement.fieldReviews || [];
       if (fields.length > 0) {

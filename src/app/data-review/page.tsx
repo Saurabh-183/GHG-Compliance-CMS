@@ -1,19 +1,18 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Calendar, ClipboardCheck, ExternalLink, ChevronDown, Search, X, Filter } from 'lucide-react';
 import { Select, MenuItem, FormControl, SelectChangeEvent } from '@mui/material';
-import { ClientSubmissionsReviewTable } from '@/components/uploads/ClientSubmissionsReviewTable';
+import { RequirementsReviewTable, WORKFLOW_FILTER_OPTIONS } from '@/components/requests/RequirementsReviewTable';
 import { CompanySelectMui } from '@/components/dashboard/CompanySelectMui';
 import { FacilitySelectMui } from '@/components/dashboard/FacilitySelectMui';
 import { CarbonCrunchLoader } from '@/components/common/CarbonCrunchLoader';
 import { MOCK_CLIENT_GROUPS } from '@/lib/mockFallback';
 import { COMPLIANCE_PERIODS } from '@/lib/complianceMatrixData';
 import { DEFAULT_CHECKLIST_PERIOD } from '@/lib/facilityDataChecklistTemplate';
-import { WORKFLOW_FILTER_OPTIONS } from '@/components/requests/RequirementsReviewTable';
 import { useAuth } from '@/context/AuthContext';
-import type { IClientGroup, IFacility } from '@/types';
+import type { IClientGroup, IFacility, IDataRequirement } from '@/types';
 
 const ALL_FACILITIES_VALUE = '__ALL_FACILITIES__';
 
@@ -108,6 +107,43 @@ export default function DataReviewPage() {
       : undefined;
 
   const activeFacilityName = currentFacilities.find((f) => f.facilityId === selectedFacilityId)?.name;
+
+  const [requirements, setRequirements] = useState<IDataRequirement[]>([]);
+  const [loadingRequirements, setLoadingRequirements] = useState(true);
+
+  const loadRequirements = useCallback(async () => {
+    setLoadingRequirements(true);
+    try {
+      const params = new URLSearchParams();
+      if (selectedPeriod) {
+        params.set('period', selectedPeriod);
+      }
+      if (facilityIdForApi) {
+        params.set('facilityId', facilityIdForApi);
+      } else if (clientGroupIdForApi) {
+        params.set('clientGroupId', clientGroupIdForApi);
+      }
+      const res = await fetch(`/api/requirements?${params.toString()}`, {
+        credentials: 'include',
+        cache: 'no-store',
+      });
+      if (res.ok) {
+        const json = (await res.json()) as { data?: IDataRequirement[] };
+        setRequirements(Array.isArray(json.data) ? json.data : []);
+      } else {
+        setRequirements([]);
+      }
+    } catch (err) {
+      console.error('Failed to load data review requirements:', err);
+      setRequirements([]);
+    } finally {
+      setLoadingRequirements(false);
+    }
+  }, [selectedPeriod, facilityIdForApi, clientGroupIdForApi]);
+
+  useEffect(() => {
+    void loadRequirements();
+  }, [loadRequirements]);
 
   if (loading) {
     return <CarbonCrunchLoader message="Loading data review workspace…" />;
@@ -397,16 +433,20 @@ export default function DataReviewPage() {
         </p>
       </div>
 
-      <ClientSubmissionsReviewTable
-        showWorkflowFilter={false}
-        hideTopFilterBar={true}
-        searchQuery={searchQuery}
-        workflowFilter={workflowFilter}
-        onWorkflowFilterChange={setWorkflowFilter}
-        clientGroupId={clientGroupIdForApi}
-        facilityId={facilityIdForApi}
-        period={selectedPeriod}
-      />
+      {loadingRequirements ? (
+        <CarbonCrunchLoader message="Loading data review requests…" />
+      ) : (
+        <RequirementsReviewTable
+          requirements={requirements}
+          showWorkflowFilter={false}
+          hideTopFilterBar={true}
+          searchQuery={searchQuery}
+          workflowFilter={workflowFilter}
+          onWorkflowFilterChange={setWorkflowFilter}
+          emptyMessage="No client submissions or data requests to review yet."
+          onReviewed={() => void loadRequirements()}
+        />
+      )}
     </div>
   );
 }
