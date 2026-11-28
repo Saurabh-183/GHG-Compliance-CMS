@@ -11,7 +11,7 @@ import { getDueUrgency } from '@/lib/dataRequestDisplay';
 import { resolveRequirementDueDate } from '@/lib/dataRequestDueDate';
 import { notify } from '@/lib/notify';
 import { MuiDatePicker } from '@/components/common/MuiDatePicker';
-import { CheckCircle2, XCircle, RotateCcw, Eye, Calendar, ChevronDown } from 'lucide-react';
+import { CheckCircle2, XCircle, RotateCcw, Eye, Calendar, ChevronDown, AlertCircle } from 'lucide-react';
 import { Select, MenuItem, FormControl, SelectChangeEvent } from '@mui/material';
 
 const REVIEW_STATUSES = ['PENDING', 'VERIFIED', 'MISSING', 'INCORRECT', 'CLARIFICATION_REQUIRED'] as const;
@@ -69,6 +69,27 @@ export function RequestReviewPanel({
     [requirement.submissionHistory]
   );
 
+  const hasClientFilledData = useMemo(() => {
+    const isSubmittedStatus = [
+      'SUBMITTED',
+      'RESUBMITTED',
+      'UNDER_REVIEW',
+      'PARTIALLY_SUBMITTED',
+      'ACCEPTED',
+    ].includes(requirement.workflowStatus || '');
+    const hasDriveLinks =
+      Array.isArray(requirement.submittedDriveLinks) && requirement.submittedDriveLinks.length > 0;
+    const hasStructuredData = Boolean(
+      (requirement.latestStructuredData && Object.keys(requirement.latestStructuredData).length > 0) ||
+      (latestSubmission?.structuredData && Object.keys(latestSubmission.structuredData).length > 0)
+    );
+    const hasHistory =
+      Array.isArray(requirement.submissionHistory) && requirement.submissionHistory.length > 0;
+    const isReceived = requirement.submissionStatus === 'RECEIVED';
+
+    return isSubmittedStatus || hasDriveLinks || hasStructuredData || hasHistory || isReceived;
+  }, [requirement, latestSubmission]);
+
   const allFieldsVerified = useMemo(() => {
     if (fieldReviews.length === 0) return true;
     return fieldReviews.every((review) => review.status === 'VERIFIED');
@@ -77,6 +98,10 @@ export function RequestReviewPanel({
   const submitReview = async (action: 'START_REVIEW' | 'REQUEST_CHANGES' | 'ACCEPT' | 'REJECT') => {
     if (isAccepted) {
       notify.error('This data request has already been accepted and locked. No further modifications or status changes are permitted.');
+      return;
+    }
+    if (action === 'ACCEPT' && !hasClientFilledData) {
+      notify.error('Client has not filled or submitted data for this request yet. Cannot accept.');
       return;
     }
     if (action === 'ACCEPT' && !allFieldsVerified) {
@@ -319,11 +344,16 @@ export function RequestReviewPanel({
         </div>
       ) : (
         <div className="flex flex-wrap items-center gap-2 justify-end">
-          {!allFieldsVerified && fieldReviews.length > 0 && (
+          {!hasClientFilledData ? (
+            <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium mr-auto sm:mr-2 flex items-center gap-1">
+              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+              Client has not filled data yet. Cannot accept until submitted.
+            </span>
+          ) : !allFieldsVerified && fieldReviews.length > 0 ? (
             <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium mr-auto sm:mr-2">
               Mark all fields as Verified to accept submission
             </span>
-          )}
+          ) : null}
           <button
             type="button"
             disabled={saving}
@@ -342,17 +372,19 @@ export function RequestReviewPanel({
           </button>
           <button
             type="button"
-            disabled={saving || !allFieldsVerified}
+            disabled={saving || !allFieldsVerified || !hasClientFilledData}
             onClick={() => void submitReview('ACCEPT')}
             title={
-              !allFieldsVerified
+              !hasClientFilledData
+                ? 'Client must fill and submit data before this request can be accepted'
+                : !allFieldsVerified
                 ? 'All fields must be marked as Verified before accepting submission'
                 : undefined
             }
             className={`inline-flex items-center gap-1 px-3 py-2 rounded-lg font-bold transition-all ${
-              saving || !allFieldsVerified
+              saving || !allFieldsVerified || !hasClientFilledData
                 ? 'bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed opacity-60 shadow-none'
-                : 'bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm'
+                : 'bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm cursor-pointer'
             }`}
           >
             <CheckCircle2 className="w-3.5 h-3.5" /> Accept submission

@@ -5,6 +5,8 @@ import { CheckCircle2, Loader2, Save } from 'lucide-react';
 import type { ComplianceType } from '@/types';
 import { notify } from '@/lib/notify';
 import { getCurrentFinancialYear, getRollingFinancialYears, normalizeFinancialYearPeriod } from '@/lib/financialYears';
+import { useAuth } from '@/context/AuthContext';
+import { FormControl, Select, MenuItem, SelectChangeEvent } from '@mui/material';
 
 type Facility = {
   facilityId: string;
@@ -32,7 +34,75 @@ const FRAMEWORKS: FrameworkOption[] = [
   { type: 'CCTS', title: 'CCTS', detail: 'Carbon Credit Trading Scheme' },
 ];
 
+const getMuiSelectSx = (isDark: boolean) => ({
+  height: '48px',
+  minHeight: '48px',
+  maxHeight: '48px',
+  fontSize: '13px',
+  fontWeight: 500,
+  borderRadius: '8px',
+  backgroundColor: isDark ? '#020617' : '#FFFFFF',
+  color: isDark ? '#FFFFFF' : '#0F172A',
+  boxSizing: 'border-box',
+  '& .MuiOutlinedInput-notchedOutline': {
+    borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : '#CBD5E1',
+  },
+  '&:hover .MuiOutlinedInput-notchedOutline': {
+    borderColor: isDark ? '#34D399' : '#059669',
+  },
+  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+    borderColor: isDark ? '#34D399' : '#059669',
+    borderWidth: '1.5px',
+  },
+  '& .MuiSelect-select': {
+    height: '48px !important',
+    lineHeight: '48px !important',
+    boxSizing: 'border-box',
+    display: 'flex',
+    alignItems: 'center',
+    padding: '0 14px !important',
+    fontSize: '13px',
+  },
+  '& .MuiSelect-icon': {
+    color: isDark ? '#94A3B8' : '#64748B',
+    right: '8px',
+  },
+});
+
+const getMuiMenuProps = (isDark: boolean) => ({
+  slotProps: {
+    paper: {
+      sx: {
+        mt: 0.5,
+        maxHeight: 280,
+        borderRadius: '8px',
+        backgroundColor: isDark ? '#0F172A !important' : '#FFFFFF !important',
+        color: isDark ? '#FFFFFF' : '#0F172A',
+        border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0'}`,
+        boxShadow: isDark
+          ? '0 10px 25px -5px rgba(0, 0, 0, 0.7)'
+          : '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
+        '& .MuiMenuItem-root': {
+          fontSize: '13px',
+          color: isDark ? '#E2E8F0' : '#0F172A',
+          '&:hover, &.Mui-focusVisible': {
+            backgroundColor: isDark ? '#1E293B' : '#F1F5F9',
+            color: isDark ? '#34D399' : '#059669',
+          },
+          '&.Mui-selected': {
+            backgroundColor: isDark ? '#1E293B !important' : '#E2E8F0 !important',
+            color: isDark ? '#34D399' : '#059669',
+            fontWeight: 600,
+          },
+        },
+      },
+    },
+  },
+});
+
 export default function FacilityComplianceYearSettings({ initialFacilityId, onSaved }: { initialFacilityId?: string; onSaved?: () => void } = {}) {
+  const { theme } = useAuth();
+  const isDark = theme === 'dark';
   const years = useMemo(() => getRollingFinancialYears(), []);
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [records, setRecords] = useState<Applicability[]>([]);
@@ -200,20 +270,26 @@ export default function FacilityComplianceYearSettings({ initialFacilityId, onSa
 
           <div className="grid gap-4 md:grid-cols-2">
             {mode === 'single' ? (
-              <label className="space-y-1.5 text-xs font-bold text-slate-700 dark:text-slate-300">
-                Facility
-                <select
-                  value={facilityId}
-                  onChange={(event) => setFacilityId(event.target.value)}
-                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-900 shadow-2xs focus:border-emerald-600 focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-                >
-                  {facilities.map((item) => (
-                    <option key={item.facilityId} value={item.facilityId}>
-                      {item.name} ({item.facilityId})
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <div className="space-y-1.5">
+                <span className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Facility
+                </span>
+                <FormControl fullWidth size="small">
+                  <Select
+                    value={facilityId}
+                    onChange={(event: SelectChangeEvent) => setFacilityId(event.target.value)}
+                    displayEmpty
+                    sx={getMuiSelectSx(isDark)}
+                    MenuProps={getMuiMenuProps(isDark)}
+                  >
+                    {facilities.map((item) => (
+                      <MenuItem key={item.facilityId} value={item.facilityId}>
+                        {item.name} ({item.facilityId})
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
             ) : (
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
@@ -244,19 +320,29 @@ export default function FacilityComplianceYearSettings({ initialFacilityId, onSa
               </div>
             )}
 
-            <label className="space-y-1.5 text-xs font-bold text-slate-700 dark:text-slate-300">
-              Financial year
-              <select
-                value={period}
-                onChange={(event) => setPeriod(event.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-900 shadow-2xs focus:border-emerald-600 focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-              >
-                {years.map((year) => (
-                  <option key={year} value={year}>{year}</option>
-                ))}
-              </select>
-              <span className="block font-normal text-[11px] text-slate-500 dark:text-slate-400">Only the previous, current and upcoming financial years are shown.</span>
-            </label>
+            <div className="space-y-1.5">
+              <span className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                Financial year
+              </span>
+              <FormControl fullWidth size="small">
+                <Select
+                  value={period}
+                  onChange={(event: SelectChangeEvent) => setPeriod(event.target.value)}
+                  displayEmpty
+                  sx={getMuiSelectSx(isDark)}
+                  MenuProps={getMuiMenuProps(isDark)}
+                >
+                  {years.map((year) => (
+                    <MenuItem key={year} value={year}>
+                      {year}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <span className="block font-normal text-[11px] text-slate-500 dark:text-slate-400">
+                Only the previous, current and upcoming financial years are shown.
+              </span>
+            </div>
           </div>
 
           {mode === 'single' && facility && (
