@@ -400,7 +400,7 @@ export function FacilityDataRequestPanel({
     setDocuments(normalizeDocumentSpecsForDriveXlsx(master.documentSpecs || []));
     setReportingFrequency((master.reportingFrequency as ReportingFrequency) || 'ANNUAL');
     setOpenSections({ 1: true, 2: Boolean(master.structuredFields?.length), 3: true, 4: true, 5: false });
-    notify.success(`Loaded checklist fields for ΓÇ£${master.name}ΓÇ¥.`);
+    notify.success(`Loaded checklist fields for "${master.name}".`);
   };
 
   const handleOrganizationChange = (orgId: string) => {
@@ -430,7 +430,7 @@ export function FacilityDataRequestPanel({
       return false;
     }
     if (!dataCategory.trim() && selectedChecklistKey !== '__OTHER__') {
-      notify.error('Data category is missing ΓÇö re-select a checklist requirement.');
+      notify.error('Data category is missing — re-select a checklist requirement.');
       return false;
     }
     if (!instructions.trim()) {
@@ -510,7 +510,7 @@ export function FacilityDataRequestPanel({
       if (saveAsDraft) {
         notify.success('Draft saved. Send when ready from Track or send now.');
       } else {
-        notify.success(notifyClient ? 'Request sent ΓÇö client notified.' : json.message || 'Request sent.');
+        notify.success(notifyClient ? 'Request sent — client notified.' : json.message || 'Request sent.');
       }
 
       setTitle('');
@@ -554,7 +554,7 @@ export function FacilityDataRequestPanel({
         <FormSection
           step={1}
           title="Request details"
-          subtitle="Organization, facility, FY, checklist ΓÇö and client submission due date"
+          subtitle="Organization, facility, FY, checklist — and client submission due date"
           open={!!openSections[1]}
           onToggle={() => toggleSection(1)}
         >
@@ -596,14 +596,14 @@ export function FacilityDataRequestPanel({
                   renderValue={(val) => {
                     if (!val) return <span className="text-slate-400 dark:text-slate-500 font-sans text-xs">Select facility</span>;
                     const found = facilitiesInOrg.find((f) => f.facilityId === val);
-                    return <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">{found ? `${found.name} ┬╖ ${found.facilityId}` : val}</span>;
+                    return <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">{found ? `${found.name} · ${found.facilityId}` : val}</span>;
                   }}
                   sx={muiSelectSx}
                   MenuProps={muiMenuProps}
                 >
                   {facilitiesInOrg.map((f) => (
                     <MenuItem key={f.facilityId} value={f.facilityId} sx={{ fontSize: '12px' }}>
-                      {f.name} ┬╖ {f.facilityId}
+                      {f.name} · {f.facilityId}
                     </MenuItem>
                   ))}
                 </Select>
@@ -654,14 +654,14 @@ export function FacilityDataRequestPanel({
                     if (!selected) {
                       return (
                         <span className="text-slate-400 dark:text-slate-500 font-sans text-xs">
-                          {checklistLoading ? 'Loading checklistΓÇª' : 'Select requirement for this facility'}
+                          {checklistLoading ? 'Loading checklist...' : 'Select requirement for this facility'}
                         </span>
                       );
                     }
                     if (selected === '__OTHER__') {
                       return (
                         <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
-                          Other ΓÇö custom requirement (manual fields)
+                          Other — custom requirement (manual fields)
                         </span>
                       );
                     }
@@ -748,9 +748,9 @@ export function FacilityDataRequestPanel({
                           }}
                         >
                           {row.master.name}
-                          {row.needsVerification ? ' ΓÇö needs verification' : ''}
+                          {row.needsVerification ? ' — needs verification' : ''}
                           {row.applicability === 'NOT_REQUIRED' || row.applicability === 'NOT_APPLICABLE'
-                            ? ' ΓÇö N/A'
+                            ? ' — N/A'
                             : ''}
                         </MenuItem>
                       );
@@ -794,7 +794,7 @@ export function FacilityDataRequestPanel({
                     Custom
                   </ListSubheader>
                   <MenuItem value="__OTHER__" sx={{ fontSize: '12px', pl: 3 }}>
-                    Other ΓÇö custom requirement (manual fields)
+                    Other — custom requirement (manual fields)
                   </MenuItem>
                 </Select>
               </FormControl>
@@ -859,7 +859,7 @@ export function FacilityDataRequestPanel({
           title="Required information"
           subtitle={
             selectedChecklistKey && selectedChecklistKey !== '__OTHER__'
-              ? 'Pre-filled from checklist ΓÇö adjust if needed'
+              ? 'Pre-filled from checklist — adjust if needed'
               : 'Build fields for your custom requirement'
           }
           open={!!openSections[2]}
@@ -877,7 +877,7 @@ export function FacilityDataRequestPanel({
         <FormSection
           step={3}
           title="Reporting period & documents"
-          subtitle="Google Drive link ┬╖ .xlsx workbooks only"
+          subtitle="Google Drive link · .xlsx workbooks only"
           open={!!openSections[3]}
           onToggle={() => toggleSection(3)}
         >
@@ -965,7 +965,7 @@ export function FacilityDataRequestPanel({
                 rows={3}
                 value={purpose}
                 onChange={(e) => setPurpose(e.target.value)}
-                placeholder="Why this data is required for complianceΓÇª"
+                placeholder="Why this data is required for compliance..."
                 sx={{
                   ...muiFieldSx,
                   '& .MuiInputBase-root': { p: 1.25 },
@@ -982,7 +982,7 @@ export function FacilityDataRequestPanel({
                 rows={4}
                 value={instructions}
                 onChange={(e) => setInstructions(e.target.value)}
-                placeholder="Upload .xlsx to Google Drive, grant consultant view access, paste the share link. Note any missing monthsΓÇª"
+                placeholder="Upload .xlsx to Google Drive, grant consultant view access, paste the share link. Note any missing months..."
                 sx={{
                   ...muiFieldSx,
                   '& .MuiInputBase-root': { p: 1.25 },
@@ -1101,10 +1101,10 @@ function PanelHeader({
     <div className="rounded-2xl border border-emerald-200 dark:border-emerald-900/50 bg-gradient-to-br from-emerald-50/80 to-white dark:from-emerald-950/20 dark:to-slate-900 p-5">
       <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
         <Send className="w-5 h-5 text-emerald-700" />
-        Create data request ΓÇö client portal
+        Create data request — client portal
       </h3>
       <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-        {orgName ? `${orgName} ┬╖ ` : ''}<strong>{facilityLabel}</strong> ┬╖ {period?.startsWith('FY') ? period : `FY ${period}`}
+        {orgName ? `${orgName} · ` : ''}<strong>{facilityLabel}</strong> · {period?.startsWith('FY') ? period : `FY ${period}`}
       </p>
       <p className="text-[11px] text-slate-500 mt-1">{openCount} open request(s) for this facility.</p>
     </div>
@@ -1122,10 +1122,10 @@ function RecentRequestsList({
 }) {
   return (
     <div className="border-t border-slate-200 dark:border-slate-800 pt-4 space-y-2">
-      <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Recent requests ΓÇö {facilityId}</span>
+      <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Recent requests — {facilityId}</span>
       {loading ? (
         <div className="flex items-center gap-2 text-xs text-slate-500 py-4">
-          <Loader2 className="w-4 h-4 animate-spin" /> LoadingΓÇª
+          <Loader2 className="w-4 h-4 animate-spin" /> Loading...
         </div>
       ) : requirements.length === 0 ? (
         <p className="text-xs text-slate-500 py-2">No portal requests for this facility yet.</p>

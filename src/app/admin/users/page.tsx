@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { notify } from '@/lib/notify';
 import { ComplianceType } from '@/types';
@@ -34,6 +34,8 @@ import {
   EyeOff,
   Factory,
   Users,
+  Search,
+  X,
 } from 'lucide-react';
 
 type Group = { _id: string; name: string; code?: string; industry?: string; enabledFrameworks?: ComplianceType[] };
@@ -348,6 +350,46 @@ export default function AdminUsersPage() {
   const [deleteConfirmUser, setDeleteConfirmUser] = useState<Account | null>(null);
   const [isDeletingUser, setIsDeletingUser] = useState(false);
 
+  // Debounced Search State for Existing Accounts
+  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery.trim());
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const filteredUsers = useMemo(() => {
+    if (!debouncedSearch) return users;
+    const q = debouncedSearch.toLowerCase();
+    return users.filter((user) => {
+      const userGroup = groups.find((g) => g._id === user.clientGroupId);
+      const companyName = userGroup?.name?.toLowerCase() || '';
+      const name = user.name?.toLowerCase() || '';
+      const email = user.email?.toLowerCase() || '';
+      const mobile = user.mobileNo?.toLowerCase() || '';
+      const manager = user.managerName?.toLowerCase() || '';
+      const role = user.role?.toLowerCase() || '';
+      const designation = user.designation?.toLowerCase() || '';
+      const status = (user.status || 'ACTIVE').toLowerCase();
+      const capacity = user.capacity?.toLowerCase() || '';
+
+      return (
+        name.includes(q) ||
+        email.includes(q) ||
+        companyName.includes(q) ||
+        mobile.includes(q) ||
+        manager.includes(q) ||
+        role.includes(q) ||
+        designation.includes(q) ||
+        status.includes(q) ||
+        capacity.includes(q)
+      );
+    });
+  }, [users, groups, debouncedSearch]);
+
   async function handleDeleteUser() {
     if (!deleteConfirmUser) return;
     setIsDeletingUser(true);
@@ -361,6 +403,7 @@ export default function AdminUsersPage() {
       notify.success(`User ${deleteConfirmUser.email} deleted successfully`);
       setUsers((prev) => prev.filter((u) => u._id !== deleteConfirmUser._id));
       setDeleteConfirmUser(null);
+      void load();
     } catch (err: any) {
       notify.error(err.message || 'Error deleting user');
     } finally {
@@ -1170,14 +1213,36 @@ export default function AdminUsersPage() {
 
       {/* Existing Accounts Table Section */}
       <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs dark:border-slate-800 dark:bg-slate-900">
-        <div className="flex items-center justify-between border-b border-slate-200 p-5 dark:border-slate-800">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 p-5 dark:border-slate-800">
           <div>
             <h2 className="text-base font-bold text-slate-900 dark:text-white">
-              Existing Accounts ({users.length})
+              Existing Accounts ({debouncedSearch ? `${filteredUsers.length} of ${users.length}` : users.length})
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Active directory of administrative, consultant and client accounts.
             </p>
+          </div>
+
+          {/* Search Filter Input with Debounce */}
+          <div className="relative w-full sm:w-72">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search user, email, company, role..."
+              className="w-full rounded-lg border border-slate-200 bg-slate-50/50 py-2 pl-9 pr-8 text-xs text-slate-900 placeholder-slate-400 focus:border-emerald-600 focus:bg-white focus:outline-none dark:border-slate-700 dark:bg-slate-800/60 dark:text-white dark:focus:border-emerald-500 transition-colors"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+                title="Clear search"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
         </div>
 
@@ -1193,7 +1258,30 @@ export default function AdminUsersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {users.map((user) => {
+              {filteredUsers.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="py-12 text-center text-slate-500 dark:text-slate-400">
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <Users className="w-8 h-8 text-slate-400 opacity-60" />
+                      <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                        {debouncedSearch
+                          ? `No accounts found matching "${debouncedSearch}"`
+                          : 'No accounts registered yet.'}
+                      </p>
+                      {debouncedSearch && (
+                        <button
+                          type="button"
+                          onClick={() => setSearchQuery('')}
+                          className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline font-medium cursor-pointer"
+                        >
+                          Clear search filter
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredUsers.map((user) => {
                 const isClient = user.role === 'CLIENT';
                 const isConsultant = user.role === 'CONSULTANT';
                 const userGroup = groups.find((g) => g._id === user.clientGroupId);
@@ -1419,7 +1507,8 @@ export default function AdminUsersPage() {
                     </td>
                   </tr>
                 );
-              })}
+              })
+            )}
             </tbody>
           </table>
         </div>
@@ -1451,7 +1540,9 @@ export default function AdminUsersPage() {
             Are you sure you want to delete <strong>{deleteConfirmUser?.name}</strong> ({deleteConfirmUser?.email})?
           </p>
           <p className="text-xs text-rose-600 dark:text-rose-400 mt-2 font-medium">
-            This action will permanently delete the user account and clear all their facility assignment mappings.
+            {deleteConfirmUser?.role === 'CLIENT'
+              ? 'This action will permanently delete the client user account, their company profile, and associated facility records from Clients & Units.'
+              : 'This action will permanently delete the user account and clear all their facility assignment mappings.'}
           </p>
         </DialogContent>
         <DialogActions sx={{ p: 2, gap: 1 }}>

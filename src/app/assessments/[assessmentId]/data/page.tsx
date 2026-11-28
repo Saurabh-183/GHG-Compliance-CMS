@@ -104,7 +104,9 @@ export default function AssessmentDataPage() {
             updatedAt: new Date().toISOString(),
           } as unknown as IAssessment;
         } else {
-          throw new Error(assessmentPayload?.error || 'Unable to load assessment details.');
+          setError(assessmentPayload?.error || 'Unable to load assessment details.');
+          setLoading(false);
+          return;
         }
       }
 

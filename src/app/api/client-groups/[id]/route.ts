@@ -162,3 +162,58 @@ export async function PATCH(
     return NextResponse.json({ error: 'Unable to update client group.' }, { status: 500 });
   }
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  try {
+    await connectToDatabase();
+    const session = getSessionFromRequest(request);
+    if (!session || !authorizeRole(session, ['ADMIN'])) {
+      return NextResponse.json({ error: 'Forbidden: Admin access required.' }, { status: 403 });
+    }
+
+    let query: Record<string, unknown> = {};
+    if (mongoose.Types.ObjectId.isValid(id)) query = { _id: id };
+    else query = { $or: [{ code: id.toUpperCase() }, { name: { $regex: new RegExp(`^${id}$`, 'i') } }] };
+
+    const group = await ClientGroupModel.findOne(query);
+    if (!group) return NextResponse.json({ error: 'Client Group not found.' }, { status: 404 });
+
+    const { UserModel } = await import('@/models/User');
+    const { ComplianceApplicabilityModel } = await import('@/models/ComplianceApplicability');
+    const { AssessmentModel } = await import('@/models/Assessment');
+    const { DataRequirementModel } = await import('@/models/DataRequirement');
+    const { RegulatorySubmissionModel } = await import('@/models/RegulatorySubmission');
+
+    // Find and delete all facilities belonging to this client group
+    const facilities = await FacilityModel.find({ clientGroupId: group._id }).select('facilityId').lean();
+    const facilityIds = facilities.map((f) => f.facilityId);
+
+    if (facilityIds.length > 0) {
+      await FacilityModel.deleteMany({ clientGroupId: group._id });
+      await ComplianceApplicabilityModel.deleteMany({ facilityId: { $in: facilityIds } });
+      await AssessmentModel.deleteMany({ facilityId: { $in: facilityIds } });
+      await DataRequirementModel.deleteMany({ facilityId: { $in: facilityIds } });
+      await RegulatorySubmissionModel.deleteMany({ facilityId: { $in: facilityIds } });
+      await UserModel.updateMany({}, { $pull: { authorizedFacilityIds: { $in: facilityIds } } });
+    }
+
+    // Delete client users belonging to this client group
+    await UserModel.deleteMany({ clientGroupId: group._id, role: 'CLIENT' });
+    await UserModel.updateMany({}, { $pull: { clientGroupIds: group._id } });
+
+    // Delete the client group itself
+    await ClientGroupModel.deleteOne({ _id: group._id });
+
+    return NextResponse.json({
+      success: true,
+      message: `Client company "${group.name}" and its operating units were deleted successfully.`,
+    });
+  } catch (error) {
+    console.error('Client group deletion failed:', error);
+    return NextResponse.json({ error: 'Unable to delete client group.' }, { status: 500 });
+  }
+}

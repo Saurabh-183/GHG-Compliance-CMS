@@ -34,6 +34,39 @@ export async function GET(request: NextRequest) {
       .sort({ createdAt: -1, name: 1 })
       .lean();
 
+    // Auto-clean orphaned client groups (groups with 0 users and 0 facilities that were left behind after user deletion)
+    if (session.role === 'ADMIN' && groups.length > 0) {
+      try {
+        const { MOCK_CLIENT_GROUPS } = await import('@/lib/mockFallback');
+        const mockIds = new Set(MOCK_CLIENT_GROUPS.map((m: any) => String(m._id)));
+        const orphanedIds: any[] = [];
+
+        for (const group of groups) {
+          if (mockIds.has(String(group._id))) continue;
+          const [userCount, facilityCount] = await Promise.all([
+            UserModel.countDocuments({
+              $or: [
+                { clientGroupId: group._id },
+                { clientGroupIds: group._id },
+                { email: group.contactPerson?.email?.toLowerCase?.() },
+              ],
+            }),
+            FacilityModel.countDocuments({ clientGroupId: group._id }),
+          ]);
+          if (userCount === 0 && facilityCount === 0) {
+            orphanedIds.push(group._id);
+          }
+        }
+
+        if (orphanedIds.length > 0) {
+          await ClientGroupModel.deleteMany({ _id: { $in: orphanedIds } });
+          groups = groups.filter((g) => !orphanedIds.some((oid) => String(oid) === String(g._id)));
+        }
+      } catch (cleanErr) {
+        console.warn('Could not auto-clean orphaned client groups:', cleanErr);
+      }
+    }
+
     // Do not seed/reset persistent data from a read or login request.
 
     if (groups.length === 0) return NextResponse.json({ success: true, data: [] });
